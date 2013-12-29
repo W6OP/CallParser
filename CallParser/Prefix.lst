@@ -1,0 +1,1887 @@
+#---------------------------------------------------------------------------------------------------------------------------
+#InternalUse|Longitude|Latitude|Territory|+Prefix|-CQ|-ITU|-Continent|-TZ|-ADIF|-Province|-StartDate|-EndDate|-Mask|-Source|
+#---------------------------------------------------------------------------------------------------------------------------
+-07|||<Unassigned prefix>|00|||||||||##,0@,1[C-Z],4N,Q?,[OX]#,[ACDLPV][01],E[01689],H[015],[JT][019],Z[014-79],Y[01Z],S[14]|1
+-04|7695|2519|Abu Ail Is.|A1|21|39|AS|Asia/Aden|002|||19910330|A1|2
+01|11828|6078|Afghanistan|T6|21|40|AS|Asia/Kabul|003||||YA,T6|1
+-0301|||Unauthorized operation|YA|||||||||YA|
+L01|10539|-2393|Agalega & St. Brandon|3B6|39|53|AF|Indian/Mauritius|004||||3B[67]|2
+M0201|10174|-1859|Agalega||||||||||3B6|4
+M0201|10719|-3024|St. Brandon|3B7|||||||||3B7|4
+01|3582|10835|Aland Is.|OH0|15|18|EU|Europe/Helsinki|005||||O[F-I]0|3
+01|-27604|11534|Alaska|KL|01|01|NA|America/Nome>America/Anchorage|006|AK|||[KANW]L|3
+-0501|||Alaska|K7|||||||||K7|3
+L01|3580|7375|Albania|ZA|15|28|EU|Europe/Tirane|007||||ZA|1
+M0201|3625|7305|Berat;Fier;Gramsh;Korca;Pogradec;Skrapar;Balish;Kucove;Devoll|ZA2|||||||||ZA2|5
+M0201|3565|7485|Dibre;Kruje;Lezhe;Mirdite;Mati;Kurbin;Bulqize|ZA4|||||||||ZA4|5
+M0201|3555|7390|Durres;Elbasan;Librazhde;Lushnje;Tirana;Kavaje;Peqin|ZA1|||||||||ZA1|5
+M0201|3600|7201|Kolonje;Gjirokastra;Permete;Sarande;Mallakaster;Vlora;Delvine|ZA3|||||||||ZA3|5
+M0201|3449|7298|Sazan I.;coastal Is.|ZA0|||||||||ZA0|5
+M0201|3545|7575|Tropoje;Kukes;Puke;Shkoder;Malesi e Madhe;Has|ZA5|||||||||ZA5|5
+-04|8345|-1693|Aldabra|VQ9|39|53|AF|Indian/Mahe|008|||19760628|VQ9|2
+L01|391|4988|Algeria|7X|33|37|AF|Africa/Algiers|400||||7[RT-Y]|1
+-0501|||Algeria|FA|||||||||FA|54
+M0901|545|6618|Algiers|7X2|||||||||??2|4
+M0901|1194|6543|Constantine|7X5|||||||||??5|4
+M0901|660|5848|Ghardaia|7X3|||||||||??3|4
+-0301|||Guest operator|7X0|||||||||??0|4
+M0901|-110|6423|Oran|7X4|||||||||??4|4
+01|-30546|-2542|American Samoa|KH8|32|62|OC|Pacific/Pago_Pago|009|AS|||[KANW]H8|2,4
+-0501|||American Samoa|KS6|||||||||K[HS]6|3
+01|13954|-6816|Amsterdam & St. Paul Is.|FT#Z|39|68|AF|Indian/Kerguelen|010||||FT#Z|2,3
+-0501|||Amsterdam & St. Paul Is.|FB8Z|||||||||FB8Z|26
+01|16681|2099|Andaman & Nicobar Is.|VU4|26|49|AS|Asia/Kolkata|011||||VU4|2
+-0501|||Andaman & Nicobar Is.|VU5|||||||||VU5|54
+01|283|7657|Andorra|C3|14|27|EU|Europe/Andorra|203||||C3|1
+-0501|||Andorra|PX|||||||||PX,7B4|54
+-0301|||Beacon or repeater|C30|||||||||C30|7
+-0301|||HF 1-st class license|C31|||||||||C31|7
+-0301|||Novice HF/VHF license|C33|||||||||C33|7
+-0301|||VHF license|C32|||||||||C32|3
+01|3062|-2329|Angola|D2|36|52|AF|Africa/Luanda|401||||D[23]|1
+-0501|||Angola|CR6|||||||||CR6|54
+01|-11353|3280|Anguilla|VP2E|08|11|NA|America/Anguilla|012||||VP2E|2
+-01|0|-16199|Antarctica|CE9|12;13;29;30;32;38;39|67;69-74|AN|Antarctica/Palmer>Antarctica/McMurdo|013||||C[A-E]9,X[QR]9,3G9,Z[LM]5@,FT#Y,AX0,V[H-NZ]0,Z[R-U]7@,RI1AN,KC4AA[A-F].,KC4US@.,L[2-9O-W]#Z,A[YZ]#Z,VP8,3Y,P[P-Y]0A,P[P-Y]0ZA,Z[V-Z]0A,Z[V-Z]0ZA,IA0,HL8,6[K-N]8,D[7-9ST]8|3,6,7,14
+-0301|||Antarctic Base (Argentina)|LU#Z|||||||||L[2-9O-W]#Z,A[YZ]#Z|3,14
+-0301|||Antarctic Base (Australia)|VK0[A]||||Australia/Hobart|||||AX0,V[H-NZ]0|3,14
+-0301|||Antarctic Base (Chile)|CE9[A]||||America/Santiago|||||C[A-E]9,X[QR]9,3G9|3,14
+0301|||Antarctic Base (France)|FT#Y|||||||||FT#Y|3,14
+-0802|||Antarctic Base (France)|FB8Y|||||||||FB#Y|3,14
+-0301|||Antarctic Base (Italy)|IA0|||||||||IA0|
+-0301|||Antarctic Base (New Zealand)|ZL5|||||||||Z[LM]5@|3,14
+-0301|||Antarctic Base (Norway)|3Y[A]|||||||||3Y|
+-0301|||Antarctic Base (Russia)|RI1AN|||||||||RI1AN|3,14
+-0802|||Antarctic Base (Russia)|4K1|||||||||4K1|6
+-0301|||Antarctic Base (South Africa)|ZS7|||||||||Z[R-U]7@|3,14
+-0301|||Antarctic Base (South Korea)|DT8|||||||||HL8,6[K-N]8,D[7-9ST]8|
+-0301|||Antarctic Base (UK)|VP8[A]|||||||||VP8|
+-0301|||Antarctic Base (USN MARS)|KC4|||||||||KC4AA[A-F].,KC4US@.|3,14
+01|-11126|3118|Antigua & Barbuda|V2|08|11|NA|America/Antigua|094||||V2|1
+L01|-11823|-6397|Argentina|LU|13|14;16|SA|America/Argentina/Mendoza>America/Argentina/Buenos_Aires|100||||A[YZ]##,A[YZ]#[A-Y],L[2-9O-W]##,L[2-9O-W]#[A-Y],L[2-9]@|1,3
+M0201|-11023|-6630|Buenos Aires Prov.|LU#D||14||America/Argentina/Buenos_Aires||D|||??#[A-E]|3
+M0902|-10507|-6231|Buenos Aires|LU#A|||||||||??#[A-C]|3
+M0201|-12060|-5040|Catamarca|LU#R||14||America/Argentina/Catamarca||R|||??#R|3
+M0201|-11005|-4839|Chaco|LU#GA||14||America/Argentina/Cordoba||GA|||??#G[A-O]|3
+M0201|-12530|-7955|Chubut|LU#W||16||America/Argentina/Catamarca||W|||??#W|3
+M0201|-11585|-5892|Cordoba|LU#H||14||America/Argentina/Cordoba||H|||??#H|3
+M0201|-10527|-5216|Corrientes|LU#L||14||America/Argentina/Cordoba||L|||??#L|3
+M0201|-10757|-5814|Entre Rios|LU#J||14||America/Argentina/Cordoba||J|||??#J|3
+M0201|-10840|-4517|Formosa|LU#GP||14||America/Argentina/Cordoba||GP|||??#G[P-Z]|3
+-0301|||General (1KW) or Superior (1.5KW)|LU#@@|||||||||??#@@.|7
+-0301|||Initial category (50W)|AZ|||||||||AZ|7
+M0201|-11856|-4241|Jujuy|LU#T||14||America/Argentina/Jujuy||L|||??#T|3
+M0201|-11857|-6713|La Pampa|LU#U||14||America/Argentina/Cordoba||U|||??#U|3
+M0201|-12125|-5391|La Rioja|LU#S||14||America/Argentina/La_Rioja||S|||??#S|3
+M0201|-12446|-6263|Mendoza|LU#M||14||America/Argentina/Mendoza||M|||??#M|3
+M0201|-9874|-4876|Misiones|LU#I||14||America/Argentina/Cordoba||I|||??#I|3
+M0201|-12685|-6938|Neuquen|LU#Y||14||America/Argentina/Cordoba||Y|||??#Y|3
+M0201|-12460|-7380|Rio Negro|LU#V||16||America/Argentina/Cordoba||V|||??#V|3
+M0201|-11722|-4541|Salta|LU#O||14||America/Argentina/Cordoba||O|||??#O|3
+M0201|-12402|-5625|San Juan|LU#P||14||America/Argentina/San_Juan||P|||??#P|3
+M0201|-11969|-6143|San Luis|LU#Q||14||America/Argentina/Cordoba||Q|||??#Q|3
+M0201|-12791|-8838|Santa Cruz|LU#XA||16||America/Argentina/Rio_Gallegos||XA|||??#X[A-O]|3
+M0201|-11088|-5648|Santa Fe|LU#F||14||America/Argentina/Cordoba||F|||??#F|3
+M0201|-11520|-5040|Santiago del Estero|LU#N||14||America/Argentina/Cordoba||N|||??#N|3
+-0301|||Special event|AY|||||||||L[2-9],L[O-TV],AY|7
+M0201|-12217|-9778|Tierra del Fuego|LU#XP||16||America/Argentina/Ushuaia||XP|||??#X[P-Z]|3
+M0201|-11826|-4880|Tucuman|LU#K||14||America/Argentina/Tucuman||K|||??#K|3
+01|8100|7200|Armenia|EK|21|29|AS|Asia/Yerevan|014||||EK|2
+-0301|||1 or 2 class license|EK#@@|||||||||EK#@@.|
+-0301|||3 or 4 class license|EK#@@@|||||||||EK#@@@.|
+-0501|||Armenia|UG6|||||||||[RU]G,[RU]6G,[RU]K6G|6
+-0301|||Club Station|EK8|||||||||EK8|
+-0301|||Foreign Operator|EK9|||||||||EK9|
+-0301|||Reserved Prefix|EK3|||||||||EK3|
+-0301|||Special Event|EK0|||||||||EK0|
+01|-12598|2253|Aruba|P4|09|11|SA|America/Aruba|091||19860101||P4|2
+-0301|||Contest station|P40|||||||||P40|38
+-0301|||Resident|P43|||||||||P43|38
+-0301|||Resident, special event|P41|||||||||P41|38
+-0301|||Visitor|P49|||||||||P49|38
+01|-2583|-1429|Ascension I.|ZD8|36|66|AF|Atlantic/St_Helena|205||||ZD8|2
+01|30165|-9290|Auckland & Campbell Is.|ZL9|32|60|OC|Pacific/Auckland|016||||Z[LM]9|1,2
+01|-27212|-4009|Austral I.|FO[A]|32|63|OC|Pacific/Tahiti|508||19980401||FO,T[OX]|2,6
+-01|23902|-4520|Australia|VK|29;30|55;58;59|OC|Australia/Perth>Australia/Brisbane|150||||AX[1-8],V[H-NZ][1-8],AX9R,AX9[ABD-KOPQS-VYZ]R,V[H-NZ]9R,V[H-NZ]9[ABD-KOPQS-VYZ]R,AX9[ABD-KOPQS-VYZ].,AX9[ABD-KOPQS-VYZ][ABD-KOPQS-VYZ],V[H-NZ]9[ABD-KOPQS-VYZ].,V[H-NZ]9[ABD-KOPQS-VYZ][ABD-KOPQS-VYZ],AX9#,V[H-NZ]9#|1,2,7,64
+-0301|||Advanced license|VK#@@|||||||||@@#@@.,@@#[A-GIJKOSTUW-Z]@@.|45,7,64
+-0301|||Beacon or repeater|VK#R|||||||||@@#R@@.|45,7,64
+0201|26810|-6395|Capital Territory|VK1|30|59||Australia/Sydney|||||??1|45,7,64
+0201|22245|-2504|External territories|VK9|||||||||@@9R,@@9[ABD-KOPQS-VYZ]R,@@9[ABD-KOPQS-VYZ].,@@9[ABD-KOPQS-VYZ][ABD-KOPQS-VYZ],@@9#|,64
+0202|21377|-3153|Rowley Shoals, OC-230|VK9[R]|29|58||Australia/Perth|||||@@9R,@@9[ABD-KOPQS-VYZ]R|45,7,64
+-0301|||Foundation license|VK#F|||||||||@@#F@@@|45,7,64
+-0301|||Guides Australia|VK#GG@|||||||||??#GG@.|45,7,64
+-0301|||International UN event|VK#IY@|||||||||@@#IY@.|45,7,64
+-0301|||Local event|VI|||||||||VI|45,7,64
+-0301|||National event|AX|||||||||AX|45,7,64
+0201|26279|-5849|New South Wales|VK2|30|59||Australia/Broken_Hill,Australia/Sydney|||||??2|45,7,64
+0201|23823|-3695|Northern Territory|VK8|29|55||Australia/Darwin|||||??8|45,7,64
+-0301|||Official ACA call sign|VK#AA|||||||||??#AA.|45,7,64
+0201|25769|-4235|Queensland|VK4|30|55||Australia/Brisbane,Australia/Lindeman|||||??4|45,7,64
+-0301|||Scout Association|VK#S|||||||||??#S[A-D]@.|45,7,64
+0201|24283|-5446|South Australia|VK5|30|59||Australia/Adelaide|||||??5|45,7,64
+-0301|||Standard license|VK#L|||||||||@@#[HLMNPV]@@.|45,7,64
+0201|26338|-7580|Tasmania|VK7|30|59||Australia/Hobart|||||??7|45,7,64
+0201|25901|-6728|Victoria|VK3|30|59||Australia/Melbourne|||||??3|45,7,64
+0201|21822|-4482|Western Australia|VK6|29|58||Australia/Perth|||||??6|45,7,64
+-0301|||Wireless Institute (WIA)|VK#WI|||||||||@@#WI.,@@#WI@.|45,7,64
+L01|2535|8535|Austria|OE|15|28|EU|Europe/Vienna|206||||OE,4U#VIC|1,3
+M0201|2948|8552|Burgenland|OE4|||||||||OE4|3,25
+-0301|||Club station / repeater / beacon|OE#X|||||||||OE#X|25
+-0301|||Guest operator|OE#Z|||||||||OE#Z|25
+M0301|2920|8663|IARC (Vienna)|4U#VIC|||||||||4U#VIC|3
+M0201|2484|8393|Kaernten|OE8|||||||||OE8|3,25
+M0201|2774|8658|Niederoesterreich|OE3|||||||||OE3|3,25
+M0201|2449|8638|Oberoesterreich|OE5|||||||||OE5|3,25
+M0201|2329|8503|Salzburg|OE2|||||||||OE2|3,25
+-0301|||Special station|OE0|||||||||OE0|25
+M0201|2669|8503|Steiermark|OE6|||||||||OE6|3,25
+M0201|2029|8483|Tirol|OE7|||||||||OE7|3,25
+M0201|1847|8471|Vorarlberg|OE9|||||||||OE9|3,25
+M0201|2938|8703|Wien|OE1|||||||||OE1|3,25
+01|-11454|2772|Aves I.|YV0|08|11|NA|America/Caracas|017||||Y[V-Y]0,4M0|2
+L01|8679|7278|Azerbaijan|4J|21|29|AS|Asia/Baku|018||||4[JK]|2
+-0301|||1 category|4J4@@|||||||||??#@@.|11-13
+-0301|||2;3 category|4J4@@@|||||||||??#@[A-V]@.|11-13
+-0501|||Azerbaijan|UD|||||||||[RU]D,[RU]6[CDKN],[RU]K6[CDKN]|6
+M0901|8938|7251|Baku city|4J4||||||BK|||??[4-9]|11-13
+-0301|||Club Station|4J4@W@|||||||||??#@[W-Z]@|11-13
+M0201|8550|7278|excluding Baku and Nakhichevan|4J3|||||||||??3|11-13
+-0301|||Extra license|4J4@|||||||||??#@.|11-13
+M0201|8180|7055|Nakhichevan|4J2||||||NH|||??2|11-13
+-0301|||Special event|4J0|||||||||??[01]|11-13
+L01|-4975|6974|Azores|CU|14|36|EU|Atlantic/Azores|149||||CU,C[Q-T]8,CQ1,CS4,CR[12]|2
+-0501|||Azores|CT2|||||||||CT2|6
+-0301|||Club station|CQ1|||||||||CQ1,CS4|
+M0201|-5600|7144|Corvo I.|CU9|||||||||CU9|5,7
+M0201|-5165|6942|Faial I.|CU7|||||||||CU7|5,7
+M0201|-5618|7098|Flores I.|CU8|||||||||CU8|5,7
+M0201|-5039|7029|Graciosa I.|CU4|||||||||CU4|5,7
+M0201|-5099|6920|Pico I.|CU6|||||||||CU6|5,7
+M0201|-4514|6656|Santa Maria I.|CU1|||||||||CU1|5,7
+M0201|-5040|6952|Sao Jorge I.|CU5|||||||||CU5|5,7
+M0201|-4588|6802|Sao Miguel I.|CU2|||||||||CU2|5,7
+-0301|||Special event|CQ8|||||||||CQ8,CR[12]|
+M0201|-4897|6967|Terceira I.|CU3|||||||||CU3|5,7
+01|-13677|4327|Bahamas|C6|08|11|NA|America/Nassau|060||||C6|1
+-0501|||Bahamas|VP7|||||||||VP7|54
+01|9098|4686|Bahrain|A9|21|39|AS|Asia/Bahrain|304||||A9|1
+-0501|||Bahrain|MP4B|||||||||MP4B|54
+-04|-14130|2970|Bajo Nuevo|HK0|08|11|NA|America/Bogota|019|||19810916|HK0|2
+01|-31763|39|Baker & Howland Is.|KH1|31|61|OC|Pacific/Pago_Pago|020|UM|||[KANW]H1|2,4
+-0501|||Baker & Howland Is.|KB6|||||||||K[BF]6|54,3
+01|479|7126|Balearic Is.|EA6|14|37|EU|Europe/Madrid|021||||E[A-H][06],A[M-O][06]|1,2
+-0301|||Alternate call for 6 m|EH|||||||||EH|7
+-0301|||Cept class 1||||||||||E[AD]|4,7
+-0301|||Cept class 2|EB6|||||||||E[BE]|4,7
+-0301|||Cept class 3|EC6|||||||||E[CF]|4,7
+-0301|||Special event|ED6|||||||||E[DEFG]|4,7
+01|30527|-156|Banaba I.|T33|31|65|OC|Pacific/Tarawa|490||||T3@,T3[3-9]|1,2
+-0501|||Banaba I.|VR1|||||||||VR1|7
+01|16200|4320|Bangladesh|S2|22|41|AS|Asia/Dhaka|305||||S[23]|1
+01|-10715|2371|Barbados|8P|08|11|NA|America/Barbados|062||||8P|1
+-0501|||Barbados|VP6|||||||||VP6|54
+L01|5059|9637|Belarus|EU|16|29|EU|Europe/Minsk|027||||E[U-W]|2
+-0301|||Beacon/repeater|EV#@R|||||||||EV[1-4678]@R.|11,12,27
+-0501|||Belarus|UC|||||||||[UR]C,UK2[ACILOSW],4[J-L]2[ACILOSW],E[KM-ORU-Z]2[ACILOSW]|6
+M0201|4532|9428|Brestskaya oblast|EU3||||||BR|||??3|11,12,27
+-0301|||Class A and B|EU#@@|||||||||??#@@.|11,12,27
+-0301|||Class C|EU#@@@|||||||||??#@@@.|11,12,27
+-0301|||Club station|EU#W|||||||||??#[WXZ]|11,12,27
+-0301|||Contest station|EV#@|||||||||EV[1-46-8]@.|11,12,27
+M0201|5298|9389|Gomelskaya oblast|EU8||||||HO|||??8|11,12,27
+M0201|4485|9640|Grodnenskaya oblast|EU4||||||HR|||??4|11,12,27
+-0301|||Guest Operator|EU0|||||||||E[UW]0|11,12,27
+-0301|||Lady|EU#Y|||||||||??#Y|11,12,27
+M0901|4921|9637|Minsk City|EU1||||||HM|||??1|11,12,27
+M0201|4897|9736|Minskaya oblast|EU2||||||MI|||??2|11,12,27
+M0201|5448|9661|Mogilyovskaya oblast|EU7||||||MA|||??7|11,12,27
+-0301|||Reserved prefix block|EU9|||||||||??9,EV0|11,12,27
+-0301|||Special event|EU5|||||||||??5|11,12,27
+M0201|5175|9915|Vitebskaya oblast|EU6||||||VI|||??6|11,12,27
+01|803|9090|Belgium|ON|14|27|EU|Europe/Brussels|209||||O[N-T]|1
+-0301|||Guest Operator, 144 MHz|ON9A|||||||||ON9A|37
+-0301|||Guest operator, HF/VHF/UHF|ON9C|||||||||ON9C|37
+-0301|||Guest operator, VHF/UHF|ON9B|||||||||ON9B|37
+-0301|||HF station|ON4|||||||||??[4-8]|37
+-0301|||Novice VHF|ON2|||||||||ON2|37
+-0301|||QRO Contest station|OT|||||||||OT|37
+-0301|||Repeater|ON0|||||||||ON0|37
+-0301|||Special event|OR|||||||||O[RS]|37
+-0301|||VHF station|ON1|||||||||??1|37
+01|-16001|3064|Belize|V3|07|11|NA|America/Belize|066||||V3|1
+01|353|1620|Benin|TY|35|46|AF|Africa/Porto-Novo|416||19600801||TY|2
+01|-11654|5819|Bermuda|VP9|05|11|NA|Atlantic/Bermuda|064||||VP9|2
+-0301|||Novice|VP9N|||||||||VP9N|4
+01|16256|4926|Bhutan|A5|22|41|AS|Asia/Thimphu|306||||A5|1
+-04|13044|-937|Blenheim Reef|1B[B]|39|41|AF|Indian/Chagos|023||19670504|19750630|1B|2
+L01|-11636|-3143|Bolivia|CP|10|12;14|SA|America/La_Paz|104||||CP|1
+M0201|-11834|-2536|Beni|CP8||12|||||||CP8|3
+M0201|-11636|-3654|Chuquisaca|CP2||12|||||||CP2|3
+-0301|||Club or Event station|CP0|||||||||CP0|3
+M0201|-11853|-3124|Cochabamba|CP5||12|||||||CP5|3
+M0201|-12267|-2916|La Paz|CP1||12|||||||CP1|3
+M0201|-12274|-3386|Oruro|CP3||12|||||||CP3|3
+M0201|-12179|-2018|Pando|CP9||12|||||||CP9|3
+M0201|-12090|-3746|Potosi|CP4||12|||||||CP4|3
+M0201|-11137|-3143|Santa Cruz|CP6||12|||||||CP6|3
+M0201|-11541|-3895|Tarija|CP7||12|||||||CP7|3
+01|-12290|2192|Bonaire|PJ4|09|11|SA|America/Curacao|520||20101010||PJ[013489]|4
+-04|-12350|2199|Bonaire,Curacao|PJ2|09|11|SA|America/Curacao|085|||20101010|PJ[0-489]|3
+-0801|-12598|2253|Aruba|PJ3||||||||19851231|PJ3|4
+01|3138|7923|Bosnia-Herzegovina|E7|15|28|EU|Europe/Belgrade|501||19911015||E7|1,2
+-0501|||Bosnia-Herzegovina|T9|||||||||T9|
+01|4238|-3994|Botswana|A2|38|57|AF|Africa/Gaborone|402||||A2,8O|1
+-0501|||Bechuanaland|ZS9|||||||||ZS9|54
+01|612|-9796|Bouvet I.|3Y[B]|38|67|AF|+00:00|024||||3Y|2
+-0301|||Foreign operator|3Y0|||||||||3Y0|7
+-01|-9721|-2076|Brazil|PY|11|12;13;15|SA|America/Eirunepe>America/Sao_Paulo|108||||P[P-Y][1-9],Z[V-Z][1-9],P[P-Y]0[B-EG-LN-QU-Y],Z[V-Z]0[B-EG-LN-QU-Y],P[P-Y]0Z[B-EG-LN-QU-Z],Z[V-Z]0Z[B-EG-LN-QU-Z],Z[V-Z]0#,Z[V-Z]0Z.,P[P-Y]0#,P[P-Y]0Z.|1,3
+-0201|-7442|-3740|Call Area 1|PY1||15||America/Sao_Paulo|||||??1|
+0202|-7351|-3545|Espirito Santo|PP1||||||ES|||PP1,PU1[A-I],PU1Z[A-I]|7,39
+0202|-7778|-4046|Rio de Janeiro|||||||RJ|||PY1,PU1[J-Y],PU1Z[J-Y]|7,39
+-0201|-9034|-4150|Call Area 2|PY2|||||||||??2|
+0202|-8618|-2844|Distrito Federal|PT2||13||America/Sao_Paulo||DF|||PT2,PU2[A-E],PU2Z[A-E]|7,39
+0202|-9111|-2949|Goias|PP2||13||America/Sao_Paulo||GO|||PP2,PU2[FGH],PU2Z[FGH]|7,39
+0202|-8859|-4031|Sao Paulo|||15||America/Sao_Paulo||SP|||PY2,PU2[K-Y],PU2Z[K-Y]|7,39
+0202|-8876|-2016|Tocantins|PQ2||13||America/Araguaina||TO|||PQ2,PU2[IJ],PU2Z[IJ]|7,39
+-0201|-9733|-5452|Call Area 3|PY3|||||||||??3|
+0202|-9642|-5356|Rio Grande do Sul|||15||America/Sao_Paulo||RS|||PY3,PU3[A-Y],PU3Z[A-Y]|7,39
+-0201|-8045|-3475|Call Area 4|PY4|||||||||??4|
+0202|-8093|-3367|Minas Gerais|||15||America/Sao_Paulo||MG|||PY4,PU4[A-Y],PU4Z[A-Y]|7,39
+-0201|-9299|-4632|Call Area 5|PY5|||||||||??5|
+0202|-9355|-4461|Parana|||15||America/Sao_Paulo||PR|||PY5,PU5[M-Y],PU5Z[M-Y]|7,39
+0202|-9160|-4928|Santa Catarina|PP5||15||America/Sao_Paulo||SC|||PP5,PU5[A-L],PU5Z[A-L]|7,39
+-0201|-7008|-2028|Call Area 6|PY6|||||||||??6|
+0202|-7707|-2186|Bahia|||13||America/Bahia||BA|||PY6,PU6[J-Y],PU6Z[J-Y]|7,39
+0202|-6775|-1929|Sergipe|PP6||13||America/Maceio||SE|||PP6,PU6[A-I],PU6Z[A-I]|7,39
+-0201|-6888|-1232|Call Area 7|PY7|||||||||??7|
+0202|-6646|-1770|Alagoas|PP7||13||America/Maceio||AL|||PP7,PU7[A-D],PU7Z[A-D]|7,39
+0202|-7170|-1011|Ceara|PT7||13||America/Fortaleza||CE|||PT7,PU7[M-P],PU7Z[M-P]|7,39
+0202|-6624|-1335|Paraiba|PR7||13||America/Fortaleza||PB|||PR7,PU7[E-H],PU7Z[E-H]|7,39
+0202|-6911|-1541|Pernambuco|||13||America/Recife||PE|||PY7,PU7[R-Y],PU7Z[R-Y]|7,39
+0202|-6606|-1068|Rio Grande do Norte|PS7||13||America/Fortaleza||RN|||PS7,PU7[I-L],PU7Z[I-L]|7,39
+-0201|-10649|-894|Call Area 8|PY8|||||||||??8|
+0202|-12821|-1712|Acre|PT8||12||America/Rio_Branco||AC|||PT8,PU8[JKL],PU8Z[JKL]|7,39
+0202|-9360|216|Amapa|PQ8||13||America/Belem||AP|||PQ8,PU8[GHI],PU8Z[GHI]|7,39
+0202|-11891|-886|Amazonas|PP8||12;13||America/Eirunepe,America/Manaus||AM|||PP8,PU8[ABC],PU8Z[ABC]|7,39
+0202|-8236|-988|Maranhao|PR8||13||America/Fortaleza||MA|||PR8,PU8[MNO],PU8Z[MNO]|7,39
+0202|-9731|-993|Para|||13||America/Porto_Velho,America/Belem||PA|||PY8,PU8[WXY],PU8Z[WXY]|7,39
+0202|-7748|-1384|Piaui|PS8||13||America/Fortaleza||PI|||PS8,PU8[P-S],PU8Z[P-S]|7,39
+0202|-11497|-2048|Rondonia|PW8||12||America/Porto_Velho||RO|||PW8,PU8[DEF],PU8Z[DEF]|7,39
+0202|-11160|360|Roraima|PV8||12;13||America/Boa_Vista||RR|||PV8,PU8[TUV],PU8Z[TUV]|7,39
+-0201|-9757|-3113|Call Area 9|PY9|||||||||??9|
+0202|-10281|-2607|Mato Grosso|||12;13||America/Cuiaba||MT|||PY9,PU9[O-Y],PU9Z[O-Y]|7,39
+0202|-10074|-3796|Mato Grosso do Sul|PT9||15||America/Campo_Grande||MS|||PT9,PU9[A-N],PU9Z[A-N]|7,39
+-0301|||Class C license|PU|||||||||PU,Z[V-Z]#@W@|7,39
+-0301|||Contest or special event|ZV|||||||||Z[V-Z]#,??#@.,PX8,PQ7,P[RS]2,P[P-S]9,PP4,PP3,P[VWX][1-79],P[Q-T][13-6]|7,39
+-0301|||Foreign operator|PY#Z|||||||||??#Z|7,39
+-04|20478|457|British North Borneo|ZC5|28|54|OC|Asia/Kuching|025|||19630915|ZC5|2
+-04|8272|747|British Somaliland|VQ6|37|48|AF|Africa/Mogadishu|026|||19600630|VQ6|2
+01|-11615|3323|British Virgin Is.|VP2V|08|11|NA|America/Tortola|065||||VP2V|2
+01|20630|826|Brunei|V8|28|54|OC|Asia/Brunei|345||||V8|1
+-0501|||Brunei|VS5|||||||||VS5|54
+L01|4540|7667|Bulgaria|LZ|20|28|EU|Europe/Sofia|212||||LZ|1
+M0201|4542|7774|North Bulgaria|LZ2|||||||||LZ[2468]|7
+M0201|4526|7572|South Bulgaria|LZ1|||||||||LZ[13579]|7
+-0301|||Special station|LZ0|||||||||LZ##,LZ[06-9]@@,LZ#@.|7
+01|-360|2160|Burkina Faso|XT|35|46|AF|Africa/Ouagadougou|480||19600816||XT|2
+01|5364|-625|Burundi|9U|36|52|AF|Africa/Bujumbura|404||19620701||9U|2
+01|18859|2243|Cambodia|XU|26|49|AS|Asia/Phnom_Penh|312||||XU|1,7
+01|2101|909|Cameroon|TJ|36|47|AF|Africa/Douala|406||||TJ|1
+-0501|||French Cameroons|FE8|||||||||FE8|4,54
+-01|-18662|10304|Canada|VE|01-05|02-04;09;75|NA|America/Dawson>America/St_Johns|001||||C[F-KZ],V[A-GOXY],X[J-O],4Y,CY[1-8]|1
+0201|-20812|9805|Alberta|VE6|04|02||America/Edmonton||AB|||V[ABCEGX]6,C[FGJK]6,X[KLM]6|44
+0201|-22581|9717|British Columbia|VE7|03|02||America/Vancouver>America/Edmonton||BC|||V[ABCEGX]7,C[FGJK]7,X[KLM]7|44
+M0301|-13628|8172|Government of Canada|VY9|4|4||||ON|||VY9|44
+M0301|-13243|8194|ICAO (Montreal)|4Y|05|04||||QU|||4Y|3
+0201|-11366|9587|Labrador|VO2|02|09||America/Halifax,America/Goose_Bay||NL|||V[DO]2,CH2,X[JN]2|44
+0201|-17817|9875|Manitoba|VE4|04|03||America/Winnipeg||MB|||V[ABCEGX]4,C[FGJK]4,X[KLM]4|44
+0201|-12046|8368|New Brunswick|VE9|05|09||America/Moncton||NB|||V[ABCEGX]9,C[FGJK]9,X[KLM]9|44
+0201|-10203|8716|Newfoundland|VO1|05|09||America/St_Johns||NL|||V[DO]1,CH1,X[JN]1|44
+0201|-21740|11398|North West Territories|VE8|01|02;03||America/Yellowknife||NT|||V[ABCEGX]8,C[FGJK]8,X[KLM]8|44
+0201|-11522|8087|Nova Scotia|VE1|05|09||America/Glace_Bay,America/Halifax||NS|||V[ABCEGX]1,C[FGJK]1,X[KLM]1|44
+0201|-17829|11549|Nunavut|VY0|01;02;04|02;03;04;75||America/Inuvik>America/Pangnirtung||NU|||V[FY]0,X[KO]0,CI0|44
+0201|-15477|8931|Ontario|VE3|04|03;04||America/Rainy_River,America/Toronto||ON|||V[ABCEGX]3,C[FGJK]3,X[KLM]3|44
+0201|-11362|8323|Prince Edward I.|VY2|05|09||America/Halifax||PE|||V[FY]2,X[KO]2,CI2|44
+0201|-13165|9363|Quebec|VE2|02;05|04;09||America/Nipigon,America/Halifax||QC|||V[ABCEGX]2,C[FGJK]2,X[KLM]2|44
+0201|-19288|9665|Saskatchewan|VE5|04|03||America/Edmonton>America/Regina||SK|||V[ABCEGX]5,C[FGJK]5,X[KLM]5|44
+-0301|||Station at sea|VE0|||||||||VE0|44
+0201|-24752|11311|Yukon|VY1|01|02||America/Dawson,America/Whitehorse||YT|||V[FY]1,X[KO]1,CI1|44
+-04|-14313|1663|Canal Zone|KZ5|7|11|NA|America/Panama|028|||19790930|KZ5,K5|2,3
+01|-2927|5125|Canary Is.|EA8|33|36|AF|Atlantic/Canary|029||||E[A-H][08],A[M-O][08]|1,2
+-0301|||Alternate call for 6 m|EH|||||||||EH|7
+-0301|||Cept class 1||||||||||E[AD]|4,7
+-0301|||Cept class 2|EB8|||||||||E[BE]|4,7
+-0301|||Cept class 3|EC8|||||||||E[CF]|4,7
+-0301|||Special event|ED8|||||||||E[DEFG]|4,7
+01|-4354|2855|Cape Verde|D4|35|46|AF|Atlantic/Cape_Verde|409||||D4|1
+-0501|||Cape Verde|CR4|||||||||CR4|54
+L01|-14499|3518|Cayman Is.|ZF|08|11|NA|America/Cayman|069||||ZF|2
+M0201|-14365|3549|Cayman Brac I.|ZF9|||||||||ZF9|18,19
+-0501|||Cayman Is.|VP5|||||||||VP5|54
+M0201|-14629|3476|Grand Cayman I.|ZF1|||||||||ZF1|18,19,6
+M0201|-14410|3542|Little Cayman I.|ZF8|||||||||ZF8|18,19
+-0301|||Visitor|ZF2|||||||||ZF2|18,19
+-04|22516|-224|Celebe & Molucca Is.|PK6|28|54|OC|Asia/Makassar,Asia/Jayapura|030|||19630430|PK6|2
+01|3446|1132|Central Africa|TL|36|47|AF|Africa/Bangui|408||19600813||TL|2
+-0301|||Foreign Operator|TL0|||||||||TL0|5
+01|-31510|-960|Central Kiribati (Phoenix Is.)|T31|31|62|OC|Pacific/Enderbury|031||||T3@,T3[14-9]|1,2
+-0501|||Central Kiribati|VR1|||||||||VR1|7
+01|-961|6459|Ceuta & Melilla|EA9|33|37|AF|Africa/Ceuta|032||||E[A-H][09],A[M-O][09]|1,2
+-0301|||Alternate call for 6 m|EH|||||||||EH|7
+-0301|||Cept class 1||||||||||E[AD]|4,7
+-0301|||Cept class 2|EB9|||||||||E[BE]|4,7
+-0301|||Cept class 3|EC9|||||||||E[CF]|4,7
+-0301|||Special event|ED9|||||||||E[DEFG]|4,7
+01|3197|2629|Chad|TT|36|47|AF|Africa/Ndjamena|410||19600811||TT|2
+01|12960|-1144|Chagos Is.|VQ9|39|41|AF|Indian/Chagos|033||||VQ9|2
+-0501|||Chagos Is.|VQ8|||||||||VQ8|54
+01|-31772|-7924|Chatham Is.|ZL7|32|60|OC|Pacific/Chatham|034||||Z[LM]7|1,2
+01|28474|-3514|Chesterfield Is.|FK[C]|30|56|OC|Pacific/Noumea|512||20000323||FK,T[OX]|2,6
+L01|-12780|-5940|Chile|CE|12|14;16|SA|America/Santiago|112||||3G[1-8],C[A-E][1-8],X[QR][1-8],3G0#,3G0[BCDGHJ-W],C[A-E]0#,C[A-E]0[BCDGHJ-W],X[QR]0#,X[QR]0[BCDGHJ-W],3G@|1,3
+M0201|-13165|-8422|Aisen;Los Lagos (Llanquihue, Isla Chiloe and Palena)|CE7||16|||||||??7|3
+M0201|-12610|-4389|Antofagasta;Atacama;Tarapaca|CE1||14|||||||??1|3
+M0201|-13031|-6708|Bio-Bio|CE5||14|||||||??5|3
+M0201|-12838|-5679|Coquimbo;Valparaiso|CE2||14|||||||??2|3
+M0201|-13076|-7004|La Araucania;Los Lagos (Valdivia and Osorno)|CE6||14|||||||??6|3
+M0201|-12892|-9437|Magallanes|CE8||16|||||||??8|3
+M0201|-12934|-6459|Maule;O'Higgins|CE4||14|||||||??4|3
+M0201|-12786|-6140|Reg. Metr. de Santiago|CE3||14|||||||??3|3
+L01|18476|5918|China|BY|23;24|33;42-44|AS|Asia/Kashgar>Asia/Harbin|318||||B#,B[A-LRTYZ],3[H-U],XS|2,3,7
+-0301|||1st class|BA|||||||||BA|3,7,23
+-0301|||2nd class|BD|||||||||BD|3,7,23
+-0301|||3rd class|BG|||||||||BG|3,7,23
+M0201|20973|5663|An Hui|BY6A|24|44||Asia/Shanghai|||||??6[A-H]|3,7,23
+M0201|20953|7186|Bei Jing|BY1|24|44||Asia/Shanghai|||||??1[A-X]|3,7,23
+-0501|||China|C|||||||||C|54
+M0201|19180|5318|Chong Qing|BY8G|24|43||Asia/Chongqing|||||??8[G-L]|3,7,23
+-0301|||Club station||||||||||BY|3,7,23
+-0301|||Contest station|B#@|||||||||B#@.,B#@@.|3,7,23
+M0201|21240|4680|Fu Jian|BY5Q|24|44||Asia/Shanghai|||||??5[Q-X]|3,7,23
+M0201|18256|6876|Gan Su|BY9G|23|43||Asia/Chongqing|||||??9[G-L]|3,7,23
+M0201|20340|4140|Guang Dong|BY7I|24|44||Asia/Shanghai|||||??7[I-P]|3,7,23
+M0201|19480|4222|Guang Xi|BY7Q|24|43||Asia/Chongqing|||||??7[Q-X]|3,7,23
+M0201|19080|4680|Gui Zhou|BY8M|24|43||Asia/Chongqing|||||??8[M-R]|3,7,23
+M0201|19726|3452|Hainan I., AS-129|BY7Y|24|44||Asia/Chongqing|||||??7[YZ]|3,7,23
+M0201|20363|6061|He Nan|BY6I|24|44||Asia/Shanghai|||||??6[I-P]|3,7,23
+M0201|20700|6840|Hei Bei|BY3M|24|44||Asia/Shanghai|||||??3[M-R]|3,7,23
+M0201|23115|8365|Hei Long Jiang|BY2A|24|33||Asia/Harbin|||||??2[A-H]|3,7,23
+M0201|19980|5580|Hu Bei|BY6Q|24|44||Asia/Chongqing|||||??6[Q-X]|3,7,23
+M0201|19980|5040|Hu Nan|BY7A|24|44||Asia/Chongqing|||||??7[A-H]|3,7,23
+-0301|||IOTA station|BI|||||||||BI|3,7,23
+M0201|22680|7740|Ji Lin|BY2I|24|44||Asia/Shanghai|||||??2[I-P]|3,7,23
+M0201|21527|5832|Jiang Su|BY4Q|24|44||Asia/Shanghai|||||??4[Q-X]|3,7,23
+M0201|20684|4938|Jiang Xi|BY5I|24|44||Asia/Shanghai|||||??5[I-P]|3,7,23
+M0201|22010|7381|Liao Ning|BY2Q|24|44||Asia/Shanghai|||||??2[Q-X]|3,7,23
+M0201|20340|7560|Nei Meng|BY3G|23|44||Asia/Shanghai|||||??3[G-L]|3,7,23
+M0201|19080|6660|Ning Xia|BY9M|23|43||Asia/Chongqing|||||??9[M-R]|3,7,23
+M0201|17280|6300|Qing Hai|BY9S|23|43||Asia/Chongqing|||||??9[S-X]|3,7,23
+-0301|||Repeater|BR|||||||||BR|3,7,23
+-0301|||Reserved prefix block|3H|||||||||3[H-U],XS|3,7,23
+M0201|19580|6325|Shaan Xi|BY9A|24|43||Asia/Chongqing|||||??9[A-F]|3,7,23
+M0201|21060|6480|Shan Dong|BY4I|24|44||Asia/Shanghai|||||??4[I-P]|3,7,23
+M0201|20128|6680|Shan Xi|BY3S|24|44||Asia/Chongqing|||||??3[S-X]|3,7,23
+M0201|21836|5592|Shang Hai|BY4A|24|44||Asia/Shanghai|||||??4[A-H]|3,7,23
+M0201|18349|5383|Si Chuan|BY8A|24|43||Asia/Chongqing|||||??8[A-F]|3,7,23
+-0301|||Special event|BT|||||||||BT,B#@.|3,7,23
+M0201|21079|7012|Tian Jin|BY3A|24|44||Asia/Shanghai|||||??3[A-F]|3,7,23
+M0201|15901|5600|Xi Zang|BY0G|23|42||Asia/Urumqi|||||??0[G-L]|3,7,23
+M0201|15480|7380|Xin Jiang|BY0A|23|42||Asia/Urumqi|||||??0[A-F]|3,7,23
+M0201|18180|4320|Yun Nan|BY8S|24|43||Asia/Chongqing|||||??8[S-X]|3,7,23
+M0201|21600|5220|Zhe Jiang|BY5A|24|44||Asia/Shanghai|||||??5[A-H]|3,7,23
+01|19017|-1890|Christmas Is.|VK9[X]|29|54|OC|Indian/Christmas|035||||AX9X,AX9[ABD-KOPQS-VYZ]X,V[H-NZ]9X,V[H-NZ]9[ABD-KOPQS-VYZ]X,AX9[ABD-KOPQS-VYZ].,AX9[ABD-KOPQS-VYZ][ABD-KOPQS-VYZ],V[H-NZ]9[ABD-KOPQS-VYZ].,V[H-NZ]9[ABD-KOPQS-VYZ][ABD-KOPQS-VYZ],AX9#,V[H-NZ]9#|1,2,7,64
+-0301|||Advanced license|VK9@@|||||||||@@#@@.,@@#[A-GIJKSTUW-Z]@@.|45,7,64
+-0501|||Christmas Is.|ZC3|||||||||ZC3|54
+-0301|||Foundation license|VK9F|||||||||@@#F@@@.|45,7,64
+-0301|||Standard license|VK9L|||||||||@@#[HLMNPV]@@.|45,7,64
+01|-19659|1850|Clipperton I.|FO[C]|07|10|NA|-07:00|036||||FO,T[OX]|2
+01|-15671|997|Cocos I.|TI9|07|12|NA|America/Costa_Rica|037||||T[EI]9|1,2
+01|17436|-2192|Cocos-Keeling Is.|VK9[C]|29|54|OC|Indian/Cocos|038||||AX9C,AX9[ABD-KOPQS-VYZ]C,V[H-NZ]9C,V[H-NZ]9[ABD-KOPQS-VYZ]C,AX9[ABD-KOPQS-VYZ].,AX9[ABD-KOPQS-VYZ][ABD-KOPQS-VYZ],V[H-NZ]9[ABD-KOPQS-VYZ].,V[H-NZ]9[ABD-KOPQS-VYZ][ABD-KOPQS-VYZ],AX9#,V[H-NZ]9#|1,2,7,64
+-0301|||Advanced license|VK9@@|||||||||@@#@@.,@@#[A-GIJKSTUW-Z]@@.|45,7,64
+-0501|||Cocos Is.|VK1|||||||||VK1,ZC2|54
+-0301|||Foundation license|VK9F|||||||||@@#F@@@.|45,7,64
+-0301|||Standard license|VK9L|||||||||@@#[HLMNPV]@@.|45,7,64
+L01|-13204|596|Colombia|HK|09|12|SA|America/Bogota|116||||[5H][JK][1-9],5[JK]@|1,2
+M0201|-12801|52|Amazonas;Guainia;Vaupes|HK9|||||||||??9|5
+M0201|-13792|1164|Antioquia;Choco|HK4|||||||||??4|5
+M0201|-13109|1001|Arauca;Boyaca;Casanare;Santander|HK7|||||||||??7|5
+M0201|-13581|1612|Atlantico;Bolivar;Cordoba;Sucre|HK1|||||||||??1|5
+M0201|-13046|576|Bogota;Cundinamarca;Guaviare;Meta|HK3|||||||||??3|5
+M0201|-13616|651|Caldas;Huila;Quindio;Risaralda;Tolima|HK6|||||||||??6|5
+M0201|-13500|180|Caqueta;Narino;Putumayo|HK8|||||||||??8|5
+M0201|-13856|583|Cauca;Valle del Cauca|HK5|||||||||??5|5
+M0201|-13357|1771|Cesar;La Guajira;Magdalena;Norte de Santander|HK2|||||||||??2|5
+-0301|||Novice|HJ|||||||||HJ|7
+01|7778|-2111|Comoros|D6|39|53|AF|Indian/Comoro|411||19750706||D6|2
+-04|7778|-2111|Comoros|FH|39|53|AF|Indian/Comoro|039|||19750705|FH,FB8|2
+01|2716|-233|Congo|TN|36|52|AF|Africa/Brazzaville|412||19600815||TN|2
+01|31431|-3908|Conway Reef|3D2[C]|32|56|OC|Pacific/Fiji|489||||3D[N-Z],3D#|1,2
+01|1630|7582|Corsica|TK|15|28|EU|Europe/Paris|214||||TK|2
+-0501|||Corsica|FC|||||||||FC|54
+01|-15120|1800|Costa Rica|TI|07|11|NA|America/Costa_Rica|308||||T[EI][0-8]|1,2
+01|-1111|1318|Cote d'Ivoire|TU|35|46|AF|Africa/Abidjan|428||19600807||TU|2
+-0301|||Experimental station|TU3|||||||||TU3|4
+-0301|||HF/VHF license|TU2|||||||||TU[25]|4
+-0301|||Temporary license|TU4|||||||||TU4|4
+-0301|||VHF license|TU1|||||||||TU1|4
+01|4457|6312|Crete|SV9|20|28|EU|Europe/Athens|040||||S[V-Z]9,J49|1,10
+01|2840|8198|Croatia|9A|15|28|EU|Europe/Belgrade|497||19910626||9A?|2
+01|9320|-8352|Crozet I.|FT#W|39|68|AF|Indian/Kerguelen|041||||FT#W|2,3
+-0501|||Crozet I.|FB8W|||||||||FB8W|26
+L01|-14230|3929|Cuba|CO|08|11|NA|America/Havana|070||||C[LMO],T4|1
+-0301|||1-st class, 2000W||||||||||CO|24,7
+-0301|||2-nd class, 500W|CM|||||||||CM|24,7
+-0301|||3-rd class, 50W|CL|||||||||CL|24,7
+M0201|-14099|3835|Ciego de Avila;Camaguey|CO7|||||||||C[LMO]7,CO9[IJK]@@,T47|24,7
+M0901|-14830|4163|Ciudad de la Habana|CO2|||||||||C[LMO]2,CO9B@@,T42|24,7
+-0301|||Club station|CO9|||||||||C[LMO]9@@@.|24,7
+M0201|-13779|3660|Holguin;Granma;Santiago de Cuba;Guantanamo;Las Tunas|CO8|||||||||C[LMO]8,CO9[LMNO]@@,T48|24,7
+M0201|-14912|3902|Isla de la Juventud|CO4|||||||||C[LMO]4,CO9D@@,T44|24,7
+M0201|-14839|4095|La Habana|CO3|||||||||C[LMO]3,CO9C@@,T43|24,7
+M0201|-14659|4065|Matanzas|CO5|||||||||C[LMO]5,CO9E@@,T45|24,7
+M0201|-15066|4037|Pinar del Rio|CO1|||||||||C[LMO]1,CO9A@@,T41|24,7
+M0201|-14390|3967|Santa Clara;Cienfuegos;Sancti Spiritus|CO6|||||||||C[LMO]6,CO9[FGH]@@,T46|24,7
+-0301|||Special event|CO0|||||||||T4,C[LMO]0,C[LMO]9@.,C[LMO]9@@.|24,7
+01|-12420|2197|Curacao|PJ2|09|11|SA|America/Curacao|517||20101010||PJ[0-389]|4,7
+-0301|||Reserved prefix|PJ1|||||||||PJ[01389]|7
+01|5940|6300|Cyprus|5B|20|39|AS|Asia/Nicosia|215||||5B,C4,H2,P3|1
+-0501|||Cyprus|ZC4|||||||||ZC4|54
+01|2750|8939|Czech Rep.|OK|15|28|EU|Europe/Prague|503||19930101||O[KL]|2
+-0301|||Club station|OK#K|||||||||OK[12][KOR]@.,OK[12][KOR]@@.|7
+-0301|||Contest station|OL#@|||||||||OK[1-7]@.,OL#@.|7
+-0301|||Guest operator|OK8|||||||||OK8@@.,OK8@@@.|7
+-0301|||HAREC Class|OK1|||||||||OK[1-7]@@.,OK[1-7]@@@.|
+-0301|||NOVICE Class|OK9|||||||||OK9@@@.|7
+-0301|||Packet or Beacon|OK0|||||||||OK0|7
+-0301|||Special event|OL#@@|||||||||OL#@@.,OL#@@@.|7
+-04|3088|8853|Czechoslovakia|OK|15|28|EU|Europe/Prague|218|||19921231|O[K-M]|2
+-0301|||Club station|OK#O||||||||||7
+-0301|||Contest station|OK6||||||||||7
+-0801|2596|9013|Czech (Bohemia)|OK1|||||||||OK1|7
+-0301|||Experimental station|OK9||||||||||7
+-0301|||Foreign citizen|OK8||||||||||7
+-0301|||Maritime or Aero Mobile station|OK4||||||||||7
+-0801|2990|8856|Moravia|OK2|||||||||OK2|7
+-0301|||Novice class|OL||||||||||7
+-0301|||Prefix not used|OK7||||||||||7
+-0301|||PTT, repeater|OK0||||||||||7
+-0801|3510|8776|Slovakia|OK3|||||||||OK3|7
+-0301|||Special event|OK5||||||||||7
+-0301|||Special station|OM||||||||||7
+-04|13108|3679|Damao;Diu|CR8|22|41|AS|Asia/Kolkata|042|||19611231|CR8|2
+L01|4080|-599|Dem. Rep. of Congo|9Q|36|52|AF|Africa/Kinshasa>Africa/Lubumbashi|414||||9[O-T]|1
+M0201|3253|-818|Bandundu|9Q3||||Africa/Kinshasa|||||??3|3,21
+M0201|2518|-978|Bas Congo|9Q2||||Africa/Kinshasa|||||??2|3,21
+M0201|3563|191|Equateur|9Q4||||Africa/Kinshasa|||||??4|3,21
+M0201|4708|-1687|Katanga|9Q7||||Africa/Lubumbashi|||||??7|3,21
+M0901|2778|-788|Kinshasa|9Q1||||Africa/Kinshasa|||||??1|3,21
+M0201|4830|-466|N. Kivu;S. Kivu;Maniema|9Q6||||Africa/Lubumbashi|||||??6|3,21
+M0201|3803|-998|Occidental Kasai|9Q9||||Africa/Lubumbashi|||||??9|3,21
+M0201|4293|-868|Oriental Kasai|9Q8||||Africa/Lubumbashi|||||??8|3,21
+M0201|4725|368|Province Orientale|9Q5||||Africa/Lubumbashi|||||??5|3,21
+-0301|||Reserved|9Q0|||||||||??0|3,21
+-0501|||Zaire||||||||19711001|19970531||
+01|1647|10082|Denmark|OZ|14|18|EU|Europe/Copenhagen|221||||5[PQ],O[UVZ]|1
+01|-12148|3310|Desecheo I.|KP5|08|11|NA|America/Puerto_Rico|043|PR|19790301||[KNW]P5|3,7
+-0501|||Desecheo I.|KP4|||||||||KP4|3
+-04|9612|-972|Desroches|VQ9|39|53|AF|Indian/Mahe|044|||19760628|VQ9|2
+01|7658|2124|Djibouti|J2|37|48|AF|Africa/Djibouti|382||||J2|1
+01|5030|6511|Dodecanese|SV5|20|28|EU|Europe/Athens|045||||S[V-Z]5,J45|1,10
+01|-11043|2773|Dominica|J7|08|11|NA|America/Dominica|095||||J7|1
+L01|-12719|3406|Dominican Rep.|HI|08|11|NA|America/Santo_Domingo|072||||HI|1
+M0201|-12733|3323|Azua;San Juan;Elias Pina|HI6|||||||||HI6|3
+M0201|-12911|3247|Bahoruco;Barahona;Independencia;Pedernales|HI5|||||||||HI5|3
+-0301|||Club station|HI0|||||||||HI0|3
+M0201|-12794|3523|Dajabon; Montecristi;Valverde|HI4|||||||||HI4|3
+M0201|-12784|3425|Duarte;Espaillat;La Vega;Puerto Plata;Salcedo;Sanchez;Santiago;Santiago|HI3|||||||||HI3|3
+M0201|-12870|3164|Isla Beata|HI1|||||||||HI1|3
+M0201|-12362|3267|Isla Saona;Isla Catalina|HI2|||||||||HI2|3
+M0201|-12478|3369|La Altagracia;La Romana;El Seibo;San Pedro de Macoris|HI7|||||||||HI7|3
+M0201|-12483|3458|Samana; Maria Trinidad Sanchez|HI9|||||||||HI9|3
+M0201|-12580|3326|Santo Domingo;Peravia;San Cristobal|HI8|||||||||HI8|3
+01|-22462|-4438|Ducie I.|VP6[D]|32|63|OC|Pacific/Pitcairn|513||20011116||VP6|2,7
+01|-28388|333|East Kiribati (Line Is.)|T32|31|61;63|OC|Pacific/Kiritimati|048||||T3@,T3[24-9]|1,2
+-0501|||Northern Line Is.|VR3|||||||||VR[37]|3,54
+L01|20538|572|East Malaysia|9M6|28|54|OC|Asia/Kuching|046||19630916||9[MW][135-9],9[MW]@|1,2
+M0201|21024|948|Sabah||||||||||??6|4
+M0201|20230|383|Sarawak|9M8|||||||||??8|4
+01|-19683|-4882|Easter I.|CE0Y|12|63|SA|Pacific/Easter|047||||C[A-E]0[AEFY],X[QR]0[AEFY],3G0[AEFY]|1,3
+L01|-14148|-289|Ecuador|HC|10|12|SA|America/Guayaquil|120||||H[CD][0-79]|1,2
+M0201|-14164|-513|Azuay; Canar;Morona Santiago|HC5|||||||||??5|5
+M0201|-14236|-261|Bolivar;Chimborazo;Cotopaxi;Tungurahua|HC6|||||||||??6|5
+M0201|-14206|-33|Carchi;Imbabura;Pichincha|HC1|||||||||??1|5
+M0201|-14414|-37|Esmeraldas;Manabi|HC4|||||||||??4|5
+M0201|-14410|-369|Guyas;Los Rios|HC2|||||||||??2|5
+M0201|-14314|-710|Loja;El Oro;Zamora Chinchipe|HC3|||||||||??3|5
+M0201|-13874|-278|Napo;Pastaza;Sucumbios|HC7|||||||||??7|5
+L01|5098|4569|Egypt|SU|34|38|AF|Africa/Cairo|478||||SU,6[AB],SS#[A-M]|1
+M0901|5400|5600|Alexandria;Al-Sarai|SU2|||||||||??2|42
+M0901|5605|5400|Cairo;Giza|SU1|||||||||??1|42
+-0301|||Guest operator|SU9|||||||||??9|42
+M0901|5794|5602|Port Said|SU3|||||||||??3|42
+L01|-16002|2468|El Salvador|YS|07|11|NA|America/El_Salvador|074||||YS,HU|1
+-0301|||Club station|YS0|||||||||??0|7
+M0201|-15913|2411|San Miguel;La Union;Usulutan;Morazan|YS3|||||||||??3|7
+M0201|-16068|2511|San Salvador;La Libertad;Cuscatlan;Chalatenango|YS1|||||||||??1|7
+M0201|-16023|2431|San Vicente;Cabanas;La Paz|YS4|||||||||??4|3
+M0201|-16188|2451|Santa Ana;Ahuachapan;Sonsonate|YS2|||||||||??2|7
+-0301|||Unused prefix|YS5|||||||||??[5-9]|7
+01|-280|9500|England|G|14|27|EU|Europe/London|223||||[GM]#,[GM2][ABEFGKLOQRVXY],Z[EHIJNOQ],VP[01347],VQ[0-4678],VS#,ZD[0-6],VP2#,VP2[A-DF-LN-UW-Z]|1,7
+-0301|||Advanced license|2E|||||||||2E|7
+-0301|||Beacon or repeater|GB3|||||||||GB[37]|
+-0301|||Club station|GX|||||||||[GM]X|7
+-0301|||Emergency service|M2|||||||||M2|7
+-0301|||Foundation license|M3|||||||||M3@@@.|7
+-0301|||Full license||||||||||G[0-46-8]@@@.,G[2-68]@@.,M[015]@@@.|7
+-0301|||HF Contest station|M0@|||||||||M#@.|7
+-0301|||Reserved prefix block|G0|||||||||G[0179]@@.,G[59]@@@.,M[246-9],G[1-4678]Q@@.,2E[2-9],M[135]@@.|7
+-0301|||Special station|GB|||||||||GB[0-24-689]|7
+01|1844|260|Equatorial Guinea|3C|36|47|AF|Africa/Malabo|049||||3C[1-9],3C@|1,2
+-0501|||Equatorial Guinea|EA0|||||||||EA0|3
+01|7020|2700|Eritrea|E3|37|48|AF|Africa/Asmara|051||19910524||E3|2
+-0501|||Eritrea|ET2|||||||||ET2,MI3|2,26,3
+L01|4638|10555|Estonia|ES|15|29|EU|Europe/Tallinn|052||||ES|2
+-0501|||Estonia|UR|||||||||[UR]R,U2[RT],UK2[RT]|6
+M0201|4506|10677|Harjumaa|ES2|||||||||ES2|11,12,7
+M0201|4059|10545|Hiiumaa;Saaremaa|ES0|||||||||ES0|11,12,7
+M0201|4434|10602|Jarvamaa;Raplamaa;Laanemaa|ES3|||||||||ES3|11,12,7
+M0201|4791|10536|Jogevamaa;Tartumaa|ES5|||||||||ES5|11,12,7
+M0201|4776|10641|Laane-Virumaa;Ida-Virumaa|ES4|||||||||ES4|11,12,7
+M0201|4380|10521|Parnumaa|ES8|||||||||ES8|11,12,7
+M0201|4833|10422|Polvamaa;Vorumaa;Valgamaa|ES6|||||||||ES6|11,12,7
+-0301|||Special station|ES9|||||||||ES9|11,12
+M0901|4446|10692|Tallinn|ES1|||||||||ES1|11,12,7
+M0201|4566|10506|Viljandimaa|ES7|||||||||ES7|11,12,7
+01|7020|1620|Ethiopia|ET|37|48|AF|Africa/Addis_Ababa|053||||ET,9[EF]|1
+01|-10679|-9324|Falkland Is.|VP8[F]|13|16|SA|Atlantic/Stanley|141||||VP8|5
+01|-1219|11164|Faroe Is.|OY|14|18|EU|Atlantic/Faroe|222||||O[WY]|2
+-04|9212|-1832|Farquhar|VQ9|39|53|AF|Indian/Mahe|055|||19760628|VQ9|2
+01|1758|9138|Fed. Rep. of Germany|DL|14|28|EU|Europe/Berlin|230||19901003||D[A-R],Y[2-9]|1,2,53
+-0301|||Army-Guest|DN9|||||||||DN9|3,7,25
+-0301|||Class 1 (HF/VHF)|DF|||||||||D[FHJKL]|3,7,25
+-0301|||Class 2 (VHF)|DC|||||||||D[CDG]|3,7,25
+-0301|||Class 3 (QRP VHF)|DO|||||||||DO|3,7,25
+-0301|||Club or special station|DA0|||||||||D[A-DF-HJ-MOP]0|7
+-0301|||Club station|DF0|||||||||D[FJKL]0|3,7,25
+-0301|||Club, repeater|DM0|||||||||D[JFK-M]0|7
+-0301|||Experimental station|DA5|||||||||DA5|7
+-0301|||Experimental station|DI|||||||||DI|3,7,25
+-0301|||Exterritorial station|DP|||||||||DP|3,7,25
+-0501|||Fed. Rep. of Germany||||||||19730917|19901002|D[A-LNOQR],DP[1-9]|6
+-0301|||Foreigner|DA1|||||||||DA[1-4]|3,7,25
+-0301|||Former G.D.R. station|Y2|||||||||Y[2-9]@@@.,DM|7
+-0301|||Instructional Station|DN1|||||||||DN[1-8]|3,7,25
+-0301|||Personal station|DL1|||||||||D[B-DF-HJ-MOP][1-9]|7
+-0301|||Special station|DQ|||||||||D[QR]|3,7,25
+-0301|||SWL|DE|||||||||DE|3,7,25
+01|-5835|-695|Fernando de Noronha|PY0F|11|13|SA|America/Noronha|056||||P[P-Y]0[FR],Z[V-Z]0[FR],P[P-Y]0Z[FR],Z[V-Z]0Z[FR]|1,3
+M0201|-6088|-695|Atol das Rocas|PY0R|||||||||??#R,??#ZR|3
+-0301|||Guest operator|PY0Z|||||||||??#Z|3
+01|32360|-3262|Fiji|3D2|32|56|OC|Pacific/Fiji|176||||3D[N-Z],3D#|2,3
+-0501|||Fiji|VR2|||||||||VR2|54
+L01|4796|11633|Finland|OH|15|18|EU|Europe/Helsinki|224||||O[F-J][1-9]|1,2
+M0201|4328|10999|Haeme|OH3|||||||||??3|3
+M0201|5163|11355|Kuopio;Pohjois-Karjala|OH7|||||||||??7|3
+M0201|4960|10961|Kymi|OH5|||||||||??5|3
+M0201|4756|12169|Lappland|OH9|||||||||??9|3
+M0201|4950|11119|Mikkeli|OH4|||||||||??4|3
+M0201|4921|11665|Oulu|OH8|||||||||??8|3
+M0201|4029|11003|Turku-Pori|OH1|||||||||??1|3
+M0201|4459|10870|Uudenmaa|OH2|||||||||??2|3
+M0201|4375|11310|Vaasa;Keski-Suomi|OH6|||||||||??6|3
+01|425|8402|France|F|14|27|EU|Europe/Paris|227||||F#,F[A-FILNQUVXZ],H[WXY],T[HMPQVW],FT#[A-DFHIK-SUV],FT##|1,2,3
+-0301|||Beacon|F#X|||||||||??#X.|3
+-0301|||Classe 1 (CEPT A)|F5|||||||||??[568]|3
+-0301|||Classe 2 (CEPT B)|F1|||||||||??[14]|3
+-0301|||Classe 3|F0|||||||||??0|3
+-0301|||Club, continental|TM#K@@|||||||||??#K@@.|3
+M0301|1399|8739|EC (Strassbourg)|TP|||||||||TP|3
+-0301|||Repeater|F#Y|||||||||??#[YZ]|3
+-0301|||Reserved prefix|F2|||||||||??[2379]|3
+-0301|||Satellite|FX|||||||||FX|3
+-0301|||Special call, continental|TM|||||||||TM|3
+-0301|||Visitor|F#V@@|||||||||??#[VW]@@.|3
+01|9559|14474|Franz Josef Land|RI1FJ|40|75|EU|Europe/Moscow|061||||RI1FJ|2
+-0501|||Franz Josef Land|4K2|||||||||4K2|26
+-04|3250|906|French Equatorial Africa|FQ8|36|47;52|AF|Africa/Bangui|057|||19600816|FQ8|2
+01|-9613|687|French Guiana|FY|09|12|SA|America/Cayenne|063||||FY,T[OX]|1
+-04|14369|2149|French India|FN8|22|41|AS|Asia/Kolkata|067|||19541031|FN8|2
+-04|19282|2019|French Indo-China|FI8|26|49|AS|Asia/Ho_Chi_Minh,Asia/Phnom_Penh|058|||19501220|FI8|2
+01|-26924|-3154|French Polynesia|FO[P]|32|63|OC|Pacific/Tahiti,Pacific/Gambier|175||||FO,T[OX]|2
+-04|-2730|2630|French West Africa|FF|35|46|AF|Africa/Dakar|059|||19600806|FF|2
+01|2054|-117|Gabon|TR|36|52|AF|Africa/Libreville|420||19600817||TR|2
+01|-16312|-137|Galapagos Is.|HC8|10|12|SA|Pacific/Galapagos|071||||H[CD]8|1,2
+01|7759|7543|Georgia|4L|21|29|AS|Asia/Tbilisi|075||||4L|2
+M0201|7380|7740|Abkhasia|4L#V||||||AB|||??#[V-X]|11-13
+M0201|7513|7499|Adsharia|4L#Q||||||AD|||??#[Q-S]|11-13
+-0301|||Extra class license|4L#@|||||||||4L#@.|
+-0501|||Georgia|UF|||||||||[RU]F,[RU]6[FOQV],[RU]K6[FOQV]|6
+-04|2211|9276|German Democratic Rep.|DM|14|28|EU|Europe/Berlin|229||19730917|19901002|D[MT],Y[2-9]|2,53
+-04|1490|9138|Germany|DL|14|28|EU|Europe/Berlin|081|||19730916|D[A-R],Y[2-9]|2,53
+-04|8316|-2196|Geyser Reef|1B[G]|39|53|AF|Indian/Mayotte|093||19670504|19780228|1B|2
+01|-281|1462|Ghana|9G|35|46|AF|Africa/Accra|424||19570305||9G|2
+01|-961|6501|Gibraltar|ZB2|14|37|EU|Europe/Gibraltar|233||||Z[BG]|5
+01|8512|-2081|Glorioso Is.|FT#G|39|53|AF|Indian/Reunion|099||19600625||FT#G|2
+-04|13298|2784|Goa|CR8|22|41|AS|Asia/Kolkata|101|||19611231|CR8|2
+-04|-281|1360|Gold Coast;Togoland|ZD4|35|46|AF|Africa/Accra|102|||19570305|ZD4|2
+L01|3886|7109|Greece|SV|20|28|EU|Europe/Athens|236||||S[V-Z][0-46-8],J4[0-46-8],J4@|1,10
+M0201|3705|7091|Epirus|SV6|||||||||??6|10
+-0301|||Guest operator|SV0|||||||||SV0|10
+M0201|4517|6757|Ionian and Aegen Sea  Is.|SV8|||||||||??8|10
+M0201|3995|7300|Makedonia|SV2|||||||||??2|10
+M0201|3973|6726|Pelloponisos|SV3|||||||||??3|10
+-0301|||Special event|SY|||||||||SY|
+M0201|3967|6956|Sterea Ellada|SV1|||||||||??1|10
+M0201|3945|7086|Thessalia|SV4|||||||||??4|10
+M0201|4482|7398|Thrakia|SV7|||||||||??7|10
+01|-8285|12918|Greenland|OX|40|05;75|NA|America/Thule>America/Danmarkshavn|237||||OX,XP|2,4
+-0801|||U.S. personnel|KG1|||||||||KG1,XP1|3
+-0301|||U.S. personnel|OX5|||||||||OX5|4
+01|-11103|2178|Grenada|J3|08|11|NA|America/Grenada|077||||J3|1
+01|-11076|2930|Guadeloupe I.|FG|08|11|NA|America/Guadeloupe|079||||FG,T[OX]|1
+01|26061|2424|Guam|KH2|27|64|OC|Pacific/Guam|103|GU|||[AKNW]H2|2,4
+-0501|||Guam|KG6|||||||||[KW]G6,KB6|3
+01|-13525|3586|Guantanamo Bay|KG4|08|11|NA|America/New_York|105||||KG4@@.|2,3
+-0501|||Guantanamo Bay|NY4|||||||||NY4|3
+L01|-16273|2806|Guatemala|TG|07|11|NA|America/Guatemala|076||||T[DG]|1
+M0201|-16205|2893|Alta Verapaz;Izabal;Peten|TG7|||||||||??7|5
+M0201|-16306|2646|Baja Verapaz;Guatemala City;Jalapa;El Progreso;Sacatepequez|TG9|||||||||??9|5
+M0201|-16436|2551|Chimaltenango;Escuintia;Santa Rosa;Solola;Suchitepequez|TG4|||||||||??4|5
+M0201|-16137|2613|Chiquimula;Jutiapa;Zacapa|TG6|||||||||??6|5
+M0201|-16450|2762|Huehuetenango;Quiche;Totonicapan|TG5|||||||||??5|5
+M0201|-16571|2661|Quezaltenango;Retalhuleu;San Marcos|TG8|||||||||??8|5
+-0301|||Special station|TG0|||||||||??0|5
+01|-461|8905|Guernsey|GU|14|27|EU|Europe/London|106||||[GM2][UP],GB|1,7
+-0301|||Advanced license|2U|||||||||2U|7
+-0301|||Beacon or repeater|GB3|||||||||GB[37]|7
+-0501|||Channel Is.|GC|||||||||GC|3,54
+-0301|||Club station|GP|||||||||[GM]P|7
+-0301|||Foundation license|MU3|||||||||MU3@@@.|7
+-0301|||Full license|GU0|||||||||GU,MU[015]@@@.|7
+-0301|||HF Contest station|MU0@|||||||||MU#@.|7
+-0301|||Special station|GB0|||||||||GB[0-24-689]|7
+01|-1930|1877|Guinea|3X|35|46|AF|Africa/Conakry|107||||3X?|1
+01|-2695|2165|Guinea-Bissau|J5|35|46|AF|Africa/Bissau|109||||J5|1
+-0501|||Guinea-Bissau|CR3|||||||||CR3|3
+L01|-10661|824|Guyana|8R|09|12|SA|America/Guyana|129||||8R|1
+M0201|-10528|960|Demerara-Mahaica;West Demerara, Upper;Demerara-Berbice|8R1|||||||||8R1|5
+M0201|-10401|466|East Berbice-Corentyne;Mahaica-Berbice|8R2|||||||||8R2|5
+M0201|-10662|496|Pomeroom-Supenaam;Essequibo Islands;Cuyuni-Mazaruni;Potaro-Siparuni;Barima-Waini;Upper Takutu-Upper Essequibo|8R3|||||||||8R3|5
+01|-13045|3409|Haiti|HH|08|11|NA|America/Port-au-Prince|078||||4V,HH|1
+01|-28411|3839|Hawaii|KH6|31|61|OC|Pacific/Honolulu|110|HI|||[KANW]H6,[KANW]H7[A-JL-Z],[KANW]H7#|1,2
+-0501|||Hawaii|K6|||||||||K6|3
+01|13231|-9561|Heard I.|VK0[H]|39|68|AF|+05:00|111||||AX0,V[H-NZ]0|1,2,7,64
+L01|-15639|2638|Honduras|HR|07|11|NA|America/Tegucigalpa|080||||H[QR]|1
+M0201|-15517|2818|Atlantida;Colon|HR3|||||||||??3|
+M0201|-15725|2386|Choluteca;Valle|HR4|||||||||??4|3
+M0201|-15643|2548|Comayagua;El Paraiso;F.Morazan|HR1|||||||||??1|3
+M0201|-15957|2706|Copan;Lempira;Santa Barbara|HR5|||||||||??5|3
+M0201|-15800|2725|Cortez;Yoro|HR2|||||||||??2|3
+-0301|||Guest operator|HR0|||||||||??0|3
+M0201|-15877|2566|Intibuca;La Paz|HR7|||||||||??7|
+M0201|-15565|2948|Islas de la Bahia|HR9|||||||||??9|3
+M0201|-15990|2609|Ocotepeque;Lempira|HR6|||||||||??6|
+M0201|-15408|2670|Olancho;Gracias a Dios|HR8|||||||||??8|3
+01|20540|4029|Hong Kong|VR2|24|44|AS|Asia/Hong_Kong|321||||VR#|3,7
+L01|3441|8490|Hungary|HA|15|28|EU|Europe/Budapest|239||||H[AG]|1
+M0201|3574|8343|Bacs-Kiskun;Bekes;Csongrad;Szeged|HA8|||||||||??8|5,30
+M0201|3209|8313|Baranya;Somogy;Tolna|HA3|||||||||??3|5,30
+M0201|3739|8652|Borsod-Abauj-Zemplen|HA9|||||||||??9|5,30
+M0901|3439|8543|Budapest|HA5|||||||||??5|5,30
+-0301|||Club station|HA#K|||||||||??#K@@.|4
+M0201|3299|8478|Fejer|HA4|||||||||??4|5,30
+M0201|2989|8478|Gyor-Moson-Sopron;Vas;Zala|HA1|||||||||??1|5,30
+M0201|3854|8553|Hajdu-Bihar;Szabolcs-Szatmar-Bereg|HA0|||||||||??0|5,30
+M0201|3584|8597|Heves;Nograd|HA6|||||||||??6|5,30
+M0201|3154|8483|Komarom-Esztergom;Veszprem|HA2|||||||||??2|5,30
+M0201|3569|8488|Pest;Jasz-Nagykun-Szolnok|HA7|||||||||??7|5,30
+-0301|||VHF only|HG|||||||||HG|4,7
+-0301|||Youth Club station|HA#Y|||||||||??#Y@@.|4
+L01|-3336|11648|Iceland|TF|40|17|EU|Atlantic/Reykjavik|242||||TF|1
+M0201|-4000|11660|Akranes;Borgarnes;Olafsvik;Stykkisholmur|TF2|||||||||TF2|3,7
+M0201|-4070|11830|Bolungarvik;Isafjoerdur;Holmavik|TF4|||||||||TF4|3,7
+M0201|-3303|11615|Central uninhabited Iceland|TF0|||||||||TF0|3,7
+M0201|-4008|11514|Grindavik;Keflavik;Gardur|TF8|||||||||TF8|3,7
+M0201|-3583|11774|Hvammstangi;Bloenduos;Saudarkrokur|TF9|||||||||TF9|3,7
+M0201|-3600|11510|Hveragerdi;Selfoss;Arborg;Hella;Vik|TF1|||||||||TF1|3,7
+M0201|-3133|11809|Olafsfjoerdur;Dalvik;Akureyri;Husavik|TF5|||||||||TF5|3,7
+M0201|-3883|11569|Reykjavik;Kopavogur;Gardabaer;Hafnarfjoerdur|TF3|||||||||TF3|3,7
+M0201|-3560|11400|Vestmannaeyjar|TF7|||||||||TF7|3,7
+M0201|-2753|11689|Vopnafjoerdur;Seydisfjoerdur;Djupivogur;Hoefn|TF6|||||||||TF6|3,7
+-04|-1928|5198|Ifni|EA9|33|37|AF|Africa/Casablanca|113|||19690513|EA9|2
+01|13870|3742|India|VU|22|41|AS|Asia/Kolkata|324||||V[TVW],VU[0-35689],[A8][T-W],8[XY]|1,2
+-0301|||Grade 1, Advanced class|VU2|||||||||VU2|7
+-0301|||Grade 2, Restricted class|VU3|||||||||VU3|7
+-0301|||Special event|AT|||||||||AT|7
+L01|21169|-626|Indonesia|YB|28|51;54|OC|Asia/Jakarta>Asia/Jayapura|327||19630501||[78][A-I],JZ,P[K-O],Y[B-H]|2
+-0301|||Advanced Class||||||||||Y[BE]|47,48,7
+M0201|20697|-1515|Bali|YB9A||54||Asia/Makassar|||||Y@9[A-F],Y@9Z[A-F]|47,48,7
+M0201|19154|-464|Bangka Belitung|YE4F||54||Asia/Jakarta|||||Y[E-H]4[F-L],Y[E-H]4Z[F-L]|
+M0201|19051|-1190|Banten|YB1R||54||Asia/Jakarta|||||Y@1[R-Y]@,Y@1[R-Z].,Y@1Z[R-Z]|
+M0201|18404|-687|Bengkulu|YB4M||54||Asia/Jakarta|||||Y@4[M-R]@.,Y@4[M-PR]@@,Y@4[M-R].,Y@4Z[M-R]|47,48,7
+M0201|19728|-1318|Central Java|YB2A||54||Asia/Jakarta|||||Y@2[A-T]@.,Y@2[A-PR-T]@@,Y@2[A-T].,Y@2Z[A-T]|47,48,7
+M0201|20383|-283|Central Kalimantan|YB7O||54||Asia/Pontianak|||||Y@7[O-T]@.,Y@7[O-PR-T]@@,Y@7[O-T].,Y@7Z[O-T]|47,48,7
+M0201|21705|-321|Central Sulawesi|YB8M||54||Asia/Makassar|||||Y@8[M-P],Y@8Z[M-P]|47,48,7
+-0301|||Club or special event|YB#Z|||||||||Y@#@.,Y@#Z@|47,48,7
+M0201|19855|-1427|DI Yogyakarta|YB2U||54||Asia/Jakarta|||||Y@2[U-Y]@,Y@2[U-Z].,Y@2Z[U-Z]|47,48,7
+M0201|19230|-1106|DKI Jakarta|YB0||54||Asia/Jakarta|||||Y@0[A-Y]@.,Y@0[A-PR-Y]@@,Y@0@.,Y@0Z@|47,48,7
+M0201|20193|-1438|East Java|YB3||54||Asia/Jakarta|||||Y@3[A-Y]@.,Y@3[A-PR-Y]@@,Y@3@.,Y@3Z@|47,48,7
+M0201|20881|241|East Kalimantan|YB7U||54||Asia/Makassar|||||Y@7[U-Y]@,Y@7[U-Z].,Y@7Z[U-Z]|47,48,7
+M0201|21953|-1563|East Nusatenggara|YB9L||54||Asia/Makassar|||||Y@9[L-P],Y@9Z[L-P]|47,48,7
+-0801|22625|-1591|East Timor|YB9U||54||Asia/Makassar||||20000228||2,47,48,7
+-0301|||General Class|YC|||||||||Y[CF]|47,48,7
+M0201|21962|101|Gorontalo|YE8Q||54||Asia/Makassar|||||Y[E-H]8[Q-U]@.,Y[E-H]8[R-U]@@,Y[E-H]8[Q-U].,Y[E-H]8Z[Q-U]|
+M0201|18412|-331|Jambi|YB4A||54||Asia/Jakarta|||||Y@4[A-E],Y@4Z[A-E]|47,48,7
+M0201|18848|-912|Lampung|YB4R||54||Asia/Jakarta|||||Y@4[S-Y]@,Y@4[S-Z].,Y@4Z[S-Z]|47,48,7
+M0201|23002|-710|Maluku|YB8V||||Asia/Jayapura|||||Y[B-DH]8[V-Y]@,Y[B-DH]8[V-Z].,Y[B-DH]8Z[V-Z]|47,48,7
+M0201|17378|754|Nanggroe Aceh Darussalam|YB6A||54||Asia/Jakarta|||||Y@6[A-G],Y@6Z[A-G]|47,48,7
+-0301|||No Code Class|YH|||||||||YH|47,48,7
+M0201|22895|-140|North Maluku|YE8V||54||Asia/Jayapura|||||Y[E-H]8[V-Y]@,Y[E-H]8[V-Z].,Y[E-H]8Z[V-Z]|
+M0201|22184|93|North Sulawesi|YB8Q||54||Asia/Makassar|||||Y[BCDH]8[Q-U]@.,Y[BCDH]8[R-U]@@,Y[BCDH]8[Q-U].,Y[BCDH]8Z[Q-U]|47,48,7
+M0201|17750|387|North Sumatera|YB6H||54||Asia/Jakarta|||||Y@6[H-Y]@.,Y@6[H-PR-Y]@@,Y@6[H-Z].,Y@6Z[H-Z]|47,48,7
+-0301|||Novice Class|YD|||||||||Y[DG]|47,48,7
+M0201|24908|-751|Papua|YB9Q||51||Asia/Jayapura|||||Y@9[Q-Y]@.,Y@9[R-Y]@@,Y@9[Q-Z].,Y@9Z[Q-Z]|47,48,7
+M0201|18258|64|Riau|YB5N||54||Asia/Jakarta|||||Y@5[N-Y]@.,Y@5[N-PR-Y]@@,Y@5[N-Z].,Y@5Z[N-Z]|47,48,7
+M0201|21858|-677|South East Sulawesi|YB8I||54||Asia/Makassar|||||Y@8[I-L],Y@8Z[I-L]|47,48,7
+M0201|20684|-574|South Kalimantan|YB7H||54||Asia/Makassar|||||Y@7[H-N],Y@7Z[H-N]|47,48,7
+M0201|21498|-572|South Sulawesi|YB8A||54||Asia/Makassar|||||Y@8[A-H],Y@8Z[A-H]|47,48,7
+M0201|18622|-614|South Sumatera|YB4F||54||Asia/Jakarta|||||Y[BCDH]4[F-L],Y[BCDH]4Z[F-L]|47,48,7
+M0201|19288|-1273|West Java|YB1A||54||Asia/Jakarta|||||Y@1[A-Q]@.,Y@1[A-P]@@,Y@1[A-Q].,Y@1Z[A-Q]|47,48,7
+M0201|19955|-25|West Kalimantan|YB7A||54||Asia/Pontianak|||||Y@7[A-G],Y@7Z[A-G]|47,48,7
+M0201|21198|-1575|West Nusatenggara|YB9G||54||Asia/Makassar|||||Y@9[G-K],Y@9Z[G-K]|47,48,7
+M0201|18057|-161|West Sumatera|YB5A||54||Asia/Jakarta|||||Y@5[A-M],Y@5Z[A-M]|47,48,7
+01|9820|5773|Iran|EP|21|40|AS|Asia/Tehran|330||||E[PQ],9[B-D]|1
+01|7790|5924|Iraq|YI|21|39|AS|Asia/Baghdad|333||||YI,HN|1
+L01|-1557|9592|Ireland|EI|14|27|EU|Europe/Dublin|245||||E[IJ]|1
+-0301|||Class A|EI#@@|||||||||E[IJ]#@@.|4
+-0301|||Class B|EI#@@@|||||||||E[IJ]#@@@.|4
+M0201|-1391|9592|Mainland||||||||||EI|4
+M0201|-1653|9828|Offshore islands|EJ|||||||||EJ|4
+-0301|||Visitor|EI#@V|||||||||??#@@V.,??#@V.|4
+01|-818|9757|Isle of Man|GD|14|27|EU|Europe/London|114||||[GM2][DT],GB|1,7
+-0301|||Advanced license|2D|||||||||2D|7
+-0301|||Beacon or repeater|GB3|||||||||GB[37]|7
+-0301|||Club station|GT|||||||||[GM]T|7
+-0301|||Foundation license|MD3|||||||||MD3@@@.|7
+-0301|||Full license||||||||||GD,MD[015]@@@.|7
+-0301|||HF Contest station|MD0@|||||||||MD#@.|7
+-0301|||Special station|GB0|||||||||GB[0-24-689]|7
+01|6257|5707|Israel|4Z|20|39|AS|Asia/Jerusalem|336||||4[XZ]|1
+-0301|||Class A|4Z1|||||||||4[XZ]1@@.|7
+-0301|||Class B|4Z4|||||||||4[XZ]4@@.,4X6@@.,4Z5@@.|7
+-0301|||Class C|4Z9|||||||||4Z9@@@.|7
+-0301|||Class D|4Z7|||||||||4Z7@@@.|7
+-0301|||Contest call|4Z2|||||||||4[XZ]2@@.|7
+-0301|||Foreign operator|4Z8|||||||||4Z8|7
+-0301|||Honor call|4X8|||||||||4X8@@.|7
+-04|8134|651|Italian Somaliland|I5|37|48|AF|Africa/Mogadishu|115|||19600630|I5|2
+L01|2442|7511|Italy|I|15;33|28;37|EU;AF|Europe/Rome|248||||I#,I@[1-9],I[B-LN-RT-VXYZ]0,IW0[A-T],IW0#|1,2,7
+M0201|2445|7660|Abruzzo;Marche|I6|15||EU||||||I6,I@6|5,7,31-33
+M0201|2755|7302|Calabria;Campania;Molise;Basilicata (Potenza)|I8|15||EU||||||I8,I@8|5,7,31-33
+M0202|2771|7092|Islands of Calabria Region|ID8|||||||||ID8|7
+M0202|2558|7299|Islands of Campania Region|IC8|||||||||IC8,IL8|5,7,31-33
+-0301|||Club station|IQ|||EU||||||IQ|7
+M0201|1930|8011|Emilia-Romagna|I4|15||EU||||||I4,I@4|5,7,31-33
+M0202|2244|8007|Emilia Romagna's Is.|IL4|||||||||IL4|7
+M0201|2340|8280|Friuli Venezia Giulia|IV3|15||EU||||||I[A-JMO-VXY]3,IW3[Q-Z]|5,7,31-33
+M0201|2162|7588|Lazio;Umbria|I0|15||EU||||||I0,I[B-LN-RTUVXYZ]0,IW0[A-T],IW0#|5,7,31-33
+M0202|2333|7362|Islands of Lazio Region|IB0|||||||||IB0|5,7,31-33
+M0201|1440|8100|Liguria;Piemonte|I1|15||EU||||||I1,I[A-WYZ]1|5,7,31-33
+M0202|1495|7917|Ligurian Is.|IP1|||||||||IP1|5,7,31-33
+M0201|1697|8187|Lombardia|I2|15||EU||||||I2,I@2|5,7,31-33
+M0201|2160|6624|Pantelleria I.|IH9|33|37|AF||||||I[ABCHIL-SU-Y]9|5,7,31-33
+M0201|2266|6394|Pelagie Is.|IG9|33|37|AF||||||I[ABCGIL-SU-Y]9|5,7,31-33
+M0201|2956|7397|Puglia;Basilicata (Matera)|I7|15||EU||||||I7,I@7|5,7,31-33
+M0202|3141|7382|Pugliese Ionian Is.|IJ7|||||||||IJ7|5,7,31-33
+M0202|2833|7601|Tremiti islands|IL7|||||||||IL7|5,7,31-33
+M0201|2559|6765|Sicily|IT9|15||EU||||||I[A-FIJL-Y]9|5,7,31-33
+M0202|2170|6834|Egadi Is.|IF9|||||||||IF9|5,7,31-33
+M0202|2688|6927|Eolie's Is.|ID9|||||||||ID9|5,7,31-33
+M0202|2762|6667|Sicilian Ionian Is.|IJ9|||||||||IJ9|5,7,31-33
+M0202|2369|6964|Ustica I.|IE9|||||||||IE9|5,7,31-33
+-0301|||Special event|II|||EU||||||I[IJO-RUY],IA[0-46-9],IB[1-9],I[C-HL][0-79],I[NV][0-24-9],IX[02-9],I@#@.|3,7
+M0201|1996|7801|Toscana|I5|15||EU||||||I5,I@5|5,7,31-33
+M0202|1847|7706|Islands of Toscana Region|IA5|||||||||IA5|5,7,31-33
+M0201|2001|8336|Trentino Alto Adige|IN3|15||EU||||||I[A-JM-UXY]3,IW3[A-D]|5,7,31-33
+M0201|1300|8215|Valle d'Aosta|IX1|15||EU||||||I[A-JL-OQ-VXY]1,IW1[A-O]|3,31-33
+M0201|2085|8207|Veneto|I3|15||EU||||||I3,I[A-MO-UXYZ]3,IW3[E-P],IW3#|5,7,31-33
+M0202|2280|8157|Friuli Venezia Giulia & Veneto's Is.|IL3|||||||||IL3|7
+-0301|||VHF only|IW|||EU||||||IW|7
+01|1125|8363|ITU HQ (Geneva)|4U#ITU|14|28|EU|Europe/Zurich|117||||4U#ITU,4U#WRC,4U##,4U@,4U#[A-HJ-TXYZ],4U#I[A-SU-Z],4U#IT[A-TV-Z],4U#U[A-MO-Z],4U#V[A-HJ-Z],4U#VI[ABD-Z],4U#W[A-QS-Z],4U#WR[ABD-Z],4U#[IUVW].,4U#IT.,4U#VI.,4U#WR.|2
+01|-13939|3267|Jamaica|6Y|08|11|NA|America/Jamaica|082||||6Y|1
+01|-1512|12788|Jan Mayen|JX|40|18|EU|Europe/Oslo|118||||JX|1
+-0301|||Guest operator|JX0|||||||||JX0|5
+L01|24604|6406|Japan|JA|25|45|AS|Asia/Tokyo|339||||[78][J-N],J[A-CE-S],JD[02-9]|1,9
+M0201|23906|6276|Chugoku|JA4|||||||||J@4,7J4|9
+-0301|||Club station|JA#Y|||||||||??#[YZ]@@.|9
+-0301|||Guest operator|7J|||||||||7J|9
+M0201|25622|7791|Hokkaido|JA8|||||||||J@8,7J8|9
+M0201|24609|6559|Hokuriku|JA9|||||||||J@9, 7J9|9
+M0201|25072|6503|Kanto|JA1|||||||||J[A-CE-S]1,7J1,7[K-N][1-4]|9
+M0201|24322|6287|Kinki|JA3|||||||||J@3,7J3|9
+M0201|23544|5871|Kyushu|JA6|||||||||J[A-Q]6,JR6[A-P]@@,JR6Q[A-T]@,7J6[ABD-Z]|9
+M0201|23025|4769|Okinawa|JR6|||||||19720515||JR6@@.,JR6Q[U-Z]@,JR6[R-Z]@@,JS6,7J6C|9
+-0502|||Okinawa|KA6|||||||||KA6|3
+-0301|||Reserved prefix block|JB|||||||||J[BC],JD[02-9],J@#Q[RST]@@.|
+M0201|23986|6047|Shikoku|JA5|||||||||J@5,7J5|9
+M0201|24879|6633|Shinetsu|JA0|||||||||J@0,7J0|9
+-0301|||Special event station|8J|||||||||8@|9
+M0201|25301|7030|Tohoku|JA7|||||||||J@7,7J7|9
+M0201|24660|6300|Tokai|JA2|||||||||J@2,7J2|9
+-0801|25700|7804|US Forces: Hokkaido|KA9|||||||||KA9|3
+-0801|24775|6476|US Forces: Honshu|KA2|||||||||KA[2-58]|3
+-0801|23581|5859|US Forces: Kyusho|KA7|||||||||KA7|3
+-0801|24019|6056|US Forces: Shikoku|KA6|||||||||KA6|3
+-0301|||Very old timer|JA#@@|||||||||JA#@@.,JR6@@.|9
+-04|20096|-1336|Java|PK1|28|54|OC|Asia/Jakarta|119|||19630430|PK[1-3],VK9|2,3
+01|-380|8856|Jersey|GJ|14|27|EU|Europe/London|122||||[GM2][JH],GB|1,7
+-0301|||Advanced license|2J|||||||||2J|7
+-0301|||Beacon or repeater|GB3|||||||||GB[37]|7
+-0501|||Channel Is.|GC|||||||||GC|3,54
+-0301|||Club station|GH|||||||||[GM]H|7
+-0301|||Foundation license|MJ3|||||||||MJ3@@@.|7
+-0301|||Full license||||||||||GJ,MJ[015]@@@.|7
+-0301|||HF Contest station|MJ0@|||||||||MJ#@.|7
+-0301|||Special station|GB0|||||||||GB[0-24-689]|7
+01|-30516|3011|Johnston I.|KH3|31|61|OC|Pacific/Johnston|123|UM|||[KANW]H3|2,4
+-0501|||Johnston I.|KJ6|||||||||K[EJ]6|3
+01|6528|5619|Jordan|JY|20|39|AS|Asia/Amman|342||||JY|1
+-0301|||Club station|JY6|||||||||JY6|5
+-0301|||Foreign operator|JY8|||||||||JY[89]|5
+-0301|||HF|JY5|||||||||JY5|5
+-0301|||Privileged Class|JY3|||||||||JY3|5
+-0301|6480|5760|Royal Family Members|JY2|||||||||JY2|5
+-0301|||Special event|JY7|||||||||JY7|5
+-0301|||VHF|JY4|||||||||JY4|5
+L01|7469|-3577|Juan de Nova;Europa|FT#E|39|53|AF|Indian/Reunion|124||19600625||FT#[EJ]|2
+M0201|7261|-4019|Europa I.||||||||||FT#E|29
+M0201|7694|-3071|Juan de Nova I.|FT#J|||||||||FT#J|29
+01|-14198|-6053|Juan Fernandez Is.|CE0Z|12|14|SA|America/Santiago|125||||C[A-E]0[IZ],X[QR]0[IZ],3G0[IZ]|1,3
+01|3815|9837|Kaliningradskaya Obl.|UA2F|15|29|EU|Europe/Kaliningrad|126|KA|||[RU]2[FK],R@2[FK],U[A-I]2[FK]|1,11,12
+-0301|||1-st category|UA#@|||||||||R#@@.,R[ACDFGJ-OQT-Z]#@@.,U[A-I]#@@.,R[ACDFGJ-OQT-Z]#@.,U[A-I]#@.|
+-0301|||2-nd category|UA#@@@|||||||||R#@@@.,R[ACDFGJ-OQT-Z]#@@@.,UA#@@@.|
+-0301|||3-rd category|UB#@@@|||||||||U[BCDFG]#@@@.|
+-0301|||4-th category|UE#@@@|||||||||U[EHI]#@@@.|
+-0301|||Beacon|RB|||||||||RB#@@.|
+-0501|||Kaliningradskaya Obl.||||||||||[RU][AK]2,[RU]2F|6,7
+-0301|||Repeater|RR|||||||||RR#@@.,RR#@@@.|
+-0301|||WW II veteran|U#|||||||||U#@@.|11,12
+-04|7672|2781|Kamaran Is.|VS9K|21|39|AS|Asia/Aden|127|||19820310|VS9K|2
+-04|5912|11410|Karelo-Finnish Rep.|UN1|16|19|EU|Europe/Moscow|128|||19600630|UN1|2
+L01|11976|8686|Kazakhstan|UN|17|29-31|AS|Asia/Aqtau>Asia/Almaty|130||||U[N-Q]|1
+-0301|||1st category license|UN#@@|||||||||@@#@@.|11-13
+-0301|||2-4 category license|UN#@@@|||||||||@@#@@@.|11-13
+M0201|12543|9230|Akmola|UN#B||30||Asia/Almaty||AK|||@@#[BE]|11-13
+M0201|10412|8673|Aktobe|UN#I||30||Asia/Aqtobe||AT|||@@#I|11-13
+M0201|14032|8089|Almaty|UN#Q||30;31||Asia/Almaty||AY|||@@#[QV]|11-13
+M0901|13847|7795|Almaty city|UN#G||31||Asia/Almaty||AL|||@@#G|11-13
+M0901|12867|9208|Astana city|UN#Z||||||AA|||@@#Z|
+M0201|9235|8559|Atyrau|UN#O||29;30||Asia/Aqtau||AR|||@@#O|11-13
+-0301|||Club Station|UN#@W@|||||||||U@#@[WYZ]@.|
+M0201|14657|8767|East Kazakhstan|UN#J||31||Asia/Almaty||SG|||@@#[JD]|11-13
+-0301|||Extra class license|UN#@|||||||||@@#@.|11-13
+M0201|12890|8779|Karaganda|UN#P||30;31||Asia/Almaty||KG|||@@#[PR]|11-13
+-0501|||Kazakhstan|UL|||||||||[RU]L,[RU]K7,RX7,R7@.,4[J-L]7,E[MN]7,E[U-Z]7|6
+M0201|11566|9216|Kostanay|UN#L||30||Asia/Almaty||KT|||@@#L|11-13
+M0201|11392|8081|Kyzylorda|UN#K||30||Asia/Qyzylorda||KO|||@@#[KS]|11-13
+M0902|11396|8208|Baikonur|UN#S||||Asia/Almaty|||||UN#S|
+M0201|9564|7889|Mangystau|UN#A||30||Asia/Aqtau||MN|||@@#A|11-13
+M0201|12482|9693|North Kazakhstan|UN#C||30||Asia/Almaty||SL|||@@#C|11-13
+M0201|13589|9346|Pavlodar|UN#F||30;31||Asia/Almaty||PV|||@@#F|11-13
+M0201|12331|7777|South Kazakhstan|UN#N||||||ON|||@@#N|
+-0301|||Special event|UP|||||||||UP|11-13
+M0201|9019|8936|West Kazakhstan|UN#M||29;30||Asia/Oral||BY|||@@#M|11-13
+M0201|12873|7915|Zhambyl|UN#T||30||Asia/Almaty||ZM|||@@#T|11-13
+01|6752|39|Kenya|5Z|37|48|AF|Africa/Nairobi|430||||5[YZ]|1
+01|12495|-8881|Kerguelen Is.|FT#X|39|68|AF|Indian/Kerguelen|131||||FT#X|2,3
+-0501|||Kerguelen I.|FB8X|||||||||FB8X|26
+01|-32023|-5267|Kermadec Is.|ZL8|32|60|OC|Pacific/Auckland|133||||Z[LM]8|1,2
+01|-29232|1149|Kingman Reef|KH5K|31|61|OC|Pacific/Honolulu|134|UM|||[KANW]H5K|2,4
+-0501|||Kingman Reef|KP6|||||||||KP6|3
+01|-32096|5112|Kure I.|KH7K|31|61|OC|Pacific/Honolulu|138|UM|||[KANW]H7K|1,2
+-0501|||Kure I.|KH6|||||||||KH[67]|3
+-04|10085|3154|Kuria Muria Is.|VS9H|21|39|AS|Asia/Muscat|139|||19671129|VS9H|2
+01|8572|5253|Kuwait|9K|21|39|AS|Asia/Kuwait|348||||9K|1
+-04|8540|5363|Kuwait/Saudi Arabia Neut. Zone|8Z5|21|39|AS|Asia/Kuwait|068|||19691214|8Z5,9K3|2
+L01|13354|7464|Kyrgyzstan|EX|17|30;31|AS|Asia/Bishkek|135||||EX|2
+-0301|||1st category license|EX#@@|||||||||@@[678]@@|11,12
+-0301|||2 or 3 category license|EX8@@@|||||||||@@8@@@.|11,12
+M0901|13423|7717|Bishkek city|EX#A|||||||||EX#[A-G]|
+M0201|13309|7645|Chuyskaya oblast|EX#M|||||||||EX#[H-M]|11,12
+-0301|||Club Station|EX9@W@|||||||||@@9@[W-Z]@.|11,12
+M0201|12999|7461|Dzhalal-Abadskaya oblast|EX#V||30|||||||EX#V|11,12
+-0301|||Extra class license|EX0@|||||||||@@[028]@.|11,12
+M0201|13999|7575|Issyk-kulskaya oblast|EX#Q||31|||||||EX#Q|11,12
+-0501|||Kyrgyzstan|UM|||||||||[RU]M,U8[MNPQTV],UK8[MNPQTV]|11,12
+M0201|13518|7446|Narynskaya oblast|EX#P|||||||||EX#P|11,12
+M0901|13102|7297|Osh city|EX#O|||||||||EX#O|
+M0201|13078|7192|Oshskaya oblast|EX#N||30|||||||EX#N|11,12
+-0301|||Special event|EX1|||||||||@@[1-35]|11,12
+M0201|12934|7621|Talasskaya oblast|EX#T||30|||||||EX#T|11,12
+01|13075|1903|Laccadive Is.|VU7|22|41|AS|Asia/Kolkata|142||||VU7|2
+01|18510|3347|Laos|XW|26|49|AS|Asia/Vientiane|143||||XW|1
+01|4478|10246|Latvia|YL|15|29|EU|Europe/Riga|145||||YL|2
+-0301|||1 / 2 category|YL2@@|||||||||@@[23]@@.|7,49
+-0301|||3 / 4 category|YL2G@@|||||||||@@[23]G@@.|7,49
+-0301|||Club station|YL1|||||||||YL1@@.|7,49
+-0501|||Latvia|UQ|||||||||[RU]Q,[RU]K2[GQ],4[J-L]2[GQ],E[KM-ORU-Z]2[GQ],[RU]2[GQ]|6
+-0301|||Repeater|YL#R|||||||||YL#R@@.|7,49
+01|6480|6120|Lebanon|OD|20|39|AS|Asia/Beirut|354||||OD|1
+01|5020|-5348|Lesotho|7P|38|57|AF|Africa/Maseru|432||||7P|1
+-0501|||Basutoland|ZS8|||||||||ZS8|54
+L01|-1687|1137|Liberia|EL|35|46|AF|Africa/Monrovia|434||||EL,5[LM],A8,D5,6Z|1
+M0201|-1754|1238|Bong|EL7|||||||||??7|5
+M0201|-1779|1083|Grand Bassa;River Cess|EL1|||||||||??1|5
+M0201|-2016|1278|Grand Cape Mount|EL9|||||||||??9|5
+M0201|-1470|1011|Grand Gedeh|EL6|||||||||??6|5
+M0201|-1829|1385|Lofa|EL5|||||||||??5|5
+M0201|-1479|849|Maryland; Grand Kru|EL4|||||||||??4|5
+M0201|-1919|1159|Montserrado;Bomi;Margibi|EL2|||||||||??2|5
+M0201|-1605|1221|Nimba|EL8|||||||||??8|5
+-0301|||Novice or club station|EL0|||||||||??0|5
+M0201|-1634|929|Sinoe|EL3|||||||||??3|5
+01|3150|4809|Libya|5A|34|38|AF|Africa/Tripoli|436||||5A?|1
+01|1718|8484|Liechtenstein|HB0|14|28|EU|Europe/Vaduz|251||||H[BE]0|1,2
+01|4293|9935|Lithuania|LY|15|29|EU|Europe/Vilnius|146||||LY|1
+-0301|||Class A|LY#@|||||||||LY#@.|35
+-0301|||Class A or B|LY#@@|||||||||LY#@@.|35
+-0301|||Class C|LY#N@@|||||||||LY#N@@.|35
+-0301|||Family station|LY1F@@|||||||||LY1F@@.|35
+-0301|||Foreign station|LY2A@@|||||||||LY2A@@.|35
+-0501|||Lithuania|UP|||||||||[RU]P,[RU]K2[BP],[RU]2[BP]|6
+-0301|||Military station|LY1K@@|||||||||LY1K@@.|35
+-0301|||Repeater|LY0R@@|||||||||LY0R@@.|35
+01|28631|-5681|Lord Howe I.|VK9[L]|30|60|OC|Australia/Lord_Howe|147||||AX9L,AX9[ABD-KOPQS-VYZ]L,V[H-NZ]9L,V[H-NZ]9[ABD-KOPQS-VYZ]L,AX9[ABD-KOPQS-VYZ].,AX9[ABD-KOPQS-VYZ][ABD-KOPQS-VYZ],V[H-NZ]9[ABD-KOPQS-VYZ].,V[H-NZ]9[ABD-KOPQS-VYZ][ABD-KOPQS-VYZ],AX9#,V[H-NZ]9#|1,2,7,64
+-0301|||Advanced license|VK9@@|||||||||@@#@@.,@@#[A-GIJKSTUW-Z]@@.|45,7,64
+-0301|||Foundation license|VK9F|||||||||@@#F@@@.|45,7,64
+-0301|||Standard license||||||||||@@#[HLMNPV]@@.|45,7,64
+01|1089|8955|Luxembourg|LX|14|27|EU|Europe/Luxembourg|254||||LX|1
+-0301|||Club station|LX9|||||||||LX9|34,7
+-0301|||Full privilege license|LX1|||||||||LX[1-3]|34,7
+-0301|||Guest operator|LX2|||||||||LX2|4
+-0301|||Novice license|LX6|||||||||LX6|63
+-0301|||Repeater|LX0|||||||||LX0|34,7
+-0301|||Special Callsign|LX4|||||||||LX[4578]|34,7
+01|20417|4000|Macao|XX|24|44|AS|Asia/Macau|152||||XX|2
+-0501|||Macao|CR9|||||||||CR9|3
+01|3860|7475|Macedonia|Z3|15|28|EU|Europe/Belgrade|502||19910908||Z3|2
+-0301|||A class: all bands, all modes, 1.5kw|Z31|||||||||Z31|7
+-0301|||B class: all bands exp 30 & 160m, 300w|Z32|||||||||Z32|7
+-0301|||C class: 40m & 80m only, all modes; 21.1-21.15 cw, 300w|Z33|||||||||Z33|7
+-0301|||D class: VHF & UHF only, all modes, 150w|Z34|||||||||Z34|7
+-0301|||E class: VHF & UHF only, FM only, 30w|Z36|||||||||Z36|7
+-0301|||Radio club + K471 K480|Z37|||||||||Z37|7
+-0301|||Repeater or beacon|Z35|||||||||Z35|7
+-0301|||Special call|Z30|||||||||Z3[09]|7
+-0301|||Special call, foreigner|Z38|||||||||Z38|7
+01|28598|-9833|Macquarie I.|VK0[M]|30|60|OC|Australia/Hobart|153||||AX0,V[H-NZ]0|1,2,7,64
+01|8272|-3573|Madagascar|5R|39|53|AF|Indian/Antananarivo|438||||5[RS],6X|1
+-0501|||Madagascar|FB8|||||||||FB8|3
+01|-3058|5895|Madeira I.|CT3|33|36|AF|Atlantic/Madeira|256||||CQ2,C[Q-T][39]|7
+-0301|||Club station|CQ2|||||||||CQ2,CS3|
+-0301|||Special event|CQ3|||||||||CQ[39],CR3|
+01|6120|-2520|Malawi|7Q|37|53|AF|Africa/Blantyre|440||||7Q|1
+-04|18360|720|Malaya|VS2|28|54|AS|Asia/Kuala_Lumpur|155|||19630915|VS2,9M2|2
+01|13230|751|Maldives|8Q|22|41|AS|Indian/Maldives|159||||8Q|1
+01|-822|2942|Mali|TZ|35|46|AF|Africa/Bamako|442||19600620||TZ|2
+01|-14685|718|Malpelo I.|HK0[M]|09|12|SA|America/Bogota|161||||[5H][JK]0|1,2,6
+01|2599|6459|Malta|9H|15|28|EU|Europe/Malta|257||||9H|1
+M0201|2579|6474|Comino I.|9H8|||||||||9H8|7
+M0201|2564|6484|Gozo I.|9H4|||||||||9H4|7
+-0301|||Guest operator|9H3|||||||||9H3|7
+-0301|||HF Class|9H1|||||||||9H1|7
+-0301|||VHF Class|9H5|||||||||9H5|7
+-04|5132|10915|Malyj Vysotskij I.|RI1MV|16|29|EU|Europe/Moscow|151|||20120217|RI1MV|2
+-04|16200|5760|Manchuria|C9|24|33|AS|Asia/Urumqi|164|||19630915|C9|2
+01|26219|3379|Mariana Is.|KH0|27|64|OC|Pacific/Saipan|166|MP|||[KANW]H0|2,4
+-0501|||Mariana Is.|KG6|||||||||[KW]G6,KB6|7
+-0802|26138|2547|Rota I.|KG6R|||||||||KG6R|7
+-0802|26237|2734|Saipan I.|KG6S|||||||||KG6S|7
+-0802|26209|2700|Tinian I.|KG6T|||||||||KG6T|7
+01|3419|10860|Market Reef|OJ0|15|18|EU|Europe/Helsinki|167||||OJ0|3
+01|-25164|-1627|Marquesas I.|FO[M]|31|63|OC|Pacific/Marquesas|509||19980401||FO,T[OX]|2,6
+01|30780|1260|Marshall Is.|V7|31|65|OC|Pacific/Majuro|168||||V7|1
+-0501|||Marshall Is.|KX6|||||||||KX6|26
+01|-10982|2638|Martinique|FM|08|11|NA|America/Martinique|084||||FM,T[OX]|2
+01|-1991|3662|Mauritania|5T|35|46|AF|Africa/Nouakchott|444||19600620||5T|2
+-0301|||Resident|5T5|||||||||5T5|
+-0301|||Visitor|5T0|||||||||5T0|
+01|10360|-3644|Mauritius|3B8|39|53|AF|Indian/Mauritius|165||||3B[0-58],3B@|2
+01|8128|-2308|Mayotte|FH|39|53|AF|Indian/Mayotte|169||19750706||FH,T[OX]|2
+01|28053|-3132|Mellish Reef|VK9[M]|30|56|OC|Australia/Brisbane|171||||AX9M,AX9[ABD-KOPQS-VYZ]M,V[H-NZ]9M,V[H-NZ]9[ABD-KOPQS-VYZ]M,AX9[ABD-KOPQS-VYZ].,AX9[ABD-KOPQS-VYZ][ABD-KOPQS-VYZ],V[H-NZ]9[ABD-KOPQS-VYZ].,V[H-NZ]9[ABD-KOPQS-VYZ][ABD-KOPQS-VYZ],AX9#,V[H-NZ]9#|1,2,7,64
+-0301|||Advanced license|VK9@@|||||||||@@#@@.,@@#[A-GIJKSTUW-Z]@@.|45,7,64
+-0301|||Foundation license|VK9F|||||||||@@#F@@@.|45,7,64
+-0301|||Standard license|VK9L|||||||||@@#[HLMNPV]@@.|45,7,64
+L01|-18429|3872|Mexico|XE|06|10|NA|America/Tijuana>America/Cancun|050||||4[ABC][0-35-9],4[ABC]@,6[D-J][0-35-9],6[D-J]@,X[A-I][0-35-9]|1,2
+M0201|-15588|3720|Caribbean Is. east of 90W|XF3||||America/Cancun|||||XF3,4[A-C]3,6[D-J]3|3
+M0201|-16729|3435|Caribbean Is. west of 90W|XF2|||||||||XF2,4[A-C]2,6[D-J]2|3
+M0201|-18224|3590|Central Mexico|XE1|||||||||4[A-C]1,6[D-J]1,X[A-EG-I]1|3
+M0201|-19011|4610|North Mexico|XE2|||||||||4[A-C]2,6[D-J]2,X[A-EG-I]2|3
+M0201|-21240|5220|Pacific Is.|XF1|||||||||XF1,4[A-C]1,6[D-J]1|3
+M0201|-17586|2973|South Mexico|XE3|||||||||4[A-C]3,6[D-J]3,X[A-EG-I]3|3
+01|27063|1336|Micronesia|V6|27|65|OC|Pacific/Chuuk>Pacific/Kosrae|173||||V6|1
+-0501|||Eastern Carolines|KC6|||||||||KC6|26,4
+01|-31926|5074|Midway I.|KH4|31|61|OC|Pacific/Midway|174|UM|||[KANW]H4|2,4
+-0501|||Midway I.|KM6|||||||||K[DM]6|3
+01|27712|4373|Minami Torishima|JD1[M]|27|90|OC|Asia/Tokyo|177||||JD1,7J1|1,9
+-0801|||Marcus I.|KG6IF|||||||||KG6IF|3
+-04|-32205|-4252|Minerva Reef|1M|32|62|OC|+12:00|178|||19720715|1M|2
+L01|5115|8500|Moldovia|ER|16|29|EU|Europe/Chisinau|179||||ER|2
+-0301|||1/2/3 category license|ER#@@|||||||||@@#@@.|11,12
+-0301|||4 category license|ER#@@@|||||||||ER#[A-JL-Z]@@.|11,12
+M0201|5007|8509|Beltsy;Rybnitsa;Floreshty|ER3|||||||||ER3|11,12
+-0301|||Club station|ER#K@@|||||||||@@#K@@|11,12
+-0301|||Extra category license|ER#@|||||||||ER#@.|
+-0301|||Foreign operator|ER0|||||||||@@0|11,12
+M0201|5088|8306|Kagul;Komrat;Leovo;Chadyr-Lunga|ER5|||||||||ER5|11,12
+M0201|5083|8451|Kishinev;Dubossary;Orgeev;Khyncheshty|ER1|||||||||ER1|11,12
+-0501|||Moldavia|UO|||||||||[RU]O,[RU]K5O,[RU]5O|6
+-0301|||Special event|ER6|||||||||@@[6-9]|11,12
+M0201|5208|8441|Tiraspol;Bendery;Kaushany|ER2|||||||||ER2|11,12
+M0201|4914|8640|Yedintsy;Drokia;Soroki|ER4|||||||||ER4|11,12
+01|1299|7862|Monaco|3A|14|27|EU|Europe/Monaco|260||||3A|1
+-0301|||All bands|3A2|||||||||3A2|4
+-0301|||VHF only|3A1|||||||||3A1|4
+L01|18563|8400|Mongolia|JT|23|32;33|AS|Asia/Hovd>Asia/Choibalsan|363||||J[T-V]|1
+M0201|18396|8322|Arhangay;Ovorhangay|JT6||32||Asia/Ulaanbaatar|||||??6|3,7
+M0201|16489|8536|Bayan-Olgiy;Hovd|JT0||32||Asia/Hovd|||||??0|3,7
+M0201|19786|8264|Dornogovi;Hentiy|JT3||33||Asia/Choibalsan|||||??3|3,7
+M0201|18910|7925|Dundgovi;Omnogovi|JT4||32||Asia/Ulaanbaatar|||||??4|3,7
+M0201|17476|8055|Govi-Altay|JT8||32||Asia/Hovd|||||??8|3,7
+M0201|18290|8908|Hovsgol;Bulgan|JT7||32||Asia/Ulaanbaatar|||||??7|3,7
+M0201|18902|8759|Selenge;Ulaanbaatar|JT5||32||Asia/Ulaanbaatar|||||??5|3,7
+M0201|20389|8495|Suhbaatar|JT2||33||Asia/Choibalsan|||||??2|3,7
+M0901|19242|8622|Ulaan Bataar City|JT1||32||Asia/Ulaanbaatar|||||??1|3,7
+M0201|17035|8809|Uvs,Dzavhan|JT9||32||Asia/Hovd|||||??9|3,7
+01|3405|7695|Montenegro|4O|15|28|EU|Europe/Belgrade|514||20060628||4O|
+01|-11197|3010|Montserrat|VP2M|08|11|NA|America/Montserrat|096||||VP2M|2
+01|-1401|5615|Morocco|CN|33|37|AF|Africa/Casablanca|446||||CN,5[C-G]|1
+-0301|||Visitor|CN0|||||||||CN0|3
+01|4379|7229|Mount Athos|SV/A|20|28|EU|Europe/Athens|180||||SV2ASP/A.|1,10
+01|6194|-3377|Mozambique|C9|37|53|AF|Africa/Maputo|181||||C[89]|1
+-0501|||Mozambique|CR7|||||||||CR7|3
+01|17238|3850|Myanmar|XZ|26|49|AS|Asia/Rangoon|309||||X[YZ]|1
+01|3060|-3960|Namibia|V5|38|57|AF|Africa/Windhoek|464||||V5|1
+01|30047|-94|Nauru|C2|31|65|OC|Pacific/Nauru|157||||C2|1
+01|-13504|3314|Navassa I.|KP1|08|11|NA|-05:00|182|PR|||[KNW]P1|3,7
+01|15160|5014|Nepal|9N|22|42|AS|Asia/Kathmandu|369||||9N|1
+01|900|9360|Netherlands|PA|14|27|EU|Europe/Amsterdam|263||||P[A-I]|1
+-0301|||Beacon|PI7|||||||||PI7|7
+-0301|||Class 1 license||||||||||P[ABCE-H][0-57-9]|7;57
+-0301|||Club Station|PI4|||||||||PI4|7
+-0301|||Novice class license|PD|||||||||PD[0-57-9]|7
+-0301|||Packet BBS|PI8|||||||||PI8|7
+-0302|||DX Cluster|PI8DX|||||||||PI8DX@.|7
+-0301|||Repeater|PI2|||||||||PI[236]|7
+-0301|||School license|PI5|||||||||PI5@|7
+-0301|||Special event|PA6|||||||||P[A-H]6,PI9,P@#@.|7
+-0301|||Special event|PI50|||||||||PI50|7
+-0301|||VHF/UHF Packet node|PI1|||||||||PI1|7
+-04|20700|72|Netherlands Borneo|PK5|28|54|OC|Asia/Pontianak,Asia/Makassar|183|||19630430|PK5|2
+-04|26478|-1692|Netherlands N. Guinea|JZ0|28|51|OC|Pacific/Port_Moresby|184|||19630430|JZ0,7J1|2,3
+01|29788|-3849|New Caledonia|FK|32|56|OC|Pacific/Noumea|162||||FK,T[OX]|2
+L01|31001|-7619|New Zealand|ZL|32|60|OC|Pacific/Auckland|170||||Z[LM][0-46],ZK[014-9],Z[LM]5#|1,2
+M0201|31584|-7169|Bottom of the North Is.|ZL2|||||||||??2|3,17
+M0201|30367|-8156|Bottom of the South Is., Stewart I.|ZL4|||||||||Z[LM]4|3,17
+-0301|||Novice class|ZL#@@N|||||||||ZL#@@N.|4
+M0201|31573|-6844|Top of the North Is.|ZL1|||||||||Z[LM]1|3,17
+M0201|30852|-7769|Top of the South Is.|ZL3|||||||||Z[LM]3|3,17
+-04|-10517|9424|Newfoundland;Labrador|VO|02;05|9|NA|America/Halifax>America/St_Johns|186|||19490331|VO|2
+L01|-15353|2302|Nicaragua|YN|07|11|NA|America/Managua|086||||H[67T],YN|1
+M0201|-15467|2304|Boaco, Jinotega, Matagalpa|YN9|||||||||??9|3
+M0201|-15485|2043|Carazo, Rivas|YN5|||||||||??5|3
+M0201|-15734|2280|Chinandega|YN6|||||||||??6|3
+M0201|-15236|2328|Chontales, Rio San Juan, Zelaya|YN4|||||||||??4|3
+M0201|-15576|2407|Esteli, Madriz, Nueva Segovia|YN8|||||||||??8|3
+M0201|-15480|2118|Granada|YN2|||||||||??2|3
+M0201|-15635|2228|Leon|YN3|||||||||??3|3
+M0201|-15575|2173|Managua|YN1|||||||||??1|3
+M0201|-15495|2163|Masaya|YN7|||||||||??7|3
+-0301|||Special Event or Club Station|YN0|||||||||YN0|3
+01|1453|3061|Niger|5U|35|46|AF|Africa/Niamey|187||19600803||5U|2
+L01|1383|1655|Nigeria|5N|35|46|AF|Africa/Lagos|450||||5[NO]|1
+M0201|1110|871|Anambra;Rivers;Bayelsa;Enugu;Ebonyi;Abia|5N4|||||||||??4|5
+M0201|1854|1802|Bauchi;Adamawa|5N7|||||||||??7|5
+M0201|1655|1430|Benue;Plateau;Nassarawa;Taraba|5N6|||||||||??6|5
+M0201|2069|2117|Borno;Kano;Jigawa;Yobe|5N8|||||||||??8|5
+M0201|1450|971|Cross River;Imo;Akwa-Ibom|5N5|||||||||??5|5
+M0201|960|1150|Ekiti;Ondo;Edo;Delta|5N3|||||||||??3|5
+M0201|1075|2080|Kaduna;Sokoto;Kebbi;Katsina;Zamfara|5N9|||||||||??9|5
+M0201|910|1645|Kwara;Niger;Kogi|5N2|||||||||??2|5
+M0201|1248|1568|Lagos;Abuja|5N0|||||||||??0|5
+M0201|630|1345|Ogun;Oyo;Osun|5N1|||||||||??1|5
+01|-30574|-3430|Niue|E6|32|62|OC|Pacific/Niue|188||||E6|2
+-0501|||Niue|ZK2||||||||2012-08-05||
+01|30232|-5228|Norfolk I.|VK9[N]|32|60|OC|Pacific/Norfolk|189||||AX9N,AX9[ABD-KOPQS-VYZ]N,V[H-NZ]9N,V[H-NZ]9[ABD-KOPQS-VYZ]N,AX9[ABD-KOPQS-VYZ].,AX9[ABD-KOPQS-VYZ][ABD-KOPQS-VYZ],V[H-NZ]9[ABD-KOPQS-VYZ].,V[H-NZ]9[ABD-KOPQS-VYZ][ABD-KOPQS-VYZ],AX9#,V[H-NZ]9#|1,2,7,64
+-0301|||Advanced license|VK9@@|||||||||@@#@@.,@@#[A-GIJKSTUW-Z]@@.|45,7,64
+-0301|||Foundation license|VK9F|||||||||@@#F@@@.|45,7,64
+-0301|||Standard license|VK9L|||||||||@@#[HLMNPV]@@.|45,7,64
+01|-28996|-1808|North Cook Is.|E51[N]|32|62|OC|Pacific/Rarotonga|191||||E5|2
+-0501|||North Cook Is.|ZK1||||||||20060630|ZK1|
+-0301|||Resident|E51@@|||||||||??#@@.|7
+-0301|||Visitor|E51@@@|||||||||??#@@@.|7
+01|22801|7152|North Korea|P5|25|44|AS|Asia/Pyongyang|344||19950514||HM,P[5-9]|1,2
+-06|6120|6372|Northern Cyprus|1B[C]|20|39|AS|Asia/Nicosia|||||1B|3
+01|-1208|9838|Northern Ireland|GI|14|27|EU|Europe/London|265||||[GM2][IN],GB|1,7
+-0301|||Advanced license|2I|||||||||2I|7
+-0301|||Beacon or repeater|GB3|||||||||GB[37]|7
+-0301|||Club station|GN|||||||||[GM]N|7
+-0301|||Foundation license|MI3|||||||||MI3@@@.|7
+-0301|||Full license||||||||||GI,MI[015]@@@.|7
+-0301|||HF Contest station|MI0@|||||||||MI#@.|7
+-0301|||Special station|GB0|||||||||GB[0-24-689]|7
+01|2763|12142|Norway|LA|14|18|EU|Europe/Oslo|266||||L[A-N]|1
+-0301|||CEPT Licence||||||||||L[AB]|4,7
+-0301|||Club station|LA#@|||||||||LA#@.|
+-0301|||Digital station|LD|||||||||LD|7
+-0301|||Electronics company|LF|||||||||LF|4
+-0301|||Emergency station|LE|||||||||LE|7
+-0301|||Guest Operator|LA0|||||||||L[A-C]0|4,7
+M0201|2165|10780|Morokulien|LG5LG|||||||||LG5LG.|4
+-0301|||Reserved prefix block|LH|||||||||L[CHJ]|7
+01|25581|4891|Ogasawara|JD1[O]|27|45|AS|Asia/Tokyo|192||||JD1,7J1|1,9
+-0801|||Bonin;Volcano;Iwo Jima;Chichi Jima|KG6IG|||||||||KG6I[GJ]|
+-0801|25432|4573|US Forces: Iwo Jima|KA0|||||||||KA0|3
+-04|23025|4769|Okinawa|KA6|25|45|AS|Asia/Tokyo|193|||19720514|KR[68],KA6|2
+-04|25255|5481|Okino Tori-shima|7J1|27|45|AS|Asia/Tokyo|194||19760530|19801130|7J1,JD1|2,3
+01|10076|3638|Oman|A4|21|39|AS|Asia/Muscat|370||||A4|1
+-0301|||Guest operator|A45V|||||||||A4#V|4
+01|1013|-261|Pagalu I.|3C0|36|52|AF|Africa/Malabo|195||||3C0|2
+01|12329|5247|Pakistan|AP|21|41|AS|Asia/Karachi|372||||[6A][P-S]|1
+01|24168|1290|Palau|T8|27|64|OC|Pacific/Palau|022||||T8|1,2
+-0501|||Western Carolines|KC6|||||||||KC6|26,3,54
+01|6184|5651|Palestine|E4|20|39|AS|Asia/Gaza|510||19990201||E4|2
+-04|6318|5760|Palestine|ZC6|20|39|AS|Asia/Gaza|196|||19680630|ZC6,4X1|2
+01|-28813|-74|Palmyra & Jarvis Is.|KH5|31|61;62|OC|Pacific/Honolulu|197|UM|||[KANW]H5[A-JL-Z],[KANW]H5#|2,4
+-0501|||Palmyra & Jarvis Is.|KP6|||||||||K[GP]6|3
+L01|-14400|1620|Panama|HP|07|11|NA|America/Panama|088||||3[EF],H[389OP]|1
+M0201|-14766|1592|Bocas del Toro|HP4|||||||||??4|5
+M0201|-14871|1512|Chiriqui|HP3|||||||||??3|5
+M0201|-14462|1527|Cocle|HP8|||||||||??8|5
+M0201|-14713|1331|Coiba I.|HP0|||||||||??0|5
+M0201|-14442|1646|Colon|HP2|||||||||??2|5
+M0201|-14040|1440|Darien|HP7|||||||||??7|5
+M0201|-14544|1404|Herrera|HP5|||||||||??5|5
+M0201|-14508|1348|Los Santos|HP9|||||||||??9|5
+M0201|-14315|1615|Panama|HP1|||||||||??1|5
+M0201|-14646|1467|Veraguas|HP6|||||||||??6|5
+01|25751|-1159|Papua New Guinea|P2|28|51|OC|Pacific/Port_Moresby|163||19750916||P2|2
+-0301|||Novice|P2#N|||||||||P2#N|4
+-0301|||VHF station|P2#Z|||||||||P2#Z|4
+-04|25751|-1159|Papua Territory|P2|28|51|OC|Pacific/Port_Moresby|198|||19750915|P2,VK9|2
+L01|-10293|-4414|Paraguay|ZP|11|14|SA|America/Asuncion|132||||ZP|1
+M0201|-10617|-4003|Alto Paraguay;Presidente Hayes|ZP2|||||||||ZP2|3,50
+M0201|-9943|-4738|Alto Parana;Itapua|ZP9|||||||||ZP9|3,50
+M0901|-10373|-4554|Asuncion city|ZP5|||||||||ZP5|3,50
+M0201|-11046|-3874|Boqueron;Chaco;Nueva Asuncion|ZP1|||||||||ZP1|3,50
+M0201|-10100|-4625|Caaguazu;Caazapa;Guaira|ZP7|||||||||ZP7|3,50
+M0201|-10118|-4376|Canindeiyu;San Pedro|ZP4|||||||||ZP4|3,50
+M0201|-10313|-4635|Central;Cordillera;Paraguari|ZP6|||||||||ZP6|3,50
+M0201|-10199|-4110|Concepcion;Amambay|ZP3|||||||||ZP3|3,50
+M0201|-10367|-4848|Misiones;Neembucu|ZP8|||||||||ZP8|3,50
+-0301|||Mobile or club station|ZP0|||||||||ZP0|3,50
+-04|2728|-4790|Penguin Is.|ZS0|38|57|AF|Africa/Windhoek|493|||19940228|ZS[01]|2
+-04|8836|2952|People's Dem. Rep. of Yemen|VS9A|21|39|AS|Asia/Aden|243|||19900522|VS9[APS]|2
+L01|-13584|-1763|Peru|OA|10|12|SA|America/Lima|136||||4T,O[A-C]|1
+M0201|-13924|-1236|Amazonas;San Martin|OA9|||||||||??9|3
+M0201|-13888|-1709|Ancash;Huanuco|OA3|||||||||??3|3
+M0201|-13522|-2549|Apurimac;Ayacucho;Huancavelica;Ica|OA5|||||||||??5|3
+M0201|-13030|-2951|Arequipa;Moquegua;Tacna|OA6|||||||||??6|3
+M0201|-14245|-1307|Cajamarca;La Libertad|OA2|||||||||??2|3
+M0201|-12861|-2433|Cuzco;Puno;Madre de Dios|OA7|||||||||??7|3
+M0201|-13683|-2067|Lima;Callao;Junin;Pasco|OA4|||||||||??4|3
+M0201|-13500|-720|Loreto;Ucayali|OA8|||||||||??8|3
+M0201|-14487|-1039|Piura;Tumbes;Lambayeque|OA1|||||||||??1|3
+-0301|||Special Event or Club Station|OA0|||||||||OA0|3
+01|-16308|-12394|Peter I I.|3Y[P]|12|72|AN|-06:00|199||||3Y|2
+L01|22182|2084|Philippines|DU|27|50|OC|Asia/Manila|375||||4[D-I],D[UVWYZ],DX[1-9]|1
+-0301|||Advanced class|4I|||||||||4[FI]|7
+-0301|||Club station|DX|||||||||DX|7
+M0201|22457|2046|Leyte I.;Samar I.|DU5|||||||||??5|3,7
+M0201|21778|2562|Luzon I. Central|DU1|||||||||??1|3
+M0201|21798|3067|Luzon I. North|DU3|||||||||??3|3
+M0201|21688|2782|Luzon I. North-Central|DU2|||||||||??2|3
+M0201|22176|2394|Luzon I. South|DU4|||||||||??4|3
+M0201|22463|1353|Mindanao I. East|DU9|||||||||??9|3
+M0201|22093|1408|Mindanao I. West|DU8|||||||||??8|3
+M0201|22008|1980|Negros Occidental;Panay I.|DU6|||||||||??6|3,7
+M0201|22303|1780|Negros Oriental;Bantayan;Bohol;Cebu;Mactan;Siquior Is.|DU7|||||||||??7|3,7
+-0301|||Novice class|DY|||||||||DY|7
+-0501|||Phillipines|KA1|||||||||KA1|3
+-0301|||Special event|DU0|||||||||??0|3
+-0301|||Technician,General,Advanced class||||||||||DU|7
+01|-23420|-4513|Pitcairn I.|VP6[P]|32|63|OC|Pacific/Pitcairn|172||||VP6|2
+L01|3365|9427|Poland|SP|15|28|EU|Europe/Warsaw|269||||3Z,HF,S[N-R]|1,3
+M0201|4099|9119|Biala Podlaska;Chelm;Krosno;Lublin;Przemysl;Rzeszow;Zamosc|SP8|||||||||??8|55
+M0201|3989|9587|Bialystok;Lormza;Suwalki;Olsztyn|SP4|||||||||??4|55
+M0201|3489|8987|Bielsko Biala;Czestochowa;Katowice;Krakow;Nowy Sacz;Tarnow|SP9|||||||||??9|55
+M0201|3289|9577|Bydgoszcz;Elblag;Gdansk;Torun;Wloclawek|SP2|||||||||??2|55
+M0201|3784|9406|Ciechanow;Ostroleka;Plock;Siedlce;Warszawa|SP5|||||||||??5|55
+-0301|||Club Station|SP#K|||||||||???[KPZY]@@.|41
+M0201|2954|9377|Gorzow Wlkp.;Kalisz;Konin;Leszno;Pila;Poznan;Zielona Gora|SP3|||||||||??3|55
+-0301|||Guest Operator|SO|||||||||SO[1-9]|41
+M0201|3004|9142|Jelenia Gora;Legnica;Opole;Walbrzych;Wroclaw|SP6|||||||||??6|55
+M0201|3635|9170|Kielce;Lodz;Piotrkow;Radom;Sieradz;Skierniewice;Tarnobrzeg|SP7|||||||||??7|55
+M0201|2804|9647|Koszalin;Slupsk;Szczecin|SP1|||||||||??1|55
+-0301|||Special Station|SP0|||||||||SP0,SN,HF,3Z|41
+01|-1494|7138|Portugal|CT|14|37|EU|Europe/Lisbon|272||||C[Q-T][0567],C[ST][12],C[QRT]4|1,7
+-0301|||Club station|CQ0|||||||||CQ0,CS5|
+-0301|||Reserved prefix|CR0|||||||||C[RST]0,CS1,C[QR]4,CQ5,C[QST]6|
+-0301|||Special event|CQ7|||||||||CQ7,CR[56],CS2|3,7
+-04|22480|-1667|Portuguese Timor|CR8|28|54|OC|Asia/Dili|200|||19760914|CR8,CR10|2
+01|21007|3729|Pratas|BQ9P|24|44|AS|+08:00|505||19940101||B[M-QU-X]9P|1,2
+01|6793|-8442|Prince Edward & Marion Is.|ZS8|38|57|AF|Africa/Johannesburg|201||||Z[R-U]8|1,2,7
+01|-11986|3271|Puerto Rico|KP4|08|11|NA|America/Puerto_Rico|202|PR|||[KNW]P[34]|3,7,52
+-0501|||Puerto Rico|K4|||||||||K4|3
+01|9187|4553|Qatar|A7|21|39|AS|Asia/Qatar|376||||A7|1
+01|9990|-3798|Reunion I.|FR|39|53|AF|Indian/Reunion|453||||FR,T[OX]|2
+01|-20318|3336|Revilla Gigedo I.|XF4|06|10|NA|America/Mazatlan|204||||4[A-C]4,6[D-J]4,X[A-I]4|2
+01|11412|-3547|Rodrigues I.|3B9|39|53|AF|Indian/Mauritius|207||||3B9|2
+L01|4490|8254|Romania|YO|20|28|EU|Europe/Bucharest|275||||Y[O-R]|1
+M0201|4153|8434|Alba;Bihor;Bistrita Nasaud;Cluj;Maramures;Salaj;Satu Mare|YO5|||||||||??5|3
+M0201|3918|8195|Arad;Caras Severin;Hunedoara;Timis|YO2|||||||||??2|3
+M0201|4258|8015|Arges;Dolj;Gorj;Mehedinti;Olt;Vilcea|YO7|||||||||??7|3
+M0201|4768|8429|Bacau;Botosani;Iasi;Neamt;Suceava;Vaslui|YO8|||||||||??8|3
+M0201|5018|8080|Braila;Constanta;Galati;Tulcea;Vrancea|YO4|||||||||??4|3
+M0201|4473|8304|Brasov;Covasna;Harghita;Mures;Sibiu|YO6|||||||||??6|3
+M0901|4693|8015|Bucharest|YO3|||||||||??3|3
+M0201|4653|8110|Buzau;Calarasi;Dimbovita;Giurgiu;Ialomita;Prahova;Teleorman|YO9|||||||||??9|3
+-0301|||Club Station|YO#K@@|||||||||@@#K@@|3
+-0301|||Special Station|YO0|||||||||??[01]|3
+01|31869|-2251|Rotuma I.|3D2[R]|32|56|OC|Pacific/Fiji|460||||3D[N-Z],3D#|1,2,3
+-04|5342|-497|Ruanda-Urundi|9U5|36|52|AF|Africa/Bujumbura|208||19600701|19620630|9U5|2
+-01|14447|10998|Russia (As)|UA9|16-19;23|20-26;30-35;75|AS|Europe/Moscow>Asia/Anadyr|015||||[RU][89][A-EH-WYZ],R@[89][A-EH-WYZ],U[A-I][89][A-EH-WYZ],[RU]0@,R@0@,U[A-I]0@,[UR]##,R@##,U[A-I]##|11-13
+-0301|||1-st category|UA#@|||||||||R#@@.,R[ACDFGJ-OQT-Z]#@@.,U[A-I]#@@.,R[ACDFGJ-OQT-Z]#@.,U[A-I]#@.|
+-0301|||2-nd category|UA#@@@|||||||||R#@@@.,R[ACDFGJ-OQT-Z]#@@@.,UA#@@@.|
+-0301|||3-rd category|UB#@@@|||||||||U[BCDFGH]#@@@.|
+-0301|||4-th category|UE#@@@|||||||||U[EHI]#@@@.|
+-0301|||Beacon|RB|||||||||RB#@@.|
+-0301|||Contest station|R#@|||||||||R#@.,R##@.,R##[A-RT-Z]@.,R##S[A-OQ-Z].|
+-0301|||Drifting polar station|R##SP|||||||||R##SP.|
+L0201|20006|10937|Eastern Siberia|UA0|18;19;23|21;22;25;26;29;31-35||Asia/Krasnoyarsk>Asia/Anadyr|||||@0@@.,@0@@@.,@@0@|11,12
+M0202|22999|9415|Amurskaya oblast|UA0J|19|33||Asia/Yakutsk||AM|||@#J,@@#J|11-13
+M0202|31351|11867|Chukotsky A.O.|UA0K|19|25;26||Asia/Anadyr||CK|||@#K,@@#K|11-13
+M0303|-32313|12808|Vrangel I.|RI0K|||||||||RI0K|
+M0202|18884|10250|Irkutskaya oblast|UA0S|18|22;32;33||Asia/Irkutsk||IR|||@#[RST],@@#[RST]|11-13
+M0202|29018|10485|Kamchatskiy Kray|UA0Z|19|35||Asia/Kamchatka||KT|||@#[XZ],@@#[XZ]|11-13
+M0303|29521|10606|Karaginskiy I.|RI0X|||||||||RI0X|
+M0303|30467|9744|Komandorskie Is.|RI0Z|||||||||RI0Z|
+M0202|24372|10090|Khabarovsky Kray|UA0C|19|24;33;34||Asia/Vladivostok||HK|||@#C,@@#[GC]|11-13
+M0303|25679|10198|Iony I.|RI0C|||||||||RI0C|
+M0202|16675|11727|Krasnoyarsky Kray|UA0A|18|21;31;32||Asia/Krasnoyarsk||KK|||@#[ABH],@@#[ABH]|11-13
+M0303|17523|14320|Severnaya Zemlya|RI0B|||||||||RI0B|
+M0202|27545|11212|Magadanskaya oblast|UA0I|19|24,25,34||Asia/Magadan||MG|||@#I,@@#I|11-13
+M0202|24004|8049|Primorsky Kray|UA0L|19|34||Asia/Vladivostok||PK|||@#L,@@#L|11-13
+M0202|19735|9577|Rep. of Buryatia|UA0O|18|32;33||Asia/Irkutsk||BU|||@#O,@@#O|11-13
+M0202|16094|9592|Rep. of Khakassia|UA0W|18|31;32||Asia/Krasnoyarsk||HA|||@#W,@@#W|11-13
+M0202|23818|11654|Rep. of Saha|UA0Q|19|22-25,33||Asia/Yakutsk>Asia/Magadan||YA|||@#Q,@@#Q|11-13
+M0303|29080|12728|Mdevezhi Is.|RI0QA|||||||||RI0Q[A-L]|
+M0303|25934|13532|Novosibirskie Is.|RI0QM|||||||||RI0Q[M-Z]|
+M0202|16905|9211|Rep. of Tuva|UA0Y|23|32||Asia/Krasnoyarsk||TU|||@#Y,@@#Y|11-13
+M0202|25678|8992|Sakhalinskaya oblast|UA0F|19|34||Asia/Sakhalin||SL|||@#F,@@#F|11-13
+M0303|27369|8450|Kuril Is.|RI0F|||||||||RI0F|
+M0202|23712|8696|Yevreyskaya A.Obl.|UA0D|19|33||Asia/Vladivostok||EA|||@#D,@@#D|11-13
+M0202|20904|9506|Zabajkalskiy Kray|UA0U|18|33||Asia/Yakutsk||ZK|||@#[UV],@@#[UV]|11-13
+-0301|||Pobeda event|RP|||||||||RP|
+-0301|||Repeater|RR|||||||||RR#@@.,RR#@@@.|
+-0501|||Russia (As)||||||||||[RU][AK][90]|6,7
+-0302|17470|15324|Drifting Polar Station|UPOL||||||||||6,7
+-0302|21266|15212|Drifting Polar Station (As)|4K0||||||||||6,7
+-0301|||Satellite|RS|||||||||RS##S.|
+-0301|||Space station|RS##ISS|||||||||RS##ISS.|
+-0301|||Special event|R#@@@@|||||||||R#SRR.,R#HQ.,R#@@@@,R##@@@.,R###@.,R###@@.,R####@.,R[AC-HJ-OQT-Z]##@.,R[AC-HJ-OQT-Z]##@@.,R[AC-HJ-OQT-Z]##@@@.,R[AC-HJ-OQT-Z]###@.,R[AC-HJ-OQT-Z]###@@.|
+L0201|11859|10794|Western Siberia||16-18|20;21;30;31||Europe/Moscow>Asia/Krasnoyarsk|||||@[89]@@.,@[89]@@@.,@@[89]@|11,12
+M0202|14758|9387|Altaisky Kray|UA9Y|18|31||Asia/Novosibirsk||AL|||@#Y,@@#Y|11-13
+M0202|15555|9108|Altay Rep.|UA9Z|18|31||Asia/Novosibirsk||GA|||@#Z,@@#Z|11-13
+M0202|10068|9710|Bashkortostan|UA9W|16|30||Asia/Yekaterinburg||BA|||@#W,@@#W|11-13
+M0202|10806|9719|Chelyabinskaya oblast|UA9A|17|30||Asia/Yekaterinburg||CB|||@#[AB],@@#[AB]|11-13
+M0202|15655|9790|Kemerovskaya oblast|UA9U|18|31||Asia/Krasnoyarsk||KE|||@#[UV],@@#[UV]|11-13
+M0202|12431|10980|Khanty-Mansyisky A.O.|UA9J|17|20;21||Asia/Yekaterinburg||HM|||@#J,@@#J|11-13
+M0202|11541|9934|Kurganskaya oblast|UA9Q|17|30||Asia/Yekaterinburg||KN|||@#[QR],@@#[QR]|11-13
+M0202|14189|9910|Novosibirskaya oblast|UA9O|18|31||Asia/Novosibirsk||NS|||@#[OP],@@#[OP]|11-13
+M0202|13032|10033|Omskaya oblast|UA9M|17|30;31||Asia/Omsk||OM|||@#[MN],@@#[MN]|11-13
+M0202|9911|9277|Orenburgskaya oblast|UA9S|16|30||Asia/Yekaterinburg||OB|||@#[ST],@@#[ST]|11-13
+M0202|10927|10478|Sverdlovskaya oblast|UA9C|17|20;30||Asia/Yekaterinburg||SV|||@#[CD],@@#[CD]|11-13
+M0202|14604|10445|Tomskaya oblast|UA9H|18|31||Asia/Omsk||TO|||@#[HI],@@#[HI]|11-13
+M0202|12183|10261|Tyumenskaya oblast|UA9L|17|30||Asia/Yekaterinburg||TN|||@#L,@@#L|11-13
+M0202|13220|11742|Yamalo-Nenetsky A.O.|UA9K|17|20;21||Asia/Yekaterinburg||YN|||@#K,@@#K|11-13
+-0301|||WW II veteran|U#|||||||||U#@@.|11,12
+-01|6660|10080|Russia (Eu)|UA3|16|19;20;29;30|EU|Europe/Moscow,Europe/Samara|054||||[RU]##,R@##,U[A-I]##,[RU][89][FGX],R@[89][FGX],U[A-I][89][FGX],R[3-7]@,U[3467]@,R@[3-7]@,U[A-I][13-7]@,U5@.,U5@@@,[RU]2[A-EG-JL-Z],R@2[A-EG-JL-Z],U[A-I]2[A-EG-JL-Z],[RU]1@,R[A-HJ-Z]1@,RI1[B-EG-Z],RI1A.,RI1F.,RI1A[A-MO-Z],RI1F[A-IK-Z]|1,11-13
+-0301|||1-st category|UA#@|||||||||R#@@.,R[ACDFGJ-OQT-Z]#@@.,U[A-I]#@@.,R[ACDFGJ-OQT-Z]#@.,U[A-I]#@.|
+-0301|||2-nd category|UA#@@@|||||||||R#@@@.,R[ACDFGJ-OQT-Z]#@@@.,UA#@@@.|
+-0301|||3-rd category|UB#@@@|||||||||U[BCDFG]#@@@.|
+-0301|||4-th category|UE#@@@|||||||||U[EHI]#@@@.|
+-0301|||Beacon|RB|||||||||RB#@@.|
+L0201|6850|9793|Central|||29||Europe/Moscow|||||@[235]@@.,@[235]@@@.,@@[235]@|11,12
+M0202|6731|9123|Belgorodskaya oblast|UA3Z||||||BO|||@#Z,@@#Z|11-13
+M0202|5959|9510|Bryanskaya oblast|UA3Y||||||BR|||@#Y,@@#Y|11-13
+M0202|7456|10250|Ivanovskaya oblast|UA3U||||||IV|||@#U,@@#U|11-13
+M0202|6318|9747|Kaluzhskaya oblast|UA3X||||||KG|||@#X,@@#X|11-13
+M0202|7817|10491|Kostromskaya oblast|UA3N||||||KS|||@#N,@@#N|11-13
+M0202|6425|9278|Kurskaya oblast|UA3W||||||KU|||@#W,@@#W|11-13
+M0202|6978|9466|Lipetskaya oblast|UA3G||||||LP|||@#G,@@#G|11-13
+M0202|6719|10073|Moscovskaya oblast|UA3D||||||MO|||@#[DFH],@@#[DFH]|11-13
+M0902|6723|9981|Moscow City|UA3A||||||MA|||@#[ABC],@@#[ABC]|11-13
+M0202|7971|10093|Nizhegorodskaya oblast|UA3T||||||NN|||@#T,@@#T|11-13
+M0202|6489|9466|Orlovskaya oblast|UA3E||||||OR|||@#E,@@#E|11-13
+M0202|7258|9769|Ryazanskaya oblast|UA3S||||||RA|||@#S,@@#S|11-13
+M0202|5874|9844|Smolenskaya oblast|UA3L||||||SM|||@#L,@@#L|11-13
+M0202|7423|9461|Tambovskaya oblast|UA3R||||||TB|||@#R,@@#R|11-13
+M0202|6721|9682|Tulskaya oblast|UA3P||||||TL|||@#P,@@#P|11-13
+M0202|6132|10257|Tverskaya oblast|UA3I||||||TV|||@#I,@@#I|11-13
+M0202|7301|10045|Vladimirskaya oblast|UA3V||||||VL|||@#V,@@#V|11-13
+M0202|7180|9143|Voronezhskaya oblast|UA3Q||||||VR|||@#[KOQ],@@#[KOQ]|11-13
+M0202|7009|10374|Yaroslavskaya oblast|UA3M||||||JA|||@#M,@@#M|11-13
+-0301|||Contest station|R#@|||||||||R#@.,R##@.,R##[A-RT-Z]@.,R##S[A-OQ-Z].|
+-0301|||Drifting Polar Station|R##SP|||||||||R##SP.|11,12
+L0201|7678|8170|Northern Caucasus|UA6||29||Europe/Moscow|||||@[67]@@.,@[67]@@@.,@@[67]@|11,12
+M0202|8520|8451|Astrakhanskaya oblast|UA6U||||Europe/Volgograd||AO|||@#U,@@#U|11-13
+M0202|7093|8174|Krasnodarsky Kray|UA6A||||||KR|||@#[A-D],@@#[A-D]|11-13
+M0202|8184|7817|Rep. Chechnya|UA6P||||||CN|||@#P,@@#P|11-13
+M0202|7198|8001|Rep. of Adygeya|UA6Y||||||AD|||@#Y,@@#Y|11-13
+M0202|8430|7689|Rep. of Daghestan|UA6W||||||DA|||@#W,@@#W|11-13
+M0202|8089|7732|Rep. of Ingushetia|UA6Q||||||IN|||@#Q,@@#Q|11-13
+M0202|7748|7801|Rep. of Kabardino-Balkaria|UA6X||||||KB|||@#X,@@#X|11-13
+M0202|8122|8359|Rep. of Kalmykia|UA6I||||||KM|||@#I,@@#I|11-13
+M0202|7462|7848|Rep. of Karachaevo-Cherkessia|UA6E||||||KC|||@#E,@@#E|11-13
+M0202|7908|7726|Rep. of Northern Ossetia|UA6J||||||SO|||@#J,@@#J|11-13
+M0202|7378|8566|Rostovskaya oblast|UA6L||||||RO|||@#[LMN],@@#[LMN]|11-13
+M0202|7778|8060|Stavropolsky Kray|UA6H||||||ST|||@#[FGH],@@#[FGH]|11-13
+L0201|6761|11008|Northwest|UA1||19;29;30||Europe/Moscow|||||@1@@.,@1@@@.,@@1@|11,12
+M0202|7452|11382|Arkhangelskaya oblast|UA1O||19||||AR|||@#O,@@#O|11-13
+M0303|10485|13481|Novaya Zemlya I.|RI1O|||||||||RI1O|
+M0202|5802|10737|Leningradskaya oblast|UA1C||19;29||||LO|||@#[CD],@@#[CD]|11-13
+M0202|5979|12186|Murmanskaya oblast|UA1Z||19||||MU|||@#Z,@@#Z|11-13
+M0202|9733|12167|Nenetsky A.O.|UA1P||19;20||||NO|||@#P,@@#P|11-13
+M0303|8846|12434|Kolguyev I.|RI1P|||||||||RI1P|
+M0202|5729|10461|Novgorodskaya oblast|UA1T||29||||NV|||@#T,@@#T|11-13
+M0202|5191|10252|Pskovskaya oblast|UA1W||29||||PS|||@#W,@@#W|11-13
+M0202|5912|11410|Rep. of Karelia|UA1N||19||||KL|||@#N,@@#N|11-13
+M0902|5458|10787|St. Petersburg City|UA1A||29||||SP|||@#[AB],@@#[AB]|11-13
+M0202|7127|10752|Vologodskaya oblast|UA1Q||19;29||||VO|||@#Q,@@#Q|11-13
+-0301|||Pobeda event|RP|||||||||RP|
+-0301|||Repeater|RR|||||||||RR#@@.,RR#@@@.|
+-0501|||Russia (Eu)||||||||||[RU][AK][1346]|6,7
+-0301|||Satellite|RS|||||||||RS##S.|
+-0301|||Space station|RS##ISS|||||||||RS##ISS.|
+-0301|||Special event|R#@@@@|||||||||R#SRR.,R#HQ.,R#@@@@,R##@@@.,R###@.,R###@@.,R####@.,R[AC-HJ-OQT-Z]##@.,R[AC-HJ-OQT-Z]##@@.,R[AC-HJ-OQT-Z]##@@@.,R[AC-HJ-OQT-Z]###@.,R[AC-HJ-OQT-Z]###@@.|
+L0201|8462|9583|Volga|UA4||29;30|||||||@4@@.,@4@@@.,@@4@|11,12
+M0202|8896|10499|Kirovskaya oblast|UA4N||||Europe/Volgograd||KI|||@#N,@@#N|11-13
+M0202|7933|9549|Penzenskaya oblast|UA4F||29||Europe/Moscow||PE|||@#F,@@#F|11-13
+M0202|8423|9958|Rep. of Chuvashia|UA4Y||29||Europe/Moscow||CU|||@#Y,@@#Y|11-13
+M0202|8640|10147|Rep. of Marij-El|UA4S||29||Europe/Moscow||MR|||@#S,@@#S|11-13
+M0202|7949|9739|Rep. of Mordovia|UA4U||29||Europe/Moscow||MD|||@#U,@@#U|11-13
+M0202|9060|9924|Rep. of Tataria|UA4P||||Europe/Moscow||TA|||@#[PQR],@@#[PQR]|11-13
+M0202|9414|10258|Rep. of Udmurtia|UA4W||30||Europe/Samara||UD|||@#W,@@#W|11-13
+M0202|9000|9540|Samarskaya oblast|UA4H||||Europe/Samara||SR|||@#[HI],@@#[HI]|11-13
+M0202|8284|9241|Saratovskaya oblast|UA4C||29||Europe/Volgograd||SA|||@#[CD],@@#[CD]|11-13
+M0202|8514|9681|Ulyanovskaya oblast|UA4L||29||Europe/Moscow||UL|||@#[LM],@@#[LM]|11-13
+M0202|7884|8903|Volgogradskaya oblast|UA4A||29||Europe/Volgograd||VG|||@#[AB],@@#[AB]|11-13
+L0201|10029|11141|Western Siberia|UA9|17|20;30||Europe/Moscow>Asia/Yekaterinburg|||||@[89]@@.,@[89]@@@.,@@[89]@|11,12
+M0202|10088|10596|Permskiy Kray|UA9F||||Asia/Yekaterinburg||PM|||@#[FG],@@#[FG]|11-13
+M0202|9671|11471|Rep. of Komi|UA9X||20||Europe/Moscow||KO|||@#X,@@#X|11-13
+-0301|||WW II veteran|U#|||||||||U#@@.|11,12
+01|5368|-371|Rwanda|9X|36|52|AF|Africa/Kigali|454||19620701||9X|2
+-04|1287|8880|Saar|9S4|14|28|EU|Europe/Berlin|210|||19570331|9S4,9K3|2,3
+L01|-11353|3161|Saba and St. Eustatius|PJ5|08|11|NA|America/Curacao|519||20101010||PJ[0135689]|,7
+M0201|-11370|3172|Saba I.|PJ6|||||||||PJ6|4
+M0201|-11337|3148|St.Eustatius||||||||||PJ5|
+01|-10784|7907|Sable I.|CY0|05|09|NA|America/Halifax|211||||CY0|2
+01|-11349|3258|Saint Martin|FS|08|11|NA|America/Curacao|213||||FS,T[OX]|2
+01|-30970|-2480|Samoa|5W|32|62|OC|Pacific/Apia|190||||5W|1
+01|-14706|2257|San Andres & Providencia Is.|HK0[A]|07|11|NA|America/Bogota|216||||[5H][JK]0|1,2,6
+01|-14415|-4727|San Felix & San Ambrosio|CE0X|12|14|SA|America/Santiago|217||||C[A-E]0X,X[QR]0X,3G0X|1,3
+01|2244|7907|San Marino|T7|15|28|EU|Europe/Rome|278||||T7|1
+-0301|||HF license|T77|||||||||T77|5
+-0301|||Special Event or Club Station|T70|||||||||T70|5
+-0301|||VHF license|T72|||||||||T72|5
+01|1188|36|Sao Tome & Principe|S9|36|47|AF|Africa/Sao_Tome|219||||S9|1
+-0501|||Sao Tome & Principe|CR5|||||||||CR5|3
+-04|20228|381|Sarawak|VS4|28|54|OC|Asia/Kuching|220|||19630915|VS4|2
+01|1615|7205|Sardinia|IS|15|28|EU|Europe/Rome|225||||I[C-JL-VXY]0,IW0[U-Z],IW0#|5
+M0201|1487|7045|Small islands|IM0|||||||||IM0|5
+01|7385|4071|Saudi Arabia|HZ|21|39|AS|Asia/Riyadh|378||||[78H]Z|1
+-04|7946|5293|Saudi Arabia/Iraq Neut. Zone|8Z4|21|39|AS|Asia/Riyadh|226|||19811225|8Z4|2
+01|21194|2720|Scarborough Reef|BS7|27|50|AS|+08:00|506||19950101||BS|2
+01|-766|10204|Scotland|GM|14|27|EU|Europe/London|279||||[GM2][MSZ],GB|1,7
+-0301|||Advanced license|2M|||||||||2M|7
+-0301|||Beacon or repeater|GB3|||||||||GB[37]|7
+-0301|||Club station|GS|||||||||[GM]S|7
+-0301|||Foundation license|MM3|||||||||MM3@@@.|7
+-0301|||Full license||||||||||GM,MM[015]@@@.|7
+-0301|||HF Contest station|MM0@|||||||||MM#@.|7
+M0201|-234|10872|Shetland Is.|GZ|||||||||[GM2]Z|58
+-0301|||Special station|GB0|||||||||GB[0-24-689]|7
+L01|-2596|2558|Senegal|6W|35|46|AF|Africa/Dakar|456||19600620||6[VW]|2
+M0201|-3140|2644|Dakar|6W1|||||||||??1|5
+M0201|-2928|2655|Diourbel|6W3|||||||||??3|5
+M0201|-2984|2576|Fatick|6W9|||||||||??9|5
+M0201|-2794|2528|Kaolack|6W6|||||||||??6|5
+M0201|-2725|2330|Kolda|6W0|||||||||??0|5
+M0201|-2769|2748|Louga|6W8|||||||||??8|5
+M0201|-2520|2749|St. Louis|6W4|||||||||??4|5
+M0201|-2380|2430|Tambacounda|6W5|||||||||??5|5
+M0201|-3053|2660|Thies|6W7|||||||||??7|5
+M0201|-2985|2290|Ziguinchor|6W2|||||||||??2|5
+L01|3649|7845|Serbia|YU|15|28|EU|Europe/Belgrade|296||||Y[TU]|1
+-0801|3240|7920|Bosnia-Hercegovina|YU4||||||||19911014|??4|2,26
+-0301|||Class A - E||||||||||YU|4
+-0301|||Class F|YT|||||||||YT|4
+-0301|||Club station|YU#A|||||||||??#[A-M]|4
+-0801|2840|8198|Croatia|YU2||||||||19910625|??2|2,26
+M0201|3705|7636|Kosovo|YU8|||||||||??8|4
+-0801|3860|7475|Macedonia|YU5||||||||19910907|??5|2,26
+-0801|3405|7695|Montenegro|YU6||||||||20060627|??6|4
+M0201|3775|7870|Serbia|YU1|||||||||??1|4
+-0801|2628|8284|Slovenia|YU3||||||||19910625|??3|2,26
+M0201|3592|8170|Vojvodina|YU7|||||||||??7|4
+-0501|||Yugoslavia|||||||||20060627||
+-04|-14274|2880|Serrana Bank & Roncador Cay|HK0|07|11|NA|America/Bogota|228|||19810916|HK0,KP3,KS4|2
+01|9983|-837|Seychelles|S7|39|53|AF|Indian/Mahe|379||||S7|1
+01|-2119|1534|Sierra Leone|9L|35|46|AF|Africa/Freetown|458||||9L|1
+-04|15959|4920|Sikkim|AC3|22|41|AS|Asia/Kolkata|231|||19750430|AC3,J2/A|2,3
+01|18687|241|Singapore|9V|28|54|AS|Asia/Singapore|381||||9V,S6|1
+01|-11355|3249|Sint Maarten|PJ7|08|11|NA|America/Curacao|518||20101010||PJ[013789]|7
+L01|3510|8776|Slovak Rep.|OM|15|28|EU|Europe/Prague|504||19930101||OM|2
+-0301|||BBS|OM0P|||||||||OM0[PS]@@.|4
+-0301|||Beacon|OM0M|||||||||OM0M@@.|4
+M0901|3083|8669|Bratislava city|OM1|||||||||OM1|5
+M0201|3454|8697|Central Slovakia, Centre/South|OM7|||||||||OM7|5
+M0201|3394|8792|Central Slovakia, North|OM6|||||||||OM6|5
+-0301|||Club station|OM#K@@|||||||||OM3[KR]@@.|4
+-0301|||Contest station|OM#@|||||||||OM#@.|4
+M0201|3744|8827|Eastern Slovakia, North-East|OM0|||||||||OM0|5
+M0201|3884|8752|Eastern Slovakia, West/South|OM8|||||||||OM8|5
+-0301|||Guest operator|OM9@@@|||||||||OM9[A-S]@@.|4
+-0301|||Licence class A or B|OM#@@|||||||||OM[0-8]@@.|4
+-0301|||Licence class C or D|OM#@@@|||||||||OM[0-8]@@@.|4
+-0301|||Old call carried over|OM3|||||||||OM3@@.,OM3@@@.|4
+-0301|||Packet|OM0N|||||||||OM0N@@.|4
+-0301|||Repeater|OM0O|||||||||OM0O@@.|4
+-0301|||Special station|OM9@@|||||||||OM9@@.|4
+M0201|3199|8637|Western Slovakia, Centre/South|OM5|||||||||OM5|5
+M0201|3149|8742|Western Slovakia, North|OM4|||||||||OM4|5
+M0201|3065|8690|Western Slovakia, West|OM2|||||||||OM2|5
+01|2628|8284|Slovenia|S5|15|28|EU|Europe/Belgrade|499||19910626||S5|2
+01|28515|-1500|Solomon Is.|H44|28|51|OC|Pacific/Guadalcanal|185||||H4[1-9],H4@|1,2
+01|8280|816|Somalia|T5|37|48|AF|Africa/Mogadishu|232||||6O,T5|1
+L01|3548|-5672|South Africa|ZS|38|57|AF|Africa/Johannesburg|462||||Z[R-U][0-69],S8,V9,Z[R-U]7#|1,7
+-0801|4583|-4662|Bophutatswana|H5||||||||19940228|H5|3,7
+-0801|4767|-6023|Ciskei|S4||||||||19940228|S4|3,7
+-0301|||Class A1, 400W||||||||||ZS|3,7,16
+-0301|||Class A3, 100W|ZT|||||||||ZT|3,7,16
+-0301|||Class B, 25W|ZU|||||||||ZU|3,7,16
+M0201|4633|-5815|Eastern Cape|ZS2|||||||||Z@2|3,7
+M0201|4721|-5154|Free State|ZS4|||||||||Z@4|3,7
+M0201|5187|-4510|Gauteng;Limpopo Province;Mpumalanga;North-West|ZS6|||||||||Z@6|3,7
+M0201|5435|-5212|Kwazulu-Natal|ZS5|||||||||Z@5|3,7
+M0201|3853|-5330|Northern Cape|ZS3|||||||||Z@3|3,7
+-0501|||South Africa|||||||||19940228|Z[R-U][1-7],H5,S[48],V9|7
+-0801|5061|-5729|Transkei|S8||||||||19940228|S8|3,7
+-0801|5466|-4128|Venda|V9||||||||19940228|V9|3,7
+-0301|||VHF only|ZR|||||||||ZR|3,7
+M0201|3688|-6060|Western Cape|ZS1|||||||||Z@1|3,7
+01|-28762|-3821|South Cook Is.|E51[S]|32|63|OC|Pacific/Rarotonga|234||||E5|2
+-0301|||Resident|E51@@|||||||||??#@@.|7
+-0501|||South Cook Is.|ZK1||||||||20060630||
+-0301|||Visitor|E51@@@|||||||||??#@@@.|7
+01|-6615|-9779|South Georgia I.|VP8[G]|13|73|SA|Atlantic/South_Georgia|235||||VP8|2,5
+L01|23004|6588|South Korea|HL|25|44|AS|Asia/Seoul|137||||HL[0-79],6[K-N][0-79],D[789ST][0-79],6[K-N]@,D[789]@|1
+-0301|||Club station|HL0|||||||||??0|3,5
+M0201|23034|6768|Kyounggi;Kangwon|HL2|||||||||??2|3,5
+M0201|22846|6349|N. Cholla;S. Cholla|HL4|||||||||??4|3,5
+M0201|22879|6563|N. Chungchong;S. Chungchong|HL3|||||||||??3|3,5
+M0201|23094|6459|N. Kyongsang;S. Kyongsang|HL5|||||||||??5|3,5
+M0901|22859|6763|Seoul city|HL1|||||||||??1|3,5
+-0301|||U.S. Army station|HL9|||||||||??9|3,5
+01|-8147|-10917|South Orkney Is.|VP8[O]|13|73|SA|-03:00|238||||VP8,L[2-9O-W]#Z,A[YZ]#Z|2,5,7
+-0301|||Antarctic Base (Argentina)|LU#Z|||||||||L[2-9O-W]#Z,A[YZ]#Z|7
+-0301|||Antarctic Base (UK)||||||||||VP8|
+01|-4775|-10434|South Sandwich Is.|VP8[S]|13|73|SA|Atlantic/South_Georgia|240||||VP8,L[2-9O-W]#Z,A[YZ]#Z|2,5
+-0301|||Antarctic Base (Argentina)|LU#Z|||||||||L[2-9O-W]#Z,A[YZ]#Z|7
+-0301|||Antarctic Base (UK)||||||||||VP8|
+01|-10724|-11228|South Shetland Is.|VP8[H]|13|73|SA|-04:00|241||||C[A-E]9,X[QR]9,3G9,RI1AN,L[2-9O-W]#Z,A[YZ]#Z,VP8,HL8,6[K-N]8,D[7-9ST]8|2,5,7
+-0301|||Antarctic Base (Argentina)|LU#Z|||||||||L[2-9O-W]#Z,A[YZ]#Z|7
+-0301|||Antarctic Base (Chile)|CE9|||||||||C[A-E]9,X[QR]9,3G9|7
+-0301|||Antarctic Base (Russia)|R1AN|||||||||R1AN|7
+-0301|||Antarctic Base (South Korea)|DT8|||||||||,HL8,6[K-N]8,D[7-9ST]8|
+-0301|||Antarctic Base (UK)||||||||||VP8|
+-04|5625|815|Southern Sudan|ST0|34|47;48|AF|Africa/Khartoum|244||19720507|19941231|ST0,6[TU]0,SS0[N-Z]|1,2
+01|5469|870|Southern Sudan|Z8|34|48|AF|Africa/Khartoum|521||20110714||Z8|5
+01|2241|7538|Sov. Mil. Order of Malta|1A|15|28|EU|Europe/Rome|246||||1A?|3
+L01|-720|7200|Spain|EA|14|37|EU|Europe/Madrid|281||||E[A-H][0-57],A[M-O][0-57]|1,2
+-0301|||Alternate call for 6 m|EH|||||||||EH|7
+M0201|-894|6738|Andalucia|EA7|||||||||??7|5,7
+M0201|-792|7055|Castilla La-Mancha;Madrid;Extremadura|EA4|||||||||??4|5,7
+M0201|228|7527|Catalunya|EA3|||||||||??3|5,7
+-0301|||Cept class 1||||||||||E[AD]|4
+-0301|||Cept class 2|EB|||||||||E[BE]|4
+-0301|||Cept class 3|EC|||||||||E[CF]|4
+M0201|-310|6916|Comunidad Valenciana;Murcia;Castilla La-Mancha|EA5|||||||||??5|5,7
+M0201|-971|7536|Galicia;Asturias;Cantabria;Castilla-Leon;La Rioja|EA1|||||||||??1|5,7
+M0201|-197|7452|Pays Vasco;Navarra;Aragon|EA2|||||||||??2|5,7
+-0301|||Special event|ED|||||||||E[DEFG]|4
+01|20588|1744|Spratly Is.|9M0|26|50|AS|+07:00|247||||9M0,B[M-QU-X]9S,DX0|3,8,15
+M0201|20576|1849|Itu-Aba Is.|BV9S|||||||||B[M-QU-X]9S|1,8,15
+01|14513|1337|Sri Lanka|4S|22|41|AS|Asia/Colombo|315||||4[P-S]|1
+-0501|||Ceylon|VS7|||||||||VS7,4SY|54
+-0301|||Novice license|4S6|||||||||4S6|4
+01|-11309|3223|St. Barthelemy|FJ|08|11|NA|America/Curacao|516||20071214||FJ,T[OX]|29
+01|-1030|-2874|St. Helena|ZD7|36|66|AF|Atlantic/St_Helena|250||||ZD7|2
+01|-11293|3114|St. Kitts & Nevis|V4|08|11|NA|America/St_Kitts|249||||V4|1
+01|-10975|2501|St. Lucia|J6|08|11|NA|America/St_Lucia|097||||J6|1
+-04|-11344|3212|St. Maarten;Saba;St. Eustasius|PJ7|08|11|NA|America/Curacao|255|||20101010|PJ[15-9]|3,7
+-0301|||Reserved prefix|PJ1||||||||||7
+01|-10829|8498|St. Paul I.|CY9|05|09|NA|America/Glace_Bay|252||||CY9|2
+01|-5285|175|St. Peter & St. Paul Rocks|PY0S|11|13|SA|America/Noronha|253||||P[P-Y]0S,Z[V-Z]0S,P[P-Y]0ZS,Z[V-Z]0ZS|1,3
+-0301|||Guest operator|PY0ZS|||||||||??#Z|3
+01|-10141|8449|St. Pierre & Miquelon|FP|05|09|NA|America/Miquelon|277||||FP,T[OX]|2
+01|-11014|2385|St. Vincent|J8|08|11|NA|America/St_Vincent|098||||J8|1
+L01|5291|2675|Sudan|ST|34|48|AF|Africa/Khartoum|466||||ST,6[TU],SS#[N-Z],SS##|1
+M0201|5372|3407|Ad Damir;northwest region|ST7|||||||||??7|5
+M0201|4375|2579|Al Fashir;Darfour region|ST8|||||||||??8|5
+M0201|5225|2319|Al Ubayyid;Kurdufan region|ST4|||||||||??4|5
+M0201|6009|2275|Kassala;eastern region|ST5|||||||||??5|5
+M0201|5866|2830|Khartoum Region|ST1|||||||||??2|5
+M0201|5631|1529|Malakal;central-south region; Wau; Bahr-al-Ghazal region|ST9|||||||||??9|5
+M0201|6376|3183|Port Sudan;northeast region|ST6|||||||||??6|5
+M0201|4849|1410|Wad Madani;central region|ST3|||||||||??3|5
+-04|18036|72|Sumatra|PK4|28|54|OC|Asia/Jakarta|258|||19630430|PK[2-4]|2,3
+L01|-10117|710|Suriname|PZ|09|12|SA|America/Paramaribo|140||||PZ|1
+M0201|-9955|792|Brokopondo|PZ7|||||||||PZ7|3
+M0201|-9890|1007|Commewijne|PZ8|||||||||PZ8|3
+M0201|-10166|987|Coronie|PZ3|||||||||PZ3|3
+-0301|||Guest operator|PZ5|||||||||PZ5|3
+M0201|-9816|947|Marowijne|PZ9|||||||||PZ9|3
+M0201|-10295|977|Nickerie|PZ2|||||||||PZ2|3
+M0201|-10025|927|Para|PZ6|||||||||PZ6|3
+M0201|-9940|1062|Paramaribo;Wanica|PZ1|||||||||PZ1|3
+M0201|-10055|1007|Saramacca|PZ4|||||||||PZ4|3
+-0301|||Special station|PZ0|||||||||PZ0|3
+01|3262|14168|Svalbard|JW|40|18|EU|Europe/Oslo|259||||JW|1
+-0301|||Foreign operator|JW0|||||||||JW0|7
+01|-30794|-1990|Swain's I.|KH8[S]|32|62|OC|Pacific/Pago_Pago|515|AS|20060722||[KANW]H8|
+-04|-15108|3128|Swan I.|KS4|7|11|NA|America/Tegucigalpa|261|||19720831|KR8,JR6,KA6,K[DS]4|2,3
+01|5648|-4791|Swaziland|3DA|38|57|AF|Africa/Mbabane|468||||3D[A-M]|1
+L01|2871|11453|Sweden|SM|14|18|EU|Europe/Stockholm|284||||[78]S,S[A-M]|1
+-0301|||Army club station|SL|||||||||SL,SA#@@.|4,7
+-0301|||Club station|SK|||||||||SK|4
+-0301|||Contest Station|SC|||||||||SC|7
+M0201|2264|10425|Gothenburg & West Gothia|SM6|||||||||??6|40,7
+M0201|3319|10338|Gotland I.|SM1|||||||||??1|40
+M0201|2474|10796|Kopparberg and Orebro|SM4|||||||||??4|40,7
+-0301|||Maritime mobile|SM8|||||||||SM8|4,7
+-0301|||Memorial station|SD|||||||||S[D-G]|7
+M0201|2167|10785|Morokulien|SJ9|||||||||SJ9|4
+M0201|3353|11819|N. Norrland|SM2|||||||||??2|40,7
+-0301|||Navy ship|SL8|||||||||SL8|7
+-0301|||Novice station|SH|||||||||SH#[ABC]@@.|4
+M0201|2719|11286|S. Norrland|SM3|||||||||??3|40,7
+M0201|2582|10234|Smaaland & Scania|SM7|||||||||??7|40,7
+M0201|3248|10704|Stockholm Area|SM0|||||||||??0|40
+M0201|2876|10650|Svealand & East Gothia|SM5|||||||||??5|40,7
+01|1468|8424|Switzerland|HB9|14|28|EU|Europe/Zurich|287||||H[BE][1-9],C7|1,3
+-0301|||HF license|HB9[A-L]|||||||||HB9@.,HB9@@.,HB9[A-L]@@.|51
+-0301|||Military Station|HB4|||||||||HB4|51
+-0301|||Novice|HB3|||||||||HB3|51
+-0301|||SWL|HE9|||||||||HE9@@@.|51
+-0301|||VHF license|HB9[M-Z]|||||||||HB9[M-Z]@@.|51
+M0301|1125|8363|WMO (Geneva)|C7|||||||||C7|1
+01|6843|6268|Syria|YK|20|39|AS|Asia/Damascus|384||||YK,6C|1
+L01|21741|4274|Taiwan|BV|24|44|AS|Asia/Taipei|386||||B[M-QU-X][0-8],B[M-QU-X]9[A-OQRT-Z],B[M-QU-X]9#|2,3
+M0201|21699|4267|Chang-Hua;Nan-Tou;Yun-Lin|BV5|||||||||??5|8
+M0201|21629|4192|Chia-I;Tainan|BV6|||||||||??6|8
+-0301|||Class 1|BX#@@|||||||||BX#@@.|8
+-0301|||Class 2|BV#@@|||||||||?[M-W]#@@.|8
+-0301|||Class 3|BX#@@@|||||||||BX#@@@.|8
+-0301|||Class 4|BV#@@@|||||||||?[M-W]#@@@.|8
+-0301|||Club station|BV#Y|||||||||??#Y@.,??#@Y@.|8
+-0501|||Formosa|C3|||||||||C3|54
+M0201|21600|4320|Green I.|BV9G|||||||||??9G|8,15,22
+M0201|21962|4573|Huapimg I.|BV9H|||||||||??9H|8,15,22
+M0201|21674|4122|Kaohsiung|BV7|||||||||??7|8
+M0201|21931|4539|Keelung I.|BV9C|||||||||??9C|8,15,22
+M0201|21869|4397|Keelung;I-Lang|BV1|||||||||B[MNPQU-X]1|8
+M0201|21317|4408|Kinmem I.|BO0K|||||||||BO0K,BO2|8,15,22
+M0201|21951|4473|Kueishan I.|BV9K|||||||||??9K|8,15,22
+M0201|21665|4021|Liuchiu Is.|BV9L|||||||||??9L|8,15,22
+M0201|21586|4707|Matsu I.|BO0M|||||||||BO0M,BO1|8,15,22
+M0201|21743|4374|Miao-Li;Tai-Chung|BV4|||||||||??4|8
+M0201|21797|4578|Mienhua I.|BV9M|||||||||??9M|8,15,22
+M0201|21877|3968|Orchid I.|BV9O|||||||||??[09]O|8,15,22
+M0201|21537|4246|Pen-Hu I.|BV9A|||||||||??9A|8,15,22
+M0201|21510|4208|Pengchia I.|BV9W|||||||||??9W|8,15,22
+M0201|21799|4187|Pintung;Tai-Tung;Hua-Lian|BV8|||||||||??8|8
+-0301|||Repeater|BX#@|||||||||BX#@.|8
+-0301|||Special station|BV0|||||||||??0,?[M-W]#@.|8
+M0201|21849|4487|Taipei|BV2|||||||||B[MNPQU-X]2|8
+M0201|21769|4442|Tau-Yuan; Hsin-Chu|BV3|||||||||??3|8
+-0301|||VHF Class|BM|||||||||B[MN][1-8]@@@.|8
+L01|12750|6984|Tajikistan|EY|17|30|AS|Asia/Dushanbe|262||||EY|2
+-0301|||Club station|EY#Z|||||||||??#Z|28,11,12
+M0901|12365|6947|Dushanbe City|EY8|||||||||EY8|28,11,12
+M0201|13094|6846|Gorno-Badakhshanskaya A.Obl.|EY4|||||||||EY4|28,11,12
+M0201|12527|6825|Khatlonskaya oblast / Kuliab Reg.|EY5|||||||||EY5|28,11,12
+M0201|12302|6748|Khatlonskaya oblast / Kurgan-Tube Reg.|EY6|||||||||EY6|28,11,12
+M0201|12369|7086|Leninabadskaya oblast|EY7|||||||||EY7|28,11,12
+M0201|12602|7001|Nurek and Rep. subord.|EY9|||||||||EY9|28,11,12
+-0301|||Special event|EY1|||||||||EY1|
+-0501|||Tadzhikistan|UJ|||||||||[RU]J,[RU]K8[JKRSX],[RU]8[JKRSX]|6
+-04|-973|6260|Tangier|CN2|33|37|AF|Africa/Casablanca|264|||19600630|CN2,EK|2
+-0301|||US Forces|KT1||||||||||3
+L01|6234|-1196|Tanzania|5H|37|53|AF|Africa/Dar_es_Salaam|470||||5[HI]|1
+M0201|6603|-764|Arusha;Kilimanjaro;Tanga|5H2|||||||||??2|20,21
+M0201|6976|-1290|Coast;Dar Es Salaam;Mafia I.|5H3|||||||||??3|20,21
+M0201|6253|-1084|Dodoma;Singida W.|5H0|||||||||??0|20,21
+M0201|6273|-1548|Iringa|5H6|||||||||??6|20,21
+M0201|5883|-599|Kagera;Mwanza;Mara;Shinyanga;Ukerewe I.|5H9|||||||||??9|20,21
+M0201|5663|-1103|Kigoma;Rukwa;Tabora|5H8|||||||||??8|20,21
+M0201|6665|-1935|Lindi;Mtwara;Ruvuma|5H5|||||||||??5|20,21
+M0201|5938|-1498|Mbeya|5H7|||||||||??7|20,21
+M0201|6683|-1403|Morogoro|5H4|||||||||??4|20,21
+M0201|7076|-1105|Zanzibar;Pemba I.|5H1|||||||||??1|20,21
+01|29880|-1928|Temotu Province|H40|32|51|OC|Pacific/Guadalcanal|507||19980401||H40|2
+-04|25751|-1159|Territory of New Guinea|P2|28|51|OC|Pacific/Port_Moresby|267|||19750915|P2,VK9|2
+L01|18145|2775|Thailand|HS|26|49|AS|Asia/Bangkok|387||||E2,HS|1
+M0201|18082|2584|Bangkok, Nontaburi,Pathumtani, Samut Prakarn, Chainat, Phra Nakhon, Lop Buri, Saraburi, Ang Tong, Sing . Buri|HS1|||||||||??1|3
+M0201|18267|2399|Chantaburi,Chachoengsao, Chonburi,Trat, Nakhon Nayok,Prachin Buri, Rayong, Sa Kaeo|HS2|||||||||??2|3
+M0201|17820|3384|Chiang Rai, Chiang Mai, Lampang, Nan, Phayao, Phrae, Mae Hong Son, Lamphun|HS5|||||||||??5|3
+M0201|17763|1606|Chumphon, Surat Thani, Nakhon Si Thammarat, Phang Nga, Phuket, Ranong|HS8|||||||||??8|3
+-0301|||Club Station|HS#A@|||||||||??0[A-Y]|4
+-0301|||Guest operator|HS0Z|||||||||??0.,??0Z@@.|4
+M0201|18547|3000|Kalasin, Khon Kaen, Maha Sarakham, Mukdahan, Roi Et, Yasothon, Sakon Nakhon, Nong Khai, Udon Thani|HS4|||||||||??4|3
+M0201|18007|1239|Krabi, Trang, Pattani, Narathiwat, Phattalung, Yala, Songkhia, Satun|HS9|||||||||??9|3
+M0201|17897|2409|Nakhon Pathom, Samut Sakhon, Kanchanaburi, Suphan Buri, Prachuab Khiri Khan, Phetchaburi, . Ratchaburi, Samut Songkhram|HS7|||||||||??7|3
+M0201|18557|2644|Nakhon Ratchasima, Chayaphum, Buri Ram, Ubon Ratchathani, Si Sa Ket, Surin|HS3|||||||||??3|3
+M0201|17952|2930|Nakhon Sawan, Kamphaeng Phet, Phitsanulok, Tak, Phichit, Phetchabum, Sukhothai, Uttaradit, Uthai Thani|HS6|||||||||??6|3
+01|-2895|2409|The Gambia|C5|35|46|AF|Africa/Banjul|422||||C5|2,7
+-0501|||Gambia|ZD3|||||||||ZD3|54
+-0301|||Resident|C53|||||||||C53|
+-0301|||Visitor|C56|||||||||C56|
+-04|14991|5843|Tibet|AC4|23|41|AS|Asia/Urumqi|268|||19740530|AC4|2
+01|22625|-1597|Timor Leste|4W|28|54|OC|Asia/Dili|511||20000301||4W|2,7
+01|154|1476|Togo|5V|35|46|AF|Africa/Lome|483||||5V|1
+01|-30924|-1642|Tokelau Is.|ZK3|31|62|OC|Pacific/Fakaofo|270||||ZK3|2
+01|-31474|-3593|Tonga|A3|32|62|OC|Pacific/Tongatapu|160||||A3|2
+-04|2472|8219|Trieste|I1|15|28|EU|Europe/Rome|271|||19570331|I1|2
+L01|-5421|-3690|Trindade & Martim Vaz Is.|PY0T|11|15|SA|America/Noronha|273||||P[P-Y]0[TM],Z[V-Z]0[TM],P[P-Y]0Z[TM],Z[V-Z]0Z[TM]|1,3
+-0301|||Guest operator|PY0Z|||||||||??#Z|3
+M0201|-5373|-3690|Martin Vaz I.|PY0M|||||||||??#M,??#ZM|3
+M0201|-5457|-3693|Trindade I.||||||||||??#T,??#ZT|3
+01|-11034|1875|Trinidad & Tobago|9Y|09|11|SA|America/Port_of_Spain|090||||9[YZ]|1
+L01|-2057|-6963|Tristan da Cunha & Gough I.|ZD9|38|66|AF|Atlantic/St_Helena|274||||ZD9|2
+M0201|-1797|-7264|Gough I.|ZD9G|||||||||ZD9G|4
+M0201|-2213|-6684|Tristan da Cunha I.|ZD9B|||||||||ZD9[BC]|4
+01|9814|-2860|Tromelin I.|FT#T|39|53|AF|Indian/Reunion|276||||FT#T|2
+01|1634|6034|Tunisia|3V|33|37|AF|Africa/Tunis|474||||3V,TS|1
+L01|6234|6993|Turkey|TA|20|39|AS;EU|Europe/Istanbul|390||||T[A-C],YM|1
+M0201|6252|7291|Center-north Anatolia|TA6|||AS||||||??6|3,43
+M0201|6010|6731|Center-south Anatolia|TA5|||AS||||||??5|3,43
+-0301|||Club Station|TA#K|||||||||@@#K|7
+M0201|7640|7050|Eastern Anatolia|TA9|||AS||||||??9|3,43
+M0201|4854|7416|European Turkey|TA1|||EU||||||??1|3,43
+M0201|6870|7135|Northeastern Anatolia|TA7|||AS||||||??7|3,43
+M0201|5655|7190|Nortwestern Anatolia|TA2|||AS||||||??2|3,43
+M0201|6980|6801|Southeastern Anatolia|TA8|||AS||||||??8|3,43
+M0201|5269|6760|Southwestern Anatolia|TA4|||AS||||||??4|3,43
+M0201|5012|7290|Station on an Island|TA0|||||||||??0|3,43,7
+M0201|4960|7055|Western Anatolia|TA3|||AS||||||??3|3,43
+L01|10620|7051|Turkmenistan|EZ|17|30|AS|Asia/Ashgabat|280||||EZ|2
+M0201|10559|6949|Akhalsky veloyat|EZ3|||||||||??3|11,12
+M0901|10503|6840|Ashgabad|EZ8|||||||||??8|11,12
+M0201|9893|7146|Balkansky veloyat|EZ4|||||||||??4|11,12
+-0301|||Club station|EZ#@|||||||||@@#@.|11,12
+M0201|10529|7401|Dashkhovuzsky veloyat|EZ6|||||||||??6|11,12
+-0301|||Guest operator|EZ0|||||||||@@0|11,12
+M0201|11339|6966|Lebapsky veloyat|EZ7|||||||||??7|11,12
+M0201|11160|6732|Maryisky veloyat|EZ5|||||||||??5|11,12
+-0501|||Turkmenistan|UH|||||||||[RU]H,[RU]K8[BEHWY],[RU]8[BEHWY]|6
+01|-13082|3872|Turks & Caicos Is.|VP5|08|11|NA|America/Grand_Turk|089||||V[PQ]5|2
+01|31905|-1177|Tuvalu|T2|31|65|OC|Pacific/Funafuti|282||||T2|1
+01|5792|277|Uganda|5X|37|48|AF|Africa/Kampala|286||||5X|1
+01|6071|6300|UK Sov. Base Areas on Cyprus|ZC4|20|39|AS|Asia/Nicosia|283||19600816||ZC|2
+-0301|||Novice licence|ZC4N|||||||||ZC4N|4
+L01|5400|9000|Ukraine|UR|16|29|EU|Europe/Uzhgorod>Europe/Zaporozhye|288||||E[MNO],U[R-Z],U5@@.|11-13
+M0201|5592|8840|Cherkaska oblast|UR#C||||Europe/Kiev||CH|||U[R-TV-Z]#C|11-13
+M0201|5700|9211|Chernigivska oblast|UR#R||||Europe/Kiev||CR|||U[R-TV-Z]#R|11-13
+M0201|4638|8677|Chernovytska oblast|UR#Y||||Europe/Kiev||CN|||U[R-TV-Z]#Y|11-13
+-0301|||Club station|UR#@W@|||||||||U?#@[W-Z]@.|11-13
+M0201|6120|8100|Crimea|UU||||Europe/Simferopol||KR|||UU|11-13,7
+M0902|6033|8025|Sevastopol|UU9||||||SL|||UU[09]|11-13,7
+M0201|6238|8710|Dnipropetrovska oblast|UR#E||||Europe/Kiev||DN|||U[R-TV-Z]#E|11-13
+M0201|6735|8612|Donetska oblast|UR#I||||Europe/Kiev||DO|||U[R-TV-Z]#I|11-13
+M0201|4382|8750|Ivano-Frankivska oblast|UR#S||||Europe/Kiev||IF|||U[R-TV-Z]#S|11-13
+M0201|6540|8905|Kharkivska oblast|UR#L||||Europe/Kiev||HA|||U[R-TV-Z]#L|11-13
+M0201|6016|8399|Khersonska oblast|UR#G||||Europe/Kiev||HE|||U[R-TV-Z]#G|11-13
+M0201|4810|8896|Khmelnitska oblast|UR#T||||Europe/Kiev||HM|||U[R-TV-Z]#T|11-13
+M0201|5750|8707|Kirovogradska oblast|UR#V||||Europe/Kiev||KI|||U[R-TV-Z]#V|11-13
+M0201|5461|9035|Kyivska oblast|UR#U||||Europe/Kiev||KO|||U[R-TV-Z]#U|11-13
+M0902|5496|9077|Kyiv city|UT#U||||||KV|||UT#U|7
+M0201|6953|8793|Luganska oblast|UR#M||||Europe/Zaporozhye||LU|||U[R-TV-Z]#M|11-13
+M0201|4255|8930|Lvivska oblast|UR#W||||Europe/Kiev||LV|||U[R-TV-Z]#W|11-13
+M0201|5716|8501|Mykolaivska oblast|UR#Z||||Europe/Kiev||NI|||U[R-TV-Z]#Z|11-13
+M0201|5408|8426|Odeska oblast|UR#F||||Europe/Kiev||OD|||U[R-TV-Z]#F|11-13
+M0201|6033|8922|Poltavska oblast|UR#H||||Europe/Kiev||PO|||U[R-TV-Z]#H|11-13
+M0201|4726|9161|Rivenska oblast|UR#K||||Europe/Kiev||RI|||U[R-TV-Z]#K|11-13
+M0201|6106|9149|Sumyska oblast|UR#A||||Europe/Kiev||SU|||U[R-TV-Z]#A|11-13
+M0201|4572|8881|Ternopilska oblast|UR#B||||Europe/Kiev||TE|||U[R-TV-Z]#B|11-13
+-0501|||Ukraine|UB|||||||||[UR][BTY]5,[UR]K5[A-NP-Z],[UR]5[A-NP-Z]|6
+M0201|5134|8785|Vinnitska oblast|UR#N||||Europe/Kiev||VI|||U[R-TV-Z]#N|11-13
+M0201|4425|9200|Volynska oblast|UR#P||||Europe/Kiev||VO|||U[R-TV-Z]#P|11-13
+-0301|||WW II veteran|U5|||||||||U5@@.|11-13
+M0201|4149|8699|Zakarpatska oblast|UR#D||||Europe/Uzhgorod||ZA|||U[R-TV-Z]#D|11-13
+M0201|6371|8484|Zaporizhska oblast|UR#Q||||Europe/Zaporozhye||ZP|||U[R-TV-Z]#Q|11-13
+M0201|5088|9100|Zhytomirska oblast|UR#X||||Europe/Kiev||ZH|||U[R-TV-Z]#X|11-13
+01|-13320|7247|UN HQ (New York)|4U#UN|05|08|NA|America/New_York|289||||4U#UN,4U##,4U@,4U#[A-HJ-TXYZ],4U#I[A-SU-Z],4U#IT[A-TV-Z],4U#U[A-MO-Z],4U#V[A-HJ-Z],4U#VI[ABD-Z],4U#W[A-QS-Z],4U#WR[ABD-Z],4U#[IUVW].,4U#IT.,4U#VI.,4U#WR.|2
+01|9738|4218|United Arab Emirates|A6|21|39|AS|Asia/Dubai|391||||A6|1
+-01|-17555|7020|United States of America|W|03-05|06-08|NA|America/Los_Angeles>America/New_York|291||||[KWN]#,[KWN][ABDEFIJKMNOQ-Z],A[A-GIJK],[KNW]P[06-9],[NW][CG],K[CG][0-35-9],KG4@.,KG4@@@,KC4@.,KC4@@.,KC4[B-TV-Z]@@.,KC4A[B-Z]@,KC4AA[G-Z],KC4U[A-RT-Z]@,K[CG]4#,KC4[B-TV-Z]@@@,KC4AA[A-F]@,KC4US@@|1
+L0201|-15157|6169|AL;FL;GA;KY;NC;SC;TN;VA|W4|04;05|08||America/Chicago,America/New_York|||||@4,@@4|3
+M0202|-15801|5783|Alabama|W4[AL]|4|8||||AL||||56
+M0202|-14808|5041|Florida|W4[FL]|5|8||||FL||||56
+M0202|-15169|5828|Georgia|W4[GA]|5|8||||GA||||56
+M0202|-15485|6718|Kentucky|W4[KY]|4|8||||KY||||56
+M0202|-14421|6383|North Carolina|W4[NC]|5|8||||NC||||56
+M0202|-14672|6067|South Carolina|W4[SC]|5|8||||SC||||56
+M0202|-15750|6428|Tennessee|W4[TN]|4|8||||TN||||56
+M0202|-14324|6705|Virginia|W4[VA]|5|8||||VA||||56
+L0201|-18012|5878|AR;LA;MS;NM;OK;TX|W5|04|07;08||America/Chicago,America/Denver|||||@5,@@5|3
+M0202|-16853|6208|Arcansas|W5[AR]|4|7||||AR||||56
+M0202|-16775|5517|Louisiana|W5[LA]|4|7||||LA||||56
+M0202|-16295|5993|Mississippi|W5[MS]|4|8||||MS||||56
+M0202|-19317|6152|New Mexico|W5[NM]|4|7||||NM||||56
+M0202|-17723|6364|Oklahoma|W5[OK]|4|7||||OK||||56
+M0202|-18035|5551|Texas|W5[TX]|4|7||||TX||||56
+L0201|-20740|7280|AZ;ID;MT;NV;OR;UT;WA;WY|W7|03;04|06;07||America/Los_Angeles,America/Denver|||||@7,@@7|3
+M0202|-20302|6186|Arizona|W7[AZ]|3|6||||AZ||||56
+M0202|-20720|7793|Idaho|W7[ID]|3|6||||ID||||56
+M0202|-20050|8409|Montana|W7[MT]|4|6||||MT||||56
+M0202|-21166|7022|Nevada|W7[NV]|3|6||||NV||||56
+M0202|-21844|7830|Oregon|W7[OR]|3|6||||OR||||56
+M0202|-20283|6994|Utah|W7[UT]|3|6||||UT||||56
+M0202|-21901|8465|Washington|W7[WA]|3|6||||WA||||56
+M0202|-19568|7672|Wyoming|W7[WY]|4|7||||WY||||56
+L0201|-21600|6480|CA|W6|03|06||America/Los_Angeles|||||@6,@@6|3
+M0202|||California|W6[CA]||||||CA||||56
+L0201|-17685|7688|CO;IA;KS;MN;MO;ND;NE;SD|W0|04|07||America/Denver,America/Chicago|||||@0,@@0|3
+M0202|-19123|6984|Colorado|W0[CO]||||||CO||||56
+M0202|-17024|7550|Iowa|W0[IA]||||||IA||||56
+M0202|-17906|6881|Kansas|W0[KS]||||||KS||||56
+M0202|-17228|8266|Minnesota|W0[MN]||||||MN||||56
+M0202|-16866|6863|Missouri|W0[MO]||||||MO||||56
+M0202|-18082|7448|Nebraska|W0[NE]||||||NB||||56
+M0202|-18268|8516|North Dakota|W0[ND]||||||ND||||56
+M0202|-18203|7996|South Dakota|W0[SD]||||||SD||||56
+L0201|-12879|7886|CT;MA;ME;NH;RI;VT|W1|05|08||America/New_York|||||@1,@@1|3
+M0202|-13146|7485|Connecticut|W1[CT]|5|8||||CT||||56
+M0202|-12575|8120|Maine|W1[ME]|5|8||||ME||||56
+M0202|-13015|7612|Massachusetts|W1[MA]|5|8||||MA||||56
+M0202|-12959|7821|New Hampshire|W1[NH]|5|8||||NH||||56
+M0202|-12911|7493|Rhode Island|W1[RI]|5|8||||RI||||56
+M0202|-13150|7952|Vermont|W1[VT]|5|8||||VT||||56
+L0201|-14086|7330|DE;MD;D.C.;PA|W3|05|08||America/New_York|||||@3,@@3|3
+M0202|-13864|7003|D.C.|W3[DC]||||||DC||||56
+M0202|-13603|7002|Delaware|W3[DE]||||||DE||||56
+M0202|-13898|7093|Maryland|W3[MD]||||||MD||||56
+M0202|||Pennsylvania|W3[PA]||||||PA||||56
+L0201|-16020|7380|IL;IN;WI|W9|04|08||America/Chicago>America/New_York|||||@9,@@9|3
+M0202|-16181|7161|Illinois|W9[IL]||||||IL||||56
+M0202|-15601|7183|Indiana|W9[IN]||||||IN||||56
+M0202|-16303|7985|Wisconsin|W9[WI]||||||WI||||56
+L0201|-15300|7560|MI;OH;WV|W8|04;05|08||America/Menominee,America/New_York|||||@8,@@8|3
+M0202|-15349|7766|Michigan|W8[MI]|4|||||MI||||56
+M0202|-15013|7211|Ohio|W8[OH]|4|||||OH||||56
+M0202|-14626|6908|West Virginia|W8[WV]|5|||||WV||||56
+L0201|-13575|7688|NJ;NY|W2|05|08||America/New_York|||||@2,@@2|3
+M0202|-13460|7179|New Jersey|W2[NJ]||||||NJ||||56
+M0202|-13731|7705|New York|W2[NY]||||||NY||||56
+-0301|||RESERVED PREFIX BLOCK|KP|||||||||[KNW]P,KA[2-9]@@.,KX6@@.,KL9K[A-H]@.|7
+L01|-10110|-5907|Uruguay|CX|13|14|SA|America/Montevideo|144||||C[V-X]|1
+M0201|-10279|-5524|Artigas|CX#K|||||||||??#K|3,5
+M0201|-10087|-6228|Canelones|CX#D|||||||||??#D|3,5
+M0201|-9819|-5845|Cerro Largo|CX#V|||||||||??#V|3,5
+M0201|-10403|-6153|Colonia|CX#F|||||||||??#F|3,5
+M0201|-10110|-5973|Durazno|CX#N|||||||||??#N|3,5
+M0201|-10275|-6066|Flores|CX#M|||||||||??#M|3,5
+M0201|-10095|-6104|Florida|CX#L|||||||||??#L|3,5
+M0201|-9930|-6121|Lavalleja|CX#S|||||||||??#S|3,5
+M0201|-9915|-6256|Maldonado|CX#R|||||||||??#R|3,5
+-0301|||Mobile station|CX#Z|||||||||??#Z|4,7
+M0201|-10129|-6279|Montevideo|CX#A|||||||||??#[ABC]|3,5
+M0201|-10350|-5785|Paysandu|CX#I|||||||||??#I|3,5
+M0201|-10360|-5903|Rio Negro|CX#H|||||||||??#H|3,5
+M0201|-9985|-5702|Rivera|CX#P|||||||||??#P|3,5
+M0201|-9751|-6130|Rocha|CX#T|||||||||??#T|3,5
+M0201|-10285|-5657|Salto|CX#J|||||||||??#J|3,5
+M0201|-10255|-6201|San Jose|CX#E|||||||||??#E|3,5
+M0201|-10455|-6061|Soriano|CX#G|||||||||??#G|3,5
+-0301|||Special station|CX#X|||||||||??#X|7
+M0201|-10105|-5837|Tacuarembo|CX#O|||||||||??#O|3,5
+M0201|-9798|-5960|Treinta y Tres|CX#U|||||||||??#U|3,5
+L01|11474|7326|Uzbekistan|UK|17|30|AS|Asia/Samarkand,Asia/Tashkent|292||||U[J-M]|11-13
+M0201|12987|7322|Andizhanskaya oblast|UK#F||||Asia/Tashkent|||||??#F|11-13
+M0201|11374|7587|Bukharskaya oblast|UK#L||||Asia/Samarkand|||||??#L|11-13
+-0301|||Club Station|UK#@W@|||||||||??#@[W-Z]@.|11-13
+M0201|12114|7263|Dzhizakskaya oblast|UK#V||||Asia/Samarkand|||||??#V|11-13
+M0201|12793|7264|Ferganskaya oblast|UK#G||||Asia/Tashkent|||||??#G|11-13
+M0201|10589|7765|Karakalpakia|UK#Z||||Asia/Samarkand|||||??#Z|11-13
+M0201|11854|6970|Kashkardaryinskaya oblast|UK#C||||Asia/Samarkand|||||??#C|11-13
+M0201|10972|7443|Khorezmskaya oblast|UK#U||||Asia/Samarkand|||||??#U|11-13
+M0201|12778|7363|Namanganskaya oblast|UK#O||||Asia/Tashkent|||||??#O|11-13
+M0201|11384|7206|Navoiyskaya oblast|UK#Q||||Asia/Samarkand|||||??#Q|11-13
+M0201|11918|7152|Samarkandskaya oblast|UK#I||||Asia/Samarkand|||||??#I|11-13
+M0201|12105|6831|Surkhandaryinskaya oblast|UK#T||||Asia/Samarkand|||||??#T|11-13
+M0201|12323|7277|Syrdaryinskaya oblast|UK#D||||Asia/Tashkent|||||??#D|11-13
+M0901|12420|7380|Tashkent City|UK#A||||Asia/Tashkent|||||??#A|11-13
+M0201|12533|7417|Tashkentskaya oblast|UK#B||||Asia/Tashkent|||||??#B|11-13
+-0501|||Uzbekistan|UI|||||||||UI,RI,UK8[A-DFGILOQTU-Z],4[JKL]8[A-DFGILOQTU-Z],E[KM-ORU-Z]8[A-DFGILOQTU-Z],U8[A-DFGILOQTU-Z]|6
+-0301|||WW II veteran|U8|||||||||U8@@.|11-13
+01|30053|-2795|Vanuatu|YJ|32|56|OC|Pacific/Efate|158||||YJ|1
+01|2243|7544|Vatican|HV|15|28|EU|Europe/Rome|295||||HV|1
+L01|-11904|1196|Venezuela|YV|09|12|SA|America/Caracas|148||||4M[1-9],4M@,Y[V-Y][1-9]|1,2
+M0201|-12140|988|Apure;Amazonas|YV9|||||||||??9|3
+M0201|-12343|1720|Aragua;Carabobo;Cojedes|YV4|||||||||??4|3
+M0201|-12771|1481|Barinas;Merida;Tachira|YV2|||||||||??2|3
+M0201|-11503|1200|Bolivar;Anzoategui|YV6|||||||||??6|3
+-0301|||Class A license|YY|||||||||YY|7
+-0301|||Class B license||||||||||YV|7
+M0201|-11998|1585|Distrito Federal;Guarico;Miranda;Vargas|YV5|||||||||??5|3
+M0201|-12738|1915|Falcon;Trujillo;Zulia|YV1|||||||||??1|3
+M0201|-12558|1690|Lara;Portuguesa;Yaracuy|YV3|||||||||??3|3
+M0201|-11207|1617|Monagas;Delta Amacuro|YV8|||||||||??8|3
+-0301|||Special event|4M|||||||||4M,YW,YX|
+M0201|-11438|1875|Sucre;Nueva Esparta|YV7|||||||||??7|3
+L01|19377|2145|Vietnam|3W|26|49|AS|Asia/Ho_Chi_Minh|293||||3W,XV|1
+M0901|19040|1805|Mekong Delta, Can Tho City, Vinh Long City, Phu Quoc Island|3W4|||||||||??4|7
+M0901|18918|3464|North Central Coast, Nghe An. Vinh City|3W6|||||||||??6|7
+M0901|18542|3847|Northwestern, Dien Bien City|3W8|||||||||??8|7
+M0901|19202|3755|Red River Delta, Hai Phong City|3W5|||||||||??5|7
+M0901|19051|3785|Red River Delta, Hanoi City|3W1|||||||||??[19]|7
+M0901|19478|2893|South Central Coast, Hue City, Da Nang City, Hoi An City|3W3|||||||||??3|7
+M0901|19652|2205|South Central Coast, Nha Trang City|3W7|||||||||??7|7
+M0901|19204|1940|Southeastern, Ho Chi Minh City, Vung Tau City|3W2|||||||||??2|7
+01|-11668|3188|Virgin Is.|KP2|08|11|NA|America/St_Thomas|285|VI|||[KNW]P2|3,7
+-0501|||Virgin Is.|KV4|||||||||K[BV]4|3
+01|29996|3474|Wake I.|KH9|31|65|OC|Pacific/Wake|297|UM|||[AKNW]H9|2,4
+-0501|||Wake I.|KW6|||||||||K[CW]6|3
+01|-670|9380|Wales|GW|14|27|EU|Europe/London|294||||[GM2][WC],GB|1,7
+-0301|||Advanced license|2W|||||||||2W|7
+-0301|||Beacon or repeater|GB3|||||||||GB[37]|7
+-0301|||Club station|GC|||||||||[GM]C|7
+-0301|||Foundation license|MW3|||||||||MW3@@@.|7
+-0301|||Full license|GW0|||||||||GW,MW[015]@@@.|7
+-0301|||HF Contest station|MW0@|||||||||MW#@.|7
+-0301|||Special station|GB0|||||||||GB[0-24-689]|7
+01|-31709|-2391|Wallis & Futuna Is.|FW|32|62|OC|Pacific/Wallis|298||||FW,T[OX]|2
+-04|2620|-4133|Walvis Bay|ZS9|38|57|AF|Africa/Windhoek|488||19770901|19940228|ZS9|2
+01|31343|-46|West Kiribati (Gilbert Is.)|T30|31|65|OC|Pacific/Tarawa|301||||T3@,T3[04-9]|1,2
+01|18392|636|West Malaysia|9M2|28|54|AS|Asia/Kuala_Lumpur|299||19630916||9[MW][1-579],9W0,9[MW]@|1,2
+01|-2606|4487|Western Sahara|S0|33|37|AF|Africa/El_Aaiun|302||||S0|2
+-0501|||Rio De Oro|EA9|||||||||EA9|3
+01|26845|-2968|Willis I.|VK9[W]|30|55|OC|Australia/Brisbane|303||||AX9W,AX9[ABD-KOPQS-VYZ]W,V[H-NZ]9W,V[H-NZ]9[ABD-KOPQS-VYZ]W,AX9[ABD-KOPQS-VYZ].,AX9[ABD-KOPQS-VYZ][ABD-KOPQS-VYZ],V[H-NZ]9[ABD-KOPQS-VYZ].,V[H-NZ]9[ABD-KOPQS-VYZ][ABD-KOPQS-VYZ],AX9#,V[H-NZ]9#|1,2,7,64
+-0301|||Advanced license|VK9@@|||||||||@@#@@.,@@#[A-GIJKSTUW-Z]@@.|45,7,64
+-0301|||Foundation license|VK9F|||||||||@@#F@@@.|45,7,64
+-0301|||Standard license|VK9L|||||||||@@#[HLMNPV]@@.|45,7,64
+01|8597|2800|Yemen|7O|21|39|AS|Asia/Aden|492||19900522||7O|2
+-0801|9691|2245|Aden and Socotra I.|VS9|||||||||VS9|54
+-04|7960|2687|Yemen Arab Rep.|4W|21|39|AS|Asia/Aden|154|||19900521|4W|2
+01|5040|-2700|Zambia|9J|36|53|AF|Africa/Lusaka|482||||9[IJ]|1
+-04|7080|-1108|Zanzibar|VQ1|37|53|AF|Africa/Dar_es_Salaam|307|||19740531|VQ1,5H1|2
+01|5333|-3471|Zimbabwe|Z2|38|53|AF|Africa/Harare|452||||Z2|1
