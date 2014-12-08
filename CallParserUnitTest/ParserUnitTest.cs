@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CallParser;
+using System.Collections.Generic;
 
 namespace CallParserUnitTest
 {
@@ -15,7 +16,11 @@ namespace CallParserUnitTest
             PrefixList prefixList = new PrefixList();
             prefixList.PrefixFileName = "prefix.lst";
             prefixList.CallFileName = "call.lst";
-           
+
+            parser = prefixList.LoadFiles();
+
+            
+            //List<PrefixInfo> prefixList = _CallParser.GetCallInformation("w6op");
         }
     } // end class
 }

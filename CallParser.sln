@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CallParser", "CallParser\CallParser.csproj", "{D040F2CE-758A-4DD9-8D13-D1E5FE3FA0F0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CallParserTestor", "CallParserTestor\CallParserTestor.csproj", "{F1D85A36-72BA-451E-AF1E-C23554891842}"
@@ -9,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		Questions.txt = Questions.txt
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CallParserUnitTest", "CallParserUnitTest\CallParserUnitTest.csproj", "{7CC9CC69-929B-445C-A4E8-61D2A3CAB10B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,6 +28,10 @@ Global
 		{F1D85A36-72BA-451E-AF1E-C23554891842}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1D85A36-72BA-451E-AF1E-C23554891842}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1D85A36-72BA-451E-AF1E-C23554891842}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CC9CC69-929B-445C-A4E8-61D2A3CAB10B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CC9CC69-929B-445C-A4E8-61D2A3CAB10B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CC9CC69-929B-445C-A4E8-61D2A3CAB10B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CC9CC69-929B-445C-A4E8-61D2A3CAB10B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
