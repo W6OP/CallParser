@@ -53,7 +53,7 @@ namespace CallParser
 
             if (FormatCall())
             {
-                ResolveCall();
+                ResolveCall(call);
             }
 
             return _Hits;
@@ -194,17 +194,17 @@ namespace CallParser
         /// <summary>
         /// 
         /// </summary>
-        private void ResolveCall()
+        private void ResolveCall(string call)
         {
             Int32 adf = 0;
 
-            if (_Callsign.IndexOf("ADIF", 0, 4) != -1)
+            if (call.IndexOf("ADIF", 0, 4) != -1)
             {
                 // get all numerics after ADIF
-                if (_Callsign.Length > 4)
+                if (call.Length > 4)
                 {
                     // test if numeric here
-                    if (Int32.TryParse(Callsign.Substring(4), out adf))
+                    if (Int32.TryParse(call.Substring(4), out adf))
                     {
                         if (adf != 0)
                         {
