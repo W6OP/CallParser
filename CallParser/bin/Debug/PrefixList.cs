@@ -35,9 +35,17 @@ namespace CallParser
         private string CHARS;
         private Int32 HI_CHAR;
 
-        private CallParser.Parser _Parser;
+        //private CallParser.Parser _Parser;
 
         #endregion
+
+        private List<CallInfo> _CallInfoList;
+        internal List<CallInfo> CallInfoList
+        {
+            get { return _CallInfoList; }
+            set { _CallInfoList = value; }
+        }
+
 
         /// <summary>
         /// Path to the prefix file we are using.
@@ -62,7 +70,7 @@ namespace CallParser
 
 
         // List of PrefixData objects.
-        private List<PrefixData> _HitList;
+        //private List<PrefixData> _HitList;
 
         // List of Prefix Entries
         private List<PrefixInfo> _PrefixEntryList;
@@ -80,7 +88,7 @@ namespace CallParser
             CHARS = DIGITS + LETTERS;
             HI_CHAR = CHARS.Length;
 
-            _Parser = new Parser();
+           // _Parser = new Parser();
         }
 
         #region Implementation
@@ -90,8 +98,12 @@ namespace CallParser
         /// Read lines from a text file and load into a List<>
         /// </summary>
         /// <param name="fileName"></param>
-        public CallParser.Parser LoadFiles()
+        internal void LoadFiles()
         {
+           // CallInfo callInfo = new CallInfo();
+            List<CallInfo> callInfoList = new List<CallInfo>();
+
+
             if (File.Exists(_PrefixFileName))
             {
                 List<string> prefixList = File.ReadAllLines(_PrefixFileName).Select(i => i.ToString()).ToList();
@@ -133,28 +145,32 @@ namespace CallParser
 
                 CleanPrefixEntryList();
                 BuildParentChildRelationships();
-
-                // probably ignore if error
-                if (File.Exists(_CallFileName))
-                {
-                    List<string> callList = File.ReadAllLines(_CallFileName).Select(i => i.ToString()).ToList();
-
-                    IEnumerable<CallInfo> queryCalls =
-                    from line in callList
-                    let splitLine = line.Split('=')
-                    select new CallInfo()
-                    {
-                        CallSign = splitLine[0],
-                        AdifCode = splitLine[1]
-                    };
-
-                    _Parser.CallList = queryCalls.ToList();
-
-                }
             }
-            // else return an error
 
-            return _Parser;
+            BuildCallInfoList();
+        }
+
+        /// <summary>
+        /// Build the list of calls ...
+        /// </summary>
+        private void BuildCallInfoList()
+        {
+            // probably ignore if error
+            if (File.Exists(_CallFileName))
+            {
+                List<string> callList = File.ReadAllLines(_CallFileName).Select(i => i.ToString()).ToList();
+
+                IEnumerable<CallInfo> queryCalls =
+                from line in callList
+                let splitLine = line.Split('=')
+                select new CallInfo()
+                {
+                    CallSign = splitLine[0],
+                    AdifCode = splitLine[1]
+                };
+
+                CallInfoList = queryCalls.ToList();
+            }
         }
 
         /// <summary>
@@ -193,7 +209,7 @@ namespace CallParser
         /// Convert a string that is a hex representation of a number to an Int32.
         /// Look at the length of the string. If the length is greater than 2 take
         /// the last characters(s) after the first 2 and convert to an Int as from
-        /// hex.
+        /// hex. IS LEVEL THE CHILDREN INDEX???
         /// </summary>
         /// <param name="levelIndicator"></param>
         /// <returns></returns>

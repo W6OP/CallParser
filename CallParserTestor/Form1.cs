@@ -13,24 +13,24 @@ namespace CallParserTestor
 {
     public partial class Form1 : Form
     {
-        PrefixList _PrefixList;
+        //PrefixList _PrefixList;
         Parser _CallParser;
 
         public Form1()
         {
             InitializeComponent();
 
-            _PrefixList = new CallParser.PrefixList();
-            _PrefixList.PrefixFileName = "prefix.lst";
-            _PrefixList.CallFileName = "call.lst";
+            //_PrefixList = new CallParser.PrefixList();
+            //_PrefixList.PrefixFileName = "prefix.lst";
+            //_PrefixList.CallFileName = "call.lst";
 
             _CallParser = new CallParser.Parser();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-           _CallParser = _PrefixList.LoadFiles();
-          List<PrefixInfo> prefixList =  _CallParser.GetCallInformation("w6op");
+           //_CallParser = _PrefixList.LoadFiles();
+          List<PrefixInfo> prefixList =  _CallParser.GetCallInformation(TextBoxCall.Text.Trim());
             /*
               obj.Call := '9m6ro/8';
   obj.Call := 'fo/kh0pr';

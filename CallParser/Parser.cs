@@ -9,6 +9,8 @@ namespace CallParser
 {
     public class Parser
     {
+        PrefixList _PrefixList;
+
         private string _Callsign;
         internal string Callsign
         {
@@ -16,11 +18,6 @@ namespace CallParser
             set
             {
                 _Callsign = value;
-                //if (FormatCall(_Callsign) == false)
-                //{
-                //    // I am going to make this a method call later from the calling program
-                //    ResolveCall();
-                //}
             }
         }
 
@@ -31,20 +28,25 @@ namespace CallParser
             set { _Hits = value; }
         }
 
-        private List<CallInfo> _CallList;
-        internal List<CallInfo> CallList
-        {
-            get { return _CallList; }
-            set { _CallList = value; }
-        }
-
+       
         /// <summary>
         /// Constructor;
         /// </summary>
         public Parser()
         {
+            _PrefixList = new CallParser.PrefixList();
+            _PrefixList.PrefixFileName = "prefix.lst";
+            _PrefixList.CallFileName = "call.lst";
+
+            _PrefixList.LoadFiles();
         }
 
+        /// <summary>
+        /// Entry point to the parser. We need to make sure the call is formatted correctly
+        /// and is a valid call.
+        /// </summary>
+        /// <param name="call"></param>
+        /// <returns></returns>
         public List<PrefixInfo> GetCallInformation(string call)
         {
             _Hits = new List<PrefixInfo>();
@@ -83,9 +85,9 @@ namespace CallParser
             //callList = _CallList.Where(x => x.IndexOf(call, 0, 1) != -1).ToList();
             //bool has = _CallList.Any(cus => cus.CallSign == call);
             // see if the call is in the ADIF list in the call.lst file
-            if (_CallList.Any(callObj => callObj.CallSign == _Callsign))
+            if (_PrefixList.CallInfoList.Any(callObj => callObj.CallSign == _Callsign))
             {
-                callList = _CallList.Where(t => t.CallSign == _Callsign).ToList();
+                callList = _PrefixList.CallInfoList.Where(t => t.CallSign == _Callsign).ToList();
 
                 if (Int32.TryParse(callList[0].AdifCode, out adifCode))
                 {
