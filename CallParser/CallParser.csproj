@@ -46,7 +46,7 @@
     <Compile Include="PrefixFileParser.cs" />
     <Compile Include="PrefixData.cs" />
     <Compile Include="PrefixInfo.cs" />
-    <Compile Include="PrefixList.cs">
+    <Compile Include="PrefixListOld.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />

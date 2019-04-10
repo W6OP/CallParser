@@ -51,22 +51,22 @@ namespace CallParser
         public string longitude = "0.0";           //long
 
 
-        bool isParent = false;
-        bool hasChildren = false;
-        List<PrefixData> children = new List<PrefixData>();
+        public bool isParent = false;
+        public bool hasChildren = false;
+        public List<PrefixData> children = new List<PrefixData>();
         // expanded masks
-        HashSet<string> expandedMaskSetList;    //: [[Set<String>]]
-        HashSet<string> primaryMaskSets;        //: [[Set<String>]]
-        HashSet<string> secondaryMaskSets;      //: [[Set<String>]]
-        List<String> rawMasks;
+        HashSet<string> expandedMaskSetList = new HashSet<string>();    //: [[Set<String>]]
+        public HashSet<string> primaryMaskSets = new HashSet<string>();        //: [[Set<String>]]
+        public HashSet<string> secondaryMaskSets = new HashSet<string>();      //: [[Set<String>]]
+        public List<String> rawMasks = new List<String>();
 
         bool adif = false;
-        string wae = "";
-        string wap = "";
-        string admin1 = "";
-        string admin2 = "";
-        string startDate = "";
-        string endDate = "";
+        public string wae = "";
+        public string wap = "";
+        public string admin1 = "";
+        public string admin2 = "";
+        public string startDate = "";
+        public string endDate = "";
         bool isIota = false; // implement
         string comment = "";
 
@@ -80,15 +80,31 @@ namespace CallParser
 
         public void SetMainPrefix(string fullPrefix)
         {
-
+            if (fullPrefix.IndexOf(".") != -1)
+            {
+                mainPrefix = fullPrefix.Substring(0, fullPrefix.IndexOf("."));
+            }
+            else
+            {
+                mainPrefix = fullPrefix;
+            }
         }
 
         public void SetDXCC(PrefixKind prefixKind)
         {
+            kind = prefixKind;
+
+            if (prefixKind == PrefixKind.pfDXCC)
+            {
+                adif = true;
+                isParent = true;
+            }
         }
 
         public void StoreMask(string mask)
         {
+            rawMasks.Add(mask);
+            ExpandMask(mask);
         }
 
         public void ExpandMask(string mask)

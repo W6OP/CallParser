@@ -13,7 +13,7 @@ namespace CallParserUnitTest
         {
             CallParser.PrefixFileParser parser = new CallParser.PrefixFileParser();
 
-            PrefixList prefixList = new PrefixList();
+            PrefixListOld prefixList = new PrefixListOld();
             prefixList.PrefixFileName = "prefix.lst";
             prefixList.CallFileName = "call.lst";
 

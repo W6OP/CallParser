@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
@@ -16,7 +17,7 @@ namespace CallParser
         private readonly string LETTERS = "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]";
         private readonly string CHARS = "[0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ]";
 
-        PrefixList _PrefixList;
+        public List<PrefixData> _PrefixList;
         public List<PrefixInfo> PrefixEntryList { get; set; }
 
         private string _Callsign;
@@ -34,6 +35,8 @@ namespace CallParser
         /// </summary>
         public PrefixFileParser()
         {
+            _PrefixList = new List<PrefixData>();
+
             //_PrefixList = new PrefixList
             //{
             //    PrefixFileName = "prefix.lst",
@@ -50,41 +53,132 @@ namespace CallParser
             Assembly assembly = Assembly.GetExecutingAssembly();
             XDocument xDoc;
 
-            if (File.Exists(prefixFilePath)) {
+            if (File.Exists(prefixFilePath))
+            {
 
-            } else
+            }
+            else
             {
                 using (StreamReader stream = new StreamReader(assembly.GetManifestResourceStream("CallParser.PrefixList.xml")))
                 {
                     xDoc = XDocument.Load(stream);
                 }
 
-                BuildPrefixDataList(xDoc);
+                ParsePrefixDataList(xDoc);
             }
         }
 
 
-        private void BuildPrefixDataList(XDocument xDoc)
+        private void ParsePrefixDataList(XDocument xDoc)
         {
             PrefixData prefixData = new PrefixData();
+            var prefixes = xDoc.Root.Elements("prefix");
+            int count = 0;
 
-            var children = xDoc.Root.Descendants("dx_atlas_prefixes")
-           .Where(x => x.Name == "prefix")
-           .Descendants();
-
-
-
-            //XmlNodeList nodeList = xmlDoc.SelectNodes("dx_atlas_prefixes/prefix");
-            //foreach (XmlNode prefix in nodeList)
-            //{
-            //    switch (prefix.ch.Name) {
-            //        case "a":
-            //            break;
-            //    }
-            //}
-
-
+            foreach (XElement prefixXml in prefixes)
+            {
+                BuildPrefixData(prefixXml);
             }
+
+            for (int i = 0; i <_PrefixList.Count; i++) {
+                if (_PrefixList[i].kind == PrefixKind.pfDXCC) {
+                    count = i;
+                }
+                else
+                {
+                    _PrefixList[count].hasChildren = true;
+                    _PrefixList[count].children.Add(_PrefixList[i]);
+                    // save the children's masks in the parent
+                    foreach (string mask in _PrefixList[i].primaryMaskSets) {
+                        _PrefixList[count].secondaryMaskSets.Add(mask);
+                    }
+                }
+            }
+
+            // remove all the children and store them separately
+            _PrefixList.RemoveAll(x => x.isParent == false);
+
+            int a = 0;
+        }
+
+        private void BuildPrefixData(XElement prefixXml)
+        {
+            PrefixData prefixData = new PrefixData();
+            string currentValue = "";
+
+            foreach (XElement element in prefixXml.Elements())
+            {
+                currentValue = element.Value;
+
+                switch (element.Name.ToString())
+                {
+                    case "masks":
+                        foreach (XElement mask in element.Elements())
+                        {
+                            currentValue = mask.Value;
+                            prefixData.StoreMask(currentValue);
+                        }
+                        break;
+                    case "label":
+                        prefixData.fullPrefix = currentValue ?? "";
+                        prefixData.SetMainPrefix(fullPrefix: currentValue ?? "");
+                        break;
+                    case "kind":
+                        prefixData.SetDXCC((PrefixKind)Enum.Parse(typeof(PrefixKind), currentValue));
+                        break;
+                    case "country":
+                        prefixData.country = currentValue ?? "";
+                        break;
+                    case "province":
+                        prefixData.province = currentValue ?? "";
+                        break;
+                    case "dxcc_entity":
+                        prefixData.dxcc_entity = currentValue ?? "";
+                        break;
+                    case "cq_zone":
+                        prefixData.cq = currentValue ?? "";
+                        break;
+                    case "itu_zone":
+                        prefixData.itu = currentValue ?? "";
+                        break;
+                    case "continent":
+                        prefixData.continent = currentValue ?? "";
+                        break;
+                    case "time_zone":
+                        prefixData.timeZone = currentValue ?? "";
+                        break;
+                    case "lat":
+                        prefixData.latitude = currentValue ?? "";
+                        break;
+                    case "long":
+                        prefixData.longitude = currentValue ?? "";
+                        break;
+                    case "city":
+                        prefixData.city = currentValue ?? "";
+                        break;
+                    case "wap_entity":
+                        prefixData.wap = currentValue ?? "";
+                        break;
+                    case "wae_entity":
+                        prefixData.wae = currentValue ?? "";
+                        break;
+                    case "province_id":
+                        prefixData.admin1 = currentValue ?? "";
+                        break;
+                    case "start_date":
+                        prefixData.startDate = currentValue ?? "";
+                        break;
+                    case "end_date":
+                        prefixData.endDate = currentValue ?? "";
+                        break;
+                    default:
+                        currentValue = null;
+                        break;
+                }
+            }
+
+            _PrefixList.Add(prefixData);
+        }
 
         /// <summary>
         /// Entry point to the parser. We need to make sure the call is formatted correctly
@@ -95,12 +189,12 @@ namespace CallParser
         public List<PrefixInfo> GetCallInformation(string call)
         {
             List<PrefixInfo> hits = new List<PrefixInfo>();
-          
+
             _Callsign = call;
 
             if (VerifyCallFormat())
             {
-               hits = ResolveCall(call);
+                hits = ResolveCall(call);
             }
 
             return hits;
@@ -245,7 +339,7 @@ namespace CallParser
             PrefixInfo prefixInfo = null;
             string prefix = call.Substring(0, 1);
             List<PrefixInfo> hits = new List<PrefixInfo>();
-         
+
             // get the parent prefixinfo using the first letter of the call - this may return multiple parents
             List<PrefixInfo> parents = PrefixEntryList.Where(x => x.Prefix.StartsWith(prefix)).ToList();
 
@@ -293,7 +387,7 @@ namespace CallParser
         /// <returns></returns>
         private PrefixInfo FindSingleParent(List<PrefixInfo> parents, string call, int count)
         {
-            string prefix = null; 
+            string prefix = null;
 
             while (parents.Count > 1) // need to use mask
             {
@@ -323,14 +417,14 @@ namespace CallParser
 
             // first lets do the easy search, just by first two characters of call sign
             List<PrefixInfo> children = parentPrefixInfo.Children.Where(x => x.Prefix.StartsWith(prefix) && x.IsValidPefixType == true && x.Mask != String.Empty).ToList();
-            
+
             mask = ConvertMask(parentPrefixInfo.Mask);
             maskList = mask.Split(',');
 
             switch (children.Count)
             {
                 case 0: // did not find child with 2 character prefix use mask 
-                   foreach (string rx in maskList)
+                    foreach (string rx in maskList)
                     {
                         regex = new Regex(rx);
                         match = regex.Match(prefix);

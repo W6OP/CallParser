@@ -26,7 +26,7 @@ namespace CallParser
     /// <summary>
     /// Load the list of prefixes from the prefix file.
     /// </summary>
-    public class PrefixList
+    public class PrefixListOld
     {
         #region Constants
 
@@ -71,7 +71,7 @@ namespace CallParser
         /// <summary>
         /// Constructor.
         /// </summary>
-        public PrefixList()
+        public PrefixListOld()
         {
             CHARS = DIGITS + LETTERS;
             HI_CHAR = CHARS.Length;

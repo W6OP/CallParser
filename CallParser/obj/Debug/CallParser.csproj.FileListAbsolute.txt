@@ -7,7 +7,6 @@ C:\Users\pbourget\Documents\Visual Studio 2012\Projects\Ham Radio\CallParser\Cal
 C:\Users\pbourget\Documents\Visual Studio 2012\Projects\Ham Radio\CallParser\CallParser\bin\Debug\Prefix.lst
 C:\Users\pbourget\Documents\Visual Studio 2012\Projects\Ham Radio\CallParser\CallParser\obj\Debug\CallParser.csprojResolveAssemblyReference.cache
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\bin\Debug\Call.lst
-C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\bin\Debug\PrefixList.cs
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\bin\Debug\CallParser.dll
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\bin\Debug\CallParser.pdb
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\obj\Debug\CallParser.csproj.CoreCompileInputs.cache
@@ -15,3 +14,4 @@ C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallPars
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\obj\Debug\CallParser.pdb
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\obj\Debug\CallParser.csprojAssemblyReference.cache
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\bin\Debug\PrefixList.xml
+C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\bin\Debug\PrefixListOld.cs
