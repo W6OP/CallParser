@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CallParser</RootNamespace>
     <AssemblyName>CallParser</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -42,7 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CallInfo.cs" />
-    <Compile Include="Parser.cs" />
+    <Compile Include="CallLookUp.cs" />
+    <Compile Include="PrefixFileParser.cs" />
     <Compile Include="PrefixData.cs" />
     <Compile Include="PrefixInfo.cs" />
     <Compile Include="PrefixList.cs">
@@ -54,9 +55,10 @@
     <Content Include="Call.lst">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Prefix.lst">
+    <EmbeddedResource Include="PrefixList.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

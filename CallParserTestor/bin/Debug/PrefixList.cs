@@ -11,16 +11,16 @@ namespace CallParser
 {
     internal enum PrefixType
     {
-        pfNone,
-        pfDXCC,
-        pfProvince,
-        pfStation,
-        pfDelDXCC,
-        pfOldPrefix,
-        pfNonDXCC,
-        pfInvalidPrefix,
-        pfDelProvince,
-        pfCity
+        pfNone = 0,
+        pfDXCC = 1,
+        pfProvince =2,
+        pfStation = 3,
+        pfDelDXCC = 4,
+        pfOldPrefix = 5,
+        pfNonDXCC = 6,
+        pfInvalidPrefix = 7,
+        pfDelProvince = 8,
+        pfCity = 9
     };
 
     /// <summary>
@@ -32,19 +32,18 @@ namespace CallParser
 
         private string DIGITS = "0123456789";
         private string LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        private string CHARS;
+        private string CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         private Int32 HI_CHAR;
-
-        //private CallParser.Parser _Parser;
 
         #endregion
 
-        private List<CallInfo> _CallInfoList;
-        internal List<CallInfo> CallInfoList
-        {
-            get { return _CallInfoList; }
-            set { _CallInfoList = value; }
-        }
+        // FUTURE USE IF NEEDED
+       // private List<CallInfo> _CallInfoList;
+        //internal List<CallInfo> CallInfoList
+        //{
+        //    get { return _CallInfoList; }
+        //    set { _CallInfoList = value; }
+        //}
 
 
         /// <summary>
@@ -67,18 +66,7 @@ namespace CallParser
             set { _CallFileName = value; }
         }
 
-
-
-        // List of PrefixData objects.
-        //private List<PrefixData> _HitList;
-
-        // List of Prefix Entries
-        private List<PrefixInfo> _PrefixEntryList;
-        internal List<PrefixInfo> PrefixEntryList
-        {
-            get { return _PrefixEntryList; }
-            set { _PrefixEntryList = value; }
-        }
+        public List<PrefixInfo> PrefixEntryList { get; set; }
 
         /// <summary>
         /// Constructor.
@@ -100,10 +88,6 @@ namespace CallParser
         /// <param name="fileName"></param>
         internal void LoadFiles()
         {
-           // CallInfo callInfo = new CallInfo();
-            List<CallInfo> callInfoList = new List<CallInfo>();
-
-
             if (File.Exists(_PrefixFileName))
             {
                 List<string> prefixList = File.ReadAllLines(_PrefixFileName).Select(i => i.ToString()).ToList();
@@ -113,6 +97,10 @@ namespace CallParser
                 prefixList = prefixList.Where(x => x.IndexOf("#", 0, 1) == -1).ToList();
 
                 //#InternalUse|Longitude|Latitude|Territory|+Prefix|-CQ|-ITU|-Continent|-TZ|-ADIF|-Province|-StartDate|-EndDate|-Mask|-Source|
+
+                // COULD LOOK AT THE PREFIX TYPE FIRST AND NOT BOTHER WITH 
+                // ALL THE CRAP I DON'T NEED
+
 
                 // Merge the data sources using a named type. 
                 // var could be used instead of an explicit type.
@@ -124,7 +112,6 @@ namespace CallParser
                         PrefixKind = DeterminePrefixType(splitLine[0]),
                         // convert hex string to int
                         Level = DetermineLevel(splitLine[0]),
-                        //Convert.ToInt32(!string.IsNullOrEmpty(splitName[0].Substring(2,2)) ? splitName[0] : "0", 16),
                         Longitude = Convert.ToInt32(!string.IsNullOrEmpty(splitLine[1]) ? splitLine[1] : "0"),
                         Latitude = Convert.ToInt32(!string.IsNullOrEmpty(splitLine[2]) ? splitLine[2] : "0"),
                         Territory = splitLine[3],
@@ -141,44 +128,46 @@ namespace CallParser
                         Source = splitLine[14]
                     };
 
-                _PrefixEntryList = queryPrefixes.ToList();
+                PrefixEntryList = queryPrefixes.ToList();
 
                 CleanPrefixEntryList();
                 BuildParentChildRelationships();
             }
 
-            BuildCallInfoList();
+            // FUTURE USE
+            //BuildCallInfoList();
         }
 
         /// <summary>
+        /// // FUTURE USE
         /// Build the list of calls ...
         /// </summary>
-        private void BuildCallInfoList()
-        {
-            // probably ignore if error
-            if (File.Exists(_CallFileName))
-            {
-                List<string> callList = File.ReadAllLines(_CallFileName).Select(i => i.ToString()).ToList();
+        //private void BuildCallInfoList()
+        //{
+        //    // probably ignore if error
+        //    if (File.Exists(_CallFileName))
+        //    {
+        //        List<string> callList = File.ReadAllLines(_CallFileName).Select(i => i.ToString()).ToList();
 
-                IEnumerable<CallInfo> queryCalls =
-                from line in callList
-                let splitLine = line.Split('=')
-                select new CallInfo()
-                {
-                    CallSign = splitLine[0],
-                    AdifCode = splitLine[1]
-                };
+        //        IEnumerable<CallInfo> queryCalls =
+        //        from line in callList
+        //        let splitLine = line.Split('=')
+        //        select new CallInfo()
+        //        {
+        //            CallSign = splitLine[0],
+        //            AdifCode = splitLine[1]
+        //        };
 
-                CallInfoList = queryCalls.ToList();
-            }
-        }
+        //        CallInfoList = queryCalls.ToList();
+        //    }
+        //}
 
         /// <summary>
         /// Delete all the items with invalid prefix types.
         /// </summary>
         private void CleanPrefixEntryList()
         {
-            _PrefixEntryList.RemoveAll(x => x.IsValidPefixType == false);
+            PrefixEntryList.RemoveAll(x => x.IsValidPefixType == false);
         }
 
         /// <summary>
@@ -190,7 +179,7 @@ namespace CallParser
         {
             PrefixInfo parent = new PrefixInfo();
 
-            foreach (PrefixInfo info in _PrefixEntryList)
+            foreach (PrefixInfo info in PrefixEntryList)
             {
                 if (info.IsParent)
                 {
@@ -202,7 +191,7 @@ namespace CallParser
                 }
             }
 
-            _PrefixEntryList.RemoveAll(x => x.IsParent == false);
+            PrefixEntryList.RemoveAll(x => x.IsParent == false);
         }
 
         /// <summary>
@@ -281,37 +270,6 @@ namespace CallParser
             }
         }
 
-        private PrefixInfo AddEntry()
-        {
-
-            return new PrefixInfo();
-        }
-
-        private void BuildRelation()
-        {
-        }
-
-        private Int32 ParentOf(Int32 EntryNo)
-        {
-
-            return 0;
-        }
-
-        private void BuildIndex()
-        {
-        }
-
-        private void AddToIndex(Char C1, Char C2, PrefixInfo Entry)
-        {
-        }
-
-
-
-        public string Chop(string inputString)
-        {
-
-            return "";
-        }
         //       private
         //  procedure LoadFromStrings(List: TStringList);
         //  function AddEntry: PPrefixEntry;

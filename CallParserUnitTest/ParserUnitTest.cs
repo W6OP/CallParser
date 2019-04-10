@@ -11,7 +11,7 @@ namespace CallParserUnitTest
         [TestMethod]
         public void TestMethod1()
         {
-            CallParser.Parser parser = new CallParser.Parser();
+            CallParser.PrefixFileParser parser = new CallParser.PrefixFileParser();
 
             PrefixList prefixList = new PrefixList();
             prefixList.PrefixFileName = "prefix.lst";

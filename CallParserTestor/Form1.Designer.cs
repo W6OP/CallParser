@@ -40,14 +40,16 @@
             this.button1.TabIndex = 0;
             this.button1.Text = "button1";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Click += new System.EventHandler(this.Button1_Click);
             // 
             // TextBoxCall
             // 
+            this.TextBoxCall.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
             this.TextBoxCall.Location = new System.Drawing.Point(48, 113);
             this.TextBoxCall.Name = "TextBoxCall";
             this.TextBoxCall.Size = new System.Drawing.Size(100, 20);
             this.TextBoxCall.TabIndex = 1;
+            this.TextBoxCall.Text = "WA6YUL";
             // 
             // Form1
             // 

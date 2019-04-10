@@ -6,14 +6,67 @@ using System.Threading.Tasks;
 
 namespace CallParser
 {
-   internal class CallInfo
+    // #InternalUse|Longitude|Latitude|Territory|+Prefix|-CQ|-ITU|-Continent|-TZ|-ADIF|-Province|-StartDate|-EndDate|-Mask|-Source|
+    internal class CallInfo
     {
-        private string _CallSign;
-        internal string CallSign
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        internal CallInfo()
         {
-            get { return _CallSign; }
-            set { _CallSign = value; }
         }
+
+        internal string InternalUse { get; set; }
+
+        internal string Longitude { get; set; }
+
+        internal string Latitude { get; set; }
+
+        internal string Territory { get; set; }
+
+        internal string Prefix { get; set; }
+
+        internal string CQ { get; set; }
+
+        internal string ITU { get; set; }
+
+        internal string Continent { get; set; }
+
+        internal string TZ { get; set; }
+
+        internal string ADIF { get; set; }
+
+        internal string Province { get; set; }
+
+        internal string StartDate { get; set; }
+
+        internal string EndDate { get; set; }
+
+        internal string Mask { get; set; }
+
+        internal string Source { get; set; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        internal string CallSign { get; set; }
 
         private string _AdifCode;
         internal string AdifCode
@@ -22,12 +75,7 @@ namespace CallParser
             set { _AdifCode = value; }
         }
 
-       /// <summary>
-       /// Constructor
-       /// </summary>
-       internal CallInfo()
-       {
-       }
+
 
 
     } // end class
