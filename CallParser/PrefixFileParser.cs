@@ -18,6 +18,7 @@ namespace CallParser
         private readonly string CHARS = "[0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ]";
 
         public List<PrefixData> _PrefixList;
+        public List<PrefixData> _ChildPrefixList;
         public List<PrefixInfo> PrefixEntryList { get; set; }
 
         private string _Callsign;
@@ -36,7 +37,7 @@ namespace CallParser
         public PrefixFileParser()
         {
             _PrefixList = new List<PrefixData>();
-
+            _ChildPrefixList = new List<PrefixData>();
             //_PrefixList = new PrefixList
             //{
             //    PrefixFileName = "prefix.lst",
@@ -89,16 +90,22 @@ namespace CallParser
                     _PrefixList[count].hasChildren = true;
                     _PrefixList[count].children.Add(_PrefixList[i]);
                     // save the children's masks in the parent
-                    foreach (string mask in _PrefixList[i].primaryMaskSets) {
-                        _PrefixList[count].secondaryMaskSets.Add(mask);
-                    }
+                    List<HashSet<string>> list = (from x in _PrefixList[i].primaryMaskSets select new HashSet<string> { }).ToList();
+                    //foreach (HashSet<string> mask in list) // _PrefixList[i].primaryMaskSets
+                    //{  
+                        _PrefixList[count].secondaryMaskSets.Add(list); // (mask); 
+                    //}
                 }
             }
 
             // remove all the children and store them separately
-            _PrefixList.RemoveAll(x => x.isParent == false);
+            var children = _PrefixList.Where(item => item.isParent == false);
+            foreach (PrefixData child in children)
+            {
+                _ChildPrefixList.Add(child);
+            }
 
-            int a = 0;
+            _PrefixList.RemoveAll(x => x.isParent == false);
         }
 
         private void BuildPrefixData(XElement prefixXml)
@@ -124,7 +131,8 @@ namespace CallParser
                         prefixData.SetMainPrefix(fullPrefix: currentValue ?? "");
                         break;
                     case "kind":
-                        prefixData.SetDXCC((PrefixKind)Enum.Parse(typeof(PrefixKind), currentValue));
+                        //prefixData.SetDXCC((PrefixKind)Enum.Parse(typeof(PrefixKind), currentValue));
+                        prefixData.SetDXCC(EnumEx.GetValueFromDescription<PrefixKind>(currentValue));
                         break;
                     case "country":
                         prefixData.country = currentValue ?? "";
