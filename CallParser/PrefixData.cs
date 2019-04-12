@@ -160,7 +160,8 @@ namespace CallParser
                     case "@":
                     case "#":
                     case "?":
-                        expandedMaskSetList.Append(GetMetaMaskSet(item.ToString()));        //////////////////////////////   FIX THIS
+                        expandedMask = GetMetaMaskSet(item.ToString());
+                        expandedMaskSetList.Add(expandedMask);        //////////////////////////////   FIX THIS
                         counter += 1;
                         newMask = mask.Substring(counter);
                         break;
@@ -179,13 +180,13 @@ namespace CallParser
             expandedMaskSetList = new List<HashSet<string>>();
         }
 
-        private HashSet<string> GetMetaMaskSet(string character)
-        {
+        //private HashSet<string> GetMetaMaskSet(string character)
+        //{
 
 
 
-            return new HashSet<string>();
-        }
+        //    return new HashSet<string>();
+        //}
 
         /// <summary>
         /// Split string and eliminate "[" or "]" and empty entries.
@@ -236,25 +237,26 @@ namespace CallParser
                 // TODO: double check the [0-9-W] is processed correctly - 7[RT-Y][016-9@] - [AKW]L#/
 
                 currentCharacter = componentString[counter].ToString() ?? "";
-                tempMask = getMetaMaskSet(currentCharacter);
-                expandedMask.Union(tempMask);
+                tempMask = GetMetaMaskSet(currentCharacter);
+                expandedMask.UnionWith(tempMask);
 
                 while (tempMask.Count != 0)
                 { // in case of ##
                     counter += 1;
                     currentCharacter = componentString[counter].ToString() ?? "";
-                    tempMask = getMetaMaskSet(currentCharacter);
+                    tempMask = GetMetaMaskSet(currentCharacter);
                     expandedMask.Union(tempMask);
                 }
 
                 currentCharacter = componentString[counter].ToString() ?? "";
-                //if ((counter + 1) < components[0].Length) {
-                    nextCharacter = componentString[counter + 1].ToString() ?? "";
-                //} else
-                //{
-                //    nextCharacter = "";
-                //}
-                
+                if ((counter + 1) < components[0].Length) {
+                nextCharacter = componentString[counter + 1].ToString() ?? "";
+                }
+                else
+                {
+                    nextCharacter = "";
+                }
+
 
                 // is the nextChar a "-" ??
                 //  CharacterType characterType = EnumEx.GetValueFromDescription<CharacterType>(character);
@@ -263,7 +265,7 @@ namespace CallParser
                     counter += 1;
                     nextCharacter = componentString[counter + 1].ToString() ?? "";
                     tempMask = buildRange(currentCharacter, nextCharacter);
-                    expandedMask.Union(tempMask);
+                    expandedMask.UnionWith(tempMask);
                     counter += 2;
                 }
                 else
@@ -276,7 +278,7 @@ namespace CallParser
                             // 0-9-W get previous character
                             previousCharacter = componentString[counter - 1].ToString() ?? "";
                             tempMask = buildRange(previousCharacter, nextCharacter);
-                            expandedMask.Union(tempMask);
+                            expandedMask.UnionWith(tempMask);
                             counter += 1;
                         }
                         else
@@ -369,7 +371,7 @@ namespace CallParser
         /// </summary>
         /// <param name="character"></param>
         /// <returns></returns>
-        public HashSet<string> getMetaMaskSet(string character)
+        public HashSet<string> GetMetaMaskSet(string character)
         {
             HashSet<string> expandedMask = new HashSet<string>();
 
