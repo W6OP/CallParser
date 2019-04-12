@@ -11,13 +11,13 @@ namespace CallParserUnitTest
         [TestMethod]
         public void TestMethod1()
         {
-            CallParser.PrefixFileParser parser = new CallParser.PrefixFileParser();
+            //CallParser.PrefixFileParser parser = new CallParser.PrefixFileParser();
 
-            PrefixListOld prefixList = new PrefixListOld();
-            prefixList.PrefixFileName = "prefix.lst";
-            prefixList.CallFileName = "call.lst";
+            //PrefixListOld prefixList = new PrefixListOld();
+            //prefixList.PrefixFileName = "prefix.lst";
+            //prefixList.CallFileName = "call.lst";
 
-            parser = prefixList.LoadFiles();
+            //parser = prefixList.LoadFiles();
 
             
             //List<PrefixInfo> prefixList = _CallParser.GetCallInformation("w6op");
