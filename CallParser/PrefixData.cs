@@ -166,8 +166,10 @@ namespace CallParser
                         newMask = mask.Substring(counter);
                         break;
                     default: // single character
-                        expandedMask = new HashSet<string>();
-                        expandedMask.Add(item.ToString());
+                        expandedMask = new HashSet<string>
+                        {
+                            item.ToString()
+                        };
                         expandedMaskSetList.Add(expandedMask);
                         counter += 1;
                         newMask = mask.Substring(counter);
@@ -179,14 +181,6 @@ namespace CallParser
             // just cosmetic cleanup
             expandedMaskSetList = new List<HashSet<string>>();
         }
-
-        //private HashSet<string> GetMetaMaskSet(string character)
-        //{
-
-
-
-        //    return new HashSet<string>();
-        //}
 
         /// <summary>
         /// Split string and eliminate "[" or "]" and empty entries.
@@ -222,7 +216,7 @@ namespace CallParser
             {
                 componentString = components[0];
 
-                if (counter == componentString.Length)
+                if (counter >= componentString.Length)
                 {
                     expandedMaskSetList.Add(expandedMask);
                     return; // completed
@@ -243,14 +237,30 @@ namespace CallParser
                 while (tempMask.Count != 0)
                 { // in case of ##
                     counter += 1;
-                    currentCharacter = componentString[counter].ToString() ?? "";
+                    // currentCharacter = componentString[counter].ToString() ?? "";
+                    if (counter < componentString.Length)
+                    {
+                        currentCharacter = componentString[counter].ToString() ?? "";
+                    } else
+                    {
+                        currentCharacter = "";
+                    }
                     tempMask = GetMetaMaskSet(currentCharacter);
                     expandedMask.Union(tempMask);
                 }
 
-                currentCharacter = componentString[counter].ToString() ?? "";
-                if ((counter + 1) < components[0].Length) {
-                nextCharacter = componentString[counter + 1].ToString() ?? "";
+                //currentCharacter = componentString[counter].ToString() ?? "";
+                if (counter < componentString.Length)
+                {
+                    currentCharacter = componentString[counter].ToString() ?? "";
+                }
+                else
+                {
+                    currentCharacter = "";
+                }
+
+                if ((counter + 1) < componentString.Length) {
+                    nextCharacter = componentString[counter + 1].ToString() ?? "";
                 }
                 else
                 {
@@ -264,7 +274,7 @@ namespace CallParser
                 {
                     counter += 1;
                     nextCharacter = componentString[counter + 1].ToString() ?? "";
-                    tempMask = buildRange(currentCharacter, nextCharacter);
+                    tempMask = BuildRange(currentCharacter, nextCharacter);
                     expandedMask.UnionWith(tempMask);
                     counter += 2;
                 }
@@ -277,7 +287,7 @@ namespace CallParser
                         {
                             // 0-9-W get previous character
                             previousCharacter = componentString[counter - 1].ToString() ?? "";
-                            tempMask = buildRange(previousCharacter, nextCharacter);
+                            tempMask = BuildRange(previousCharacter, nextCharacter);
                             expandedMask.UnionWith(tempMask);
                             counter += 1;
                         }
@@ -298,7 +308,7 @@ namespace CallParser
         /// <param name="currentCharacter"></param>
         /// <param name="nextCharacter"></param>
         /// <returns></returns>
-        public HashSet<string> buildRange(string currentCharacter, string nextCharacter)
+        public HashSet<string> BuildRange(string currentCharacter, string nextCharacter)
         {
             HashSet<string> expandedMask = new HashSet<string>();
 
@@ -410,17 +420,6 @@ namespace CallParser
             return expandedMask;
         }
 
-        //    private string GetCharFromArr(int index) {
-        //        //    if(i<alphabet.count){
-        //        //        return alphabet[i]
-        //        //}else{
-        //        //        print("wrong index")
-        //        //        return ""
-        //        //    }
-
-        //        return 0;
-        //}
-
         private int GetCharacterIndex(string character)
         {
             return Array.IndexOf(alphabet, character);
@@ -434,6 +433,9 @@ namespace CallParser
 
     } // end class
 
+    /// <summary>
+    /// Get the enum value from the description.
+    /// </summary>
     public static class EnumEx
     {
         public static T GetValueFromDescription<T>(string description)
@@ -442,9 +444,8 @@ namespace CallParser
             if (!type.IsEnum) throw new InvalidOperationException();
             foreach (var field in type.GetFields())
             {
-                var attribute = Attribute.GetCustomAttribute(field,
-                    typeof(DescriptionAttribute)) as DescriptionAttribute;
-                if (attribute != null)
+                if (Attribute.GetCustomAttribute(field,
+                    typeof(DescriptionAttribute)) is DescriptionAttribute attribute)
                 {
                     if (attribute.Description == description)
                         return (T)field.GetValue(null);
