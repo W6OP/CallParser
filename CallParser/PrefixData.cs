@@ -122,6 +122,7 @@ namespace CallParser
         {
             rawMasks.Add(mask);
             ExpandMask(mask);
+            //Console.WriteLine(mask);
         }
 
         // SET for C# https://www.codeproject.com/Articles/8575/Yet-Another-C-set-class

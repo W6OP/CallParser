@@ -14,4 +14,3 @@ C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallPars
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\obj\Debug\CallParser.pdb
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\obj\Debug\CallParser.csprojAssemblyReference.cache
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\bin\Debug\PrefixList.xml
-C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\bin\Debug\PrefixListOld.cs

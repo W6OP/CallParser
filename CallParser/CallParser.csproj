@@ -41,14 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CallInfo.cs" />
     <Compile Include="CallLookUp.cs" />
     <Compile Include="PrefixFileParser.cs" />
     <Compile Include="PrefixData.cs" />
-    <Compile Include="PrefixInfo.cs" />
-    <Compile Include="PrefixListOld.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
