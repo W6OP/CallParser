@@ -1,0 +1,526 @@
+﻿ProcessMatches
+
+
+            //foreach (PrefixData match in matches)
+            //{
+            //    PopulateHitList(match, callAndprefix);
+            //    foreach (PrefixData child in match.children)
+            //    {
+            //        foreach (List<HashSet<string>> mask in child.primaryMaskSets)
+            //        {
+            //            if (CompareMask(mask, callSetList))
+            //            {
+            //                PopulateHitList(child, callAndprefix);
+            //            }
+            //        }
+            //    }
+            //}
+
+
+			SearchSecondaryPrefixes
+			  foreach (PrefixData prefixData in _PrefixList)
+            {
+                if (prefixData.primaryMaskSets.Count > 1)
+                {
+                    // first find out which set is the smallest and we will only match that number a chars
+                    var min = prefixData.primaryMaskSets.OrderBy(c => c.Count).FirstOrDefault(); // -------------------------------optimize
+                    maxCount = min.Count;
+
+                    for (int i = 0; i < maxCount; i++)
+                    {
+                        HashSet<string> temp = new HashSet<string>(callSetList[i]);
+                        temp.IntersectWith(min[i]);
+                        if (temp.Count != 0)
+                        {
+                            match = true;
+                            //return match // is there any reason to continue here?
+                            //found W4 do we need W4/ - however get 31 hits vs. 3
+                        }
+                        else
+                        {
+                            match = false;
+                            break;
+                        }
+
+                        if (match)
+                        {
+                            matches.Insert(0, prefixData);
+                        }
+                    }
+                }
+            }
+
+
+			private void SearchChildren((string call, string callPrefix) callAndprefix)
+        {
+            List<HashSet<string>> callSetList = GetCallSetList(callAndprefix.call);
+
+            foreach (PrefixData child in _ChildPrefixList)
+            {
+                foreach (List<HashSet<string>> mask in child.primaryMaskSets)
+                {
+                    if (CompareMask(mask, callSetList))
+                    {
+                        PopulateHitList(child, callAndprefix);
+                    }
+
+                }
+            }
+        }
+
+
+		Exception thrown: 'System.ArgumentOutOfRangeException' in mscorlib.dll
+F/CS7AMH
+Index and length must refer to a location within the string.
+Parameter name: length
+The thread 0x1d6c has exited with code 0 (0x0).
+Exception thrown: 'System.Exception' in CallParser.dll
+IK0YVV       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+V31UX        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+IK0YVV       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+IK0YVV       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+V31UX        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G4SIE        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+V31UX        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G4SIE        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+E73RB        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+E73RB        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UA6YX        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+DK1YH/P      C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+RT2F         C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G3VMW        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G3VMW        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G3VMW        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+DL4CF        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G3VMW        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+RT2F         C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+DL4CF        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+RT2F         C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+DL4CF        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UA6YX        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+DK1YH/P      C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+E73RB        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+RT2F         C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G3VMW        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+DL4CF        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+DK1YH/P      C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+RT2F         C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+DL4CF        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+DF13PAR      C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+E73RB        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+RT2F         C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G3VMW        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+DL4CF        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G3VMW        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G3VMW        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+OZ1AAR       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+OZ1AAR       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+OZ1AAR       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+OZ1AAR       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+OZ1AAR       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G3VMW        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+DL4CF        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+OZ1AAR       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+OZ1AAR       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+OK1CZ        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G3VMW        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+OZ1AAR       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+OK1CZ        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+OZ1AAR       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+OK2LA        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+OZ1AAR       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+OZ1AAR       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+OK1CZ        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+OK2LA        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+PG2AA        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+PG2AA        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+EK6RL        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+OK2LA        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+PG2AA        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+EK6RL        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+EA7EGU       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+RU3TJ        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+EA7EGU       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+EK6RL        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+RU3TJ        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+GS8VL        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+GS8VL        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+RU3TJ        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+GS8VL        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+GS8VL        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G4SIE        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+E73RB        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+IS0QCV       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+YO5AJR       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+SP4AWE       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+GS8VL        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+IS0QCV       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G4SIE        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+YO5AJR       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+E73RB        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+SP4AWE       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+IK0YVV       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+SP4AWE       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+SP4AWE       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G4SIE        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+SP4AWE       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+DJ4WT        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+SP2HEA       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+SP2HEA       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+SP2HEA       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+SP4AWE       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+SP2HEA       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+GS8VL        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+IS0QCV       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+DJ4WT        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G4SIE        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+YO5AJR       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+E73RB        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+IK0YVV       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UW1WU        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UW1WU        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UA1AUW       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UW1WU        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+GS8VL        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+YO5AJR       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+E73RB        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UW1WU        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UA1AUW       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UA1AUW       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UR5MM        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+DA200TF      C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+DA200TF      C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+GS8VL        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UW1WU        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UA1AUW       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+DA200TF      C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UA1AUW       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+IU0JFZ       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+DA200TF      C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UW1WU        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UA1AUW       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+IU0JFZ       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+PB7Z         C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+DA200TF      C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UW1WU        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UA1AUW       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+IU0JFZ       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+PB7Z         C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+PB7Z         C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UA1AUW       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UA1AUW       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+PB7Z         C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G3LDI        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G3LDI        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+E73RB        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+UA1AUW       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+G3LDI        C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+SP4AWE       C
+Invalid call sign format
+Exception thrown: 'System.Exception' in CallParser.dll
+SP4AWE       C
+Invalid call sign format
+Exception thrown: 'System.ArgumentOutOfRangeException' in mscorlib.dll
+M/YO4HGX
+Index and length must refer to a location within the string.
+Parameter name: length
+Exception thrown: 'System.ArgumentOutOfRangeException' in mscorlib.dll
+M/YO4HGX
+Index and length must refer to a location within the string.
+Parameter name: length
+Exception thrown: 'System.ArgumentOutOfRangeException' in mscorlib.dll
+M/YO4HGX
+Index and length must refer to a location within the string.
+Parameter name: length
+Exception thrown: 'System.ArgumentOutOfRangeException' in mscorlib.dll
+M/YO4HGX
+Index and length must refer to a location within the string.
+Parameter name: length
+Exception thrown: 'System.ArgumentOutOfRangeException' in mscorlib.dll
+M/YO4HGX
+Index and length must refer to a location within the string.
+Parameter name: length
+Exception thrown: 'System.NullReferenceException' in CallParser.dll
+
+Object reference not set to an instance of an object.
+Finished

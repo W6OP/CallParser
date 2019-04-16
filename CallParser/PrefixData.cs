@@ -213,6 +213,8 @@ namespace CallParser
             HashSet<string> expandedMask = new HashSet<string>();
             HashSet<string> tempMask = new HashSet<string>();
 
+           // Parallel.ForEach(components[0], item =>
+           // {
             foreach (char item in components[0])
             {
                 componentString = components[0];
@@ -299,7 +301,10 @@ namespace CallParser
                     }
                     counter += 1;
                 }
-            } // end for
+                } // end for
+           // }
+     //); // end for
+
             expandedMaskSetList.Add(expandedMask);
         }
 
@@ -458,7 +463,7 @@ namespace CallParser
                 }
             }
             //throw new ArgumentException("Not found.", "description");
-            return default(T);
+            return default;
         }
     }
 }

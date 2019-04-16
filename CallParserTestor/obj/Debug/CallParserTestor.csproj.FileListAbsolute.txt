@@ -28,3 +28,8 @@ C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallPars
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\obj\Debug\CallParserTestor.csproj.CopyComplete
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\PrefixList.xml
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\Prefix.xml
+C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\CsvHelper.dll
+C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\System.ValueTuple.dll
+C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\CsvHelper.xml
+C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\System.ValueTuple.xml
+C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\rbn.csv
