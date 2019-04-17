@@ -69,6 +69,34 @@
         }
 
 
+		
+            // this needs to be the suffix if LU2ART/W4
+            //foreach (char item in callAndprefix.call)
+            //{
+            //    callSet = new HashSet<string>
+            //    {
+            //        item.ToString()
+            //    };
+            //    callSetList.Add(callSet);
+            //}
+
+            //Parallel.ForEach(matches, match =>
+            //{
+            //    //PopulateHitList(match, callAndprefix);
+            //    //foreach (PrefixData child in match.children)
+            //    //{
+            //    //    //foreach (List<HashSet<string>> mask in child.primaryMaskSets)
+            //    //    //{
+            //    //    //    if (CompareMask(mask, callSetList))
+            //    //    //    {
+            //    //    //        PopulateHitList(child, callAndprefix);
+            //    //    //    }
+            //    //    //}
+            //    //}
+            //}
+            //);
+
+
 		Exception thrown: 'System.ArgumentOutOfRangeException' in mscorlib.dll
 F/CS7AMH
 Index and length must refer to a location within the string.

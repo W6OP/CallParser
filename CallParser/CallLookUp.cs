@@ -64,10 +64,13 @@ namespace CallParser
         private List<PrefixData> _ChildPrefixList;
         private List<Hit> _HitList;
 
-        public CallLookUp(List<PrefixData> prefixList, List<PrefixData> childPrefixList)
+        private Dictionary<string, PrefixData> _PrefixDict;
+
+        public CallLookUp(List<PrefixData> prefixList, List<PrefixData> childPrefixList, Dictionary<string, PrefixData> prefixDict)
         {
             _PrefixList = prefixList;
             _ChildPrefixList = childPrefixList;
+            _PrefixDict = prefixDict;
         }
 
         public List<Hit> LookUpCall(string callSign)
@@ -289,7 +292,15 @@ namespace CallParser
 
             callPart = callPart.Length > 3 ? callPart.Substring(0, 4) : callPart;
 
-            List<PrefixData> matches = _PrefixList.AsParallel().Where(p => p.mainPrefix == callPart).ToList();
+            List<PrefixData> matches = new List<PrefixData>(); //_PrefixList.Where(p => p.mainPrefix == callPart).ToList();
+            if (_PrefixDict.ContainsKey(callPart))
+            {
+                matches.Add(_PrefixDict[callPart]);
+            }
+           
+            //Hit hit = new Hit();
+            //_HitList.Add(hit);
+            //return;
 
             switch (matches.Count)
             {
@@ -300,7 +311,12 @@ namespace CallParser
                     callPart = callPart.Remove(callPart.Length - 1);
                     while (matches.Count == 0)
                     {
-                        matches = _PrefixList.AsParallel().Where(p => p.mainPrefix == callPart).ToList();
+                        //matches = _PrefixList.Where(p => p.mainPrefix == callPart).ToList();
+                        if (_PrefixDict.ContainsKey(callPart))
+                        {
+                            matches.Add(_PrefixDict[callPart]);
+                        }
+                        
                         callPart = callPart.Remove(callPart.Length - 1);
                         if (callPart == string.Empty)
                         {
@@ -339,17 +355,22 @@ namespace CallParser
         private void ProcessMatches(List<PrefixData> matches, (string call, string callPrefix) callAndprefix)
         {
             HashSet<string> callSet;
-            List<HashSet<string>> callSetList = new List<HashSet<string>>();
+            List<HashSet<string>> callSetList = GetCallSetList(callAndprefix.call);
+
+
+           // Hit hit = new Hit();
+           // _HitList.Add(hit);
+           // return;
 
             // this needs to be the suffix if LU2ART/W4
-            foreach (char item in callAndprefix.call)
-            {
-                callSet = new HashSet<string>
-                {
-                    item.ToString()
-                };
-                callSetList.Add(callSet);
-            }
+            //foreach (char item in callAndprefix.call)
+            //{
+            //    callSet = new HashSet<string>
+            //    {
+            //        item.ToString()
+            //    };
+            //    callSetList.Add(callSet);
+            //}
 
             Parallel.ForEach(matches, match =>
             {

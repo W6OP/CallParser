@@ -19,6 +19,7 @@ namespace CallParser
 
         public List<PrefixData> _PrefixList;
         public List<PrefixData> _ChildPrefixList;
+        public Dictionary<string, PrefixData> _PrefixDict;
         //public List<PrefixInfo> PrefixEntryList { get; set; }
 
         private string _Callsign;
@@ -38,15 +39,7 @@ namespace CallParser
         {
             _PrefixList = new List<PrefixData>();
             _ChildPrefixList = new List<PrefixData>();
-            //_PrefixList = new PrefixList
-            //{
-            //    PrefixFileName = "prefix.lst",
-            //    CallFileName = "call.lst"
-            //};
-
-            //_PrefixList.LoadFiles();
-
-            //PrefixEntryList = _PrefixList.PrefixEntryList;
+            _PrefixDict = new Dictionary<string, PrefixData>();
         }
 
         public void ParsePrefixFile(string prefixFilePath)
@@ -84,6 +77,7 @@ namespace CallParser
             for (int i = 0; i <_PrefixList.Count; i++) {
                 if (_PrefixList[i].kind == PrefixKind.pfDXCC) {
                     count = i;
+                    _PrefixDict.Add(_PrefixList[i].mainPrefix, _PrefixList[i]);
                 }
                 else
                 {
@@ -91,10 +85,8 @@ namespace CallParser
                     _PrefixList[count].children.Add(_PrefixList[i]);
                     // save the children's masks in the parent
                     List<HashSet<string>> list = (from x in _PrefixList[i].primaryMaskSets select new HashSet<string> { }).ToList();
-                    //foreach (HashSet<string> mask in list) // _PrefixList[i].primaryMaskSets
-                    //{  
-                        _PrefixList[count].secondaryMaskSets.Add(list); // (mask); 
-                    //}
+                    _PrefixList[count].secondaryMaskSets.Add(list); // (mask); 
+                
                 }
             }
 
