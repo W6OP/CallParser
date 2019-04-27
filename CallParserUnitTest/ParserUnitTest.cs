@@ -21,7 +21,7 @@ namespace CallParserUnitTest
 
             _PrefixFileParser = new PrefixFileParser();
             _PrefixFileParser.ParsePrefixFile("");
-            _CallLookUp = new CallLookUp(_PrefixFileParser._PrefixList, _PrefixFileParser._ChildPrefixList, _PrefixFileParser._PrefixDict);
+            _CallLookUp = new CallLookUp(_PrefixFileParser._PrefixList, _PrefixFileParser._ChildPrefixList, _PrefixFileParser._PrefixDict, _PrefixFileParser._ChildPrefixDict);
 
 
             _Records = new List<string>();

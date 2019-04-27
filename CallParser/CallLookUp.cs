@@ -63,14 +63,17 @@ namespace CallParser
         private List<PrefixData> _PrefixList;
         private List<PrefixData> _ChildPrefixList;
         private List<Hit> _HitList;
+        private HashSet<HashSet<string>> _CallSetList;
 
         private Dictionary<string, PrefixData> _PrefixDict;
+        private Dictionary<string, PrefixData> _ChildPrefixDict;
 
-        public CallLookUp(List<PrefixData> prefixList, List<PrefixData> childPrefixList, Dictionary<string, PrefixData> prefixDict)
+        public CallLookUp(List<PrefixData> prefixList, List<PrefixData> childPrefixList, Dictionary<string, PrefixData> prefixDict, Dictionary<string, PrefixData> childPrefixDict)
         {
             _PrefixList = prefixList;
             _ChildPrefixList = childPrefixList;
             _PrefixDict = prefixDict;
+            _ChildPrefixDict = childPrefixDict;
         }
 
         public List<Hit> LookUpCall(string callSign)
@@ -292,6 +295,8 @@ namespace CallParser
 
             callPart = callPart.Length > 3 ? callPart.Substring(0, 4) : callPart;
 
+            var sw = Stopwatch.StartNew();
+
             List<PrefixData> matches = new List<PrefixData>(); //_PrefixList.Where(p => p.mainPrefix == callPart).ToList();
             if (_PrefixDict.ContainsKey(callPart))
             {
@@ -343,6 +348,7 @@ namespace CallParser
                     }
                     break;
             }
+            Console.WriteLine(sw.ElapsedMilliseconds);
         }
 
         /// <summary>
@@ -354,40 +360,38 @@ namespace CallParser
         /// <param name="callAndprefix"></param>
         private void ProcessMatches(List<PrefixData> matches, (string call, string callPrefix) callAndprefix)
         {
-            HashSet<string> callSet;
-            List<HashSet<string>> callSetList = GetCallSetList(callAndprefix.call);
+            _CallSetList = GetCallSetList(callAndprefix.call);
 
+          //  _ = Parallel.ForEach(matches, match =>
+          foreach(PrefixData match in matches)
+              {
+                  PopulateHitList(match, callAndprefix);
 
-           // Hit hit = new Hit();
-           // _HitList.Add(hit);
-           // return;
+                  if (match.hasChildren)
+                  {
+                      ProcessChildren(match.children, callAndprefix);
+                  }
 
-            // this needs to be the suffix if LU2ART/W4
-            //foreach (char item in callAndprefix.call)
-            //{
-            //    callSet = new HashSet<string>
-            //    {
-            //        item.ToString()
-            //    };
-            //    callSetList.Add(callSet);
-            //}
+                 
+              }
+       // );
 
-            Parallel.ForEach(matches, match =>
+        }
+
+        private void ProcessChildren(List<PrefixData> children, (string call, string callPrefix) callAndprefix)
+        {
+          // List<HashSet<HashSet<string>>> primaryMaskSets = child.primaryMaskSets;
+
+            foreach (PrefixData child in children)
             {
-                PopulateHitList(match, callAndprefix);
-                foreach (PrefixData child in match.children)
+                foreach (HashSet<HashSet<string>> mask in child.primaryMaskSets)
                 {
-                    foreach (List<HashSet<string>> mask in child.primaryMaskSets)
+                    if (CompareMask(mask, _CallSetList))  // UPDATE
                     {
-                        if (CompareMask(mask, callSetList))
-                        {
-                            PopulateHitList(child, callAndprefix);
-                        }
+                        PopulateHitList(child, callAndprefix);
                     }
                 }
             }
-        );
-
         }
 
         private List<PrefixData> SearchSecondaryPrefixesOld((string call, string callPrefix) callAndprefix)
@@ -395,7 +399,8 @@ namespace CallParser
             int maxCount = 0;
             bool match = false;
             List<PrefixData> matches = new List<PrefixData>();
-            List<HashSet<string>> callSetList;  // = GetCallSetList(callAndprefix.call);
+            HashSet<HashSet<string>> callSetList;  // = GetCallSetList(callAndprefix.call);
+
             foreach (PrefixData prefixData in _PrefixList)
             {
                 matches = new List<PrefixData>();
@@ -412,20 +417,20 @@ namespace CallParser
                     {
                         try
                         {
-                            HashSet<string> temp = new HashSet<string>(callSetList[i]);
-                            temp.IntersectWith(min[i]);
+                           // HashSet<string> temp = new HashSet<string>(callSetList[i]);
+                            //temp.IntersectWith(min[i]);  // UPDATE
 
-                            if (temp.Count != 0)
-                            {
-                                match = true;
-                                //return match // is there any reason to continue here?
-                                //found W4 do we need W4/ - however get 31 hits vs. 3
-                            }
-                            else
-                            {
-                                match = false;
-                                break;
-                            }
+                            //if (temp.Count != 0)
+                            //{
+                            //    match = true;
+                            //    //return match // is there any reason to continue here?
+                            //    //found W4 do we need W4/ - however get 31 hits vs. 3
+                            //}
+                            //else
+                            //{
+                            //    match = false;
+                            //    break;
+                            //}
 
                             if (match)
                             {
@@ -456,34 +461,35 @@ namespace CallParser
             {
                 int maxCount = 0;
                 bool match = false;
-                List<HashSet<string>> callSetList;
+               // HashSet<HashSet<string>> callSetList;
 
                 if (prefixData.primaryMaskSets.Count > 1)
                 {
                     maxCount = 0;
                     match = false;
                     matches = new List<PrefixData>();
-                    callSetList = GetCallSetList(callAndprefix.call);
+                    _CallSetList = GetCallSetList(callAndprefix.call);
 
                     // first find out which set is the smallest and we will only match that number a chars
                     var min = prefixData.primaryMaskSets.OrderBy(c => c.Count).FirstOrDefault(); // -------------------------------optimize
-                    maxCount = min.Count < callSetList.Count ? min.Count : callSetList.Count;
+                    maxCount = min.Count < _CallSetList.Count ? min.Count : _CallSetList.Count;
 
                     for (int i = 0; i < maxCount; i++)
                     {
-                        HashSet<string> temp = new HashSet<string>(callSetList[i]); // ----------------------------optimize
-                        temp.IntersectWith(min[i]);
-                        if (temp.Count != 0)
-                        {
-                            match = true;
-                            //return match // is there any reason to continue here?
-                            //found W4 do we need W4/ - however get 31 hits vs. 3
-                        }
-                        else
-                        {
-                            match = false;
-                            break;
-                        }
+                        // UPDATE
+                        //HashSet<string> temp = new HashSet<string>(callSetList[i]); // ----------------------------optimize
+                        //temp.IntersectWith(min[i]);
+                        //if (temp.Count != 0)
+                        //{
+                        //    match = true;
+                        //    //return match // is there any reason to continue here?
+                        //    //found W4 do we need W4/ - however get 31 hits vs. 3
+                        //}
+                        //else
+                        //{
+                        //    match = false;
+                        //    break;
+                        //}
 
                         if (match)
                         {
@@ -491,7 +497,6 @@ namespace CallParser
                             {
                                 matches.Insert(0, prefixData);
                             }
-                            //matches.Insert(0, prefixData);
                         }
                     }
                 }
@@ -507,19 +512,36 @@ namespace CallParser
         /// <param name="callAndprefix"></param>
         private void SearchChildren((string call, string callPrefix) callAndprefix)
         {
-            List<HashSet<string>> callSetList = GetCallSetList(callAndprefix.call);
+            HashSet<HashSet<string>> callSetList = GetCallSetList(callAndprefix.call);
 
-            Parallel.ForEach(_ChildPrefixList, child =>
-            {
-                foreach (List<HashSet<string>> mask in child.primaryMaskSets)
-                {
-                    if (CompareMask(mask, callSetList))
-                    {
-                        PopulateHitList(child, callAndprefix);
-                    }
+            //if (_ChildPrefixDict.ContainsKey(callAndprefix.call))
+            //{
 
-                }
-            }
+            //}
+
+            //foreach (PrefixData child in _ChildPrefixList)
+            //{
+            //    // this doubles run from 1 min to 2 min
+            //    //foreach (List<HashSet<string>> mask in child.primaryMaskSets)
+            //    {
+            //        if (CompareMask(mask, callSetList))
+            //        {
+            //            PopulateHitList(child, callAndprefix);
+            //        }
+            //    }
+            //}
+
+            // MAYBE SHOULD PUT PRIMARYMASKSETS IN A DICTIONARY
+            _ = Parallel.ForEach(_ChildPrefixList, child =>
+              {
+                  foreach (HashSet<HashSet<string>> mask in child.primaryMaskSets)
+                  {
+                      //if (CompareMask(mask, callSetList)) // UPDATE
+                      //{
+                      //    PopulateHitList(child, callAndprefix);
+                      //}
+                  }
+              }
           );
         }
 
@@ -529,36 +551,37 @@ namespace CallParser
         /// <param name="mask"></param>
         /// <param name="callSetList"></param>
         /// <returns></returns>
-        private bool CompareMask(List<HashSet<string>> mask, List<HashSet<string>> callSetList)
+        private bool CompareMask(HashSet<HashSet<string>> mask, HashSet<HashSet<string>> callSetList)
         {
             int maxCount = 0;
             bool match = false;
 
-            List<List<HashSet<string>>> list = new List<List<HashSet<string>>>
-            {
-                mask,
-                callSetList
-            };
+            // UPDATE
+            //List<HashSet<HashSet<string>>> list = new List<HashSet<HashSet<string>>>;
+            ////{
+            //list.Add(mask);
+            //list.Add(callSetList);
+            ////};
 
-            //// first find out which set is the smallest and we will only match that number a chars
-            var min = list.OrderBy(c => c.Count).FirstOrDefault();
-            maxCount = min.Count;
+            ////// first find out which set is the smallest and we will only match that number a chars
+            //var min = list.OrderBy(c => c.Count).FirstOrDefault();
+            //maxCount = min.Count;
 
-            for (int i = 0; i < maxCount; i++)
-            {
-                HashSet<string> temp = new HashSet<string>(callSetList[i]);
-                temp.IntersectWith(mask[i]);
-                if (temp.Count != 0)
-                {
-                    match = true;
-                    //return match // is there any reason to continue here?
-                    //found W4 do we need W4/ - however get 31 hits vs. 3
-                }
-                else
-                {
-                    return false;
-                }
-            }
+            //for (int i = 0; i < maxCount; i++)  
+            //{
+            //    HashSet<string> temp = new HashSet<string>(callSetList[i]);
+            //    temp.IntersectWith(mask[i]);
+            //    if (temp.Count != 0)
+            //    {
+            //        match = true;
+            //        //return match // is there any reason to continue here?
+            //        //found W4 do we need W4/ - however get 31 hits vs. 3
+            //    }
+            //    else
+            //    {
+            //        return false;
+            //    }
+            //}
 
             return match;
         }
@@ -568,11 +591,11 @@ namespace CallParser
         /// </summary>
         /// <param name="call"></param>
         /// <returns></returns>
-        private List<HashSet<string>> GetCallSetList(string call)
+        private HashSet<HashSet<string>> GetCallSetList(string call)
         {
             string callPart = call;
             HashSet<string> callSet = new HashSet<string>();
-            List<HashSet<string>> callSetList = new List<HashSet<string>>();
+            HashSet<HashSet<string>> callSetList = new HashSet<HashSet<string>>();
 
             callPart = callPart.Length > 3 ? callPart.Substring(0, 4) : callPart;
 

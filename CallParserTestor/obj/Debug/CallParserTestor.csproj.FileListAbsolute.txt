@@ -14,7 +14,6 @@ C:\Users\pbourget\Documents\Visual Studio 2012\Projects\Ham Radio\CallParser\Cal
 C:\Users\pbourget\Documents\Visual Studio 2012\Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\Call.lst
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\rbn.csv
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\rbn2.csv
-C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\Call.lst
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\PrefixList.xml
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\Prefix.xml
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\CallParserTestor.exe.config
@@ -26,7 +25,6 @@ C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallPars
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\CallParser.pdb
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\CsvHelper.xml
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\System.ValueTuple.xml
-C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\obj\Debug\CallParserTestor.csprojAssemblyReference.cache
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\obj\Debug\CallParserTestor.Form1.resources
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\obj\Debug\CallParserTestor.Properties.Resources.resources
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\obj\Debug\CallParserTestor.csproj.GenerateResource.cache
@@ -34,3 +32,4 @@ C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallPars
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\obj\Debug\CallParserTestor.csproj.CopyComplete
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\obj\Debug\CallParserTestor.exe
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\obj\Debug\CallParserTestor.pdb
+C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\obj\Debug\CallParserTestor.csprojAssemblyReference.cache

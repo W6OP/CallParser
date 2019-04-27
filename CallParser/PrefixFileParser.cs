@@ -19,8 +19,11 @@ namespace CallParser
 
         public List<PrefixData> _PrefixList;
         public List<PrefixData> _ChildPrefixList;
+
+
         public Dictionary<string, PrefixData> _PrefixDict;
-        //public List<PrefixInfo> PrefixEntryList { get; set; }
+        public Dictionary<string, PrefixData> _ChildPrefixDict;
+        
 
         private string _Callsign;
         internal string Callsign
@@ -33,13 +36,15 @@ namespace CallParser
         }
 
         /// <summary>
-        /// Constructor;
+        /// Constructor.
         /// </summary>
         public PrefixFileParser()
         {
             _PrefixList = new List<PrefixData>();
             _ChildPrefixList = new List<PrefixData>();
+
             _PrefixDict = new Dictionary<string, PrefixData>();
+            _ChildPrefixDict = new Dictionary<string, PrefixData>();
         }
 
         public void ParsePrefixFile(string prefixFilePath)
@@ -67,25 +72,28 @@ namespace CallParser
         {
             PrefixData prefixData = new PrefixData();
             var prefixes = xDoc.Root.Elements("prefix");
-            int count = 0;
+            int parent = 0;
 
             foreach (XElement prefixXml in prefixes)
             {
                 BuildPrefixData(prefixXml);
             }
 
-            for (int i = 0; i <_PrefixList.Count; i++) {
-                if (_PrefixList[i].kind == PrefixKind.pfDXCC) {
-                    count = i;
-                    _PrefixDict.Add(_PrefixList[i].mainPrefix, _PrefixList[i]);
+            for (int current = 0; current <_PrefixList.Count; current++) {
+                if (_PrefixList[current].kind == PrefixKind.pfDXCC) {
+                    parent = current;
+                    _PrefixDict.Add(_PrefixList[parent].mainPrefix, _PrefixList[parent]);
                 }
                 else
                 {
-                    _PrefixList[count].hasChildren = true;
-                    _PrefixList[count].children.Add(_PrefixList[i]);
+                    _PrefixList[parent].hasChildren = true;
+                    _PrefixList[parent].AddChildren(_PrefixList[current]);
+                   // _PrefixList[parent].children.Add(_PrefixList[current]);
+
                     // save the children's masks in the parent
-                    List<HashSet<string>> list = (from x in _PrefixList[i].primaryMaskSets select new HashSet<string> { }).ToList();
-                    _PrefixList[count].secondaryMaskSets.Add(list); // (mask); 
+                    // _PrefixList[parent].secondaryMaskSets.Add(_PrefixList[current].primaryMaskSets.ToList());
+                    //List<HashSet<string>> list = (from x in _PrefixList[current].primaryMaskSets select new HashSet<string> { }).ToList();
+                    //_PrefixList[count].secondaryMaskSets.Add(list); // (mask); 
                 
                 }
             }
@@ -123,7 +131,6 @@ namespace CallParser
                         prefixData.SetMainPrefix(fullPrefix: currentValue ?? "");
                         break;
                     case "kind":
-                        //prefixData.SetDXCC((PrefixKind)Enum.Parse(typeof(PrefixKind), currentValue));
                         prefixData.SetDXCC(EnumEx.GetValueFromDescription<PrefixKind>(currentValue));
                         break;
                     case "country":

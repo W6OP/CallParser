@@ -50,9 +50,9 @@ namespace CallParser
         public bool hasChildren = false;
         public List<PrefixData> children = new List<PrefixData>();
         // expanded masks
-        List<HashSet<string>> expandedMaskSetList;    //: [[Set<String>]]
-        public List<List<HashSet<string>>> primaryMaskSets;        //: [[Set<String>]]
-        public List<List<HashSet<string>>> secondaryMaskSets;      //: [[Set<String>]]
+        //List<HashSet<string>> expandedMaskSetList;    //: [[Set<String>]]
+        public List<HashSet<HashSet<string>>> primaryMaskSets;        //: [[Set<String>]]
+        public List<HashSet<HashSet<string>>> secondaryMaskSets;      //: [[Set<String>]]
         public List<String> rawMasks = new List<String>();
 
         bool adif = false;
@@ -65,11 +65,6 @@ namespace CallParser
         bool isIota = false; // implement
         string comment = "";
 
-        // int id = 1;
-        // for debugging
-        //int maskCount = 0;
-        //int counter = 0;
-
         string[] alphabet = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
         string[] numbers = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
@@ -78,9 +73,11 @@ namespace CallParser
         /// </summary>
         public PrefixData()
         {
-            expandedMaskSetList = new List<HashSet<string>>();      //[Set<String>]
-            primaryMaskSets = new List<List<HashSet<string>>>();
-            secondaryMaskSets = new List<List<HashSet<string>>>();  //[[Set<String>]]()
+            // temperary collection only used to build PrefixData
+            //expandedMaskSetList = new List<HashSet<string>>();      //[Set<String>]
+            // all the primary masks for this DXCC entity
+            primaryMaskSets = new List<HashSet<HashSet<string>>>();
+            secondaryMaskSets = new List<HashSet<HashSet<string>>>();  //[[Set<String>]]()
         }
 
         /// <summary>
@@ -125,6 +122,16 @@ namespace CallParser
             //Console.WriteLine(mask);
         }
 
+        internal void AddChildren(PrefixData prefixData)
+        {
+            this.children.Add(prefixData);
+            // save the children's masks at the parent level
+            foreach (HashSet<HashSet<string>> secondaryMask in prefixData.primaryMaskSets)
+            {
+                secondaryMaskSets.Add(secondaryMask);
+            }
+        }
+
         // SET for C# https://www.codeproject.com/Articles/8575/Yet-Another-C-set-class
 
         /// <summary>
@@ -134,6 +141,7 @@ namespace CallParser
         public void ExpandMask(string mask)
         {
             HashSet<String> expandedMask = new HashSet<String>();
+            HashSet<HashSet<string>> expandedMaskSetList = new HashSet<HashSet<string>>();
 
             string maskPart = "";
             string newMask = mask;
@@ -153,7 +161,7 @@ namespace CallParser
                         nextIndex = index + 1;
                         maskPart = newMask.Substring(0, nextIndex);
                         //Console.WriteLine(maskPart);
-                        ProcessLeftOver(maskPart);
+                        ProcessLeftOver(maskPart, expandedMaskSetList);
                         counter += maskPart.Length;
                         nextIndex = counter;
                         newMask = mask.Substring(nextIndex);
@@ -180,7 +188,7 @@ namespace CallParser
 
             primaryMaskSets.Add(expandedMaskSetList);
             // just cosmetic cleanup
-            expandedMaskSetList = new List<HashSet<string>>();
+            expandedMaskSetList = new HashSet<HashSet<string>>();
         }
 
         /// <summary>
@@ -188,14 +196,13 @@ namespace CallParser
         /// Save the mask after it has been processed.
         /// </summary>
         /// <param name="maskPart"></param>
-        private void ProcessLeftOver(string maskPart)
+        private void ProcessLeftOver(string maskPart, HashSet<HashSet<string>> expandedMaskSetList)
         {
-            //string[] maskComponents = maskPart.Split(new string[] { "][" }, StringSplitOptions.RemoveEmptyEntries);
             string[] maskComponents = maskPart.Split("[]".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
             Debug.Assert(maskComponents.Length == 1);
 
-            ParseMask(maskComponents);
+            ParseMask(maskComponents, expandedMaskSetList);
         }
 
         /// <summary>
@@ -203,7 +210,7 @@ namespace CallParser
         /// or a "-" which indicates a range. Otherewise store it as is.
         /// </summary>
         /// <param name="components"></param>
-        public void ParseMask(string[] components)
+        public void ParseMask(string[] components, HashSet<HashSet<string>> expandedMaskSetList)
         {
             string currentCharacter = "";
             string nextCharacter = "";
@@ -213,8 +220,6 @@ namespace CallParser
             HashSet<string> expandedMask = new HashSet<string>();
             HashSet<string> tempMask = new HashSet<string>();
 
-           // Parallel.ForEach(components[0], item =>
-           // {
             foreach (char item in components[0])
             {
                 componentString = components[0];
@@ -277,7 +282,7 @@ namespace CallParser
                 {
                     counter += 1;
                     nextCharacter = componentString[counter + 1].ToString() ?? "";
-                    tempMask = BuildRange(currentCharacter, nextCharacter);
+                    tempMask = BuildRange(currentCharacter, nextCharacter, expandedMaskSetList);
                     expandedMask.UnionWith(tempMask);
                     counter += 2;
                 }
@@ -290,7 +295,7 @@ namespace CallParser
                         {
                             // 0-9-W get previous character
                             previousCharacter = componentString[counter - 1].ToString() ?? "";
-                            tempMask = BuildRange(previousCharacter, nextCharacter);
+                            tempMask = BuildRange(previousCharacter, nextCharacter, expandedMaskSetList);
                             expandedMask.UnionWith(tempMask);
                             counter += 1;
                         }
@@ -314,7 +319,7 @@ namespace CallParser
         /// <param name="currentCharacter"></param>
         /// <param name="nextCharacter"></param>
         /// <returns></returns>
-        public HashSet<string> BuildRange(string currentCharacter, string nextCharacter)
+        public HashSet<string> BuildRange(string currentCharacter, string nextCharacter, HashSet<HashSet<string>> expandedMaskSetList)
         {
             HashSet<string> expandedMask = new HashSet<string>();
 

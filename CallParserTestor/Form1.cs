@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using CallParser;
 using CsvHelper;
@@ -27,7 +21,7 @@ namespace CallParserTestor
 
             _PrefixFileParser = new CallParser.PrefixFileParser();
             _PrefixFileParser.ParsePrefixFile("");
-            _CallLookUp = new CallLookUp(_PrefixFileParser._PrefixList, _PrefixFileParser._ChildPrefixList, _PrefixFileParser._PrefixDict);
+            _CallLookUp = new CallLookUp(_PrefixFileParser._PrefixList, _PrefixFileParser._ChildPrefixList, _PrefixFileParser._PrefixDict, _PrefixFileParser._ChildPrefixDict);
         }
 
         private void Button1_Click(object sender, EventArgs e)
