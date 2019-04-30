@@ -21,7 +21,7 @@ namespace CallParserTestor
 
             _PrefixFileParser = new CallParser.PrefixFileParser();
             _PrefixFileParser.ParsePrefixFile("");
-            _CallLookUp = new CallLookUp(_PrefixFileParser._PrefixList, _PrefixFileParser._ChildPrefixList, _PrefixFileParser._PrefixDict, _PrefixFileParser._ChildPrefixDict);
+           // _CallLookUp = new CallLookUp(_PrefixFileParser._PrefixList, _PrefixFileParser._ChildPrefixList, _PrefixFileParser._PrefixDict, _PrefixFileParser._ChildPrefixDict);
         }
 
         private void Button1_Click(object sender, EventArgs e)

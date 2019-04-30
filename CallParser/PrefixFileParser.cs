@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -22,8 +23,10 @@ namespace CallParser
 
 
         public Dictionary<string, PrefixData> _PrefixDict;
-        public Dictionary<string, PrefixData> _ChildPrefixDict;
-        
+        public Dictionary<string, List<PrefixData>> _ChildPrefixDict;
+
+        Dictionary<string, PrefixData> testDict = new Dictionary<string, PrefixData>();
+
 
         private string _Callsign;
         internal string Callsign
@@ -44,7 +47,7 @@ namespace CallParser
             _ChildPrefixList = new List<PrefixData>();
 
             _PrefixDict = new Dictionary<string, PrefixData>();
-            _ChildPrefixDict = new Dictionary<string, PrefixData>();
+            _ChildPrefixDict = new Dictionary<string, List<PrefixData>>();
         }
 
         public void ParsePrefixFile(string prefixFilePath)
@@ -74,43 +77,48 @@ namespace CallParser
             var prefixes = xDoc.Root.Elements("prefix");
             int parent = 0;
 
+            var sw = Stopwatch.StartNew();
             foreach (XElement prefixXml in prefixes)
             {
                 BuildPrefixData(prefixXml);
             }
+            Console.WriteLine("Load Time: " + sw.ElapsedMilliseconds + "ms - ticks: " +  sw.ElapsedTicks);
+            return;
 
-            for (int current = 0; current <_PrefixList.Count; current++) {
-                if (_PrefixList[current].kind == PrefixKind.pfDXCC) {
-                    parent = current;
-                    _PrefixDict.Add(_PrefixList[parent].mainPrefix, _PrefixList[parent]);
-                }
-                else
-                {
-                    _PrefixList[parent].hasChildren = true;
-                    _PrefixList[parent].AddChildren(_PrefixList[current]);
-                   // _PrefixList[parent].children.Add(_PrefixList[current]);
+            //for (int current = 0; current <_PrefixList.Count; current++) {
+            //    if (_PrefixList[current].kind == PrefixKind.pfDXCC) {
+            //        parent = current;
+            //        _PrefixDict.Add(_PrefixList[parent].mainPrefix, _PrefixList[parent]);
+            //    }
+            //    else
+            //    {
+            //        _PrefixList[parent].hasChildren = true;
+            //        _PrefixList[parent].AddChildren(_PrefixList[current]);
+            //        _PrefixList[parent].children.Add(_PrefixList[current]);
 
-                    // save the children's masks in the parent
-                    // _PrefixList[parent].secondaryMaskSets.Add(_PrefixList[current].primaryMaskSets.ToList());
-                    //List<HashSet<string>> list = (from x in _PrefixList[current].primaryMaskSets select new HashSet<string> { }).ToList();
-                    //_PrefixList[count].secondaryMaskSets.Add(list); // (mask); 
-                
-                }
-            }
+            //        save the children's masks in the parent
+            //         _PrefixList[parent].secondaryMaskSets.Add(_PrefixList[current].primaryMaskSets.ToList());
+            //        List<HashSet<string>> list = (from x in _PrefixList[current].primaryMaskSets select new HashSet<string> { }).ToList();
+            //        _PrefixList[count].secondaryMaskSets.Add(list); // (mask); 
 
-            // remove all the children and store them separately
-            var children = _PrefixList.Where(item => item.isParent == false);
-            foreach (PrefixData child in children)
-            {
-                _ChildPrefixList.Add(child);
-            }
+            //    }
+            //}
 
-            _PrefixList.RemoveAll(x => x.isParent == false);
+            //// remove all the children and store them separately
+            //var children = _PrefixList.Where(item => item.isParent == false);
+            //foreach (PrefixData child in children)
+            //{
+            //    _ChildPrefixList.Add(child);
+            //}
+
+            //_PrefixList.RemoveAll(x => x.isParent == false);
         }
+
 
         private void BuildPrefixData(XElement prefixXml)
         {
             PrefixData prefixData = new PrefixData();
+           
             string currentValue = "";
 
             foreach (XElement element in prefixXml.Elements())
@@ -184,7 +192,25 @@ namespace CallParser
                 }
             }
 
-            _PrefixList.Add(prefixData);
+            //prefixData.BuildPrimaryPrefixList();
+            _PrefixDict.Add(prefixData.fullPrefix, prefixData);
+           foreach (List<string> prefixList in prefixData.primaryMaskList)
+           {
+                foreach (string prefix in prefixList)
+                {
+                    List<PrefixData> prefixDataList = new List<PrefixData>();
+                    prefixDataList.Add(prefixData);
+                    if (!_ChildPrefixDict.ContainsKey(prefix))
+                    {
+                        _ChildPrefixDict.Add(prefix, prefixDataList);
+                    } else
+                    {
+                        List<PrefixData> temp = _ChildPrefixDict[prefix];
+                        temp.Add(prefixData);
+                    }
+                }
+           }
+            //_PrefixList.Add(prefixData);
         }
 
         ///// <summary>

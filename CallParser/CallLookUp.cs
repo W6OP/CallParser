@@ -316,7 +316,6 @@ namespace CallParser
                     callPart = callPart.Remove(callPart.Length - 1);
                     while (matches.Count == 0)
                     {
-                        //matches = _PrefixList.Where(p => p.mainPrefix == callPart).ToList();
                         if (_PrefixDict.ContainsKey(callPart))
                         {
                             matches.Add(_PrefixDict[callPart]);
@@ -325,6 +324,7 @@ namespace CallParser
                         callPart = callPart.Remove(callPart.Length - 1);
                         if (callPart == string.Empty)
                         {
+                            Console.WriteLine("No match: " + callAndprefix.callPrefix);
                             break;
                         }
                     }
@@ -332,23 +332,25 @@ namespace CallParser
                     switch (matches.Count)
                     {
                         case 0:
-                            matches = SearchSecondaryPrefixes(callAndprefix: callAndprefix);
-                            switch (matches.Count)
-                            {
-                                case 0:
-                                    SearchChildren(callAndprefix);
-                                    break;
-                                default:
-                                    break;
-                            }
-                            break;
+                           
+                        matches = SearchSecondaryPrefixes(callAndprefix: callAndprefix);
+                           
+                            //switch (matches.Count)
+                            //{
+                            //    case 0:
+                            //        SearchChildren(callAndprefix);
+                            //        break;
+                            //    default:
+                            //        break;
+                            //}
+                            return;
                         default:
                             ProcessMatches(matches: matches, callAndprefix: callAndprefix);
                             break;
                     }
                     break;
             }
-            Console.WriteLine(sw.ElapsedMilliseconds);
+            Console.WriteLine("Search Time: " + sw.ElapsedMilliseconds + "ms - ticks: " + sw.ElapsedTicks);
         }
 
         /// <summary>
@@ -367,10 +369,10 @@ namespace CallParser
               {
                   PopulateHitList(match, callAndprefix);
 
-                  if (match.hasChildren)
-                  {
-                      ProcessChildren(match.children, callAndprefix);
-                  }
+                  //if (match.hasChildren)
+                  //{
+                  //    ProcessChildren(match.children, callAndprefix);
+                  //}
 
                  
               }
@@ -380,7 +382,7 @@ namespace CallParser
 
         private void ProcessChildren(List<PrefixData> children, (string call, string callPrefix) callAndprefix)
         {
-          // List<HashSet<HashSet<string>>> primaryMaskSets = child.primaryMaskSets;
+
 
             foreach (PrefixData child in children)
             {
@@ -461,7 +463,7 @@ namespace CallParser
             {
                 int maxCount = 0;
                 bool match = false;
-               // HashSet<HashSet<string>> callSetList;
+  
 
                 if (prefixData.primaryMaskSets.Count > 1)
                 {
