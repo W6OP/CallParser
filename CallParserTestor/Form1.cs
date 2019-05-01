@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using CallParser;
@@ -21,7 +22,7 @@ namespace CallParserTestor
 
             _PrefixFileParser = new CallParser.PrefixFileParser();
             _PrefixFileParser.ParsePrefixFile("");
-           // _CallLookUp = new CallLookUp(_PrefixFileParser._PrefixList, _PrefixFileParser._ChildPrefixList, _PrefixFileParser._PrefixDict, _PrefixFileParser._ChildPrefixDict);
+            _CallLookUp = new CallLookUp(_PrefixFileParser);
         }
 
         private void Button1_Click(object sender, EventArgs e)
@@ -32,14 +33,16 @@ namespace CallParserTestor
             Cursor.Current = Cursors.WaitCursor;
 
             hit = new List<Hit>();
+
+            var sw = Stopwatch.StartNew();
             foreach (string call in _Records)
             {
                 try
                 {
-                   Console.WriteLine(call);
+                  // Console.WriteLine(call);
                    hit.Clear();
                    hit = _CallLookUp.LookUpCall(call);
-                   Console.WriteLine(hit.Count);
+                  // Console.WriteLine(hit.Count);
                 }
                 catch (Exception ex)
                 {
@@ -48,6 +51,7 @@ namespace CallParserTestor
                 }
             }
 
+            Console.WriteLine("Search Time: " + sw.ElapsedMilliseconds + "ms - ticks: " + sw.ElapsedTicks);
             Cursor.Current = Cursors.Default;
             Console.WriteLine("Finished");
         }

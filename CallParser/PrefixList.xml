@@ -1,42 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dx_atlas_prefixes>
 	<prefix>
-		<masks>
-			<mask>[235-9OX]#</mask>
-			<mask>[0Q]?</mask>
-			<mask>1[#C-Z]</mask>
-			<mask>4[#N]</mask>
-			<mask>[ACDLPV][01]</mask>
-			<mask>E[0189]</mask>
-			<mask>H[015]</mask>
-			<mask>[JT][019]</mask>
-			<mask>Z[014579]</mask>
-			<mask>Y[01Z]</mask>
-			<mask>S[14]</mask>
-		</masks>
-		<label>00</label>
-		<kind>pfInvalidPrefix</kind>
-		<country>&lt;Unassigned prefix&gt;</country>
-	</prefix>
-	<prefix>
-		<masks>
-			<mask>YA</mask>
-			<mask>T6</mask>
-			<mask>YA/</mask>
-			<mask>T6/</mask>
-		</masks>
-		<label>T6</label>
-		<kind>pfDXCC</kind>
-		<country>Afghanistan</country>
-		<dxcc_entity>003</dxcc_entity>
-		<cq_zone>21</cq_zone>
-		<itu_zone>40</itu_zone>
-		<continent>AS</continent>
-		<time_zone>Asia/Kabul</time_zone>
-		<lat>33.767</lat>
-		<long>65.711</long>
-	</prefix>
-	<prefix>
 		<masks/>
 		<label>3B6</label>
 		<kind>pfDXCC</kind>
@@ -99,6 +63,42 @@
 		<lat>60.194</lat>
 		<long>19.900</long>
 	</prefix>
+  <prefix>
+    <masks>
+      <mask>YA</mask>
+      <mask>T6</mask>
+      <mask>YA/</mask>
+      <mask>T6/</mask>
+    </masks>
+    <label>T6</label>
+    <kind>pfDXCC</kind>
+    <country>Afghanistan</country>
+    <dxcc_entity>003</dxcc_entity>
+    <cq_zone>21</cq_zone>
+    <itu_zone>40</itu_zone>
+    <continent>AS</continent>
+    <time_zone>Asia/Kabul</time_zone>
+    <lat>33.767</lat>
+    <long>65.711</long>
+  </prefix>
+  <prefix>
+    <masks>
+      <mask>[235-9OX]#</mask>
+      <mask>[0Q]?</mask>
+      <mask>1[#C-Z]</mask>
+      <mask>4[#N]</mask>
+      <mask>[ACDLPV][01]</mask>
+      <mask>E[0189]</mask>
+      <mask>H[015]</mask>
+      <mask>[JT][019]</mask>
+      <mask>Z[014579]</mask>
+      <mask>Y[01Z]</mask>
+      <mask>S[14]</mask>
+    </masks>
+    <label>00</label>
+    <kind>pfInvalidPrefix</kind>
+    <country>&lt;Unassigned prefix&gt;</country>
+  </prefix>
 	<prefix>
 		<masks>
 			<mask>[AKNW]L</mask>

@@ -54,7 +54,7 @@ namespace CallParser
    
         public List<HashSet<HashSet<string>>> primaryMaskSets;        //: [[Set<String>]]
         public List<List<string>> primaryMaskList;      //: [[Set<String>]]
-        public OrderedDictionary primaryMaskDictionary = new OrderedDictionary();
+       // public OrderedDictionary primaryMaskDictionary = new OrderedDictionary();
         public List<String> rawMasks = new List<String>();
 
         bool adif = false;
@@ -131,15 +131,13 @@ namespace CallParser
             HashSet<string> expandedMask;       // = new HashSet<String>();
             HashSet<HashSet<string>> expandedMaskSet = new HashSet<HashSet<string>>();
             List<List<string>> allCharacters = new List<List<string>>();
-            string maskPart = "";
+            string maskPart;
             string newMask = mask;
             char item;
             int counter = 0;
             int index;
             int nextIndex;
             int pass = 0;
-
-            Console.WriteLine("New Set:");
 
             while (counter < mask.Length)
             {
@@ -216,7 +214,7 @@ namespace CallParser
                     prefix.Append(first);
                     prefix.Append(second);
                     firstCharacter.Add(prefix.ToString());
-                    prefix = new StringBuilder();
+                    //prefix = new StringBuilder();
                 }
             }
 
@@ -226,13 +224,7 @@ namespace CallParser
                 PopulatePrimaryPrefixList(allCharacters, firstCharacter, prefix);
             }
 
-            foreach (string first in firstCharacter)
-            {
-                Console.WriteLine(first);
-            }
-
             primaryMaskList.Add(firstCharacter);
-            //primaryMaskDictionary.Add(firstCharacter[0], this);
         }
 
         /// <summary>
