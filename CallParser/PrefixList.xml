@@ -1,5 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dx_atlas_prefixes>
+  <prefix>
+    <masks>
+      <mask>[AKNW]L</mask>
+      <mask>[AKW]L#/</mask>
+      <mask>[AKNW]L/</mask>
+    </masks>
+    <label>KL</label>
+    <kind>pfDXCC</kind>
+    <country>Alaska</country>
+    <dxcc_entity>006</dxcc_entity>
+    <province_id>AK</province_id>
+    <cq_zone>01</cq_zone>
+    <itu_zone>01</itu_zone>
+    <continent>NA</continent>
+    <time_zone>America/Nome&gt;America/Anchorage</time_zone>
+    <lat>64.078</lat>
+    <long>-153.356</long>
+  </prefix>
+  <prefix>
+    <masks>
+      <mask>O[F-I]0</mask>
+      <mask>OH0/</mask>
+    </masks>
+    <label>OH0</label>
+    <kind>pfDXCC</kind>
+    <country>Aland Is.</country>
+    <dxcc_entity>005</dxcc_entity>
+    <cq_zone>15</cq_zone>
+    <itu_zone>18</itu_zone>
+    <continent>EU</continent>
+    <time_zone>Europe/Helsinki</time_zone>
+    <lat>60.194</lat>
+    <long>19.900</long>
+  </prefix>
 	<prefix>
 		<masks/>
 		<label>3B6</label>
@@ -47,22 +81,6 @@
 		<lat>-16.800</lat>
 		<long>59.550</long>
 	</prefix>
-	<prefix>
-		<masks>
-			<mask>O[F-I]0</mask>
-			<mask>OH0/</mask>
-		</masks>
-		<label>OH0</label>
-		<kind>pfDXCC</kind>
-		<country>Aland Is.</country>
-		<dxcc_entity>005</dxcc_entity>
-		<cq_zone>15</cq_zone>
-		<itu_zone>18</itu_zone>
-		<continent>EU</continent>
-		<time_zone>Europe/Helsinki</time_zone>
-		<lat>60.194</lat>
-		<long>19.900</long>
-	</prefix>
   <prefix>
     <masks>
       <mask>YA</mask>
@@ -99,24 +117,6 @@
     <kind>pfInvalidPrefix</kind>
     <country>&lt;Unassigned prefix&gt;</country>
   </prefix>
-	<prefix>
-		<masks>
-			<mask>[AKNW]L</mask>
-			<mask>[AKW]L#/</mask>
-			<mask>[AKNW]L/</mask>
-		</masks>
-		<label>KL</label>
-		<kind>pfDXCC</kind>
-		<country>Alaska</country>
-		<dxcc_entity>006</dxcc_entity>
-		<province_id>AK</province_id>
-		<cq_zone>01</cq_zone>
-		<itu_zone>01</itu_zone>
-		<continent>NA</continent>
-		<time_zone>America/Nome&gt;America/Anchorage</time_zone>
-		<lat>64.078</lat>
-		<long>-153.356</long>
-	</prefix>
 	<prefix>
 		<masks>
 			<mask>ZA/</mask>

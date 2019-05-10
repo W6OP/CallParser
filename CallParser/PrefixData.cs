@@ -54,7 +54,6 @@ namespace CallParser
    
         public List<HashSet<HashSet<string>>> primaryMaskSets;        //: [[Set<String>]]
         public List<List<string>> primaryMaskList;      //: [[Set<String>]]
-       // public OrderedDictionary primaryMaskDictionary = new OrderedDictionary();
         public List<String> rawMasks = new List<String>();
 
         bool adif = false;
@@ -139,6 +138,16 @@ namespace CallParser
             int nextIndex;
             int pass = 0;
 
+            // TEMPORARY: get rid of "."
+            mask = mask.Replace(".", "");
+            /*
+             <mask>UA6/</mask>
+			<mask>R@[67][KORSTVZ]</mask>
+			<mask>U[A-I][67][KORSTVZ]</mask>
+			<mask>[RU][67][KORSTVZ]@.</mask>
+			<mask>[RU][67][KORSTVZ]@@.</mask>
+             */
+
             while (counter < mask.Length)
             {
                 item = mask[counter];
@@ -162,7 +171,7 @@ namespace CallParser
                     case "#":
                     case "?":
                         expandedMask = GetMetaMaskSet(item.ToString());
-                        expandedMaskSet.Add(expandedMask);
+                        _ = expandedMaskSet.Add(expandedMask);
                         allCharacters.Add(BuildPrefixList(expandedMask));
                         counter += 1;
                         newMask = mask.Substring(counter);
@@ -180,7 +189,7 @@ namespace CallParser
                 }
             }
 
-            PopulatePrimaryPrefixList(allCharacters, new List<string>(), new StringBuilder());
+            PopulatePrimaryPrefixList(allCharacters);
             primaryMaskSets.Add(expandedMaskSet);
         }
 
@@ -196,50 +205,94 @@ namespace CallParser
             return characters;
         }
 
-        private void PopulatePrimaryPrefixList (List<List<string>> allCharacters, List<string> firstCharacter, StringBuilder prefix)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="allCharacters"></param>
+        /// <param name="firstCharacter"></param>
+        /// <param name="prefix"></param>
+        private void PopulatePrimaryPrefixList (List<List<string>> allCharacters)
         {
+            List<string> tempList = new List<string>();
+            StringBuilder prefix = new StringBuilder();
+
             if (allCharacters.Count == 1)
             {
                 string temp = allCharacters[0].First();
-                string temp2 = firstCharacter.First();
+                string temp2 = tempList.First();
                 temp2 += temp;
-                firstCharacter[0] = temp2;
+                tempList[0] = temp2;
                 return;
             }
 
             foreach (string first in allCharacters[0])
             {
+                prefix = new StringBuilder();
                 foreach (string second in allCharacters[1])
                 {
                     prefix.Append(first);
                     prefix.Append(second);
-                    firstCharacter.Add(prefix.ToString());
-                    //prefix = new StringBuilder();
+                    tempList.Add(prefix.ToString());
+                    prefix = new StringBuilder();
                 }
             }
 
             if (allCharacters.Count > 2)
             {
                 allCharacters.RemoveRange(0, 2);
-                PopulatePrimaryPrefixList(allCharacters, firstCharacter, prefix);
+                PopulatePrimaryPrefixList(allCharacters, tempList, prefix);
             }
 
-            primaryMaskList.Add(firstCharacter);
+            primaryMaskList.Add(tempList);
         }
 
         /// <summary>
-        /// Split string and eliminate "[" or "]" and empty entries.
-        /// Save the mask after it has been processed.
+        /// 
         /// </summary>
-        /// <param name="maskPart"></param>
-        //private void ProcessLeftOver(string maskPart, HashSet<HashSet<string>> expandedMaskSet)
-        //{
-        //    string[] maskComponents = maskPart.Split("[]".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+        /// <param name="allCharacters"></param>
+        /// <param name="tempList"></param>
+        /// <param name="prefix"></param>
+        private void PopulatePrimaryPrefixList(List<List<string>> allCharacters, List<string> tempList, StringBuilder prefix)
+        {
+            List<string> tempList2 = new List<string>();
 
-        //    Debug.Assert(maskComponents.Length == 1);
+            if (allCharacters.Count == 1)
+            {
+                string temp = allCharacters[0].First();
+                for (int i = 0; i < tempList.Count; i++)
+                {
+                    string temp2 = tempList[i];
+                    temp2 += temp;
+                    tempList[i] = temp2;
+                }
+                return;
+            }
 
-        //    //ParseMask(maskComponents, expandedMaskSet);
-        //}
+            foreach (string first in allCharacters[0])
+            {
+                prefix = new StringBuilder();
+                foreach (string second in allCharacters[1])
+                {
+                    prefix.Append(first);
+                    prefix.Append(second);
+                    for (int i = 0; i < tempList.Count; i++)
+                    {
+                        tempList2.Add(tempList[i] + prefix.ToString());
+                    }
+                    prefix = new StringBuilder();
+                }
+            }
+
+            if (allCharacters.Count > 2)
+            {
+                allCharacters.RemoveRange(0, 2);
+                PopulatePrimaryPrefixList(allCharacters, tempList, prefix);
+            }
+
+            // add templist 2 to templist
+            tempList.AddRange(tempList2);
+        }
+
 
         /// <summary>
         /// Look at each character and see if it is a meta character to be expanded

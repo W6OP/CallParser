@@ -320,7 +320,7 @@ namespace CallParser
                         callPart = callPart.Remove(callPart.Length - 1);
                         if (callPart == string.Empty)
                         {
-                            Console.WriteLine("No match: " + callAndprefix.callPrefix);
+                            //Console.WriteLine("No match: " + callAndprefix.callPrefix);
                             break;
                         }
                     }
@@ -451,8 +451,12 @@ namespace CallParser
 
             if (_ChildPrefixDict.ContainsKey(callPart))
             {
-                var list = _ChildPrefixDict[callPart];
+                //var list = _ChildPrefixDict[callPart];
                 // matches.Add(_ChildPrefixDict[callPart]);
+                foreach (PrefixData prefixData in _ChildPrefixDict[callPart])
+                {
+                    matches.Add(prefixData);
+                }
             }
 
             if (matches.Count == 0)
@@ -462,8 +466,13 @@ namespace CallParser
                 {
                     if (_ChildPrefixDict.ContainsKey(callPart))
                     {
-                        var list = _ChildPrefixDict[callPart];
+                        //var list = _ChildPrefixDict[callPart];
+                        foreach (PrefixData prefixData in _ChildPrefixDict[callPart])
+                        {
+                            matches.Add(prefixData);
+                        }
                         //matches.Add(_ChildPrefixDict[callPart]);
+                        break;
                     }
 
                     callPart = callPart.Remove(callPart.Length - 1);

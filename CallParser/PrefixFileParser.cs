@@ -167,7 +167,7 @@ namespace CallParser
                         if (!_ChildPrefixDict.ContainsKey(prefix))
                         {
                             _ChildPrefixDict.Add(prefix, prefixDataList);
-                            Console.WriteLine(prefix + " added");
+                            //Console.WriteLine(prefix + " added");
                         }
                         else
                         {
