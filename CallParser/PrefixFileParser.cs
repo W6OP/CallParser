@@ -69,10 +69,12 @@ namespace CallParser
             {
                 BuildPrefixData(prefixXml);
             }
+
+            var a = 2;
         }
 
         /// <summary>
-        /// 
+        /// Populate the PrefixData object.
         /// </summary>
         /// <param name="prefixXml"></param>
         private void BuildPrefixData(XElement prefixXml)
@@ -153,27 +155,43 @@ namespace CallParser
             }
 
             // load the primary prefix for this entity
-            _PrefixDict.Add(prefixData.fullPrefix, prefixData);
+            // if (!_PrefixDict.ContainsKey(prefixData.fullPrefix))
+            if (!_PrefixDict.ContainsKey(prefixData.mainPrefix))
+            {
+                _PrefixDict.Add(prefixData.mainPrefix, prefixData);
+                // WAS !!! fullPrefix
+                //_PrefixDict.Add(prefixData.fullPrefix, prefixData);
+            }
 
             // add the additional prefixes
-           foreach (List<string> prefixList in prefixData.primaryMaskList)
+            foreach (List<string> prefixList in prefixData.primaryMaskList)
            {
                 foreach (string prefix in prefixList)
                 {
-                    if (prefix != prefixData.fullPrefix)
+                    // if (prefix != prefixData.fullPrefix)
+                    if (prefix != prefixData.mainPrefix)
                     {
-                        List<PrefixData> prefixDataList = new List<PrefixData>();
-                        prefixDataList.Add(prefixData);
-                        if (!_ChildPrefixDict.ContainsKey(prefix))
+                        if (!_PrefixDict.ContainsKey(prefix))
                         {
-                            _ChildPrefixDict.Add(prefix, prefixDataList);
-                            //Console.WriteLine(prefix + " added");
-                        }
-                        else
+                            _PrefixDict.Add(prefix, prefixData);
+                        } else
                         {
-                            _ChildPrefixDict[prefix].Add(prefixData);
-                            Console.WriteLine(prefix + " updated");
+                           // Console.WriteLine(prefix + " duplicate: " + prefixData.kind.ToString());
                         }
+
+                        // COMMENTED OUT TO TRY TO PUT EVERYTHING IN THE TOP LEVEL LIST
+                        //List<PrefixData> prefixDataList = new List<PrefixData>();
+                        //prefixDataList.Add(prefixData);
+                        //if (!_ChildPrefixDict.ContainsKey(prefix))
+                        //{
+                        //    _ChildPrefixDict.Add(prefix, prefixDataList);
+                        //    //Console.WriteLine(prefix + " added");
+                        //}
+                        //else
+                        //{
+                        //    _ChildPrefixDict[prefix].Add(prefixData);
+                        //    Console.WriteLine(prefix + " updated");
+                        //}
                     }
                 }
            }

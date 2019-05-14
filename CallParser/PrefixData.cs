@@ -87,7 +87,7 @@ namespace CallParser
         {
             if (fullPrefix.IndexOf(".") != -1)
             {
-                mainPrefix = fullPrefix.Substring(0, fullPrefix.IndexOf("."));
+                mainPrefix = fullPrefix.Substring(fullPrefix.LastIndexOf('.') + 1);
             }
             else
             {
@@ -218,6 +218,7 @@ namespace CallParser
 
             if (allCharacters.Count == 1)
             {
+                // THIS S NEVER HIT AND IS INCORRECT
                 string temp = allCharacters[0].First();
                 string temp2 = tempList.First();
                 temp2 += temp;
@@ -258,12 +259,32 @@ namespace CallParser
 
             if (allCharacters.Count == 1)
             {
-                string temp = allCharacters[0].First();
-                for (int i = 0; i < tempList.Count; i++)
+                if (allCharacters[0].Count == 1) {
+                    string temp = allCharacters[0].First();
+                    for (int i = 0; i < tempList.Count; i++)
+                    {
+                        string temp2 = tempList[i];
+                        temp2 += temp;
+                        tempList[i] = temp2;
+                    }
+                } else
                 {
-                    string temp2 = tempList[i];
-                    temp2 += temp;
-                    tempList[i] = temp2;
+                    foreach (string first in allCharacters[0])
+                    {
+                        prefix = new StringBuilder();
+                        //foreach (string second in allCharacters[1])
+                        //{
+                            prefix.Append(first);
+                            //prefix.Append(second);
+                            for (int i = 0; i < tempList.Count; i++)
+                            {
+                                tempList2.Add(tempList[i] + prefix.ToString());
+                            }
+                            prefix = new StringBuilder();
+                        //}
+                    }
+                    // add templist 2 to templist
+                    tempList.AddRange(tempList2);
                 }
                 return;
             }

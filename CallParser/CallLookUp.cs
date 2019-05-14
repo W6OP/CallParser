@@ -76,8 +76,43 @@ namespace CallParser
             _ChildPrefixDict = prefixFilePareser._ChildPrefixDict;
         }
 
+        public List<Hit> LookUpCall(List<string> callSigns)
+        {
+            _HitList = new List<Hit>(2000000);
+
+            var sw = Stopwatch.StartNew();
+
+            _ = Parallel.ForEach(callSigns, callSign =>
+            //foreach (string callSign in callSigns)
+            {
+                if (!string.IsNullOrEmpty(callSign))
+                {
+                    if (ValidateCallSign(callSign))
+                    {
+                        ProcessCallSign(callSign);
+                    }
+                    else
+                    {
+                        throw new Exception("Invalid call sign format"); // EMBELLISH
+                    }
+                }
+            }
+           );
+
+            Console.WriteLine("Search Time: " + sw.ElapsedMilliseconds + "ms - ticks: " + sw.ElapsedTicks);
+
+            return _HitList;
+        }
+
+        /// <summary>
+        /// Look up a single call sign. 
+        /// </summary>
+        /// <param name="callSign"></param>
+        /// <returns></returns>
         public List<Hit> LookUpCall(string callSign)
         {
+            _HitList = new List<Hit>();
+
             callSign = callSign.ToUpper();
 
             if (ValidateCallSign(callSign))
@@ -107,6 +142,12 @@ namespace CallParser
 
             // check if first character is "/"
             if (callSign.IndexOf("/", 0, 1) == 0) { return false; }
+
+            // check if second character is "/"
+            if (callSign.IndexOf("/", 1, 1) == 0)
+            {
+                return false;
+            }
 
             // can't be all numbers
             if (IsNumeric(callSign)) { return false; }
@@ -166,7 +207,8 @@ namespace CallParser
             callAndprefix.call = "";
             callAndprefix.callPrefix = "";
 
-            Parallel.ForEach(components, component =>
+            //Parallel.ForEach(components, component =>
+            foreach (string component in components)
             {
                 if (component.Length != 1)
                 {
@@ -181,7 +223,7 @@ namespace CallParser
                     }
                 }
             }
-         );
+         //);
 
             callAndprefix = ProcessPrefix(callSign, tempComponents);
 
@@ -202,12 +244,20 @@ namespace CallParser
             (string call, string callPrefix) callAndprefix = ("", "");
             string call = "";
             string prefix = "";
-            string[] rejectPrefixes = { "A", "B", "M", "P", "MM", "AM", "QRP", "QRPP", "LH", "LGT", "ANT", "WAP", "AAW", "FJL" };
+            // added "R" as a beacon for R/IK3OTW
+            // "U" for U/K2KRG
+            string[] rejectPrefixes = { "U", "R", "A", "B", "M", "P", "MM", "AM", "QRP", "QRPP", "LH", "LGT", "ANT", "WAP", "AAW", "FJL" };
 
             // shortest
             prefix = components.OrderBy(c => c.Length).FirstOrDefault();
             // longest
             call = components.OrderBy(c => c.Length).Last();
+
+            // DEBUG CODE
+            //if (call == "IK3OTW" || prefix == "IK3OTW")
+            //{
+            //    Debug.Assert(prefix == "IK3OTW");
+            //}
 
             if (call.Length == prefix.Length)
             {
@@ -218,12 +268,12 @@ namespace CallParser
             }
 
             // should the prefix be tossed out
-            if (Array.Find(rejectPrefixes, element => element.Contains(call)) != null)
+            if (Array.Find(rejectPrefixes, element => element == call) != null)
             {
                 call = prefix;
             }
 
-            if (Array.Find(rejectPrefixes, element => element.Contains(prefix)) != null)
+            if (Array.Find(rejectPrefixes, element => element == prefix) != null)
             {
                 prefix = call;
             }
@@ -232,7 +282,6 @@ namespace CallParser
             {
                 // collectMatches expects the prefix to be populated - that is what we search on
                 Debug.Assert(prefix == string.Empty);
-                //prefix = call;
             }
 
             // call can be W4/LU2ART or LU2ART/W4 but make it W4/LU2ART
@@ -273,14 +322,18 @@ namespace CallParser
         /// <returns></returns>
         private bool CheckExceptions(List<string> components)
         {
-            switch (components[0].Substring(0, 2))
+            if (components[0].Length > 1)
             {
-                case "BY":
-                    return true;
-                default:
-                    return false;
+                switch (components[0].Substring(0, 2))
+                {
+                    case "BY":
+                        return true;
+                    default:
+                        return false;
+                }
             }
 
+            return false;
         }
 
         /// <summary>
@@ -309,29 +362,38 @@ namespace CallParser
                     PopulateHitList(matches[0], callAndprefix);
                     break;
                 default:
-                    callPart = callPart.Remove(callPart.Length - 1);
-                    while (matches.Count == 0)
+                    if (callPart.Length > 1)
                     {
-                        if (_PrefixDict.ContainsKey(callPart))
-                        {
-                            matches.Add(_PrefixDict[callPart]);
-                        }
-                        
                         callPart = callPart.Remove(callPart.Length - 1);
-                        if (callPart == string.Empty)
+                        while (matches.Count == 0)
                         {
-                            //Console.WriteLine("No match: " + callAndprefix.callPrefix);
-                            break;
+                            if (_PrefixDict.ContainsKey(callPart))
+                            {
+                                matches.Add(_PrefixDict[callPart]);
+                            }
+
+                            callPart = callPart.Remove(callPart.Length - 1);
+                            if (callPart == string.Empty)
+                            {
+                                //Console.WriteLine("No match: " + callAndprefix.callPrefix);
+                                break;
+                            }
                         }
+                    }
+                    else
+                    {
+                        // debugging
+                        Console.WriteLine("Single Character: " + callPart);
                     }
 
                     switch (matches.Count)
                     {
                         case 0:
-                           
-                        matches = SearchSecondaryPrefixes(callAndprefix: callAndprefix);
-                           
-                         
+                            // debugging
+                            Console.WriteLine("Not Found: " + callPart);
+                            //matches = SearchSecondaryPrefixes(callAndprefix: callAndprefix);
+
+
                             return;
                         default:
                             ProcessMatches(matches: matches, callAndprefix: callAndprefix);
@@ -339,7 +401,7 @@ namespace CallParser
                     }
                     break;
             }
-           // Console.WriteLine("Search Time: " + sw.ElapsedMilliseconds + "ms - ticks: " + sw.ElapsedTicks);
+            // Console.WriteLine("Search Time: " + sw.ElapsedMilliseconds + "ms - ticks: " + sw.ElapsedTicks);
         }
 
         /// <summary>
@@ -353,19 +415,13 @@ namespace CallParser
         {
             _CallSetList = GetCallSetList(callAndprefix.call);
 
-          //  _ = Parallel.ForEach(matches, match =>
-          foreach(PrefixData match in matches)
-              {
-                  PopulateHitList(match, callAndprefix);
-
-                  //if (match.hasChildren)
-                  //{
-                  //    ProcessChildren(match.children, callAndprefix);
-                  //}
-
-                 
-              }
-       // );
+            //  _ = Parallel.ForEach(matches, match =>
+            foreach (PrefixData match in matches)
+            {
+                PopulateHitList(match, callAndprefix);
+            }
+            //  _ = Parallel.ForEach(matches, match =>
+            // );
 
         }
 
@@ -406,7 +462,7 @@ namespace CallParser
                     {
                         try
                         {
-                           // HashSet<string> temp = new HashSet<string>(callSetList[i]);
+                            // HashSet<string> temp = new HashSet<string>(callSetList[i]);
                             //temp.IntersectWith(min[i]);  // UPDATE
 
                             //if (temp.Count != 0)
@@ -649,11 +705,6 @@ namespace CallParser
         /// <param name="callAndprefix"></param>
         private void PopulateHitList(PrefixData prefixData, (string call, string callPrefix) callAndprefix)
         {
-            if (_HitList == null)
-            {
-                _HitList = new List<Hit>();
-            }
-
             _HitList.Add(new Hit(callAndprefix, prefixData));
         }
 
