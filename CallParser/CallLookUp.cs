@@ -71,9 +71,9 @@ namespace CallParser
         public CallLookUp(PrefixFileParser prefixFilePareser)
         {
             _PrefixList = prefixFilePareser._PrefixList;
-            _ChildPrefixList = prefixFilePareser._ChildPrefixList;
+           // _ChildPrefixList = prefixFilePareser._ChildPrefixList;
             _PrefixDict = prefixFilePareser._PrefixDict;
-            _ChildPrefixDict = prefixFilePareser._ChildPrefixDict;
+           // _ChildPrefixDict = prefixFilePareser._ChildPrefixDict;
         }
 
         public List<Hit> LookUpCall(List<string> callSigns)
@@ -348,9 +348,9 @@ namespace CallParser
 
             callPart = callPart.Length > 3 ? callPart.Substring(0, 4) : callPart;
 
-            //var sw = Stopwatch.StartNew();
 
-            List<PrefixData> matches = new List<PrefixData>(); //_PrefixList.Where(p => p.mainPrefix == callPart).ToList();
+            List<PrefixData> matches = new List<PrefixData>(); 
+            //_PrefixList.Where(p => p.mainPrefix == callPart).ToList();
             if (_PrefixDict.ContainsKey(callPart))
             {
                 matches.Add(_PrefixDict[callPart]);
@@ -391,9 +391,6 @@ namespace CallParser
                         case 0:
                             // debugging
                             Console.WriteLine("Not Found: " + callPart);
-                            //matches = SearchSecondaryPrefixes(callAndprefix: callAndprefix);
-
-
                             return;
                         default:
                             ProcessMatches(matches: matches, callAndprefix: callAndprefix);
@@ -401,7 +398,6 @@ namespace CallParser
                     }
                     break;
             }
-            // Console.WriteLine("Search Time: " + sw.ElapsedMilliseconds + "ms - ticks: " + sw.ElapsedTicks);
         }
 
         /// <summary>
@@ -415,6 +411,8 @@ namespace CallParser
         {
             _CallSetList = GetCallSetList(callAndprefix.call);
 
+            // THIS CAN BE ELIMINATED. I'LL JUST GET RID OF THE PREFIXDATA STRUCTURE AND USE THE HITLIST
+            // WHY LOOP HERE IF IT CAN BE DONE EARLIER
             //  _ = Parallel.ForEach(matches, match =>
             foreach (PrefixData match in matches)
             {
@@ -425,120 +423,120 @@ namespace CallParser
 
         }
 
-        private void ProcessChildren(List<PrefixData> children, (string call, string callPrefix) callAndprefix)
-        {
-            foreach (PrefixData child in children)
-            {
-                foreach (HashSet<HashSet<string>> mask in child.primaryMaskSets)
-                {
-                    if (CompareMask(mask, _CallSetList))  // UPDATE
-                    {
-                        PopulateHitList(child, callAndprefix);
-                    }
-                }
-            }
-        }
+        //private void ProcessChildren(List<PrefixData> children, (string call, string callPrefix) callAndprefix)
+        //{
+        //    foreach (PrefixData child in children)
+        //    {
+        //        foreach (HashSet<HashSet<string>> mask in child.primaryMaskSets)
+        //        {
+        //            if (CompareMask(mask, _CallSetList))  // UPDATE
+        //            {
+        //                PopulateHitList(child, callAndprefix);
+        //            }
+        //        }
+        //    }
+        //}
 
-        private List<PrefixData> SearchSecondaryPrefixesOld((string call, string callPrefix) callAndprefix)
-        {
-            int maxCount = 0;
-            bool match = false;
-            List<PrefixData> matches = new List<PrefixData>();
-            HashSet<HashSet<string>> callSetList;  // = GetCallSetList(callAndprefix.call);
+        //private List<PrefixData> SearchSecondaryPrefixesOld((string call, string callPrefix) callAndprefix)
+        //{
+        //    int maxCount = 0;
+        //    bool match = false;
+        //    List<PrefixData> matches = new List<PrefixData>();
+        //    HashSet<HashSet<string>> callSetList;  // = GetCallSetList(callAndprefix.call);
 
-            foreach (PrefixData prefixData in _PrefixList)
-            {
-                matches = new List<PrefixData>();
-                callSetList = GetCallSetList(callAndprefix.call);
+        //    foreach (PrefixData prefixData in _PrefixList)
+        //    {
+        //        matches = new List<PrefixData>();
+        //        callSetList = GetCallSetList(callAndprefix.call);
 
-                if (prefixData.primaryMaskSets.Count > 1)
-                {
-                    // first find out which set is the smallest and we will only match that number a chars
-                    var min = prefixData.primaryMaskSets.OrderBy(c => c.Count).FirstOrDefault(); // -------------------------------optimize
-                    // get smallest int
-                    maxCount = min.Count < callSetList.Count ? min.Count : callSetList.Count;
+        //        if (prefixData.primaryMaskSets.Count > 1)
+        //        {
+        //            // first find out which set is the smallest and we will only match that number a chars
+        //            var min = prefixData.primaryMaskSets.OrderBy(c => c.Count).FirstOrDefault(); // -------------------------------optimize
+        //            // get smallest int
+        //            maxCount = min.Count < callSetList.Count ? min.Count : callSetList.Count;
 
-                    for (int i = 0; i < maxCount; i++)
-                    {
-                        try
-                        {
-                            // HashSet<string> temp = new HashSet<string>(callSetList[i]);
-                            //temp.IntersectWith(min[i]);  // UPDATE
+        //            for (int i = 0; i < maxCount; i++)
+        //            {
+        //                try
+        //                {
+        //                    // HashSet<string> temp = new HashSet<string>(callSetList[i]);
+        //                    //temp.IntersectWith(min[i]);  // UPDATE
 
-                            //if (temp.Count != 0)
-                            //{
-                            //    match = true;
-                            //    //return match // is there any reason to continue here?
-                            //    //found W4 do we need W4/ - however get 31 hits vs. 3
-                            //}
-                            //else
-                            //{
-                            //    match = false;
-                            //    break;
-                            //}
+        //                    //if (temp.Count != 0)
+        //                    //{
+        //                    //    match = true;
+        //                    //    //return match // is there any reason to continue here?
+        //                    //    //found W4 do we need W4/ - however get 31 hits vs. 3
+        //                    //}
+        //                    //else
+        //                    //{
+        //                    //    match = false;
+        //                    //    break;
+        //                    //}
 
-                            if (match)
-                            {
-                                matches.Insert(0, prefixData);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            var a = ex.Message;
-                        }
-                    }
-                }
-            }
+        //                    if (match)
+        //                    {
+        //                        matches.Insert(0, prefixData);
+        //                    }
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    var a = ex.Message;
+        //                }
+        //            }
+        //        }
+        //    }
 
-            return matches;
-        }
+        //    return matches;
+        //}
 
         /// <summary>
         /// Search through the secondary prefixes.
         /// </summary>
         /// <param name="callAndprefix"></param>
         /// <returns></returns>
-        private List<PrefixData> SearchSecondaryPrefixes((string call, string callPrefix) callAndprefix)
-        {
-            List<PrefixData> matches = new List<PrefixData>();
-            string callPart = callAndprefix.callPrefix;
+        //private List<PrefixData> SearchSecondaryPrefixes((string call, string callPrefix) callAndprefix)
+        //{
+        //    List<PrefixData> matches = new List<PrefixData>();
+        //    string callPart = callAndprefix.callPrefix;
 
-            callPart = callPart.Length > 3 ? callPart.Substring(0, 4) : callPart;
+        //    callPart = callPart.Length > 3 ? callPart.Substring(0, 4) : callPart;
 
-            if (_ChildPrefixDict.ContainsKey(callPart))
-            {
-                //var list = _ChildPrefixDict[callPart];
-                // matches.Add(_ChildPrefixDict[callPart]);
-                foreach (PrefixData prefixData in _ChildPrefixDict[callPart])
-                {
-                    matches.Add(prefixData);
-                }
-            }
+        //    if (_ChildPrefixDict.ContainsKey(callPart))
+        //    {
+        //        //var list = _ChildPrefixDict[callPart];
+        //        // matches.Add(_ChildPrefixDict[callPart]);
+        //        foreach (PrefixData prefixData in _ChildPrefixDict[callPart])
+        //        {
+        //            matches.Add(prefixData);
+        //        }
+        //    }
 
-            if (matches.Count == 0)
-            {
-                callPart = callPart.Remove(callPart.Length - 1);
-                while (matches.Count == 0)
-                {
-                    if (_ChildPrefixDict.ContainsKey(callPart))
-                    {
-                        //var list = _ChildPrefixDict[callPart];
-                        foreach (PrefixData prefixData in _ChildPrefixDict[callPart])
-                        {
-                            matches.Add(prefixData);
-                        }
-                        //matches.Add(_ChildPrefixDict[callPart]);
-                        break;
-                    }
+        //    if (matches.Count == 0)
+        //    {
+        //        callPart = callPart.Remove(callPart.Length - 1);
+        //        while (matches.Count == 0)
+        //        {
+        //            if (_ChildPrefixDict.ContainsKey(callPart))
+        //            {
+        //                //var list = _ChildPrefixDict[callPart];
+        //                foreach (PrefixData prefixData in _ChildPrefixDict[callPart])
+        //                {
+        //                    matches.Add(prefixData);
+        //                }
+        //                //matches.Add(_ChildPrefixDict[callPart]);
+        //                break;
+        //            }
 
-                    callPart = callPart.Remove(callPart.Length - 1);
-                    if (callPart == string.Empty)
-                    {
-                        Console.WriteLine("No match: " + callAndprefix.callPrefix);
-                        break;
-                    }
-                }
-            }
+        //            callPart = callPart.Remove(callPart.Length - 1);
+        //            if (callPart == string.Empty)
+        //            {
+        //                Console.WriteLine("No match: " + callAndprefix.callPrefix);
+        //                break;
+        //            }
+        //        }
+        //    }
 
 
 
@@ -589,47 +587,47 @@ namespace CallParser
             //}
             //);
 
-            return matches;
-        }
+        //    return matches;
+        //}
 
         /// <summary>
         /// Look at the mask in every child of every parent.
         /// </summary>
         /// <param name="callAndprefix"></param>
-        private void SearchChildren((string call, string callPrefix) callAndprefix)
-        {
-            HashSet<HashSet<string>> callSetList = GetCallSetList(callAndprefix.call);
+        //private void SearchChildren((string call, string callPrefix) callAndprefix)
+        //{
+        //    HashSet<HashSet<string>> callSetList = GetCallSetList(callAndprefix.call);
 
-            //if (_ChildPrefixDict.ContainsKey(callAndprefix.call))
-            //{
+        //    //if (_ChildPrefixDict.ContainsKey(callAndprefix.call))
+        //    //{
 
-            //}
+        //    //}
 
-            //foreach (PrefixData child in _ChildPrefixList)
-            //{
-            //    // this doubles run from 1 min to 2 min
-            //    //foreach (List<HashSet<string>> mask in child.primaryMaskSets)
-            //    {
-            //        if (CompareMask(mask, callSetList))
-            //        {
-            //            PopulateHitList(child, callAndprefix);
-            //        }
-            //    }
-            //}
+        //    //foreach (PrefixData child in _ChildPrefixList)
+        //    //{
+        //    //    // this doubles run from 1 min to 2 min
+        //    //    //foreach (List<HashSet<string>> mask in child.primaryMaskSets)
+        //    //    {
+        //    //        if (CompareMask(mask, callSetList))
+        //    //        {
+        //    //            PopulateHitList(child, callAndprefix);
+        //    //        }
+        //    //    }
+        //    //}
 
-            // MAYBE SHOULD PUT PRIMARYMASKSETS IN A DICTIONARY
-            _ = Parallel.ForEach(_ChildPrefixList, child =>
-              {
-                  foreach (HashSet<HashSet<string>> mask in child.primaryMaskSets)
-                  {
-                      //if (CompareMask(mask, callSetList)) // UPDATE
-                      //{
-                      //    PopulateHitList(child, callAndprefix);
-                      //}
-                  }
-              }
-          );
-        }
+        //    // MAYBE SHOULD PUT PRIMARYMASKSETS IN A DICTIONARY
+        //    _ = Parallel.ForEach(_ChildPrefixList, child =>
+        //      {
+        //          foreach (HashSet<HashSet<string>> mask in child.primaryMaskSets)
+        //          {
+        //              //if (CompareMask(mask, callSetList)) // UPDATE
+        //              //{
+        //              //    PopulateHitList(child, callAndprefix);
+        //              //}
+        //          }
+        //      }
+        //  );
+        //}
 
         /// <summary>
         /// Compare the mask with the Set created with the call sign.
@@ -637,40 +635,40 @@ namespace CallParser
         /// <param name="mask"></param>
         /// <param name="callSetList"></param>
         /// <returns></returns>
-        private bool CompareMask(HashSet<HashSet<string>> mask, HashSet<HashSet<string>> callSetList)
-        {
-            int maxCount = 0;
-            bool match = false;
+        //private bool CompareMask(HashSet<HashSet<string>> mask, HashSet<HashSet<string>> callSetList)
+        //{
+        //    int maxCount = 0;
+        //    bool match = false;
 
-            // UPDATE
-            //List<HashSet<HashSet<string>>> list = new List<HashSet<HashSet<string>>>;
-            ////{
-            //list.Add(mask);
-            //list.Add(callSetList);
-            ////};
+        //    // UPDATE
+        //    //List<HashSet<HashSet<string>>> list = new List<HashSet<HashSet<string>>>;
+        //    ////{
+        //    //list.Add(mask);
+        //    //list.Add(callSetList);
+        //    ////};
 
-            ////// first find out which set is the smallest and we will only match that number a chars
-            //var min = list.OrderBy(c => c.Count).FirstOrDefault();
-            //maxCount = min.Count;
+        //    ////// first find out which set is the smallest and we will only match that number a chars
+        //    //var min = list.OrderBy(c => c.Count).FirstOrDefault();
+        //    //maxCount = min.Count;
 
-            //for (int i = 0; i < maxCount; i++)  
-            //{
-            //    HashSet<string> temp = new HashSet<string>(callSetList[i]);
-            //    temp.IntersectWith(mask[i]);
-            //    if (temp.Count != 0)
-            //    {
-            //        match = true;
-            //        //return match // is there any reason to continue here?
-            //        //found W4 do we need W4/ - however get 31 hits vs. 3
-            //    }
-            //    else
-            //    {
-            //        return false;
-            //    }
-            //}
+        //    //for (int i = 0; i < maxCount; i++)  
+        //    //{
+        //    //    HashSet<string> temp = new HashSet<string>(callSetList[i]);
+        //    //    temp.IntersectWith(mask[i]);
+        //    //    if (temp.Count != 0)
+        //    //    {
+        //    //        match = true;
+        //    //        //return match // is there any reason to continue here?
+        //    //        //found W4 do we need W4/ - however get 31 hits vs. 3
+        //    //    }
+        //    //    else
+        //    //    {
+        //    //        return false;
+        //    //    }
+        //    //}
 
-            return match;
-        }
+        //    return match;
+        //}
 
         /// <summary>
         /// Create a Set from the call sign to do Set operations with.

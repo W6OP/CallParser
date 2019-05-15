@@ -14,15 +14,11 @@ namespace CallParser
 {
     public class PrefixFileParser
     {
-        //private readonly string DIGITS = "[0123456789]";
-        //private readonly string LETTERS = "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]";
-        //private readonly string CHARS = "[0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ]";
-
         public List<PrefixData> _PrefixList;
-        public List<PrefixData> _ChildPrefixList;
+      //public List<PrefixData> _ChildPrefixList;
 
         public Dictionary<string, PrefixData> _PrefixDict;
-        public Dictionary<string, List<PrefixData>> _ChildPrefixDict;
+        //public Dictionary<string, List<PrefixData>> _ChildPrefixDict;
 
         /// <summary>
         /// Constructor.
@@ -30,10 +26,10 @@ namespace CallParser
         public PrefixFileParser()
         {
             _PrefixList = new List<PrefixData>();
-            _ChildPrefixList = new List<PrefixData>();
+            //_ChildPrefixList = new List<PrefixData>();
 
             _PrefixDict = new Dictionary<string, PrefixData>();
-            _ChildPrefixDict = new Dictionary<string, List<PrefixData>>();
+            //_ChildPrefixDict = new Dictionary<string, List<PrefixData>>();
         }
 
         public void ParsePrefixFile(string prefixFilePath)
