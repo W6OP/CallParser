@@ -130,7 +130,6 @@ namespace CallParserTestor
             hitList = _CallLookUp.LookUpCall(_Records);
             //Test();
 
-            Cursor.Current = Cursors.Default;
             label1.Text = "Search Time: " + sw.ElapsedMilliseconds + "ms - ticks: " + sw.ElapsedTicks;
             label2.Text = "Finished - hitcount = " + hitList.Count.ToString();
             label3.Text = ((float)(sw.ElapsedMilliseconds / divisor)).ToString() + "us";
@@ -138,6 +137,7 @@ namespace CallParserTestor
 
             var thread = new Thread(() =>
             {
+                Cursor.Current = Cursors.WaitCursor;
                 SaveHitList(hitList);
             });
             thread.Start();
@@ -151,9 +151,6 @@ namespace CallParserTestor
         {
             String folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             String file = Path.Combine(folderPath, "hits.csv");
-
-            Cursor.Current = Cursors.WaitCursor;
-            Application.DoEvents();
 
             List<Hit> sortedList = hitList;    //.OrderBy(o => o.CallSign).ToList();
 
@@ -176,7 +173,8 @@ namespace CallParserTestor
             }
 
             Console.WriteLine("Finished writing file");
-            Cursor.Current = Cursors.Default;
+            UpdateCursor();
+           // Cursor.Current = Cursors.Default;
         }
 
         /// <summary>
@@ -204,6 +202,16 @@ namespace CallParserTestor
             }
 
             label1.Text = message;
+        }
+
+        private void UpdateCursor()
+        {
+            if (InvokeRequired)
+            {
+                this.BeginInvoke(new Action(this.UpdateCursor));
+                return;
+            }
+            Cursor.Current = Cursors.Default;
         }
 
     } // end class

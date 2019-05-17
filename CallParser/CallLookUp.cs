@@ -345,10 +345,6 @@ namespace CallParser
             {
                 hit = new Hit(_PrefixDict[callPart], callAndprefix.call);
                 _HitList.Add(hit);
-                if (hit.CallSign == "OA1F")
-                {
-                    Console.WriteLine("Matches = " + hit.CallSign + " : " + hit.Kind.ToString());
-                }
             }
 
             if (callPart.Length > 1)
@@ -360,10 +356,6 @@ namespace CallParser
                     {
                         hit = new Hit(_PrefixDict[callPart], callAndprefix.call);
                         _HitList.Add(hit);
-                        if (hit.CallSign == "OA1F")
-                        {
-                            Console.WriteLine("Matches = " + hit.CallSign + " : " + hit.Kind.ToString());
-                        }
                     }
 
                     callPart = callPart.Remove(callPart.Length - 1);
