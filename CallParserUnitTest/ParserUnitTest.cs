@@ -37,7 +37,7 @@ namespace CallParserUnitTest
         [TestMethod]
         public void CallLookUp()
         {
-            BlockingCollection<CallSignInfo> hit;
+            List<Hit> hit;
 
             _PrefixFileParser = new PrefixFileParser();
             _PrefixFileParser.ParsePrefixFile("");
@@ -55,7 +55,7 @@ namespace CallParserUnitTest
                 {
                     if (!String.IsNullOrEmpty(call))
                     {
-                        hit = new BlockingCollection<CallSignInfo>();
+                        hit = new List<Hit>();
                         hit = _CallLookUp.LookUpCall(call);
                     }
                 }

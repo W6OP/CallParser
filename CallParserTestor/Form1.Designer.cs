@@ -59,7 +59,6 @@
             this.TextBoxCall.Size = new System.Drawing.Size(100, 20);
             this.TextBoxCall.TabIndex = 1;
             this.TextBoxCall.Text = "WA6YUL";
-            this.TextBoxCall.Visible = false;
             // 
             // button2
             // 

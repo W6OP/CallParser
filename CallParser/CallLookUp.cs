@@ -48,28 +48,28 @@ namespace CallParser
 {
     public class CallLookUp
     {
-        private BlockingCollection<CallSignInfo> _HitList;
+        private ConcurrentBag<Hit> _HitList;
         private readonly Dictionary<string, CallSignInfo> _PrefixDict;
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="prefixFileParser"></param>
-        public CallLookUp(Dictionary<string, CallSignInfo> prefixDict1)
+        public CallLookUp(Dictionary<string, CallSignInfo> prefixDict)
         {
-            _PrefixDict = prefixDict1;
+            _PrefixDict = prefixDict;
         }
 
         /// <summary>
-        /// Batch lookup of call signs. A list of calls may be sent in
+        /// Batch lookup of call signs. A List<string> of calls may be sent in
         /// and each processed in parallel.
         /// </summary>
         /// <param name="callSigns"></param>
         /// <returns></returns>
-        public List<CallSignInfo> LookUpCall(List<string> callSigns)
+        public List<Hit> LookUpCall(List<string> callSigns)
         {
             // preallocate space I need plus padding - otherwise extremely slow with large collections
-            _HitList = new BlockingCollection<CallSignInfo>(callSigns.Count + 100000);
+            _HitList = new ConcurrentBag<Hit>(); // (callSigns.Count * 2);
 
             // parallel foreach almost twice as fast but rquires blocking collection
             _ = Parallel.ForEach(callSigns, callSign =>
@@ -91,7 +91,7 @@ namespace CallParser
             }
            );
 
-            _HitList.CompleteAdding();
+            //_HitList.CompleteAdding();
 
             return _HitList.ToList();
         }
@@ -101,9 +101,9 @@ namespace CallParser
         /// </summary>
         /// <param name="callSign"></param>
         /// <returns></returns>
-        public BlockingCollection<CallSignInfo> LookUpCall(string callSign)
+        public List<Hit> LookUpCall(string callSign)
         {
-            _HitList = new BlockingCollection<CallSignInfo>();
+            _HitList = new ConcurrentBag<Hit>();
 
             callSign = callSign.ToUpper();
 
@@ -116,7 +116,9 @@ namespace CallParser
                 throw new Exception("Invalid call sign format"); // EMBELLISH
             }
 
-            return _HitList;
+            //_HitList.CompleteAdding();
+
+            return _HitList.ToList();
         }
 
         /// <summary>
@@ -144,10 +146,6 @@ namespace CallParser
             // can't be all numbers
             if (IsNumeric(callSign)) { return false; }
 
-            // can't be all letters
-            // I don't think this is the correct check
-            //if (!IsAlphaNumeric(callSign)) { return false; }
-
             // look for at least one number character
             if (!callSign.Where(x => Char.IsDigit(x)).Any()) { return false; }
 
@@ -155,13 +153,12 @@ namespace CallParser
         }
 
         /// <summary>
-        /// Process a call sign into its component parts ie: W6OP/V31
+        /// Process a call sign into its component parts ie: W6OP/W4
         /// </summary>
         /// <param name="callSign"></param>
         private void ProcessCallSign(string callSign)
         {
-            (string call, string callPrefix) callAndprefix = ("", "");
-
+            (string call, string callPrefix) callAndprefix = ("", ""); // tuple
             List<string> components = callSign.Split('/').ToList();
 
             switch (components.Count)
@@ -181,6 +178,8 @@ namespace CallParser
                     break;
                 default:
                     // should I do anything here?
+                    Console.WriteLine("Too many pieces: " + callSign);
+                    Debug.Assert(components.Count > 3);
                     break;
             }
         }
@@ -226,7 +225,7 @@ namespace CallParser
         /// Process a call sign into its component parts ie: W6OP/V31, W4/W6OP, SM0KAK/BY1QH (China)
         ///  ValidSuffixes = ':A:B:M:P:MM:AM:QRP:QRPP:LH:LGT:ANT:WAP:AAW:FJL:'
         /// 1. Eliminate any 2 number or 2 character prefixes
-        /// 2. If prefix is same length as call, use prefix instead of call
+        /// 2. If prefix is same length as call, use prefix/suffix instead of call
         /// </summary>
         /// <param name="callSign"></param>
         /// <param name="components"></param>
@@ -337,73 +336,43 @@ namespace CallParser
         /// <param name="callAndprefix"></param>
         private void CollectMatches((string call, string callPrefix) callAndprefix)
         {
-            List<CallSignInfo> matches = new List<CallSignInfo>();
             string callPart = callAndprefix.callPrefix;
+            Hit hit;
 
             callPart = callPart.Length > 3 ? callPart.Substring(0, 4) : callPart;
 
             if (_PrefixDict.ContainsKey(callPart))
             {
-                matches.Add(_PrefixDict[callPart]);
+                hit = new Hit(_PrefixDict[callPart], callAndprefix.call);
+                _HitList.Add(hit);
+                if (hit.CallSign == "OA1F")
+                {
+                    Console.WriteLine("Matches = " + hit.CallSign + " : " + hit.Kind.ToString());
+                }
             }
 
-            switch (matches.Count)
+            if (callPart.Length > 1)
             {
-                case 1:
-                    ProcessMatches(matches, callAndprefix.call);
-                    break;
-                default:
-                    if (callPart.Length > 1)
+                callPart = callPart.Remove(callPart.Length - 1);
+                while (callPart != string.Empty)
+                {
+                    if (_PrefixDict.ContainsKey(callPart))
                     {
-                        callPart = callPart.Remove(callPart.Length - 1);
-                        while (matches.Count == 0)
+                        hit = new Hit(_PrefixDict[callPart], callAndprefix.call);
+                        _HitList.Add(hit);
+                        if (hit.CallSign == "OA1F")
                         {
-                            if (_PrefixDict.ContainsKey(callPart))
-                            {
-                                matches.Add(_PrefixDict[callPart]);
-                            }
-
-                            callPart = callPart.Remove(callPart.Length - 1);
-                            if (callPart == string.Empty)
-                            {
-                                //Console.WriteLine("No match: " + callAndprefix.callPrefix);
-                                break;
-                            }
+                            Console.WriteLine("Matches = " + hit.CallSign + " : " + hit.Kind.ToString());
                         }
                     }
-                    else
-                    {
-                        // debugging
-                        Console.WriteLine("Single Character: " + callPart);
-                    }
 
-                    switch (matches.Count)
-                    {
-                        case 0:
-                            // debugging
-                            Console.WriteLine("Not Found: " + callPart);
-                            return;
-                        default:
-                            ProcessMatches(matches, callAndprefix.call);
-                            break;
-                    }
-                    break;
+                    callPart = callPart.Remove(callPart.Length - 1);
+                }
             }
-        }
-
-        /// <summary>
-        /// With one or matches look for children and see if we can narrow
-        /// location down more.Create a Hitlist for the primary or DXCC
-        /// entry. Add a hitlist for the most likely child.
-        /// </summary>
-        /// <param name="matches"></param>
-        /// <param name="callAndprefix"></param>
-        private void ProcessMatches(List<CallSignInfo> matches, string call)
-        {
-            foreach (CallSignInfo match in matches)
+            else
             {
-                match.CallSign = call;
-                _HitList.Add(match);
+                // debugging - remember we are multi threaded here
+                //Console.WriteLine("Single Character: " + callPart + " : " + callAndprefix.call);
             }
         }
 
@@ -432,4 +401,83 @@ namespace CallParser
             return value.All(char.IsNumber);
         }
     } // end class
-}
+
+    /// <summary>
+    /// Lightweight struct for the hit meta data. It is necessary to
+    /// use this even though it has a significant time penalty because
+    /// of the multi threading finding matches. Some objects would get
+    /// updated on a different thread before they were added to the collection.
+    /// </summary>
+    public struct Hit
+    {
+        public string Dxcc;  //dxcc_entity
+        public string Wae;
+        public string Iota;
+        public string Wap;
+        public string Cq;           //cq_zone
+        public string Itu;          //itu_zone
+        public string Admin1;
+        public string Latitude;     //lat
+        public string Longitude;    //long
+        public CallSignFlag[] Flags;
+
+        public string Continent;     //continent
+        public string TimeZone;     //time_zone
+        public string Admin2;
+        public string Name;
+        public string Qth;
+        public string Comment;
+        //public string CallbookEntry: Pointer; //to find out data sources
+
+        public PrefixKind Kind;     //kind
+        public string FullPrefix;   //what I determined the prefix to be - mostly for debugging
+        public string MainPrefix;
+        public string Country;       //country
+        public string Province;     //province
+
+        public string StartDate;
+        public string EndDate;
+        public bool IsIota;
+
+        public string CallSign;
+
+        /// <summary>
+        /// Light weight struct to return to caller.
+        /// </summary>
+        /// <param name="callSignInfo"></param>
+        public Hit (CallSignInfo callSignInfo, string callSign)
+        {
+            Dxcc = callSignInfo.Dxcc;
+            Wae = callSignInfo.Wae;
+            Iota = callSignInfo.Iota;
+            Wap = callSignInfo.Wap;
+            Cq = callSignInfo.Cq;
+            Itu = callSignInfo.Itu;
+            Admin1 = callSignInfo.Admin1;
+            Latitude = callSignInfo.Latitude;
+            Longitude = callSignInfo.Longitude;
+            Flags = callSignInfo.Flags;
+
+            Continent = callSignInfo.Continent;
+            TimeZone = callSignInfo.TimeZone;
+            Admin2 = callSignInfo.Admin2;
+            Name = callSignInfo.Name;
+            Qth = callSignInfo.Qth;
+            Comment = callSignInfo.Comment;
+
+            Kind = callSignInfo.Kind;
+
+            FullPrefix = callSignInfo.FullPrefix;
+            MainPrefix = callSignInfo.MainPrefix;
+            Country = callSignInfo.Country;
+            Province = callSignInfo.Province;
+
+            StartDate = callSignInfo.StartDate;
+            EndDate = callSignInfo.EndDate;
+            IsIota = callSignInfo.IsIota;
+
+            CallSign = callSign;
+        }
+    }
+        //
+    }

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using CallParser;
@@ -26,8 +27,7 @@ namespace CallParserTestor
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            //_PrefixFileParser.ParsePrefixFile("");
-            //_CallLookUp = new CallLookUp(_PrefixFileParser._PrefixDict);
+          
         }
 
         private void Button5_Click(object sender, EventArgs e)
@@ -41,36 +41,41 @@ namespace CallParserTestor
             _CallLookUp = new CallLookUp(_PrefixFileParser._PrefixDict);
         }
 
+        /// <summary>
+        /// What should I do about W/M0RYB or F/M0RYB
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Button1_Click(object sender, EventArgs e)
         {
-            BlockingCollection<CallSignInfo> hit;
-            // string[] testCallSigns = {"TX9","/KH0PR", "W6OP/4", "OEM3SGU/3", "AM70URE/8", "5N31/OK3CLA", "BV100", "BY1PK/VE6LB", "DC3RJ/P/W3", "RAEM", "TX9", "AJ3M/BY1RX", "4D71/N0NM", "4X130RISHON", "9N38", "AX3GAMES", "DA2MORSE", "DB50FIRAC", "DL50FRANCE", "FBC5AGB", "FBC5NOD", "FBC5YJ", "FBC6HQP", "GB50RSARS", "HA80MRASZ", "HB9STEVE", "HG5FIRAC", "HG80MRASZ", "II050SCOUT", "IP1METEO", "J42004A", "J42004Q", "LM1814", "LM2T70Y", "LM9L40Y", "LM9L40Y/P", "OEM2BZL", "OEM3SGU", "OEM3SGU/3", "OEM6CLD", "OEM8CIQ", "OM2011GOOOLY", "ON1000NOTGER", "ON70REDSTAR", "PA09SHAPE", "PA65VERON", "PA90CORUS", "PG50RNARS", "PG540BUFFALO", "S55CERKNO", "TM380", "TYA11", "U5ARTEK/A", "V6T1", "VI2AJ2010", "VI2FG30", "VI4WIP50", "VU3DJQF1", "VX31763", "WD4", "XUF2B", "YI9B4E", "YO1000LEANY", "ZL4RUGBY", "ZS9MADIBA" };
+            List<Hit> hitList;
+            float divisor = 1000;
 
-            Cursor.Current = Cursors.WaitCursor;
-
-            //hit = new BlockingCollection<CallSignInfo>();
-
-            var sw = Stopwatch.StartNew();
-            foreach (string call in _Records)
+            if (_CallLookUp == null)
             {
-                try
-                {
-                    if (!String.IsNullOrEmpty(call))
-                    {
-                        hit = new BlockingCollection<CallSignInfo>();
-                        hit = _CallLookUp.LookUpCall(call);
-                    }
-                    // Console.WriteLine(hit.Count);
-                }
-                catch (Exception ex)
-                {
-                    // Console.WriteLine(call);
-                    Console.WriteLine(ex.Message);
-                }
+                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
             }
 
-            label1.Text = "Search Time: " + sw.ElapsedMilliseconds + "ms - ticks: " + sw.ElapsedTicks;
-            //Console.WriteLine("Search Time: " + sw.ElapsedMilliseconds + "ms - ticks: " + sw.ElapsedTicks);
+            Cursor.Current = Cursors.WaitCursor;
+            var sw = Stopwatch.StartNew();
+
+            try
+            {
+                if (!String.IsNullOrEmpty(TextBoxCall.Text))
+                { 
+                    hitList = _CallLookUp.LookUpCall(TextBoxCall.Text);
+                    Console.WriteLine(hitList.Count.ToString() + " hits returned");
+                    label1.Text = "Search Time: " + sw.ElapsedMilliseconds;
+                    label2.Text = "Finished - hitcount = " + hitList.Count.ToString();
+                    label3.Text = ((float)(sw.ElapsedMilliseconds / divisor)).ToString() + "us";
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
             Cursor.Current = Cursors.Default;
             Console.WriteLine("Finished");
         }
@@ -109,9 +114,16 @@ namespace CallParserTestor
 
         private void Button3_Click(object sender, EventArgs e)
         {
-            List<CallSignInfo> hitList; // = new BlockingCollection<CallSignInfo>();
-            Cursor.Current = Cursors.WaitCursor;
+            List<Hit> hitList;
             float divisor = 1000;
+
+            if (_CallLookUp == null)
+            {
+                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+            Cursor.Current = Cursors.WaitCursor;
 
             var sw = Stopwatch.StartNew();
 
@@ -123,7 +135,6 @@ namespace CallParserTestor
             label2.Text = "Finished - hitcount = " + hitList.Count.ToString();
             label3.Text = ((float)(sw.ElapsedMilliseconds / divisor)).ToString() + "us";
             Console.WriteLine("Finished - hitcount = " + hitList.Count.ToString());
-            //Application.DoEvents();
 
             var thread = new Thread(() =>
             {
@@ -136,18 +147,22 @@ namespace CallParserTestor
         /// Create a CSV file and save a bunch of hits to see if they are correct.
         /// </summary>
         /// <param name="hitList"></param>
-        private void SaveHitList(List<CallSignInfo> hitList)
+        private void SaveHitList(List<Hit> hitList)
         {
             String folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             String file = Path.Combine(folderPath, "hits.csv");
 
-           
+            Cursor.Current = Cursors.WaitCursor;
+            Application.DoEvents();
+
+            List<Hit> sortedList = hitList;    //.OrderBy(o => o.CallSign).ToList();
+
             using (TextWriter writer = new StreamWriter(file, false, System.Text.Encoding.UTF8))
             {
                 var csv = new CsvWriter(writer);
                 //csv.WriteRecords(hitList); // where values implements IEnumerable
                 //csv.WriteRecord();
-                foreach (CallSignInfo callSignInfo in hitList)
+                foreach (Hit callSignInfo in sortedList)
                 {
                     csv.WriteField(callSignInfo.CallSign);
                     csv.WriteField(callSignInfo.MainPrefix);
@@ -161,13 +176,7 @@ namespace CallParserTestor
             }
 
             Console.WriteLine("Finished writing file");
-
-            //foreach (CallSignInfo callSignInfo in hitList)
-            //{
-            //    count++;
-            //    Console.WriteLine(callSignInfo.CallSign + ":" + callSignInfo.MainPrefix + ":" + callSignInfo.Country);
-            //    if (count == 100) { break; }
-            //}
+            Cursor.Current = Cursors.Default;
         }
 
         /// <summary>
@@ -175,7 +184,7 @@ namespace CallParserTestor
         /// </summary>
         private void Test()
         {
-            List<CallSignInfo> hit;
+            List<Hit> hit;
 
             var thread = new Thread(() =>
             {
