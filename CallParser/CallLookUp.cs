@@ -1,84 +1,81 @@
-﻿using System;
+﻿/**
+ * Copyright (c) 2019 Peter Bourget W6OP
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * Notwithstanding the foregoing, you may not use, copy, modify, merge, publish,
+ * distribute, sublicense, create a derivative work, and/or sell copies of the
+ * Software in any work that is designed, intended, or marketed for pedagogical or
+ * instructional purposes related to programming, coding, application development,
+ * or information technology.  Permission for such use, copying, modification,
+ * merger, publication, distribution, sublicensing, creation of derivative works,
+ * or sale is expressly withheld.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+/*
+ CallLookUp.cs
+ CallParser
+ 
+ Created by Peter Bourget on 3/11/19.
+ Copyright © 2019 Peter Bourget W6OP. All rights reserved.
+ 
+ Description: Analyze a call sign and find its meta data using the call sign prefix.
+ */
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace CallParser
 {
-    public enum PrefixKind
-    {
-        pfNone,
-        pfDXCC,
-        pfProvince,
-        pfStation,
-        pfDelDXCC,
-        pfOldPrefix,
-        pfNonDXCC,
-        pfInvalidPrefix,
-        pfDelProvince,
-        pfCity
-    }
-
-    public struct Hit
-    {
-        public string call;         //call sign as input
-        public string prefix;       //what I determined the prefix to be - mostly for debugging
-        public PrefixKind kind;     //kind
-        public string country;       //country
-        public string province;     //province
-        public string city;         //city
-        public string dxcc_entity;  //dxcc_entity
-        public string cq;           //cq_zone
-        public string itu;          //itu_zone
-        public string continent;     //continent
-        public string timeZone;     //time_zone
-        public string latitude;     //lat
-        public string longitude;    //long
-
-
-        public Hit((string call, string callPrefix) callAndprefix, PrefixData prefixData)
-        {
-            call = callAndprefix.call;
-            prefix = callAndprefix.callPrefix;
-            kind = prefixData.kind;
-            country = prefixData.country;
-            province = prefixData.province;
-            city = prefixData.city;
-            dxcc_entity = prefixData.dxcc_entity;
-            cq = prefixData.cq;
-            itu = prefixData.itu;
-            continent = prefixData.continent;
-            timeZone = prefixData.timeZone;
-            latitude = prefixData.latitude;
-            longitude = prefixData.longitude;
-        }
-    }
-
     public class CallLookUp
     {
-        private List<Hit> _HitList;
-        //private HashSet<HashSet<string>> _CallSetList;
+        private BlockingCollection<CallSignInfo> _HitList;
+        private readonly Dictionary<string, CallSignInfo> _PrefixDict;
 
-        private Dictionary<string, PrefixData> _PrefixDict;
-
-        public CallLookUp(PrefixFileParser prefixFilePareser)
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="prefixFileParser"></param>
+        public CallLookUp(Dictionary<string, CallSignInfo> prefixDict1)
         {
-            _PrefixDict = prefixFilePareser._PrefixDict;
+            _PrefixDict = prefixDict1;
         }
 
-        public List<Hit> LookUpCall(List<string> callSigns)
+        /// <summary>
+        /// Batch lookup of call signs. A list of calls may be sent in
+        /// and each processed in parallel.
+        /// </summary>
+        /// <param name="callSigns"></param>
+        /// <returns></returns>
+        public List<CallSignInfo> LookUpCall(List<string> callSigns)
         {
-            _HitList = new List<Hit>(2000000);
+            // preallocate space I need plus padding - otherwise extremely slow with large collections
+            _HitList = new BlockingCollection<CallSignInfo>(callSigns.Count + 100000);
 
-            var sw = Stopwatch.StartNew();
-
+            // parallel foreach almost twice as fast but rquires blocking collection
             _ = Parallel.ForEach(callSigns, callSign =>
-            //foreach (string callSign in callSigns)
             {
+                callSign = callSign.ToUpper();
+
                 if (!string.IsNullOrEmpty(callSign))
                 {
                     if (ValidateCallSign(callSign))
@@ -87,15 +84,16 @@ namespace CallParser
                     }
                     else
                     {
-                        throw new Exception("Invalid call sign format"); // EMBELLISH
+                        // don't throw, just ignore bad calls
+                        Console.WriteLine("Invalid call sign format: " + callSign);
                     }
                 }
             }
            );
 
-            Console.WriteLine("Search Time: " + sw.ElapsedMilliseconds + "ms - ticks: " + sw.ElapsedTicks);
+            _HitList.CompleteAdding();
 
-            return _HitList;
+            return _HitList.ToList();
         }
 
         /// <summary>
@@ -103,9 +101,9 @@ namespace CallParser
         /// </summary>
         /// <param name="callSign"></param>
         /// <returns></returns>
-        public List<Hit> LookUpCall(string callSign)
+        public BlockingCollection<CallSignInfo> LookUpCall(string callSign)
         {
-            _HitList = new List<Hit>();
+            _HitList = new BlockingCollection<CallSignInfo>();
 
             callSign = callSign.ToUpper();
 
@@ -138,16 +136,17 @@ namespace CallParser
             if (callSign.IndexOf("/", 0, 1) == 0) { return false; }
 
             // check if second character is "/"
-            if (callSign.IndexOf("/", 1, 1) == 0)
-            {
-                return false;
-            }
+            if (callSign.IndexOf("/", 1, 1) == 0) { return false; }
+
+            // check for a "-" ie: VE7CC-7, OH6BG-1, WZ7I-3 
+            if (callSign.IndexOf("-") != -1) { return false; }
 
             // can't be all numbers
             if (IsNumeric(callSign)) { return false; }
 
             // can't be all letters
-            if (!IsAlphaNumeric(callSign)) { return false; }
+            // I don't think this is the correct check
+            //if (!IsAlphaNumeric(callSign)) { return false; }
 
             // look for at least one number character
             if (!callSign.Where(x => Char.IsDigit(x)).Any()) { return false; }
@@ -173,11 +172,11 @@ namespace CallParser
                     CollectMatches(callAndprefix);
                     break;
                 case 2:
-                    callAndprefix = ProcessPrefix(callSign: callSign, components: components);
+                    callAndprefix = ProcessPrefix(components);
                     CollectMatches(callAndprefix);
                     break;
                 case 3: // DC3RJ/P/W3 - remove excess parts
-                    callAndprefix = TrimCallSign(components, callSign);
+                    callAndprefix = TrimCallSign(components);
                     CollectMatches(callAndprefix);
                     break;
                 default:
@@ -192,7 +191,7 @@ namespace CallParser
         /// <param name="components"></param>
         /// <param name="callSign"></param>
         /// <returns></returns>
-        private (string call, string callPrefix) TrimCallSign(List<string> components, string callSign)
+        private (string call, string callPrefix) TrimCallSign(List<string> components)
         {
             int counter = 0;
             List<string> tempComponents = new List<string>();
@@ -201,7 +200,6 @@ namespace CallParser
             callAndprefix.call = "";
             callAndprefix.callPrefix = "";
 
-            //Parallel.ForEach(components, component =>
             foreach (string component in components)
             {
                 if (component.Length != 1)
@@ -217,12 +215,12 @@ namespace CallParser
                     }
                 }
             }
-         //);
 
-            callAndprefix = ProcessPrefix(callSign, tempComponents);
+            callAndprefix = ProcessPrefix(tempComponents);
 
             return callAndprefix;
         }
+
 
         /// <summary>
         /// Process a call sign into its component parts ie: W6OP/V31, W4/W6OP, SM0KAK/BY1QH (China)
@@ -233,7 +231,7 @@ namespace CallParser
         /// <param name="callSign"></param>
         /// <param name="components"></param>
         /// <returns></returns>
-        private (string call, string callPrefix) ProcessPrefix(string callSign, List<string> components)
+        private (string call, string callPrefix) ProcessPrefix(List<string> components)
         {
             (string call, string callPrefix) callAndprefix = ("", "");
             string call = "";
@@ -256,7 +254,7 @@ namespace CallParser
             if (call.Length == prefix.Length)
             {
                 // swap call and prefix
-                call = call + prefix;
+                call += prefix;
                 prefix = call.Substring(0, call.Length - prefix.Length);
                 call = call.Substring(prefix.Length);
             }
@@ -309,6 +307,7 @@ namespace CallParser
             return callAndprefix;
         }
 
+
         /// <summary>
         /// Sometimes there are exceptions to the rule we can't handle in other places.
         /// </summary>
@@ -338,13 +337,11 @@ namespace CallParser
         /// <param name="callAndprefix"></param>
         private void CollectMatches((string call, string callPrefix) callAndprefix)
         {
+            List<CallSignInfo> matches = new List<CallSignInfo>();
             string callPart = callAndprefix.callPrefix;
 
             callPart = callPart.Length > 3 ? callPart.Substring(0, 4) : callPart;
 
-
-            List<PrefixData> matches = new List<PrefixData>(); 
-            //_PrefixList.Where(p => p.mainPrefix == callPart).ToList();
             if (_PrefixDict.ContainsKey(callPart))
             {
                 matches.Add(_PrefixDict[callPart]);
@@ -353,7 +350,7 @@ namespace CallParser
             switch (matches.Count)
             {
                 case 1:
-                    PopulateHitList(matches[0], callAndprefix);
+                    ProcessMatches(matches, callAndprefix.call);
                     break;
                 default:
                     if (callPart.Length > 1)
@@ -387,7 +384,7 @@ namespace CallParser
                             Console.WriteLine("Not Found: " + callPart);
                             return;
                         default:
-                            ProcessMatches(matches: matches, callAndprefix: callAndprefix);
+                            ProcessMatches(matches, callAndprefix.call);
                             break;
                     }
                     break;
@@ -401,316 +398,29 @@ namespace CallParser
         /// </summary>
         /// <param name="matches"></param>
         /// <param name="callAndprefix"></param>
-        private void ProcessMatches(List<PrefixData> matches, (string call, string callPrefix) callAndprefix)
+        private void ProcessMatches(List<CallSignInfo> matches, string call)
         {
-            //_CallSetList = GetCallSetList(callAndprefix.call);
-
-            // THIS CAN BE ELIMINATED. I'LL JUST GET RID OF THE PREFIXDATA STRUCTURE AND USE THE HITLIST
-            // WHY LOOP HERE IF IT CAN BE DONE EARLIER
-            //  _ = Parallel.ForEach(matches, match =>
-            foreach (PrefixData match in matches)
+            foreach (CallSignInfo match in matches)
             {
-                PopulateHitList(match, callAndprefix);
+                match.CallSign = call;
+                _HitList.Add(match);
             }
-            //  _ = Parallel.ForEach(matches, match =>
-            // );
-
         }
-
-        //private void ProcessChildren(List<PrefixData> children, (string call, string callPrefix) callAndprefix)
-        //{
-        //    foreach (PrefixData child in children)
-        //    {
-        //        foreach (HashSet<HashSet<string>> mask in child.primaryMaskSets)
-        //        {
-        //            if (CompareMask(mask, _CallSetList))  // UPDATE
-        //            {
-        //                PopulateHitList(child, callAndprefix);
-        //            }
-        //        }
-        //    }
-        //}
-
-        //private List<PrefixData> SearchSecondaryPrefixesOld((string call, string callPrefix) callAndprefix)
-        //{
-        //    int maxCount = 0;
-        //    bool match = false;
-        //    List<PrefixData> matches = new List<PrefixData>();
-        //    HashSet<HashSet<string>> callSetList;  // = GetCallSetList(callAndprefix.call);
-
-        //    foreach (PrefixData prefixData in _PrefixList)
-        //    {
-        //        matches = new List<PrefixData>();
-        //        callSetList = GetCallSetList(callAndprefix.call);
-
-        //        if (prefixData.primaryMaskSets.Count > 1)
-        //        {
-        //            // first find out which set is the smallest and we will only match that number a chars
-        //            var min = prefixData.primaryMaskSets.OrderBy(c => c.Count).FirstOrDefault(); // -------------------------------optimize
-        //            // get smallest int
-        //            maxCount = min.Count < callSetList.Count ? min.Count : callSetList.Count;
-
-        //            for (int i = 0; i < maxCount; i++)
-        //            {
-        //                try
-        //                {
-        //                    // HashSet<string> temp = new HashSet<string>(callSetList[i]);
-        //                    //temp.IntersectWith(min[i]);  // UPDATE
-
-        //                    //if (temp.Count != 0)
-        //                    //{
-        //                    //    match = true;
-        //                    //    //return match // is there any reason to continue here?
-        //                    //    //found W4 do we need W4/ - however get 31 hits vs. 3
-        //                    //}
-        //                    //else
-        //                    //{
-        //                    //    match = false;
-        //                    //    break;
-        //                    //}
-
-        //                    if (match)
-        //                    {
-        //                        matches.Insert(0, prefixData);
-        //                    }
-        //                }
-        //                catch (Exception ex)
-        //                {
-        //                    var a = ex.Message;
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    return matches;
-        //}
-
-        /// <summary>
-        /// Search through the secondary prefixes.
-        /// </summary>
-        /// <param name="callAndprefix"></param>
-        /// <returns></returns>
-        //private List<PrefixData> SearchSecondaryPrefixes((string call, string callPrefix) callAndprefix)
-        //{
-        //    List<PrefixData> matches = new List<PrefixData>();
-        //    string callPart = callAndprefix.callPrefix;
-
-        //    callPart = callPart.Length > 3 ? callPart.Substring(0, 4) : callPart;
-
-        //    if (_ChildPrefixDict.ContainsKey(callPart))
-        //    {
-        //        //var list = _ChildPrefixDict[callPart];
-        //        // matches.Add(_ChildPrefixDict[callPart]);
-        //        foreach (PrefixData prefixData in _ChildPrefixDict[callPart])
-        //        {
-        //            matches.Add(prefixData);
-        //        }
-        //    }
-
-        //    if (matches.Count == 0)
-        //    {
-        //        callPart = callPart.Remove(callPart.Length - 1);
-        //        while (matches.Count == 0)
-        //        {
-        //            if (_ChildPrefixDict.ContainsKey(callPart))
-        //            {
-        //                //var list = _ChildPrefixDict[callPart];
-        //                foreach (PrefixData prefixData in _ChildPrefixDict[callPart])
-        //                {
-        //                    matches.Add(prefixData);
-        //                }
-        //                //matches.Add(_ChildPrefixDict[callPart]);
-        //                break;
-        //            }
-
-        //            callPart = callPart.Remove(callPart.Length - 1);
-        //            if (callPart == string.Empty)
-        //            {
-        //                Console.WriteLine("No match: " + callAndprefix.callPrefix);
-        //                break;
-        //            }
-        //        }
-        //    }
-
-
-
-
-            //Parallel.ForEach(_PrefixList, prefixData =>
-            //{
-            //    int maxCount = 0;
-            //    bool match = false;
-
-
-            //    if (prefixData.primaryMaskSets.Count > 1)
-            //    {
-            //        maxCount = 0;
-            //        match = false;
-            //        matches = new List<PrefixData>();
-            //        _CallSetList = GetCallSetList(callAndprefix.call);
-
-            //        // first find out which set is the smallest and we will only match that number a chars
-            //        var min = prefixData.primaryMaskSets.OrderBy(c => c.Count).FirstOrDefault(); // -------------------------------optimize
-            //        maxCount = min.Count < _CallSetList.Count ? min.Count : _CallSetList.Count;
-
-            //        for (int i = 0; i < maxCount; i++)
-            //        {
-            //            // UPDATE
-            //            //HashSet<string> temp = new HashSet<string>(callSetList[i]); // ----------------------------optimize
-            //            //temp.IntersectWith(min[i]);
-            //            //if (temp.Count != 0)
-            //            //{
-            //            //    match = true;
-            //            //    //return match // is there any reason to continue here?
-            //            //    //found W4 do we need W4/ - however get 31 hits vs. 3
-            //            //}
-            //            //else
-            //            //{
-            //            //    match = false;
-            //            //    break;
-            //            //}
-
-            //            if (match)
-            //            {
-            //                lock (matches) // only OK when you don't lock on it anywhere else
-            //                {
-            //                    matches.Insert(0, prefixData);
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
-            //);
-
-        //    return matches;
-        //}
-
-        /// <summary>
-        /// Look at the mask in every child of every parent.
-        /// </summary>
-        /// <param name="callAndprefix"></param>
-        //private void SearchChildren((string call, string callPrefix) callAndprefix)
-        //{
-        //    HashSet<HashSet<string>> callSetList = GetCallSetList(callAndprefix.call);
-
-        //    //if (_ChildPrefixDict.ContainsKey(callAndprefix.call))
-        //    //{
-
-        //    //}
-
-        //    //foreach (PrefixData child in _ChildPrefixList)
-        //    //{
-        //    //    // this doubles run from 1 min to 2 min
-        //    //    //foreach (List<HashSet<string>> mask in child.primaryMaskSets)
-        //    //    {
-        //    //        if (CompareMask(mask, callSetList))
-        //    //        {
-        //    //            PopulateHitList(child, callAndprefix);
-        //    //        }
-        //    //    }
-        //    //}
-
-        //    // MAYBE SHOULD PUT PRIMARYMASKSETS IN A DICTIONARY
-        //    _ = Parallel.ForEach(_ChildPrefixList, child =>
-        //      {
-        //          foreach (HashSet<HashSet<string>> mask in child.primaryMaskSets)
-        //          {
-        //              //if (CompareMask(mask, callSetList)) // UPDATE
-        //              //{
-        //              //    PopulateHitList(child, callAndprefix);
-        //              //}
-        //          }
-        //      }
-        //  );
-        //}
-
-        /// <summary>
-        /// Compare the mask with the Set created with the call sign.
-        /// </summary>
-        /// <param name="mask"></param>
-        /// <param name="callSetList"></param>
-        /// <returns></returns>
-        //private bool CompareMask(HashSet<HashSet<string>> mask, HashSet<HashSet<string>> callSetList)
-        //{
-        //    int maxCount = 0;
-        //    bool match = false;
-
-        //    // UPDATE
-        //    //List<HashSet<HashSet<string>>> list = new List<HashSet<HashSet<string>>>;
-        //    ////{
-        //    //list.Add(mask);
-        //    //list.Add(callSetList);
-        //    ////};
-
-        //    ////// first find out which set is the smallest and we will only match that number a chars
-        //    //var min = list.OrderBy(c => c.Count).FirstOrDefault();
-        //    //maxCount = min.Count;
-
-        //    //for (int i = 0; i < maxCount; i++)  
-        //    //{
-        //    //    HashSet<string> temp = new HashSet<string>(callSetList[i]);
-        //    //    temp.IntersectWith(mask[i]);
-        //    //    if (temp.Count != 0)
-        //    //    {
-        //    //        match = true;
-        //    //        //return match // is there any reason to continue here?
-        //    //        //found W4 do we need W4/ - however get 31 hits vs. 3
-        //    //    }
-        //    //    else
-        //    //    {
-        //    //        return false;
-        //    //    }
-        //    //}
-
-        //    return match;
-        //}
-
-        /// <summary>
-        /// Create a Set from the call sign to do Set operations with.
-        /// </summary>
-        /// <param name="call"></param>
-        /// <returns></returns>
-        private HashSet<HashSet<string>> GetCallSetList(string call)
-        {
-            string callPart = call;
-            HashSet<string> callSet = new HashSet<string>();
-            HashSet<HashSet<string>> callSetList = new HashSet<HashSet<string>>();
-
-            callPart = callPart.Length > 3 ? callPart.Substring(0, 4) : callPart;
-
-            // this needs to be the suffix if LU2ART/W4
-            foreach (char item in callPart)
-            {
-                callSet = new HashSet<string>
-                {
-                    item.ToString()
-                };
-                callSetList.Add(callSet);
-            }
-
-            return callSetList;
-        }
-
-        /// <summary>
-        /// Add to the HitList array if a match.
-        /// </summary>
-        /// <param name="prefixData"></param>
-        /// <param name="callAndprefix"></param>
-        private void PopulateHitList(PrefixData prefixData, (string call, string callPrefix) callAndprefix)
-        {
-            _HitList.Add(new Hit(callAndprefix, prefixData));
-        }
-
 
         /// <summary>
         /// Check for non alpha numerics other than "/"
+        /// DON'T USE THIS!
+        /// REGEX IS A HUGE TIME SINK - more than doubles run time
         /// </summary>
         /// <param name="strToCheck"></param>
         /// <returns></returns>
-        private Boolean IsAlphaNumeric(string strToCheck)
-        {
-            Regex rg = new Regex(@"^[a-zA-Z0-9/]*$");
-            return rg.IsMatch(strToCheck);
-        }
+        //private Boolean IsAlphaNumeric(string strToCheck)
+        //{
+        //    Regex rg = new Regex(@"^[a-zA-Z0-9/]*$");
+        //    return rg.IsMatch(strToCheck);
+
+        //    //return strToCheck.All(x => char.IsLetterOrDigit(x));
+        //}
 
         /// <summary>
         /// THIS IS DUPLICATE TO TWO CLASSES
@@ -721,6 +431,5 @@ namespace CallParser
         {
             return value.All(char.IsNumber);
         }
-
     } // end class
 }
