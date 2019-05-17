@@ -12,24 +12,76 @@ using System.Xml.Linq;
 
 namespace CallParser
 {
+    public enum CallSignFlag
+    {
+        cfInvalid,
+        cfMaritime,
+        cfPortable,
+        cfSpecial,
+        cfClub,
+        cfBeacon,
+        cfLotw,
+        cfAmbigPrefix,
+        cfQrp
+    }
+
+    public class CallSignInfo
+    {
+        public string Dxcc;  //dxcc_entity
+        public string Wae;
+        public string Iota;
+        public string Wap;
+        public string Cq;           //cq_zone
+        public string Itu;          //itu_zone
+        public string Admin1;
+        public string Latitude;     //lat
+        public string Longitude;    //long
+        public CallSignFlag[] Flags;
+
+        public string Continent;     //continent
+        public string TimeZone;     //time_zone
+        public string Admin2;
+        public string Name;
+        public string Qth;
+        public string Comment;
+        //public string CallbookEntry: Pointer; //to find out data sources
+
+        public PrefixKind Kind;     //kind
+        public string FullPrefix;   //what I determined the prefix to be - mostly for debugging
+        public string MainPrefix;
+        public string Country;       //country
+        public string Province;     //province
+
+        public string StartDate;
+        public string EndDate;
+        public bool IsIota = false;
+
+        public CallSignInfo()
+        {
+        }
+    }
     public class PrefixFileParser
     {
-        public List<PrefixData> _PrefixList;
-      //public List<PrefixData> _ChildPrefixList;
-
         public Dictionary<string, PrefixData> _PrefixDict;
-        //public Dictionary<string, List<PrefixData>> _ChildPrefixDict;
 
+        /////////////////////////////////////////////////
+        //public List<CallSignInfo> _HitList;
+        //public CallSignInfo[] _Adifs;
+        //public Dictionary<string, CallSignInfo> _Admins;
+        /////////////////////////////////////////////////
+        ///
         /// <summary>
         /// Constructor.
         /// </summary>
         public PrefixFileParser()
         {
-            _PrefixList = new List<PrefixData>();
-            //_ChildPrefixList = new List<PrefixData>();
-
             _PrefixDict = new Dictionary<string, PrefixData>();
-            //_ChildPrefixDict = new Dictionary<string, List<PrefixData>>();
+
+            //////////////////////////////////////////////
+            //_HitList = new List<CallSignInfo>();
+            //_Adifs = new CallSignInfo[999];
+            //_Admins = new Dictionary<string, CallSignInfo>();
+            //////////////////////////////////////////////////////////
         }
 
         public void ParsePrefixFile(string prefixFilePath)
@@ -58,7 +110,9 @@ namespace CallParser
         /// <param name="xDoc"></param>
         private void ParsePrefixDataList(XDocument xDoc)
         {
+            // DELETE
             PrefixData prefixData = new PrefixData();
+
             var prefixes = xDoc.Root.Elements("prefix");
             
             foreach (XElement prefixXml in prefixes)
@@ -174,20 +228,6 @@ namespace CallParser
                         {
                            // Console.WriteLine(prefix + " duplicate: " + prefixData.kind.ToString());
                         }
-
-                        // COMMENTED OUT TO TRY TO PUT EVERYTHING IN THE TOP LEVEL LIST
-                        //List<PrefixData> prefixDataList = new List<PrefixData>();
-                        //prefixDataList.Add(prefixData);
-                        //if (!_ChildPrefixDict.ContainsKey(prefix))
-                        //{
-                        //    _ChildPrefixDict.Add(prefix, prefixDataList);
-                        //    //Console.WriteLine(prefix + " added");
-                        //}
-                        //else
-                        //{
-                        //    _ChildPrefixDict[prefix].Add(prefixData);
-                        //    Console.WriteLine(prefix + " updated");
-                        //}
                     }
                 }
            }

@@ -60,20 +60,14 @@ namespace CallParser
 
     public class CallLookUp
     {
-        private List<PrefixData> _PrefixList;
-        private List<PrefixData> _ChildPrefixList;
         private List<Hit> _HitList;
-        private HashSet<HashSet<string>> _CallSetList;
+        //private HashSet<HashSet<string>> _CallSetList;
 
         private Dictionary<string, PrefixData> _PrefixDict;
-        private Dictionary<string, List<PrefixData>> _ChildPrefixDict;
 
         public CallLookUp(PrefixFileParser prefixFilePareser)
         {
-            _PrefixList = prefixFilePareser._PrefixList;
-           // _ChildPrefixList = prefixFilePareser._ChildPrefixList;
             _PrefixDict = prefixFilePareser._PrefixDict;
-           // _ChildPrefixDict = prefixFilePareser._ChildPrefixDict;
         }
 
         public List<Hit> LookUpCall(List<string> callSigns)
@@ -409,7 +403,7 @@ namespace CallParser
         /// <param name="callAndprefix"></param>
         private void ProcessMatches(List<PrefixData> matches, (string call, string callPrefix) callAndprefix)
         {
-            _CallSetList = GetCallSetList(callAndprefix.call);
+            //_CallSetList = GetCallSetList(callAndprefix.call);
 
             // THIS CAN BE ELIMINATED. I'LL JUST GET RID OF THE PREFIXDATA STRUCTURE AND USE THE HITLIST
             // WHY LOOP HERE IF IT CAN BE DONE EARLIER
