@@ -179,7 +179,96 @@ namespace CallParser
                 }
             }
 
-            PopulatePrimaryPrefixList(allCharacters);
+            PopulatePrimaryPrefixListEx(allCharacters);
+        }
+
+        private void PopulatePrimaryPrefixListEx(List<List<string>> allCharacters)
+        {
+            List<string> firstColumn;
+            List<string> secondColumn;
+            List<string> result = new List<string>();
+
+            // take first 2 columns
+            firstColumn = allCharacters[0];
+            secondColumn = allCharacters[1];
+
+            foreach (string first in firstColumn)
+            {
+                foreach (string second in secondColumn)
+                {
+                    result.Add(first + second);
+                }
+            }
+
+            allCharacters.RemoveRange(0, 2);
+            if (allCharacters.Count > 0)
+            {
+                PopulatePrimaryPrefixListEx(result, allCharacters);
+            }
+            else
+            {
+                PrimaryMaskList.Add(result);
+            }
+            // }
+        }
+
+
+        private void PopulatePrimaryPrefixListEx(List<string> result, List<List<string>> allCharacters)
+        {
+            List<string> firstColumn;
+            List<string> secondColumn;
+            List<string> tempResult = new List<string>();
+            List<string> tempResult2 = new List<string>();
+
+
+            switch (allCharacters.Count)
+            {
+                case 0:
+                    Debug.Assert(allCharacters.Count == 0);
+                    break;
+                case 1:
+                    foreach (string pre in result)
+                    {
+                        foreach (string end in allCharacters[0])
+                        {
+                            tempResult2.Add(pre + end);
+                        }
+                    }
+                    allCharacters.RemoveRange(0, 1);
+                    break;
+                default:
+                    firstColumn = allCharacters[0];
+                    secondColumn = allCharacters[1];
+
+                    foreach (string first in firstColumn)
+                    {
+                        foreach (string second in secondColumn)
+                        {
+                            tempResult.Add(first + second);
+                        }
+                    }
+
+                    foreach (string pre in result)
+                    {
+                        foreach (string end in tempResult)
+                        {
+                            tempResult2.Add(pre + end);
+                        }
+                    }
+                    allCharacters.RemoveRange(0, 2);
+                    break;
+            }
+
+
+            if (allCharacters.Count > 0)
+            {
+                PopulatePrimaryPrefixListEx(tempResult2, allCharacters);
+               // PrimaryMaskList.Add(tempResult2);
+            }
+            else
+            {
+                PrimaryMaskList.Add(tempResult2);
+            }
         }
 
         /// <summary>
@@ -214,7 +303,8 @@ namespace CallParser
 
             if (allCharacters.Count == 1)
             {
-                // THIS S NEVER HIT AND IS INCORRECT
+                Debug.Assert(allCharacters.Count == 1);
+                // THIS IS NEVER HIT AND IS INCORRECT
                 temp = allCharacters[0].First();
                 temp2 = tempList.First();
                 temp2 += temp;
@@ -237,7 +327,7 @@ namespace CallParser
             if (allCharacters.Count > 2)
             {
                 allCharacters.RemoveRange(0, 2);
-                PopulatePrimaryPrefixList(allCharacters, tempList, prefix);
+                tempList = PopulatePrimaryPrefixList(allCharacters, tempList, prefix);
             }
 
             PrimaryMaskList.Add(tempList);
@@ -249,7 +339,7 @@ namespace CallParser
         /// <param name="allCharacters"></param>
         /// <param name="tempList"></param>
         /// <param name="prefix"></param>
-        private void PopulatePrimaryPrefixList(List<List<string>> allCharacters, List<string> tempList, StringBuilder prefix)
+        private List<string> PopulatePrimaryPrefixList(List<List<string>> allCharacters, List<string> tempList, StringBuilder prefix)
         {
             List<string> tempList2 = new List<string>();
             string temp2;
@@ -282,12 +372,12 @@ namespace CallParser
                     // add templist 2 to templist
                     tempList.AddRange(tempList2);
                 }
-                return;
+                return tempList;
             }
 
             foreach (string first in allCharacters[0])
             {
-                prefix = new StringBuilder();
+                prefix.Clear();  // = new StringBuilder();
                 foreach (string second in allCharacters[1])
                 {
                     prefix.Append(first);
@@ -307,7 +397,8 @@ namespace CallParser
             }
 
             // add templist 2 to templist
-            tempList.AddRange(tempList2);
+            // tempList.AddRange(tempList2);
+            return tempList2;
         }
 
         /// <summary>

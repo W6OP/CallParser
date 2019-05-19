@@ -77,6 +77,7 @@ namespace CallParser
     public class PrefixFileParser
     {
         public Dictionary<string, CallSignInfo> _PrefixDict;
+        public Dictionary<string, CallSignInfo> _PrefixDict2;
         public CallSignInfo[] _Adifs;
         public Dictionary<string, CallSignInfo> _Admins;
 
@@ -98,6 +99,7 @@ namespace CallParser
             XDocument xDoc;
 
             _PrefixDict = new Dictionary<string, CallSignInfo>();
+            _PrefixDict2 = new Dictionary<string, CallSignInfo>();
             _Adifs = new CallSignInfo[999];
             _Admins = new Dictionary<string, CallSignInfo>();
 
@@ -250,7 +252,18 @@ namespace CallParser
             if (!_PrefixDict.ContainsKey(callSignInfo.MainPrefix))
             {
                 _PrefixDict.Add(callSignInfo.MainPrefix, callSignInfo);
-
+            }
+            else
+            {
+                if (!_PrefixDict2.ContainsKey(callSignInfo.MainPrefix))
+                {
+                    _PrefixDict2.Add(callSignInfo.MainPrefix, callSignInfo);
+                }
+                else
+                {
+                   // when we expand the mask to all possible values then some will be duplicated
+                    Console.WriteLine(callSignInfo.MainPrefix + " duplicate top: duplicate top duplicate top duplicate top *******************************************************" + callSignInfo.Kind.ToString());
+                }
             }
 
             foreach (List<string> prefixList in callSignInfo.PrimaryMaskList)
@@ -265,9 +278,17 @@ namespace CallParser
                         }
                         else
                         {
-                            // when we expand the mask to all possible values then some will be duplicated
-                            // ie. AL, NL for Alaska
-                            //Console.WriteLine(prefix + " duplicate: " + callSignInfo.Kind.ToString());
+                            if (!_PrefixDict2.ContainsKey(prefix))
+                            {
+                                _PrefixDict2.Add(prefix, callSignInfo);
+                            }
+                            else
+                            {
+                                //when we expand the mask to all possible values then some will be duplicated
+                                // ie.AL, NL for Alaska
+
+                               Console.WriteLine(prefix + " duplicate: " + callSignInfo.Kind.ToString() + " : " + callSignInfo.Country);
+                            }
                         }
                     }
                 }

@@ -1,3 +1,62 @@
 1. What is the Call File used for?
 
 2.
+
+ private void PopulatePrimaryPrefixListEx(List<List<string>> allCharacters, List<string> result)
+        {
+            List<string> firstColumn;
+            List<string> secondColumn;
+            List<string> temp = new List<string>();
+
+
+            for (int i = 0; i < allCharacters.Count; i++)
+            {
+                // take first 2 columns
+                firstColumn = allCharacters[i];
+                secondColumn = allCharacters[i + 1];
+
+
+                foreach (string first in firstColumn)
+                {
+                    foreach (string second in secondColumn)
+                    {
+                        temp.Add(first + second);
+                    }
+                }
+            }
+
+            if (result.Count > 0)
+            {
+                result = CombineParts(result, temp);
+            }
+
+
+            allCharacters.RemoveRange(0, 2);
+            if (allCharacters.Count != 0)
+            {
+                PopulatePrimaryPrefixListEx(allCharacters, result);
+            }
+            else
+            {
+                PrimaryMaskList.Add(result);
+            }
+
+        }
+
+        private List<string> CombineParts(List<string> result, List<string> temp)
+        {
+            List<string> temp2 = new List<string>();
+
+            for (int i = 0; i < result.Count; i++)
+            {
+                foreach (string first in result)
+                {
+                    foreach (string second in temp)
+                    {
+                        temp2.Add(first + second);
+                    }
+                }
+            }
+
+            return temp2;
+        }

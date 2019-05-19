@@ -1719,8 +1719,8 @@
 	</prefix>
 	<prefix>
 		<masks>
-			<mask>E[A-H][06]</mask>
-			<mask>A[MNO][06]</mask>
+			<mask>E[A-H][6]</mask>
+			<mask>A[MNO][6]</mask>
 			<mask>EA6/</mask>
 		</masks>
 		<label>EA6</label>
