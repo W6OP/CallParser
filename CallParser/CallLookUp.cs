@@ -37,6 +37,7 @@
  
  Description: Analyze a call sign and find its meta data using the call sign prefix.
  */
+using Microsoft.Collections.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -49,15 +50,21 @@ namespace CallParser
     public class CallLookUp
     {
         private ConcurrentBag<Hit> _HitList;
-        private readonly Dictionary<string, CallSignInfo> _PrefixDict;
+        private List<(string, Hit)> _PrefixTuples;
+        //private readonly MultiValueDictionary<string, CallSignInfo> _PrefixDict;
 
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="prefixFileParser"></param>
-        public CallLookUp(Dictionary<string, CallSignInfo> prefixDict)
+        ///// <summary>
+        ///// Constructor.
+        ///// </summary>
+        ///// <param name="prefixFileParser"></param>
+        //public CallLookUp(MultiValueDictionary<string, CallSignInfo> prefixDict)
+        //{
+        //    _PrefixDict = prefixDict;
+        //}
+
+        public CallLookUp(List<(string, Hit)> prefixTuples)
         {
-            _PrefixDict = prefixDict;
+            _PrefixTuples = prefixTuples;
         }
 
         /// <summary>
@@ -328,6 +335,8 @@ namespace CallParser
             return false;
         }
 
+        List<(string, Hit)> query;
+
         /// <summary>
         /// First see if we can find a match for the max prefix of 4 characters.
         /// Then start removing characters from the back until we can find a match.
@@ -341,22 +350,35 @@ namespace CallParser
 
             callPart = callPart.Length > 3 ? callPart.Substring(0, 4) : callPart;
 
-            if (_PrefixDict.ContainsKey(callPart))
+            
+            query = _PrefixTuples.Where(t => t.Item1 == callPart).ToList();
+            foreach ((string, Hit) item in query)
             {
-                hit = new Hit(_PrefixDict[callPart], callAndprefix.call);
-                _HitList.Add(hit);
+                _HitList.Add(item.Item2);
             }
+            //if (_PrefixDict.ContainsKey(callPart))
+            //{
+
+            //    //hit = new Hit(_PrefixDict[callPart], callAndprefix.call);
+            //    //_HitList.Add(hit);
+
+            //}
 
             if (callPart.Length > 1)
             {
                 callPart = callPart.Remove(callPart.Length - 1);
                 while (callPart != string.Empty)
                 {
-                    if (_PrefixDict.ContainsKey(callPart))
+                    query = _PrefixTuples.Where(t => t.Item1 == callPart).ToList();
+                    foreach ((string, Hit) item in query)
                     {
-                        hit = new Hit(_PrefixDict[callPart], callAndprefix.call);
-                        _HitList.Add(hit);
+                        _HitList.Add(item.Item2);
                     }
+                    //if (_PrefixDict.ContainsKey(callPart))
+                    //{
+                    //    //hit = new Hit(_PrefixDict[callPart], callAndprefix.call);
+                    //    //_HitList.Add(hit);
+                    //}
 
                     callPart = callPart.Remove(callPart.Length - 1);
                 }
@@ -437,7 +459,7 @@ namespace CallParser
         /// Light weight struct to return to caller.
         /// </summary>
         /// <param name="callSignInfo"></param>
-        public Hit (CallSignInfo callSignInfo, string callSign)
+        public Hit(CallSignInfo callSignInfo, string callSign)
         {
             Dxcc = callSignInfo.Dxcc;
             Wae = callSignInfo.Wae;
@@ -471,5 +493,5 @@ namespace CallParser
             CallSign = callSign;
         }
     }
-        //
-    }
+    //
+}

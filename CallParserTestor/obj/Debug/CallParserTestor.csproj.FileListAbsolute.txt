@@ -55,3 +55,5 @@ C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser2\CallPar
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser2\CallParserTestor\bin\Debug\CsvHelper.xml
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser2\CallParserTestor\bin\Debug\System.ValueTuple.xml
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser2\CallParserTestor\obj\Debug\CallParserTestor.csproj.CopyComplete
+C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\Microsoft.Experimental.Collections.dll
+C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\bin\Debug\Microsoft.Experimental.Collections.xml

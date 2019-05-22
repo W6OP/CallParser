@@ -37,8 +37,9 @@ namespace CallParserTestor
             _PrefixFileParser.ParsePrefixFile("");
             Console.WriteLine("Load Time: " + sw.ElapsedMilliseconds + "ms");
             Cursor.Current = Cursors.Default;
-
-            _CallLookUp = new CallLookUp(_PrefixFileParser._PrefixDict);
+            //_PrefixTuples
+            //_CallLookUp = new CallLookUp(_PrefixFileParser._PrefixDict);
+            _CallLookUp = new CallLookUp(_PrefixFileParser._PrefixTuples);
         }
 
         /// <summary>
@@ -97,13 +98,13 @@ namespace CallParserTestor
                     csv.Configuration.MissingFieldFound = null;
                     _Records.Add(csv.GetField("dx"));
 
-                    temp = csv.GetField("callsign");
-                    // check for a "_" ie: VE7CC-7, OH6BG-1, WZ7I-3 - remove the characters "-x"
-                    if (temp.IndexOf("-") != -1)
-                    {
-                        temp = temp.Substring(0, temp.IndexOf("-"));
-                    }
-                    _Records.Add(temp);
+                    //temp = csv.GetField("callsign");
+                    //// check for a "_" ie: VE7CC-7, OH6BG-1, WZ7I-3 - remove the characters "-x"
+                    //if (temp.IndexOf("-") != -1)
+                    //{
+                    //    temp = temp.Substring(0, temp.IndexOf("-"));
+                    //}
+                    //_Records.Add(temp);
 
                 }
             }

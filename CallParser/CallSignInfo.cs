@@ -49,26 +49,7 @@ using System.Text;
 
 namespace CallParser
 {
-    /// <summary>
-    /// Identify the type of character.
-    /// </summary>
-    enum CharacterType
-    {
-        [Description("")]
-        empty,
-        [Description("#")]
-        numeric,
-        [Description("@")]
-        alphabetical,
-        [Description("?")]
-        alphanumeric,
-        [Description("-")]
-        dash,
-        [Description(".")]
-        dot,
-        [Description("/")]
-        slash
-    }
+   
 
     /// <summary>
     /// Class returned to the caling program with the call sign meta data.
