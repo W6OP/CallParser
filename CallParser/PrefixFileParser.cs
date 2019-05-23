@@ -104,7 +104,7 @@ namespace CallParser
     {
 
         //private List<Hit> _HitList;
-        public List<ValueTuple<string, Hit>> _PrefixTuples;
+       // public List<ValueTuple<string, Hit>> _PrefixTuples;
 
         public Dictionary<string, List<Hit>> PrefixesDictionary { get; set; }
 
@@ -115,6 +115,7 @@ namespace CallParser
         private List<string> result = new List<string>();
         private List<string> tempResult = new List<string>();
         private List<List<string>> allCharacters = new List<List<string>>();
+        private List<string> masks = new List<string>();
         ///////////////////////////////////////////////////////////////
 
         public Hit[] _Adifs;
@@ -147,7 +148,7 @@ namespace CallParser
 
 
             //_HitList = new List<Hit>();
-            _PrefixTuples = new List<ValueTuple<string, Hit>>(20000000);
+            //_PrefixTuples = new List<ValueTuple<string, Hit>>(20000000);
             _PrimaryMaskList = new HashSet<List<string>>();
 
             _Adifs = new Hit[999];
@@ -199,8 +200,9 @@ namespace CallParser
         private void BuildCallSignInfo(XElement prefixXml)
         {
             Hit hit = new Hit();
-            List<Hit> hitList;  // = new List<Hit>();
-            //(string mask, Hit res) prefixInformation; // ValueTuple
+            List<Hit> hitList;
+
+            masks.Clear();
 
             _PrimaryMaskList.Clear(); 
 
@@ -215,8 +217,10 @@ namespace CallParser
                     case "masks":
                         foreach (XElement mask in element.Elements())
                         {
-                            currentValue = mask.Value;
-                            ExpandMask(currentValue);
+                            // masks.Add(mask.Value);
+                            //ExpandMaskEx(mask.Value);
+
+                            ExpandMask(mask.Value);
                         }
                         break;
                     case "label":
@@ -287,25 +291,26 @@ namespace CallParser
 
             if (hit.Kind == PrefixKind.pfInvalidPrefix)
             {
-                //_Adifs[0] = hit;
+                _Adifs[0] = hit;
             }
 
             if (hit.Wae != "")
             {
-                //_Adifs[Convert.ToInt32(hit.Wae)] = hit;
+                _Adifs[Convert.ToInt32(hit.Wae)] = hit;
             }
 
             if (hit.Kind == PrefixKind.pfDXCC)
             {
-               // _Adifs[Convert.ToInt32(hit.Dxcc)] = hit;
+                _Adifs[Convert.ToInt32(hit.Dxcc)] = hit;
             }
 
-            if (hit.Kind == PrefixKind.pfProvince && hit.Admin1 != "")
+            if (!String.IsNullOrEmpty(hit.Admin1) && hit.Kind == PrefixKind.pfProvince)
             {
-                //_Admins.Add(callSignInfo.Admin1, callSignInfo);
+                // need to check for dupe keys
+                //_Admins.Add(hit.Admin1, hit);
             }
 
-            // load the primary prefix for this entity
+            //// load the primary prefix for this entity
             if (hit.Kind == PrefixKind.pfDXCC)
             {
                 hitList = new List<Hit>();
@@ -319,22 +324,25 @@ namespace CallParser
                     hitList = PrefixesDictionary[hit.MainPrefix];
                     hitList.Add(hit);
                     // when we expand the mask to all possible values then some will be duplicated
-                    // Console.WriteLine(hit.FullPrefix + " duplicate top: duplicate top duplicate top duplicate top *******************************************************" + hit.Kind.ToString());
+                     Console.WriteLine(hit.FullPrefix + " duplicate top: duplicate top duplicate top duplicate top *******************************************************" + hit.Kind.ToString());
                 }
             }
 
-
-            // prefixInformation.mask = hit
-
-
+            // (['K','N','W'], ['A'..'G','I'..'K','M'..'Z'], ['7'])
+            // (['K','N','W'], ['A', 'B', 'C','D','E','F','G','I','J','K','M','N','O','P','Q','R','S','T','U','V','X','Y','Z'], ['7'])
+            //foreach (string mask in masks)
+            //{
+            //    List<List<string>> maskCharacters = new List<List<string>>();
+            //    maskCharacters = ExpandMaskEx(mask);
+            //    PopulatePrimaryPrefixList(maskCharacters);
+            //}
 
             foreach (List<string> prefixList in _PrimaryMaskList)
             {
                 hitList = new List<Hit>(prefixList.Count);
                 foreach (string prefix in prefixList)
                 {
-                    ////if (prefix != callSignInfo.MainPrefix)
-                    ////{
+                    hitList.Clear();
                     if (!PrefixesDictionary.ContainsKey(prefix))
                     {
                         hitList.Add(hit);
@@ -346,7 +354,7 @@ namespace CallParser
                         //    // ie.AL, NL for Alaska
                         hitList = PrefixesDictionary[prefix];
                         hitList.Add(hit);
-                        //Console.WriteLine(prefix + " duplicate: " + hit.Kind.ToString() + " : " + hit.Country);
+                        Console.WriteLine(prefix + " duplicate: " + hit.Kind.ToString() + " : " + hit.Country);
                     }
                 }
             }
@@ -355,9 +363,72 @@ namespace CallParser
 
 
         // *********************************************************************************************************
+        /// <summary>
+        /// Expand the mask into its separate components.
+        /// </summary>
+        /// <param name="mask"></param>
+        internal List<List<string>> ExpandMaskEx(string mask)
+        {
+            HashSet<string> expandedMask;
+            //HashSet<HashSet<string>> expandedMaskSet = new HashSet<HashSet<string>>();
+            //List<List<string>> allCharacters = new List<List<string>>();
+            string maskPart;
+            string newMask = mask;
+            char item;
+            int counter = 0;
+            int index;
+            int nextIndex;
+            int pass = 0;
 
-       
+            allCharacters.Clear();
 
+            // TEMPORARY: get rid of "."
+            mask = mask.Replace(".", "");
+
+
+            while (counter < mask.Length)
+            {
+                item = mask[counter];
+                pass += 1;
+
+                switch (item.ToString())
+                {
+                    case "[":
+                        index = newMask.IndexOf("]");
+                        nextIndex = index + 1;
+                        maskPart = newMask.Substring(0, nextIndex);
+                        string[] maskComponents = maskPart.Split("[]".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                        expandedMask = ParseMask(maskComponents);
+                        allCharacters.Add(BuildPrefixList(expandedMask));
+                        counter += maskPart.Length;
+                        nextIndex = counter;
+                        newMask = mask.Substring(nextIndex);
+                        break;
+                    case "@":
+                    case "#":
+                    case "?":
+                        expandedMask = GetMetaMaskSet(item.ToString());
+                        allCharacters.Add(BuildPrefixList(expandedMask));
+                        counter += 1;
+                        newMask = mask.Substring(counter);
+                        break;
+                    default: // single character
+                        expandedMask = new HashSet<string>
+                        {
+                            item.ToString()
+                        };
+                        allCharacters.Add(BuildPrefixList(expandedMask));
+                        counter += 1;
+                        newMask = mask.Substring(counter);
+                        break;
+                }
+            }
+
+            return allCharacters;
+        }
+
+
+        // *********************************************************************************************************
 
         /// <summary>
         /// Expand the mask into its separate components.
@@ -420,7 +491,7 @@ namespace CallParser
                 }
             }
 
-            PopulatePrimaryPrefixListEx(allCharacters);
+            PopulatePrimaryPrefixList(allCharacters);
         }
 
         
@@ -428,7 +499,7 @@ namespace CallParser
         /// Primary
         /// </summary>
         /// <param name="allCharacters"></param>
-        private void PopulatePrimaryPrefixListEx(List<List<string>> allCharacters)
+        private void PopulatePrimaryPrefixList(List<List<string>> allCharacters)
         {
             result.Clear();
 
@@ -457,12 +528,9 @@ namespace CallParser
         /// </summary>
         /// <param name="result"></param>
         /// <param name="allCharacters"></param>
-        private void PopulatePrimaryPrefixListEx(List<string> result, List<List<string>> allCharacters)
+        private void PopulatePrimaryPrefixList(List<string> result, List<List<string>> allCharacters)
         {
-            //List<string> firstColumn;
-            //List<string> secondColumn;
-
-            //List<string> tempResult = new List<string>();
+           
             List<string> tempResult2 = new List<string>();
             tempResult.Clear();
             //tempResult2.Clear();
@@ -484,9 +552,6 @@ namespace CallParser
                     allCharacters.RemoveRange(0, 1);
                     break;
                 default:
-                    //firstColumn = allCharacters[0];
-                    //secondColumn = allCharacters[1];
-
                     foreach (string first in allCharacters[0])
                     {
                         foreach (string second in allCharacters[1])
@@ -510,13 +575,37 @@ namespace CallParser
 
             if (allCharacters.Count > 0)
             {
-                PopulatePrimaryPrefixListEx(tempResult2, allCharacters);
+                PopulatePrimaryPrefixList(tempResult2, allCharacters);
             }
             else
             {
                _PrimaryMaskList.Add(tempResult2);
 
             }
+        }
+
+        private void PopulatePrimaryPrefixListEx(List<string> result, List<List<string>> allCharacters)
+        {
+            List<string> tempResult2 = new List<string>();
+            tempResult.Clear();
+
+            foreach (string pre in result)
+            {
+                foreach (string end in allCharacters[0])
+                {
+                    if (end != "/")
+                    {
+                        tempResult2.Add(pre + end);
+                    }
+                    else
+                    {
+                        tempResult2.Add(pre);
+                    }
+                   
+                }
+            }
+
+            _PrimaryMaskList.Add(tempResult2);
         }
 
         /// <summary>

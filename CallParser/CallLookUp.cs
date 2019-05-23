@@ -50,8 +50,9 @@ namespace CallParser
     public class CallLookUp
     {
         private ConcurrentBag<Hit> _HitList;
-        private List<(string, Hit)> _PrefixTuples;
+        // private List<(string, Hit)> _PrefixTuples;
         //private readonly MultiValueDictionary<string, CallSignInfo> _PrefixDict;
+        private Dictionary<string, List<Hit>> _PrefixesDictionary;
 
         ///// <summary>
         ///// Constructor.
@@ -62,14 +63,22 @@ namespace CallParser
         //    _PrefixDict = prefixDict;
         //}
 
-        public CallLookUp(List<(string, Hit)> prefixTuples)
+        //public CallLookUp(List<(string, Hit)> prefixTuples)
+        //{
+        //    _PrefixTuples = prefixTuples;
+        //}
+
+        public CallLookUp(Dictionary<string, List<Hit>> prefixesDictionary)
         {
-            _PrefixTuples = prefixTuples;
+            this._PrefixesDictionary = prefixesDictionary;
         }
 
         /// <summary>
         /// Batch lookup of call signs. A List<string> of calls may be sent in
         /// and each processed in parallel.
+        /// 
+        /// Rather than returning a huge hitlist when finished I should just raise
+        /// an event and send hits back individually.
         /// </summary>
         /// <param name="callSigns"></param>
         /// <returns></returns>
@@ -336,6 +345,7 @@ namespace CallParser
         }
 
         List<(string, Hit)> query;
+       
 
         /// <summary>
         /// First see if we can find a match for the max prefix of 4 characters.
@@ -346,39 +356,32 @@ namespace CallParser
         private void CollectMatches((string call, string callPrefix) callAndprefix)
         {
             string callPart = callAndprefix.callPrefix;
-            Hit hit;
 
-            callPart = callPart.Length > 3 ? callPart.Substring(0, 4) : callPart;
+           // callPart = callPart.Length > 3 ? callPart.Substring(0, 4) : callPart;
 
-            
-            query = _PrefixTuples.Where(t => t.Item1 == callPart).ToList();
-            foreach ((string, Hit) item in query)
+            if (_PrefixesDictionary.ContainsKey(callPart))
             {
-                _HitList.Add(item.Item2);
+                List<Hit>  query = _PrefixesDictionary[callPart];
+                foreach (Hit hit in query)
+                {
+                    _HitList.Add(hit);
+                    //hit.CallSign = callPart;
+                }
             }
-            //if (_PrefixDict.ContainsKey(callPart))
-            //{
-
-            //    //hit = new Hit(_PrefixDict[callPart], callAndprefix.call);
-            //    //_HitList.Add(hit);
-
-            //}
 
             if (callPart.Length > 1)
             {
                 callPart = callPart.Remove(callPart.Length - 1);
                 while (callPart != string.Empty)
                 {
-                    query = _PrefixTuples.Where(t => t.Item1 == callPart).ToList();
-                    foreach ((string, Hit) item in query)
+                    if (_PrefixesDictionary.ContainsKey(callPart))
                     {
-                        _HitList.Add(item.Item2);
+                        List<Hit> query = _PrefixesDictionary[callPart];
+                        foreach (Hit hit in query)
+                        {
+                            _HitList.Add(hit);
+                        }
                     }
-                    //if (_PrefixDict.ContainsKey(callPart))
-                    //{
-                    //    //hit = new Hit(_PrefixDict[callPart], callAndprefix.call);
-                    //    //_HitList.Add(hit);
-                    //}
 
                     callPart = callPart.Remove(callPart.Length - 1);
                 }
@@ -388,6 +391,8 @@ namespace CallParser
                 // debugging - remember we are multi threaded here
                 //Console.WriteLine("Single Character: " + callPart + " : " + callAndprefix.call);
             }
+
+            // now search the _Admin collection for the DXCC entry
         }
 
         /// <summary>
