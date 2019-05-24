@@ -50,27 +50,14 @@ namespace CallParser
     public class CallLookUp
     {
         private ConcurrentBag<Hit> _HitList;
-        // private List<(string, Hit)> _PrefixTuples;
-        //private readonly MultiValueDictionary<string, CallSignInfo> _PrefixDict;
         private Dictionary<string, List<Hit>> _PrefixesDictionary;
+        private Dictionary<Int32, Hit> _Adifs;
 
-        ///// <summary>
-        ///// Constructor.
-        ///// </summary>
-        ///// <param name="prefixFileParser"></param>
-        //public CallLookUp(MultiValueDictionary<string, CallSignInfo> prefixDict)
-        //{
-        //    _PrefixDict = prefixDict;
-        //}
 
-        //public CallLookUp(List<(string, Hit)> prefixTuples)
-        //{
-        //    _PrefixTuples = prefixTuples;
-        //}
-
-        public CallLookUp(Dictionary<string, List<Hit>> prefixesDictionary)
+        public CallLookUp(PrefixFileParser prefixFileParser)
         {
-            this._PrefixesDictionary = prefixesDictionary;
+            this._PrefixesDictionary = prefixFileParser.PrefixesDictionary;
+            _Adifs = prefixFileParser.Adifs;
         }
 
         /// <summary>
@@ -356,17 +343,24 @@ namespace CallParser
         private void CollectMatches((string call, string callPrefix) callAndprefix)
         {
             string callPart = callAndprefix.callPrefix;
+            //string dxcc = ""; // later make dxcc in a Hit an Int
 
+            // only use the first 4 characters - faster search
            // callPart = callPart.Length > 3 ? callPart.Substring(0, 4) : callPart;
 
+            // this probably isn't needed any more since the DXCC entries are in Adif
             if (_PrefixesDictionary.ContainsKey(callPart))
             {
                 List<Hit>  query = _PrefixesDictionary[callPart];
                 foreach (Hit hit in query)
                 {
+                    // NEED TO CHECK FOR DUPLICATES - MAYBE DICTIONARY OR HASHSET
                     _HitList.Add(hit);
-                    //hit.CallSign = callPart;
+                   // dxcc = hit.Dxcc;
+                    _HitList.Add(_Adifs[Convert.ToInt32(hit.Dxcc)]);
                 }
+
+                //if (_Admin) SEARCH BY DXCC (INT)
             }
 
             if (callPart.Length > 1)
@@ -379,7 +373,10 @@ namespace CallParser
                         List<Hit> query = _PrefixesDictionary[callPart];
                         foreach (Hit hit in query)
                         {
+                            // NEED TO CHECK FOR DUPLICATES - MAYBE DICTIONARY OR HASHSET
                             _HitList.Add(hit);
+                            _HitList.Add(_Adifs[Convert.ToInt32(hit.Dxcc)]);
+                            //dxcc = hit.Dxcc;
                         }
                     }
 
@@ -393,6 +390,10 @@ namespace CallParser
             }
 
             // now search the _Admin collection for the DXCC entry
+            //if (_HitList.Count > 0)
+            //{
+            //    _HitList.Add(_Adifs[Convert.ToInt32(dxcc)]);
+            //}
         }
 
         /// <summary>

@@ -37,7 +37,7 @@ namespace CallParserTestor
             _PrefixFileParser.ParsePrefixFile("");
             Console.WriteLine("Load Time: " + sw.ElapsedMilliseconds + "ms");
             Cursor.Current = Cursors.Default;
-            _CallLookUp = new CallLookUp(_PrefixFileParser.PrefixesDictionary);
+            _CallLookUp = new CallLookUp(_PrefixFileParser);
         }
 
         /// <summary>

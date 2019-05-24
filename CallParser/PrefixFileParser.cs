@@ -102,12 +102,10 @@ namespace CallParser
 
     public class PrefixFileParser
     {
-
-        //private List<Hit> _HitList;
-       // public List<ValueTuple<string, Hit>> _PrefixTuples;
-
         public Dictionary<string, List<Hit>> PrefixesDictionary { get; set; }
-
+        public Dictionary<Int32, Hit> Adifs { get; set; }
+        // public Hit[] _Adifs;
+        public Dictionary<string, Hit> _Admins;
 
         /// <summary>
         /// Used so I don't have overhead of "new" in loops
@@ -118,10 +116,7 @@ namespace CallParser
         private List<string> masks = new List<string>();
         ///////////////////////////////////////////////////////////////
 
-        public Hit[] _Adifs;
-        public Dictionary<string, Hit> _Admins;
-
-        public HashSet<List<string>> _PrimaryMaskList;
+        private HashSet<List<string>> _PrimaryMaskList;
         private readonly string[] alphabet = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
         private readonly string[] numbers = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
@@ -145,13 +140,11 @@ namespace CallParser
             XDocument xDoc;
 
             PrefixesDictionary = new Dictionary<string, List<Hit>>(20000000);
+            Adifs = new Dictionary<int, Hit>();
 
-
-            //_HitList = new List<Hit>();
-            //_PrefixTuples = new List<ValueTuple<string, Hit>>(20000000);
             _PrimaryMaskList = new HashSet<List<string>>();
 
-            _Adifs = new Hit[999];
+            //_Adifs = new Hit[999];
             _Admins = new Dictionary<string, Hit>();
 
             if (File.Exists(prefixFilePath))
@@ -291,17 +284,22 @@ namespace CallParser
 
             if (hit.Kind == PrefixKind.pfInvalidPrefix)
             {
-                _Adifs[0] = hit;
+                //_Adifs[0] = hit;
+                Adifs.Add(0, hit);
             }
 
-            if (hit.Wae != "")
+            // WHAT IS THIS FOR?
+            if (!String.IsNullOrEmpty(hit.Wae))
             {
-                _Adifs[Convert.ToInt32(hit.Wae)] = hit;
+                //_Adifs[Convert.ToInt32(hit.Wae)] = hit;
+                //Adifs.Add(Convert.ToInt32(hit.Wae), hit);
             }
 
             if (hit.Kind == PrefixKind.pfDXCC)
             {
-                _Adifs[Convert.ToInt32(hit.Dxcc)] = hit;
+                // ADIFS SHOULD PROBABLY BE A DICTIONARY I CAN USE IN CALLLOOKUP
+                //_Adifs[Convert.ToInt32(hit.Dxcc)] = hit;
+                Adifs.Add(Convert.ToInt32(hit.Dxcc), hit);
             }
 
             if (!String.IsNullOrEmpty(hit.Admin1) && hit.Kind == PrefixKind.pfProvince)
@@ -311,22 +309,23 @@ namespace CallParser
             }
 
             //// load the primary prefix for this entity
-            if (hit.Kind == PrefixKind.pfDXCC)
-            {
-                hitList = new List<Hit>();
-                if (!PrefixesDictionary.ContainsKey(hit.MainPrefix))
-                {
-                    hitList.Add(hit);
-                    PrefixesDictionary.Add(hit.MainPrefix, hitList);
-                }
-                else
-                {
-                    hitList = PrefixesDictionary[hit.MainPrefix];
-                    hitList.Add(hit);
-                    // when we expand the mask to all possible values then some will be duplicated
-                     Console.WriteLine(hit.FullPrefix + " duplicate top: duplicate top duplicate top duplicate top *******************************************************" + hit.Kind.ToString());
-                }
-            }
+            //if (hit.Kind == PrefixKind.pfDXCC)
+            //{
+            //    hitList = new List<Hit>();
+            //    if (!PrefixesDictionary.ContainsKey(hit.MainPrefix))
+            //    {
+            //        hitList.Add(hit);
+            //        PrefixesDictionary.Add(hit.MainPrefix, hitList);
+            //    }
+            //    else
+            //    {
+            //        // THIS IS WHY WE NEED AN ADMIN LIST
+            //        hitList = PrefixesDictionary[hit.MainPrefix];
+            //        hitList.Add(hit);
+            //        // when we expand the mask to all possible values then some will be duplicated
+            //        Console.WriteLine(hit.FullPrefix + " duplicate top: duplicate top duplicate top duplicate top *******************************************************" + hit.Kind.ToString());
+            //    }
+            //}
 
             // (['K','N','W'], ['A'..'G','I'..'K','M'..'Z'], ['7'])
             // (['K','N','W'], ['A', 'B', 'C','D','E','F','G','I','J','K','M','N','O','P','Q','R','S','T','U','V','X','Y','Z'], ['7'])
@@ -340,21 +339,25 @@ namespace CallParser
             foreach (List<string> prefixList in _PrimaryMaskList)
             {
                 hitList = new List<Hit>(prefixList.Count);
+                //Console.WriteLine("Count: " + prefixList.Count.ToString());
                 foreach (string prefix in prefixList)
                 {
                     hitList.Clear();
-                    if (!PrefixesDictionary.ContainsKey(prefix))
+                    if (hit.Kind != PrefixKind.pfDXCC)
                     {
-                        hitList.Add(hit);
-                        PrefixesDictionary.Add(prefix, hitList);
-                    }
-                    else
-                    {
-                        //    //when we expand the mask to all possible values then some will be duplicated
-                        //    // ie.AL, NL for Alaska
-                        hitList = PrefixesDictionary[prefix];
-                        hitList.Add(hit);
-                        Console.WriteLine(prefix + " duplicate: " + hit.Kind.ToString() + " : " + hit.Country);
+                        if (!PrefixesDictionary.ContainsKey(prefix))
+                        {
+                            hitList.Add(hit);
+                            PrefixesDictionary.Add(prefix, hitList);
+                        }
+                        else
+                        {
+                            //    //when we expand the mask to all possible values then some will be duplicated
+                            //    // ie.AL, NL for Alaska
+                            hitList = PrefixesDictionary[prefix];
+                            hitList.Add(hit);
+                            // Console.WriteLine(prefix + " duplicate: " + hit.Kind.ToString() + " : " + hit.Country);
+                        }
                     }
                 }
             }
@@ -370,8 +373,6 @@ namespace CallParser
         internal List<List<string>> ExpandMaskEx(string mask)
         {
             HashSet<string> expandedMask;
-            //HashSet<HashSet<string>> expandedMaskSet = new HashSet<HashSet<string>>();
-            //List<List<string>> allCharacters = new List<List<string>>();
             string maskPart;
             string newMask = mask;
             char item;
@@ -437,8 +438,6 @@ namespace CallParser
         internal void ExpandMask(string mask)
         {
             HashSet<string> expandedMask;
-            //HashSet<HashSet<string>> expandedMaskSet = new HashSet<HashSet<string>>();
-            //List<List<string>> allCharacters = new List<List<string>>();
             string maskPart;
             string newMask = mask;
             char item;
@@ -533,8 +532,6 @@ namespace CallParser
            
             List<string> tempResult2 = new List<string>();
             tempResult.Clear();
-            //tempResult2.Clear();
-           
 
             switch (allCharacters.Count)
             {
