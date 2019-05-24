@@ -85,6 +85,9 @@ namespace CallParserTestor
             string temp;
 
             Cursor.Current = Cursors.WaitCursor;
+
+            var sw = Stopwatch.StartNew();
+
             using (StreamReader reader = new StreamReader("rbn2.csv"))
             using (var csv = new CsvReader(reader))
             {
@@ -96,17 +99,20 @@ namespace CallParserTestor
                     csv.Configuration.MissingFieldFound = null;
                     _Records.Add(csv.GetField("dx"));
 
-                    //temp = csv.GetField("callsign");
-                    //// check for a "_" ie: VE7CC-7, OH6BG-1, WZ7I-3 - remove the characters "-x"
-                    //if (temp.IndexOf("-") != -1)
-                    //{
-                    //    temp = temp.Substring(0, temp.IndexOf("-"));
-                    //}
-                    //_Records.Add(temp);
+                    // comment out to keep list to 1 million
+                    temp = csv.GetField("callsign");
+                    // check for a "_" ie: VE7CC-7, OH6BG-1, WZ7I-3 - remove the characters "-x"
+                    if (temp.IndexOf("-") != -1)
+                    {
+                        temp = temp.Substring(0, temp.IndexOf("-"));
+                    }
+                    _Records.Add(temp);
 
                 }
             }
 
+            Console.WriteLine("Load Time: " + sw.ElapsedMilliseconds + "ms");
+            //label3.Text = ((float)(sw.ElapsedMilliseconds)).ToString() + "ms";
             label4.Text = _Records.Count.ToString() + " calls loaded";
             Cursor.Current = Cursors.Default;
         }

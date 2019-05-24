@@ -94,8 +94,6 @@ namespace CallParser
             }
            );
 
-            //_HitList.CompleteAdding();
-
             return _HitList.ToList();
         }
 
@@ -118,8 +116,6 @@ namespace CallParser
             {
                 throw new Exception("Invalid call sign format"); // EMBELLISH
             }
-
-            //_HitList.CompleteAdding();
 
             return _HitList.ToList();
         }
@@ -343,7 +339,7 @@ namespace CallParser
         private void CollectMatches((string call, string callPrefix) callAndprefix)
         {
             string callPart = callAndprefix.callPrefix;
-            //string dxcc = ""; // later make dxcc in a Hit an Int
+            Hit dxccHit;
 
             // only use the first 4 characters - faster search
            // callPart = callPart.Length > 3 ? callPart.Substring(0, 4) : callPart;
@@ -356,8 +352,9 @@ namespace CallParser
                 {
                     // NEED TO CHECK FOR DUPLICATES - MAYBE DICTIONARY OR HASHSET
                     _HitList.Add(hit);
-                   // dxcc = hit.Dxcc;
-                    _HitList.Add(_Adifs[Convert.ToInt32(hit.Dxcc)]);
+                    dxccHit = _Adifs[Convert.ToInt32(hit.Dxcc)];
+                    dxccHit.CallSign = callAndprefix.call;
+                    _HitList.Add(dxccHit);
                 }
 
                 //if (_Admin) SEARCH BY DXCC (INT)
@@ -375,8 +372,9 @@ namespace CallParser
                         {
                             // NEED TO CHECK FOR DUPLICATES - MAYBE DICTIONARY OR HASHSET
                             _HitList.Add(hit);
-                            _HitList.Add(_Adifs[Convert.ToInt32(hit.Dxcc)]);
-                            //dxcc = hit.Dxcc;
+                            dxccHit = _Adifs[Convert.ToInt32(hit.Dxcc)];
+                            dxccHit.CallSign = callAndprefix.call;
+                            _HitList.Add(dxccHit);
                         }
                     }
 
