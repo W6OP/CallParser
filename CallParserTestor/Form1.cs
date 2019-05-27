@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using CallParser;
 using CsvHelper;
@@ -42,6 +43,8 @@ namespace CallParserTestor
 
         /// <summary>
         /// What should I do about W/M0RYB or F/M0RYB
+        /// 
+        /// LOOKUP A SINGLE CALL SIGN.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -117,6 +120,12 @@ namespace CallParserTestor
             Cursor.Current = Cursors.Default;
         }
 
+        /// <summary>
+        /// Batch lookup.
+        /// Send in a list of all calls at once.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Button3_Click(object sender, EventArgs e)
         {
             List<Hit> hitList;
@@ -133,7 +142,52 @@ namespace CallParserTestor
             var sw = Stopwatch.StartNew();
 
             hitList = _CallLookUp.LookUpCall(_Records);
-            //Test();
+            
+            label1.Text = "Search Time: " + sw.ElapsedMilliseconds + "ms - ticks: " + sw.ElapsedTicks;
+            label2.Text = "Finished - hitcount = " + hitList.Count.ToString();
+            label3.Text = ((float)(sw.ElapsedMilliseconds / divisor)).ToString() + "us";
+            Console.WriteLine("Finished - hitcount = " + hitList.Count.ToString());
+
+            var thread = new Thread(() =>
+            {
+                Cursor.Current = Cursors.WaitCursor;
+                SaveHitList(hitList);
+            });
+            thread.Start();
+        }
+
+        /// <summary>
+        /// Read entire call sign list but send in calls one at a time.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ButtonSemiBatch_Click(object sender, EventArgs e)
+        {
+            List<Hit> hitList = new List<Hit>();
+            List<Hit> tempHitList;
+            float divisor = 1000;
+            int total = 0;
+
+            if (_CallLookUp == null)
+            {
+                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+            Cursor.Current = Cursors.WaitCursor;
+
+            var sw = Stopwatch.StartNew();
+            Cursor.Current = Cursors.WaitCursor;
+
+            foreach (string call in _Records)
+            {
+                tempHitList = _CallLookUp.LookUpCall(call);
+                foreach (Hit hit in tempHitList)
+                {
+                    hitList.Add(hit);
+                }
+                Application.DoEvents();
+            }
 
             label1.Text = "Search Time: " + sw.ElapsedMilliseconds + "ms - ticks: " + sw.ElapsedTicks;
             label2.Text = "Finished - hitcount = " + hitList.Count.ToString();
@@ -166,10 +220,18 @@ namespace CallParserTestor
                 //csv.WriteRecord();
                 foreach (Hit callSignInfo in sortedList)
                 {
-                    csv.WriteField(callSignInfo.CallSign);
-                    csv.WriteField(callSignInfo.MainPrefix);
+                    
+                    if (callSignInfo.Kind == PrefixKind.pfDXCC)
+                    {
+                        csv.WriteField(callSignInfo.CallSign);
+                        csv.WriteField(callSignInfo.MainPrefix);
+                    }
+                    else
+                    {
+                        csv.WriteField("----  " + callSignInfo.MainPrefix);
+                    }
                     csv.WriteField(callSignInfo.Country);
-                    csv.WriteField(callSignInfo.Province);
+                    csv.WriteField(callSignInfo.Province);   
                     csv.WriteField(callSignInfo.Kind.ToString());
                     csv.WriteField(callSignInfo.Latitude);
                     csv.WriteField(callSignInfo.Longitude);
@@ -218,6 +280,5 @@ namespace CallParserTestor
             }
             Cursor.Current = Cursors.Default;
         }
-
     } // end class
 }

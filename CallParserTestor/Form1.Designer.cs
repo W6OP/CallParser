@@ -39,6 +39,7 @@
             this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
+            this.ButtonSemiBatch = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // button1
@@ -58,7 +59,7 @@
             this.TextBoxCall.Name = "TextBoxCall";
             this.TextBoxCall.Size = new System.Drawing.Size(100, 20);
             this.TextBoxCall.TabIndex = 1;
-            this.TextBoxCall.Text = "WA6YUL";
+            this.TextBoxCall.Text = "IZ4NIC";
             // 
             // button2
             // 
@@ -72,7 +73,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(12, 170);
+            this.button3.Location = new System.Drawing.Point(13, 204);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(132, 23);
             this.button3.TabIndex = 3;
@@ -83,7 +84,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(9, 196);
+            this.label1.Location = new System.Drawing.Point(10, 230);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(71, 13);
             this.label1.TabIndex = 4;
@@ -92,7 +93,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(10, 220);
+            this.label2.Location = new System.Drawing.Point(11, 254);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(51, 13);
             this.label2.TabIndex = 5;
@@ -101,7 +102,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(150, 175);
+            this.label3.Location = new System.Drawing.Point(151, 209);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(18, 13);
             this.label3.TabIndex = 6;
@@ -145,11 +146,22 @@
             this.label4.TabIndex = 10;
             this.label4.Text = "records loaded";
             // 
+            // ButtonSemiBatch
+            // 
+            this.ButtonSemiBatch.Location = new System.Drawing.Point(14, 164);
+            this.ButtonSemiBatch.Name = "ButtonSemiBatch";
+            this.ButtonSemiBatch.Size = new System.Drawing.Size(132, 23);
+            this.ButtonSemiBatch.TabIndex = 11;
+            this.ButtonSemiBatch.Text = "Semi Batch";
+            this.ButtonSemiBatch.UseVisualStyleBackColor = true;
+            this.ButtonSemiBatch.Click += new System.EventHandler(this.ButtonSemiBatch_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(465, 254);
+            this.ClientSize = new System.Drawing.Size(465, 289);
+            this.Controls.Add(this.ButtonSemiBatch);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);
@@ -182,6 +194,7 @@
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Button ButtonSemiBatch;
     }
 }
 

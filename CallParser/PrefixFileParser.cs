@@ -38,16 +38,13 @@
  Description: Parse a prefix xml file and build all possible prefix
  combinations.
  */
-using Microsoft.Collections.Extensions;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace CallParser
@@ -100,27 +97,50 @@ namespace CallParser
         slash
     }
 
+    /// <summary>
+    /// Substitute for a TStringList in Delphi.
+    /// </summary>
+    public class Admin
+    {
+        public string AdminKey { get; set; }
+        public Hit CallInfo { get; set; }
+
+        public Admin(string admin, Hit hit)
+        {
+            AdminKey = admin;
+            CallInfo = hit;
+        }
+    }
+
+    /// <summary>
+    /// Load and parse the prefix file to create all possible prefix
+    /// patterns. 
+    /// </summary>
     public class PrefixFileParser
     {
+        /// <summary>
+        /// Public fields.
+        /// </summary>
         public Dictionary<string, List<Hit>> PrefixesDictionary { get; set; }
         public Dictionary<Int32, Hit> Adifs { get; set; }
-        // public Hit[] _Adifs;
-        public Dictionary<string, Hit> _Admins;
+        public List<Admin> Admins;
 
         /// <summary>
-        /// Used so I don't have overhead of "new" in loops
+        /// Normally these would be local variables but here they are
+        /// used so I don't have overhead of "new" in loops. Can use .Clear() instead.
         /// </summary>
         private List<string> result = new List<string>();
         private List<string> tempResult = new List<string>();
         private List<List<string>> allCharacters = new List<List<string>>();
         private List<string> masks = new List<string>();
-        ///////////////////////////////////////////////////////////////
+        //------------------------------------------------------------------
 
+        /// <summary>
+        /// Private fields
+        /// </summary>
         private HashSet<List<string>> _PrimaryMaskList;
-        private readonly string[] alphabet = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
-        private readonly string[] numbers = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
-
-        
+        private readonly string[] _Alphabet = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
+        private readonly string[] _Numbers = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
         /// <summary>
         /// Constructor.
@@ -141,11 +161,9 @@ namespace CallParser
 
             PrefixesDictionary = new Dictionary<string, List<Hit>>(20000000);
             Adifs = new Dictionary<int, Hit>();
+            Admins = new List<Admin>();
 
             _PrimaryMaskList = new HashSet<List<string>>();
-
-            //_Adifs = new Hit[999];
-            _Admins = new Dictionary<string, Hit>();
 
             if (File.Exists(prefixFilePath))
             {
@@ -181,12 +199,10 @@ namespace CallParser
             {
                 BuildCallSignInfo(prefixXml);
             }
-
-            var a = 2;
         }
 
         /// <summary>
-        /// Using the data in each prefix node build a CallSignInfo object
+        /// Using the data in each prefix node build a Hit object
         /// for each one. Save it in a dictionary (_PrefixDict).
         /// </summary>
         /// <param name="prefixXml"></param>
@@ -197,7 +213,7 @@ namespace CallParser
 
             masks.Clear();
 
-            _PrimaryMaskList.Clear(); 
+            _PrimaryMaskList.Clear();
 
             string currentValue;
 
@@ -238,7 +254,7 @@ namespace CallParser
                         hit.Province = currentValue ?? "";
                         break;
                     case "dxcc_entity":
-                        hit.Dxcc = currentValue ?? "";
+                        hit.Dxcc = Convert.ToInt32(currentValue);
                         break;
                     case "cq_zone":
                         hit.Cq = currentValue ?? "";
@@ -265,7 +281,7 @@ namespace CallParser
                         hit.Wap = currentValue ?? "";
                         break;
                     case "wae_entity":
-                        hit.Wae = currentValue ?? "";
+                        hit.Wae = Convert.ToInt32(currentValue);
                         break;
                     case "province_id":
                         hit.Admin1 = currentValue ?? "";
@@ -284,67 +300,38 @@ namespace CallParser
 
             if (hit.Kind == PrefixKind.pfInvalidPrefix)
             {
-                //_Adifs[0] = hit;
                 Adifs.Add(0, hit);
             }
 
-            // WHAT IS THIS FOR?
-            if (!String.IsNullOrEmpty(hit.Wae))
+            if (hit.Wae != 0)
             {
-                //_Adifs[Convert.ToInt32(hit.Wae)] = hit;
-                //Adifs.Add(Convert.ToInt32(hit.Wae), hit);
+                // if (!Adifs.ContainsKey(hit.Wae))
+                // {
+                // temporarily made Pelagie Is.wae_entity 907 to eliminate dupe
+                // need permanent solution - may use enum for entity
+                Adifs.Add(hit.Wae, hit);
+                // }
             }
 
             if (hit.Kind == PrefixKind.pfDXCC)
             {
-                // ADIFS SHOULD PROBABLY BE A DICTIONARY I CAN USE IN CALLLOOKUP
-                //_Adifs[Convert.ToInt32(hit.Dxcc)] = hit;
-                Adifs.Add(Convert.ToInt32(hit.Dxcc), hit);
+                Adifs.Add(hit.Dxcc, hit);
             }
 
             if (!String.IsNullOrEmpty(hit.Admin1) && hit.Kind == PrefixKind.pfProvince)
             {
-                // need to check for dupe keys
-                //_Admins.Add(hit.Admin1, hit);
+                Admin admin = new Admin(hit.Admin1, hit);
+                Admins.Add(admin);
             }
-
-            //// load the primary prefix for this entity
-            //if (hit.Kind == PrefixKind.pfDXCC)
-            //{
-            //    hitList = new List<Hit>();
-            //    if (!PrefixesDictionary.ContainsKey(hit.MainPrefix))
-            //    {
-            //        hitList.Add(hit);
-            //        PrefixesDictionary.Add(hit.MainPrefix, hitList);
-            //    }
-            //    else
-            //    {
-            //        // THIS IS WHY WE NEED AN ADMIN LIST
-            //        hitList = PrefixesDictionary[hit.MainPrefix];
-            //        hitList.Add(hit);
-            //        // when we expand the mask to all possible values then some will be duplicated
-            //        Console.WriteLine(hit.FullPrefix + " duplicate top: duplicate top duplicate top duplicate top *******************************************************" + hit.Kind.ToString());
-            //    }
-            //}
-
-            // (['K','N','W'], ['A'..'G','I'..'K','M'..'Z'], ['7'])
-            // (['K','N','W'], ['A', 'B', 'C','D','E','F','G','I','J','K','M','N','O','P','Q','R','S','T','U','V','X','Y','Z'], ['7'])
-            //foreach (string mask in masks)
-            //{
-            //    List<List<string>> maskCharacters = new List<List<string>>();
-            //    maskCharacters = ExpandMaskEx(mask);
-            //    PopulatePrimaryPrefixList(maskCharacters);
-            //}
 
             foreach (List<string> prefixList in _PrimaryMaskList)
             {
                 hitList = new List<Hit>(prefixList.Count);
-                //Console.WriteLine("Count: " + prefixList.Count.ToString());
                 foreach (string prefix in prefixList)
                 {
-                    hitList.Clear();
                     if (hit.Kind != PrefixKind.pfDXCC)
                     {
+                        hitList = new List<Hit>();
                         if (!PrefixesDictionary.ContainsKey(prefix))
                         {
                             hitList.Add(hit);
@@ -356,14 +343,15 @@ namespace CallParser
                             //    // ie.AL, NL for Alaska
                             hitList = PrefixesDictionary[prefix];
                             hitList.Add(hit);
+                            //hitList = new List<Hit>();
                             // Console.WriteLine(prefix + " duplicate: " + hit.Kind.ToString() + " : " + hit.Country);
                         }
                     }
                 }
             }
+
+            //List<Hit> query = PrefixesDictionary["XK2"];
         }
-
-
 
         // *********************************************************************************************************
         /// <summary>
@@ -493,7 +481,7 @@ namespace CallParser
             PopulatePrimaryPrefixList(allCharacters);
         }
 
-        
+
         /// <summary>
         /// Primary
         /// </summary>
@@ -514,7 +502,7 @@ namespace CallParser
             allCharacters.RemoveRange(0, 2);
             if (allCharacters.Count > 0)
             {
-                PopulatePrimaryPrefixListEx(result, allCharacters);
+                PopulatePrimaryPrefixList(result, allCharacters);
             }
             else
             {
@@ -529,7 +517,7 @@ namespace CallParser
         /// <param name="allCharacters"></param>
         private void PopulatePrimaryPrefixList(List<string> result, List<List<string>> allCharacters)
         {
-           
+
             List<string> tempResult2 = new List<string>();
             tempResult.Clear();
 
@@ -561,7 +549,7 @@ namespace CallParser
                     {
                         foreach (string end in tempResult)
                         {
-                           
+
                             tempResult2.Add(pre + end);
                         }
                     }
@@ -576,15 +564,22 @@ namespace CallParser
             }
             else
             {
-               _PrimaryMaskList.Add(tempResult2);
+                _PrimaryMaskList.Add(tempResult2);
 
             }
         }
 
+        /// <summary>
+        /// Recursive
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="allCharacters"></param>
         private void PopulatePrimaryPrefixListEx(List<string> result, List<List<string>> allCharacters)
         {
             List<string> tempResult2 = new List<string>();
             tempResult.Clear();
+
+            Debug.Assert(false);
 
             foreach (string pre in result)
             {
@@ -598,11 +593,19 @@ namespace CallParser
                     {
                         tempResult2.Add(pre);
                     }
-                   
+
                 }
             }
 
-            _PrimaryMaskList.Add(tempResult2);
+            allCharacters.RemoveRange(0, 1);
+            if (allCharacters.Count > 0)
+            {
+                PopulatePrimaryPrefixListEx(tempResult2, allCharacters);
+            }
+            else
+            {
+                _PrimaryMaskList.Add(tempResult2);
+            }
         }
 
         /// <summary>
@@ -698,7 +701,7 @@ namespace CallParser
                 {
                     counter += 1;
                     nextCharacter = componentString[counter + 1].ToString() ?? "";
-                    tempMask = BuildRange(currentCharacter, nextCharacter); 
+                    tempMask = BuildRange(currentCharacter, nextCharacter);
                     expandedMask.UnionWith(tempMask);
                     counter += 2;
                 }
@@ -732,11 +735,9 @@ namespace CallParser
         /// <param name="currentCharacter"></param>
         /// <param name="nextCharacter"></param>
         /// <returns></returns>
-        private HashSet<string> BuildRange(string currentCharacter, string nextCharacter) 
+        private HashSet<string> BuildRange(string currentCharacter, string nextCharacter)
         {
             HashSet<string> expandedMask = new HashSet<string>();
-
-            //bool isNumeric = int.TryParse(currentCharacter, out int n);
 
             // both numeric
             if (IsNumeric(currentCharacter) && IsNumeric(nextCharacter))
@@ -748,7 +749,7 @@ namespace CallParser
 
                     for (int index = start; index <= end; index++)
                     {
-                        expandedMask.Add(numbers[index]);
+                        expandedMask.Add(_Numbers[index]);
                     }
                 }
                 else
@@ -772,7 +773,7 @@ namespace CallParser
 
                 for (int index = start; index <= end; index++)
                 {
-                    expandedMask.Add(alphabet[index]);
+                    expandedMask.Add(_Alphabet[index]);
                 }
             }
 
@@ -784,7 +785,7 @@ namespace CallParser
 
                 for (int index = start; index <= end; index++)
                 {
-                    expandedMask.Add(alphabet[index]);
+                    expandedMask.Add(_Alphabet[index]);
                 }
             }
 
@@ -815,23 +816,23 @@ namespace CallParser
             switch (characterType)
             {
                 case CharacterType.numeric:
-                    foreach (string digit in numbers)
+                    foreach (string digit in _Numbers)
                     {
                         expandedMask.Add(digit);
                     }
                     break;
                 case CharacterType.alphanumeric:
-                    foreach (string digit in numbers)
+                    foreach (string digit in _Numbers)
                     {
                         expandedMask.Add(digit);
                     }
-                    foreach (string letter in alphabet)
+                    foreach (string letter in _Alphabet)
                     {
                         expandedMask.Add(letter);
                     }
                     break;
                 case CharacterType.alphabetical:
-                    foreach (string letter in alphabet)
+                    foreach (string letter in _Alphabet)
                     {
                         expandedMask.Add(letter);
                     }
@@ -845,12 +846,12 @@ namespace CallParser
 
         private int GetCharacterIndex(string character)
         {
-            return Array.IndexOf(alphabet, character);
+            return Array.IndexOf(_Alphabet, character);
         }
 
         private int GetNumberIndex(string character)
         {
-            return Array.IndexOf(numbers, character);
+            return Array.IndexOf(_Numbers, character);
         }
 
     } // end class
