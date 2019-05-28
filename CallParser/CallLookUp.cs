@@ -52,7 +52,6 @@ namespace CallParser
         private ConcurrentBag<Hit> _HitList;
         private readonly Dictionary<string, List<Hit>> _PrefixesDictionary;
         private readonly Dictionary<Int32, Hit> _Adifs;
-        //private List<(string, Hit)> _Query;
 
         public CallLookUp(PrefixFileParser prefixFileParser)
         {
@@ -71,25 +70,20 @@ namespace CallParser
         /// <returns></returns>
         public List<Hit> LookUpCall(List<string> callSigns)
         {
-            // preallocate space I need plus padding - otherwise extremely slow with large collections
-            _HitList = new ConcurrentBag<Hit>(); // (callSigns.Count * 2);
+            _HitList = new ConcurrentBag<Hit>();
 
-            // parallel foreach almost twice as fast but rquires blocking collection
-            _ = Parallel.ForEach(callSigns, callSign =>
+            // parallel foreach almost twice as fast but requires blocking collection
+            Parallel.ForEach(callSigns, callSign =>
+            //foreach (string callSign in callSigns)
             {
-                callSign = callSign.ToUpper();
-
-                if (!string.IsNullOrEmpty(callSign))
+                if (ValidateCallSign(callSign))
                 {
-                    if (ValidateCallSign(callSign))
-                    {
-                        ProcessCallSign(callSign);
-                    }
-                    else
-                    {
-                        // don't throw, just ignore bad calls
-                        Console.WriteLine("Invalid call sign format: " + callSign);
-                    }
+                    ProcessCallSign(callSign);
+                }
+                else
+                {
+                    // don't throw, just ignore bad calls
+                    Console.WriteLine("Invalid call sign format: " + callSign);
                 }
             }
            );
@@ -105,8 +99,6 @@ namespace CallParser
         public List<Hit> LookUpCall(string callSign)
         {
             _HitList = new ConcurrentBag<Hit>();
-
-            callSign = callSign.ToUpper();
 
             if (ValidateCallSign(callSign))
             {
@@ -231,7 +223,6 @@ namespace CallParser
         /// <returns></returns>
         private (string call, string callPrefix) ProcessPrefix(List<string> components)
         {
-            (string call, string callPrefix) callAndprefix = ("", "");
             string call = "";
             string prefix = "";
             // added "R" as a beacon for R/IK3OTW
@@ -242,12 +233,6 @@ namespace CallParser
             prefix = components.OrderBy(c => c.Length).FirstOrDefault();
             // longest
             call = components.OrderBy(c => c.Length).Last();
-
-            // DEBUG CODE
-            //if (call == "IK3OTW" || prefix == "IK3OTW")
-            //{
-            //    Debug.Assert(prefix == "IK3OTW");
-            //}
 
             if (call.Length == prefix.Length)
             {
@@ -299,10 +284,7 @@ namespace CallParser
                 }
             }
 
-            callAndprefix.call = call;
-            callAndprefix.callPrefix = prefix;
-
-            return callAndprefix;
+            return (call, callPrefix: prefix);
         }
 
 
@@ -336,10 +318,9 @@ namespace CallParser
         private void CollectMatches((string call, string callPrefix) callAndprefix)
         {
             string callPart = callAndprefix.callPrefix;
-            Hit dxccHit;
 
             // only use the first 4 characters - faster search you would think
-            // but truncating the string has significant overhead - more accurate result though
+            // but truncating the string has some overhead - more accurate result though
             callPart = callPart.Length > 3 ? callPart.Substring(0, 4) : callPart;
 
             if (_PrefixesDictionary.ContainsKey(callPart))
@@ -349,7 +330,7 @@ namespace CallParser
                 {
                     _HitList.Add(hit);
                 }
-                dxccHit = _Adifs[Convert.ToInt32(query[0].Dxcc)];
+                Hit dxccHit = _Adifs[Convert.ToInt32(query[0].Dxcc)];
                 dxccHit.CallSign = callAndprefix.call;
                 _HitList.Add(dxccHit);
             }
@@ -367,7 +348,7 @@ namespace CallParser
                             // NEED TO CHECK FOR DUPLICATES - MAYBE DICTIONARY OR HASHSET
                             _HitList.Add(hit);
                         }
-                        dxccHit = _Adifs[Convert.ToInt32(query[0].Dxcc)];
+                        Hit dxccHit = _Adifs[Convert.ToInt32(query[0].Dxcc)];
                         dxccHit.CallSign = callAndprefix.call;
                         _HitList.Add(dxccHit);
                     }

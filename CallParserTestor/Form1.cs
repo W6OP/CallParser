@@ -31,6 +31,11 @@ namespace CallParserTestor
           
         }
 
+        /// <summary>
+        /// Parse the prefix file.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Button5_Click(object sender, EventArgs e)
         {
             Cursor.Current = Cursors.WaitCursor;
@@ -82,6 +87,11 @@ namespace CallParserTestor
             Console.WriteLine("Finished");
         }
 
+        /// <summary>
+        /// Read the file of call signs to test with.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Button2_Click(object sender, EventArgs e)
         {
             _Records = new List<string>();
@@ -100,7 +110,7 @@ namespace CallParserTestor
                 while (csv.Read())
                 {
                     csv.Configuration.MissingFieldFound = null;
-                    _Records.Add(csv.GetField("dx"));
+                    _Records.Add(csv.GetField("dx").ToUpper());
 
                     // comment out to keep list to 1 million
                     temp = csv.GetField("callsign");
@@ -109,7 +119,7 @@ namespace CallParserTestor
                     {
                         temp = temp.Substring(0, temp.IndexOf("-"));
                     }
-                    _Records.Add(temp);
+                    _Records.Add(temp.ToUpper());
 
                 }
             }
@@ -142,18 +152,19 @@ namespace CallParserTestor
             var sw = Stopwatch.StartNew();
 
             hitList = _CallLookUp.LookUpCall(_Records);
-            
-            label1.Text = "Search Time: " + sw.ElapsedMilliseconds + "ms - ticks: " + sw.ElapsedTicks;
+
+            divisor = hitList.Count / 1000;
+            label1.Text = "Search Time: " + sw.Elapsed; // + " ticks: " + sw.ElapsedTicks;
             label2.Text = "Finished - hitcount = " + hitList.Count.ToString();
-            label3.Text = ((float)(sw.ElapsedMilliseconds / divisor)).ToString() + "us";
+            label3.Text = ((float)(sw.ElapsedMilliseconds / divisor)).ToString() + " microseconds per call sign";
             Console.WriteLine("Finished - hitcount = " + hitList.Count.ToString());
 
-            var thread = new Thread(() =>
-            {
-                Cursor.Current = Cursors.WaitCursor;
-                SaveHitList(hitList);
-            });
-            thread.Start();
+            //var thread = new Thread(() =>
+            //{
+            //    Cursor.Current = Cursors.WaitCursor;
+            //    SaveHitList(hitList);
+            //});
+            //thread.Start();
         }
 
         /// <summary>
@@ -189,17 +200,17 @@ namespace CallParserTestor
                 Application.DoEvents();
             }
 
-            label1.Text = "Search Time: " + sw.ElapsedMilliseconds + "ms - ticks: " + sw.ElapsedTicks;
+            label1.Text = "Search Time: " + sw.Elapsed;
             label2.Text = "Finished - hitcount = " + hitList.Count.ToString();
-            label3.Text = ((float)(sw.ElapsedMilliseconds / divisor)).ToString() + "us";
+            label3.Text = ""; // ((float)(sw.ElapsedMilliseconds / divisor)).ToString() + "us";
             Console.WriteLine("Finished - hitcount = " + hitList.Count.ToString());
 
-            var thread = new Thread(() =>
-            {
-                Cursor.Current = Cursors.WaitCursor;
-                SaveHitList(hitList);
-            });
-            thread.Start();
+            //var thread = new Thread(() =>
+            //{
+            //    Cursor.Current = Cursors.WaitCursor;
+            //    SaveHitList(hitList);
+            //});
+            //thread.Start();
         }
 
         /// <summary>
