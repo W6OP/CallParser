@@ -329,8 +329,8 @@ namespace CallParser
                 hitList = new List<Hit>(prefixList.Count);
                 foreach (string prefix in prefixList)
                 {
-                    if (hit.Kind != PrefixKind.pfDXCC)
-                    {
+                    //if (hit.Kind != PrefixKind.pfDXCC)
+                    //{
                         hitList = new List<Hit>();
                         if (!PrefixesDictionary.ContainsKey(prefix))
                         {
@@ -346,11 +346,9 @@ namespace CallParser
                             //hitList = new List<Hit>();
                             // Console.WriteLine(prefix + " duplicate: " + hit.Kind.ToString() + " : " + hit.Country);
                         }
-                    }
+                    //}
                 }
             }
-
-            //List<Hit> query = PrefixesDictionary["XK2"];
         }
 
         // *********************************************************************************************************
@@ -488,7 +486,7 @@ namespace CallParser
         /// <param name="allCharacters"></param>
         private void PopulatePrimaryPrefixList(List<List<string>> allCharacters)
         {
-            result.Clear();
+            result = new List<string>();
 
             // take first 2 columns
             foreach (string first in allCharacters[0])
@@ -520,6 +518,11 @@ namespace CallParser
 
             List<string> tempResult2 = new List<string>();
             tempResult.Clear();
+
+            if (allCharacters.Count > 3)
+            {
+                allCharacters.RemoveRange(2, allCharacters.Count - 2);
+            }
 
             switch (allCharacters.Count)
             {

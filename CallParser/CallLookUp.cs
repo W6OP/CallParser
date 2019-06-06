@@ -63,18 +63,28 @@ namespace CallParser
         /// Batch lookup of call signs. A List<string> of calls may be sent in
         /// and each processed in parallel.
         /// 
-        /// Rather than returning a huge hitlist when finished I should just raise
-        /// an event and send hits back individually.
+        /// Does code that calls the method only expect to iterate over it? Return an IEnumerable.
+        /// You shouldn't care about what the caller does with it, because the return type 
+        /// clearly states what the returned value is capable of doing. Any caller that gets 
+        /// an IEnumerable result knows that if they want indexed access of the result, 
+        /// they will have to convert to a List, because IEnumerable simple isn't capable 
+        /// of it until it's been enumerated and put into an indexed structure. 
+        /// Don't assume that the callers are stupid, otherwise you end up taking functionality 
+        /// away from them. For example, by returning a List, you've taken away the ability to 
+        /// stream results which can have its own performance benefits. Your implementation 
+        /// may change, but the caller can always turn an IEnumerable into a List if they need to.
         /// </summary>
         /// <param name="callSigns"></param>
         /// <returns></returns>
-        public List<Hit> LookUpCall(List<string> callSigns)
+        public IEnumerable<Hit> LookUpCall(List<string> callSigns)
         {
             _HitList = new ConcurrentBag<Hit>();
 
+            Console.WriteLine("Callsigns: " + callSigns.Count.ToString());
+
             // parallel foreach almost twice as fast but requires blocking collection
-            Parallel.ForEach(callSigns, callSign =>
-            //foreach (string callSign in callSigns)
+            //Parallel.ForEach(callSigns, callSign =>
+            foreach (string callSign in callSigns)
             {
                 if (ValidateCallSign(callSign))
                 {
@@ -83,12 +93,14 @@ namespace CallParser
                 else
                 {
                     // don't throw, just ignore bad calls
-                    Console.WriteLine("Invalid call sign format: " + callSign);
+                    //Console.WriteLine("Invalid call sign format: " + callSign);
                 }
             }
-           );
+            // );
 
-            return _HitList.ToList();
+            IEnumerable<Hit> allHits = _HitList.AsEnumerable();
+
+            return allHits;
         }
 
         /// <summary>
@@ -106,11 +118,12 @@ namespace CallParser
             }
             else
             {
-                throw new Exception("Invalid call sign format"); // EMBELLISH
+                //throw new Exception("Invalid call sign format"); // EMBELLISH
             }
 
             return _HitList.ToList();
         }
+
 
         /// <summary>
         /// Check for empty call.
@@ -129,7 +142,7 @@ namespace CallParser
             if (callSign.IndexOf("/", 0, 1) == 0) { return false; }
 
             // check if second character is "/"
-            if (callSign.IndexOf("/", 1, 1) == 0) { return false; }
+            if (callSign.IndexOf("/", 1, 1) == 1) { return false; }
 
             // check for a "-" ie: VE7CC-7, OH6BG-1, WZ7I-3 
             if (callSign.IndexOf("-") != -1) { return false; }
@@ -155,17 +168,13 @@ namespace CallParser
             switch (components.Count)
             {
                 case 1:
-                    callAndprefix.call = components[0];
-                    callAndprefix.callPrefix = components[0];
-                    CollectMatches(callAndprefix);
+                    callAndprefix = (components[0], components[0]);
                     break;
                 case 2:
                     callAndprefix = ProcessPrefix(components);
-                    CollectMatches(callAndprefix);
                     break;
                 case 3: // DC3RJ/P/W3 - remove excess parts
                     callAndprefix = TrimCallSign(components);
-                    CollectMatches(callAndprefix);
                     break;
                 default:
                     // should I do anything here?
@@ -173,6 +182,8 @@ namespace CallParser
                     Debug.Assert(components.Count > 3);
                     break;
             }
+
+            CollectMatches(callAndprefix);
         }
 
         /// <summary>
@@ -326,13 +337,18 @@ namespace CallParser
             if (_PrefixesDictionary.ContainsKey(callPart))
             {
                 List<Hit> query = _PrefixesDictionary[callPart];
+
                 foreach (Hit hit in query)
                 {
                     _HitList.Add(hit);
                 }
-                Hit dxccHit = _Adifs[Convert.ToInt32(query[0].Dxcc)];
-                dxccHit.CallSign = callAndprefix.call;
-                _HitList.Add(dxccHit);
+
+                if (query.Count > 0)
+                {
+                    Hit dxccHit = _Adifs[Convert.ToInt32(query[0].Dxcc)];
+                    dxccHit.CallSign = callAndprefix.call;
+                    _HitList.Add(dxccHit);
+                }
             }
 
             if (callPart.Length > 1)
@@ -343,36 +359,34 @@ namespace CallParser
                     if (_PrefixesDictionary.ContainsKey(callPart))
                     {
                         List<Hit> query = _PrefixesDictionary[callPart];
+
                         foreach (Hit hit in query)
                         {
-                            // NEED TO CHECK FOR DUPLICATES - MAYBE DICTIONARY OR HASHSET
                             _HitList.Add(hit);
                         }
-                        Hit dxccHit = _Adifs[Convert.ToInt32(query[0].Dxcc)];
-                        dxccHit.CallSign = callAndprefix.call;
-                        _HitList.Add(dxccHit);
+
+                        if (query.Count > 0)
+                        {
+                            Hit dxccHit = _Adifs[Convert.ToInt32(query[0].Dxcc)];
+                            dxccHit.CallSign = callAndprefix.call;
+                            _HitList.Add(dxccHit);
+                        }
                     }
 
-                    if (_HitList.Count == 0)
-                    {
+                    //if (_HitList.Count == 0)
+                    //{
                         callPart = callPart.Remove(callPart.Length - 1);
-                    }
-                    else
-                    {
-                        break;
-                    }
+                    //}
+                    //else
+                    //{
+                    //    break;
+                    //}
                 }
             }
-            else
-            {
-                // debugging - remember we are multi threaded here
-                //Console.WriteLine("Single Character: " + callPart + " : " + callAndprefix.call);
-            }
-
-            // now search the _Admin collection for the DXCC entry
-            //if (_HitList.Count > 0)
+            //else
             //{
-            //    _HitList.Add(_Adifs[Convert.ToInt32(dxcc)]);
+            //    // debugging - remember we are multi threaded here
+            //    //Console.WriteLine("Single Character: " + callPart + " : " + callAndprefix.call);
             //}
         }
 
@@ -392,7 +406,7 @@ namespace CallParser
         //}
 
         /// <summary>
-        /// THIS IS DUPLICATE TO TWO CLASSES
+        /// THIS IS DUPLICATE IN TWO CLASSES
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -441,44 +455,5 @@ namespace CallParser
         public bool IsIota;
 
         public string CallSign;
-
-        /// <summary>
-        /// Light weight struct to return to caller.
-        /// </summary>
-        /// <param name="callSignInfo"></param>
-        //public Hit(CallSignInfo callSignInfo, string callSign)
-        //{
-        //    Dxcc = callSignInfo.Dxcc;
-        //    Wae = callSignInfo.Wae;
-        //    Iota = callSignInfo.Iota;
-        //    Wap = callSignInfo.Wap;
-        //    Cq = callSignInfo.Cq;
-        //    Itu = callSignInfo.Itu;
-        //    Admin1 = callSignInfo.Admin1;
-        //    Latitude = callSignInfo.Latitude;
-        //    Longitude = callSignInfo.Longitude;
-        //    Flags = callSignInfo.Flags;
-
-        //    Continent = callSignInfo.Continent;
-        //    TimeZone = callSignInfo.TimeZone;
-        //    Admin2 = callSignInfo.Admin2;
-        //    Name = callSignInfo.Name;
-        //    Qth = callSignInfo.Qth;
-        //    Comment = callSignInfo.Comment;
-
-        //    Kind = callSignInfo.Kind;
-
-        //    FullPrefix = callSignInfo.FullPrefix;
-        //    MainPrefix = callSignInfo.MainPrefix;
-        //    Country = callSignInfo.Country;
-        //    Province = callSignInfo.Province;
-
-        //    StartDate = callSignInfo.StartDate;
-        //    EndDate = callSignInfo.EndDate;
-        //    IsIota = callSignInfo.IsIota;
-
-        //    CallSign = callSign;
-        //}
     }
-    //
 }

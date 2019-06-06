@@ -112,14 +112,14 @@ namespace CallParserTestor
                     csv.Configuration.MissingFieldFound = null;
                     _Records.Add(csv.GetField("dx").ToUpper());
 
-                    // comment out to keep list to 1 million
-                    temp = csv.GetField("callsign");
-                    // check for a "_" ie: VE7CC-7, OH6BG-1, WZ7I-3 - remove the characters "-x"
-                    if (temp.IndexOf("-") != -1)
-                    {
-                        temp = temp.Substring(0, temp.IndexOf("-"));
-                    }
-                    _Records.Add(temp.ToUpper());
+                    //// comment out to keep list to 1 million
+                    //temp = csv.GetField("callsign");
+                    //// check for a "_" ie: VE7CC-7, OH6BG-1, WZ7I-3 - remove the characters "-x"
+                    //if (temp.IndexOf("-") != -1)
+                    //{
+                    //    temp = temp.Substring(0, temp.IndexOf("-"));
+                    //}
+                    //_Records.Add(temp.ToUpper());
 
                 }
             }
@@ -138,7 +138,8 @@ namespace CallParserTestor
         /// <param name="e"></param>
         private void Button3_Click(object sender, EventArgs e)
         {
-            List<Hit> hitList;
+            IEnumerable<Hit> hitCollection;
+            List<Hit> hitList = new List<Hit>(10000000);
             float divisor = 1000;
 
             if (_CallLookUp == null)
@@ -150,15 +151,21 @@ namespace CallParserTestor
             Cursor.Current = Cursors.WaitCursor;
 
             var sw = Stopwatch.StartNew();
+            hitCollection = _CallLookUp.LookUpCall(_Records);
+            label1.Text = "Search Time: " + sw.Elapsed; // + " ticks: " + sw.ElapsedTicks;
 
-            hitList = _CallLookUp.LookUpCall(_Records);
+           foreach (Hit hit in hitCollection)
+            {
+                hitList.Add(hit);
+            }
 
             divisor = hitList.Count / 1000;
-            label1.Text = "Search Time: " + sw.Elapsed; // + " ticks: " + sw.ElapsedTicks;
+            
             label2.Text = "Finished - hitcount = " + hitList.Count.ToString();
             label3.Text = ((float)(sw.ElapsedMilliseconds / divisor)).ToString() + " microseconds per call sign";
             Console.WriteLine("Finished - hitcount = " + hitList.Count.ToString());
 
+            // save to a text file
             //var thread = new Thread(() =>
             //{
             //    Cursor.Current = Cursors.WaitCursor;
@@ -176,7 +183,7 @@ namespace CallParserTestor
         {
             List<Hit> hitList = new List<Hit>();
             List<Hit> tempHitList;
-            float divisor = 1000;
+            // float divisor = 1000;
             int total = 0;
 
             if (_CallLookUp == null)
@@ -192,6 +199,11 @@ namespace CallParserTestor
 
             foreach (string call in _Records)
             {
+                total += 1;
+                //if (total == _Records.Count - 5)
+                //{
+                //    var a = 2;
+                //}
                 tempHitList = _CallLookUp.LookUpCall(call);
                 foreach (Hit hit in tempHitList)
                 {
@@ -258,18 +270,18 @@ namespace CallParserTestor
         /// <summary>
         /// Doesn't really make any difference.
         /// </summary>
-        private void Test()
-        {
-            List<Hit> hit;
+        //private void Test()
+        //{
+        //    List<Hit> hit;
 
-            var thread = new Thread(() =>
-            {
-                var sw = Stopwatch.StartNew();
-                hit = _CallLookUp.LookUpCall(_Records);
-                UpdateDisplay("Search Time: " + sw.ElapsedMilliseconds + "ms - ticks: " + sw.ElapsedTicks);
-            });
-            thread.Start();
-        }
+        //    var thread = new Thread(() =>
+        //    {
+        //        var sw = Stopwatch.StartNew();
+        //        hit = _CallLookUp.LookUpCall(_Records);
+        //        UpdateDisplay("Search Time: " + sw.ElapsedMilliseconds + "ms - ticks: " + sw.ElapsedTicks);
+        //    });
+        //    thread.Start();
+        //}
 
         private void UpdateDisplay(string message)
         {
