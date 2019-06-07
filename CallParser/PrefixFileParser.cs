@@ -519,6 +519,10 @@ namespace CallParser
             List<string> tempResult2 = new List<string>();
             tempResult.Clear();
 
+            // Because there are millions of possible call signs possible when the masks
+            // are expanded I am limiting them to max of 4 characters long or we run
+            // out of memory on a 32 bit system (any CPU). Remove these 3 lines if you
+            // want the full possible list and are compiling x64.
             if (allCharacters.Count > 3)
             {
                 allCharacters.RemoveRange(2, allCharacters.Count - 2);

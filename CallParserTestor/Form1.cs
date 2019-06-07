@@ -47,47 +47,6 @@ namespace CallParserTestor
         }
 
         /// <summary>
-        /// What should I do about W/M0RYB or F/M0RYB
-        /// 
-        /// LOOKUP A SINGLE CALL SIGN.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Button1_Click(object sender, EventArgs e)
-        {
-            List<Hit> hitList;
-            float divisor = 1000;
-
-            if (_CallLookUp == null)
-            {
-                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return;
-            }
-
-            Cursor.Current = Cursors.WaitCursor;
-            var sw = Stopwatch.StartNew();
-
-            try
-            {
-                if (!String.IsNullOrEmpty(TextBoxCall.Text))
-                { 
-                    hitList = _CallLookUp.LookUpCall(TextBoxCall.Text);
-                    Console.WriteLine(hitList.Count.ToString() + " hits returned");
-                    label1.Text = "Search Time: " + sw.ElapsedMilliseconds;
-                    label2.Text = "Finished - hitcount = " + hitList.Count.ToString();
-                    label3.Text = ((float)(sw.ElapsedMilliseconds / divisor)).ToString() + "us";
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
-            Cursor.Current = Cursors.Default;
-            Console.WriteLine("Finished");
-        }
-
-        /// <summary>
         /// Read the file of call signs to test with.
         /// </summary>
         /// <param name="sender"></param>
@@ -95,8 +54,7 @@ namespace CallParserTestor
         private void Button2_Click(object sender, EventArgs e)
         {
             _Records = new List<string>();
-            string temp;
-
+        
             Cursor.Current = Cursors.WaitCursor;
 
             var sw = Stopwatch.StartNew();
@@ -130,6 +88,51 @@ namespace CallParserTestor
             Cursor.Current = Cursors.Default;
         }
 
+
+        /// <summary>
+        /// What should I do about W/M0RYB or F/M0RYB
+        /// 
+        /// LOOKUP A SINGLE CALL SIGN.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Button1_Click(object sender, EventArgs e)
+        {
+            IEnumerable<Hit> hitCollection;
+            List<Hit> hitList;
+            float divisor = 1000;
+
+            if (_CallLookUp == null)
+            {
+                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+            Cursor.Current = Cursors.WaitCursor;
+            var sw = Stopwatch.StartNew();
+
+            try
+            {
+                if (!String.IsNullOrEmpty(TextBoxCall.Text))
+                {
+                    hitCollection = _CallLookUp.LookUpCall(TextBoxCall.Text);
+                    hitList = hitCollection.ToList();                   
+                    Console.WriteLine(hitList.Count.ToString() + " hits returned");
+                    label1.Text = "Search Time: " + sw.ElapsedMilliseconds;
+                    label2.Text = "Finished - hitcount = " + hitList.Count.ToString();
+                    label3.Text = ((float)(sw.ElapsedMilliseconds / divisor)).ToString() + "us";
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            Cursor.Current = Cursors.Default;
+            Console.WriteLine("Finished");
+        }
+
+       
         /// <summary>
         /// Batch lookup.
         /// Send in a list of all calls at once.
@@ -181,9 +184,10 @@ namespace CallParserTestor
         /// <param name="e"></param>
         private void ButtonSemiBatch_Click(object sender, EventArgs e)
         {
+            IEnumerable<Hit> hitCollection;
             List<Hit> hitList = new List<Hit>();
             List<Hit> tempHitList;
-            // float divisor = 1000;
+            //float divisor = 1000;
             int total = 0;
 
             if (_CallLookUp == null)
@@ -204,17 +208,20 @@ namespace CallParserTestor
                 //{
                 //    var a = 2;
                 //}
-                tempHitList = _CallLookUp.LookUpCall(call);
-                foreach (Hit hit in tempHitList)
-                {
-                    hitList.Add(hit);
-                }
+                hitCollection = _CallLookUp.LookUpCall(call);
+                tempHitList = hitCollection.ToList();
+                hitList.AddRange(tempHitList);
+
+                //foreach (Hit hit in tempHitList)
+                //{
+                //    hitList.AddRange(tempHitList);
+                //}
                 Application.DoEvents();
             }
 
             label1.Text = "Search Time: " + sw.Elapsed;
             label2.Text = "Finished - hitcount = " + hitList.Count.ToString();
-            label3.Text = ""; // ((float)(sw.ElapsedMilliseconds / divisor)).ToString() + "us";
+            label3.Text =  ((float)(sw.ElapsedMilliseconds / hitList.Count)).ToString() + "us";
             Console.WriteLine("Finished - hitcount = " + hitList.Count.ToString());
 
             //var thread = new Thread(() =>

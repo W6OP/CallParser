@@ -37,7 +37,6 @@
  
  Description: Analyze a call sign and find its meta data using the call sign prefix.
  */
-using Microsoft.Collections.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -61,15 +60,18 @@ namespace CallParser
 
         /// <summary>
         /// Batch lookup of call signs. A List<string> of calls may be sent in
-        /// and each processed in parallel.
+        /// and each processed in parallel. A limit of 1 million per batch is
+        /// enforced as Windows cannot handle the memory requirements for larger
+        /// collections.
         /// 
+        /// Why return IEnumerable<Hit>.
         /// Does code that calls the method only expect to iterate over it? Return an IEnumerable.
         /// You shouldn't care about what the caller does with it, because the return type 
         /// clearly states what the returned value is capable of doing. Any caller that gets 
         /// an IEnumerable result knows that if they want indexed access of the result, 
         /// they will have to convert to a List, because IEnumerable simple isn't capable 
         /// of it until it's been enumerated and put into an indexed structure. 
-        /// Don't assume that the callers are stupid, otherwise you end up taking functionality 
+        /// Don't assume what the callers are doing, otherwise you end up taking functionality 
         /// away from them. For example, by returning a List, you've taken away the ability to 
         /// stream results which can have its own performance benefits. Your implementation 
         /// may change, but the caller can always turn an IEnumerable into a List if they need to.
@@ -82,9 +84,14 @@ namespace CallParser
 
             Console.WriteLine("Callsigns: " + callSigns.Count.ToString());
 
+            if (callSigns.Count > 1500000)
+            {
+                throw new Exception("To many entries. Please reduce the number of entries to 1.5 million or less.");
+            }
+
             // parallel foreach almost twice as fast but requires blocking collection
-            //Parallel.ForEach(callSigns, callSign =>
-            foreach (string callSign in callSigns)
+            Parallel.ForEach(callSigns, callSign =>
+            //foreach (string callSign in callSigns)
             {
                 if (ValidateCallSign(callSign))
                 {
@@ -96,10 +103,10 @@ namespace CallParser
                     //Console.WriteLine("Invalid call sign format: " + callSign);
                 }
             }
-            // );
+             );
 
             IEnumerable<Hit> allHits = _HitList.AsEnumerable();
-
+            
             return allHits;
         }
 
@@ -108,7 +115,7 @@ namespace CallParser
         /// </summary>
         /// <param name="callSign"></param>
         /// <returns></returns>
-        public List<Hit> LookUpCall(string callSign)
+        public IEnumerable<Hit> LookUpCall(string callSign)
         {
             _HitList = new ConcurrentBag<Hit>();
 
@@ -121,7 +128,9 @@ namespace CallParser
                 //throw new Exception("Invalid call sign format"); // EMBELLISH
             }
 
-            return _HitList.ToList();
+            IEnumerable<Hit> allHits = _HitList.AsEnumerable();
+            return allHits;
+;
         }
 
 
