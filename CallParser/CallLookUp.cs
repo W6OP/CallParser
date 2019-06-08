@@ -44,7 +44,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CallParser
+namespace W6OP.CallParser
 {
     public class CallLookUp
     {

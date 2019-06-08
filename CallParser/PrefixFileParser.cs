@@ -47,7 +47,7 @@ using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
 
-namespace CallParser
+namespace W6OP.CallParser
 {
     public enum PrefixKind
     {
@@ -178,7 +178,7 @@ namespace CallParser
             }
             else
             {
-                using (StreamReader stream = new StreamReader(assembly.GetManifestResourceStream("CallParser.PrefixList.xml")))
+                using (StreamReader stream = new StreamReader(assembly.GetManifestResourceStream("W6OP.CallParser.PrefixList.xml")))
                 {
                     xDoc = XDocument.Load(stream);
                 }

@@ -47,7 +47,7 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
-namespace CallParser
+namespace W6OP.CallParser
 {
    
 

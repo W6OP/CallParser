@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using CallParser;
+using W6OP.CallParser;
 using CsvHelper;
 
 namespace CallParserTestor
 {
-    public partial class Form1 : Form
+    public partial class Form1 : Form, ICallSignInfo
     {
         readonly PrefixFileParser _PrefixFileParser;
         CallLookUp _CallLookUp;
@@ -23,7 +20,7 @@ namespace CallParserTestor
         {
             InitializeComponent();
 
-            _PrefixFileParser = new CallParser.PrefixFileParser();
+            _PrefixFileParser = new PrefixFileParser();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -38,12 +35,7 @@ namespace CallParserTestor
         /// <param name="e"></param>
         private void ButtonParsePrefixFile_Click(object sender, EventArgs e)
         {
-            Cursor.Current = Cursors.WaitCursor;
-            var sw = Stopwatch.StartNew();
-            _PrefixFileParser.ParsePrefixFile("");
-            Console.WriteLine("Load Time: " + sw.ElapsedMilliseconds + "ms");
-            Cursor.Current = Cursors.Default;
-            _CallLookUp = new CallLookUp(_PrefixFileParser);
+            ParsePrefixFile("");
         }
 
         /// <summary>
@@ -98,29 +90,27 @@ namespace CallParserTestor
         /// <param name="e"></param>
         private void ButtonSingleCallLookup_Click(object sender, EventArgs e)
         {
-            IEnumerable<Hit> hitCollection;
+            IEnumerable<Hit> hitCollection = null;
             List<Hit> hitList;
             float divisor = 1000;
-
-            if (_CallLookUp == null)
-            {
-                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return;
-            }
-
-            Cursor.Current = Cursors.WaitCursor;
-            var sw = Stopwatch.StartNew();
 
             try
             {
                 if (!String.IsNullOrEmpty(TextBoxCall.Text))
                 {
-                    hitCollection = _CallLookUp.LookUpCall(TextBoxCall.Text);
-                    hitList = hitCollection.ToList();                   
-                    Console.WriteLine(hitList.Count.ToString() + " hits returned");
-                    label1.Text = "Search Time: " + sw.ElapsedMilliseconds;
-                    label2.Text = "Finished - hitcount = " + hitList.Count.ToString();
-                    label3.Text = ((float)(sw.ElapsedMilliseconds / divisor)).ToString() + "us";
+                    var sw = Stopwatch.StartNew();
+
+                    hitCollection = LookupCall(TextBoxCall.Text);
+
+                    if (hitCollection != null)
+                    {
+                        hitList = hitCollection.ToList();
+
+                        Console.WriteLine(hitList.Count.ToString() + " hits returned");
+                        label1.Text = "Search Time: " + sw.ElapsedMilliseconds;
+                        label2.Text = "Finished - hitcount = " + hitList.Count.ToString();
+                        label3.Text = ((float)(sw.ElapsedMilliseconds / divisor)).ToString() + "us";
+                    }
                 }
             }
             catch (Exception ex)
@@ -142,19 +132,16 @@ namespace CallParserTestor
         private void ButtonBatchCallSignLookup_Click(object sender, EventArgs e)
         {
             IEnumerable<Hit> hitCollection;
+            // need to preallocate space in collection
             List<Hit> hitList = new List<Hit>(5000000);
             float divisor = 1000;
-
-            if (_CallLookUp == null)
-            {
-                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return;
-            }
 
             Cursor.Current = Cursors.WaitCursor;
 
             var sw = Stopwatch.StartNew();
-            hitCollection = _CallLookUp.LookUpCall(_Records);
+
+            hitCollection = LookupCall(_Records);
+
             label1.Text = "Search Time: " + sw.Elapsed; // + " ticks: " + sw.ElapsedTicks;
 
             hitList.AddRange(hitCollection);
@@ -182,16 +169,10 @@ namespace CallParserTestor
         private void ButtonSemiBatch_Click(object sender, EventArgs e)
         {
             IEnumerable<Hit> hitCollection;
-            List<Hit> hitList = new List<Hit>();
-            List<Hit> tempHitList;
+            // need to preallocate space in collection
+            List<Hit> hitList = new List<Hit>(5000000);
             //float divisor = 1000;
             int total = 0;
-
-            if (_CallLookUp == null)
-            {
-                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return;
-            }
 
             Cursor.Current = Cursors.WaitCursor;
 
@@ -205,9 +186,12 @@ namespace CallParserTestor
                 //{
                 //    var a = 2;
                 //}
-                hitCollection = _CallLookUp.LookUpCall(call);
-                tempHitList = hitCollection.ToList();
-                hitList.AddRange(tempHitList);
+                hitCollection = LookupCall(call);
+
+                if (hitCollection != null)
+                {
+                    hitList.AddRange(hitCollection);
+                }
 
                 Application.DoEvents();
             }
@@ -223,6 +207,53 @@ namespace CallParserTestor
             //    SaveHitList(hitList);
             //});
             //thread.Start();
+        }
+
+
+        /// <summary>
+        /// Parse the prefix file.
+        /// </summary>
+        /// <param name="filePath"></param>
+        public void ParsePrefixFile(string filePath)
+        {
+            Cursor.Current = Cursors.WaitCursor;
+            var sw = Stopwatch.StartNew();
+            _PrefixFileParser.ParsePrefixFile("");
+            Console.WriteLine("Load Time: " + sw.ElapsedMilliseconds + "ms");
+            Cursor.Current = Cursors.Default;
+            _CallLookUp = new CallLookUp(_PrefixFileParser);
+        }
+
+        /// <summary>
+        /// Single call lookup.
+        /// </summary>
+        /// <param name="call"></param>
+        /// <returns></returns>
+        public IEnumerable<Hit> LookupCall(string call)
+        {
+            if (_CallLookUp == null)
+            {
+                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return null;
+            }
+
+            return _CallLookUp.LookUpCall(call);
+        }
+
+        /// <summary>
+        /// Batch lookup.
+        /// </summary>
+        /// <param name="callSigns"></param>
+        /// <returns></returns>
+        public IEnumerable<Hit> LookupCall(List<string> callSigns)
+        {
+            if (_CallLookUp == null)
+            {
+                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return null;
+            }
+
+            return _CallLookUp.LookUpCall(callSigns);
         }
 
         /// <summary>
@@ -303,5 +334,6 @@ namespace CallParserTestor
             }
             Cursor.Current = Cursors.Default;
         }
+
     } // end class
 }
