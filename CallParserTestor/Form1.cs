@@ -36,7 +36,7 @@ namespace CallParserTestor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Button5_Click(object sender, EventArgs e)
+        private void ButtonParsePrefixFile_Click(object sender, EventArgs e)
         {
             Cursor.Current = Cursors.WaitCursor;
             var sw = Stopwatch.StartNew();
@@ -51,7 +51,7 @@ namespace CallParserTestor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Button2_Click(object sender, EventArgs e)
+        private void ButtonLoadCallSigns_Click(object sender, EventArgs e)
         {
             _Records = new List<string>();
         
@@ -96,7 +96,7 @@ namespace CallParserTestor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Button1_Click(object sender, EventArgs e)
+        private void ButtonSingleCallLookup_Click(object sender, EventArgs e)
         {
             IEnumerable<Hit> hitCollection;
             List<Hit> hitList;
@@ -139,10 +139,10 @@ namespace CallParserTestor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Button3_Click(object sender, EventArgs e)
+        private void ButtonBatchCallSignLookup_Click(object sender, EventArgs e)
         {
             IEnumerable<Hit> hitCollection;
-            List<Hit> hitList = new List<Hit>(10000000);
+            List<Hit> hitList = new List<Hit>(5000000);
             float divisor = 1000;
 
             if (_CallLookUp == null)
@@ -157,10 +157,7 @@ namespace CallParserTestor
             hitCollection = _CallLookUp.LookUpCall(_Records);
             label1.Text = "Search Time: " + sw.Elapsed; // + " ticks: " + sw.ElapsedTicks;
 
-           foreach (Hit hit in hitCollection)
-            {
-                hitList.Add(hit);
-            }
+            hitList.AddRange(hitCollection);
 
             divisor = hitList.Count / 1000;
             
@@ -212,10 +209,6 @@ namespace CallParserTestor
                 tempHitList = hitCollection.ToList();
                 hitList.AddRange(tempHitList);
 
-                //foreach (Hit hit in tempHitList)
-                //{
-                //    hitList.AddRange(tempHitList);
-                //}
                 Application.DoEvents();
             }
 

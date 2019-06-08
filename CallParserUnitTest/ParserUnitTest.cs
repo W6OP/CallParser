@@ -37,7 +37,7 @@ namespace CallParserUnitTest
         [TestMethod]
         public void CallLookUp()
         {
-            List<Hit> hit;
+            IEnumerable<Hit> hit;
 
             _PrefixFileParser = new PrefixFileParser();
             _PrefixFileParser.ParsePrefixFile("");
@@ -55,7 +55,6 @@ namespace CallParserUnitTest
                 {
                     if (!String.IsNullOrEmpty(call))
                     {
-                        hit = new List<Hit>();
                         hit = _CallLookUp.LookUpCall(call);
                     }
                 }

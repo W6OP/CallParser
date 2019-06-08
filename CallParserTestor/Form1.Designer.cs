@@ -50,7 +50,7 @@
             this.button1.TabIndex = 0;
             this.button1.Text = "Lookup Individual Call";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.Button1_Click);
+            this.button1.Click += new System.EventHandler(this.ButtonSingleCallLookup_Click);
             // 
             // TextBoxCall
             // 
@@ -69,7 +69,7 @@
             this.button2.TabIndex = 2;
             this.button2.Text = "Load Call Signs";
             this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.Button2_Click);
+            this.button2.Click += new System.EventHandler(this.ButtonLoadCallSigns_Click);
             // 
             // button3
             // 
@@ -79,7 +79,7 @@
             this.button3.TabIndex = 3;
             this.button3.Text = "Batch Lookup";
             this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.Button3_Click);
+            this.button3.Click += new System.EventHandler(this.ButtonBatchCallSignLookup_Click);
             // 
             // label1
             // 
@@ -135,7 +135,7 @@
             this.button5.TabIndex = 9;
             this.button5.Text = "Load Prefix File";
             this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.Button5_Click);
+            this.button5.Click += new System.EventHandler(this.ButtonParsePrefixFile_Click);
             // 
             // label4
             // 
