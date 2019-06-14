@@ -382,14 +382,7 @@ namespace W6OP.CallParser
                         }
                     }
 
-                    //if (_HitList.Count == 0)
-                    //{
                         callPart = callPart.Remove(callPart.Length - 1);
-                    //}
-                    //else
-                    //{
-                    //    break;
-                    //}
                 }
             }
             //else
@@ -415,7 +408,7 @@ namespace W6OP.CallParser
         //}
 
         /// <summary>
-        /// THIS IS DUPLICATE IN TWO CLASSES
+        /// Test if a string is numeric.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -424,45 +417,4 @@ namespace W6OP.CallParser
             return value.All(char.IsNumber);
         }
     } // end class
-
-    /// <summary>
-    /// Lightweight struct for the hit meta data. It is necessary to
-    /// use this even though it has a significant time penalty because
-    /// of the multi threading finding matches. Some objects would get
-    /// updated on a different thread before they were added to the collection.
-    /// This is a Value type!
-    /// </summary>
-    public struct Hit
-    {
-        public int Dxcc;  //dxcc_entity
-        public int Wae;
-        public string Iota;
-        public string Wap;
-        public string Cq;           //cq_zone
-        public string Itu;          //itu_zone
-        public string Admin1;
-        public string Latitude;     //lat
-        public string Longitude;    //long
-        public CallSignFlag[] Flags;
-
-        public string Continent;     //continent
-        public string TimeZone;     //time_zone
-        public string Admin2;
-        public string Name;
-        public string Qth;
-        public string Comment;
-        //public string CallbookEntry: Pointer; //to find out data sources
-
-        public PrefixKind Kind;     //kind
-        public string FullPrefix;   //what I determined the prefix to be - mostly for debugging
-        public string MainPrefix;
-        public string Country;       //country
-        public string Province;     //province
-
-        public string StartDate;
-        public string EndDate;
-        public bool IsIota;
-
-        public string CallSign;
-    }
 }

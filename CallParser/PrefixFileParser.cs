@@ -38,6 +38,7 @@
  Description: Parse a prefix xml file and build all possible prefix
  combinations.
  */
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -49,69 +50,6 @@ using System.Xml.Linq;
 
 namespace W6OP.CallParser
 {
-    public enum PrefixKind
-    {
-        pfNone,
-        pfDXCC,
-        pfProvince,
-        pfStation,
-        pfDelDXCC,
-        pfOldPrefix,
-        pfNonDXCC,
-        pfInvalidPrefix,
-        pfDelProvince,
-        pfCity
-    }
-
-    public enum CallSignFlag
-    {
-        cfInvalid,
-        cfMaritime,
-        cfPortable,
-        cfSpecial,
-        cfClub,
-        cfBeacon,
-        cfLotw,
-        cfAmbigPrefix,
-        cfQrp
-    }
-
-    /// <summary>
-    /// Identify the type of character.
-    /// </summary>
-    enum CharacterType
-    {
-        [Description("")]
-        empty,
-        [Description("#")]
-        numeric,
-        [Description("@")]
-        alphabetical,
-        [Description("?")]
-        alphanumeric,
-        [Description("-")]
-        dash,
-        [Description(".")]
-        dot,
-        [Description("/")]
-        slash
-    }
-
-    /// <summary>
-    /// Substitute for a TStringList in Delphi.
-    /// </summary>
-    public class Admin
-    {
-        public string AdminKey { get; set; }
-        public Hit CallInfo { get; set; }
-
-        public Admin(string admin, Hit hit)
-        {
-            AdminKey = admin;
-            CallInfo = hit;
-        }
-    }
-
     /// <summary>
     /// Load and parse the prefix file to create all possible prefix
     /// patterns. 
@@ -126,24 +64,22 @@ namespace W6OP.CallParser
         public List<Admin> Admins;
 
         /// <summary>
-        /// Normally these would be local variables but here they are
-        /// used so I don't have overhead of "new" in loops. Can use .Clear() instead.
+        /// Normally these would be local variables but here they are global
+        /// so I don't have overhead of "new" in loops. Can use .Clear() instead
+        /// sometimes but not always.
         /// </summary>
-        private List<string> result = new List<string>();
         private List<string> tempResult = new List<string>();
         private List<List<string>> allCharacters = new List<List<string>>();
-        private List<string> masks = new List<string>();
-        //------------------------------------------------------------------
 
         /// <summary>
-        /// Private fields
+        /// Private fields.
         /// </summary>
         private HashSet<List<string>> _PrimaryMaskList;
         private readonly string[] _Alphabet = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
         private readonly string[] _Numbers = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
         /// <summary>
-        /// Constructor.
+        /// Default constructor.
         /// </summary>
         public PrefixFileParser()
         {
@@ -157,9 +93,10 @@ namespace W6OP.CallParser
         public void ParsePrefixFile(string prefixFilePath)
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
-            XDocument xDoc;
+            XDocument xDocument;
 
-            PrefixesDictionary = new Dictionary<string, List<Hit>>(20000000);
+            // preallocate collection size for performance
+            PrefixesDictionary = new Dictionary<string, List<Hit>>(10000000);
             Adifs = new Dictionary<int, Hit>();
             Admins = new List<Admin>();
 
@@ -169,7 +106,7 @@ namespace W6OP.CallParser
             {
                 try
                 {
-                    xDoc = XDocument.Load(prefixFilePath);
+                    xDocument = XDocument.Load(prefixFilePath);
                 }
                 catch (Exception ex)
                 {
@@ -180,20 +117,21 @@ namespace W6OP.CallParser
             {
                 using (StreamReader stream = new StreamReader(assembly.GetManifestResourceStream("W6OP.CallParser.PrefixList.xml")))
                 {
-                    xDoc = XDocument.Load(stream);
+                    xDocument = XDocument.Load(stream);
                 }
             }
 
-            ParsePrefixDataList(xDoc);
+            ParsePrefixDataList(xDocument);
         }
 
         /// <summary>
-        /// Parse the prefix data list. Loop through each prefix node.
+        /// Parse the prefix data list. 
+        /// Loop through each prefix node.
         /// </summary>
         /// <param name="xDoc"></param>
-        private void ParsePrefixDataList(XDocument xDoc)
+        private void ParsePrefixDataList(XDocument xDocument)
         {
-            var prefixes = xDoc.Root.Elements("prefix");
+            var prefixes = xDocument.Root.Elements("prefix");
 
             foreach (XElement prefixXml in prefixes)
             {
@@ -203,19 +141,16 @@ namespace W6OP.CallParser
 
         /// <summary>
         /// Using the data in each prefix node build a Hit object
-        /// for each one. Save it in a dictionary (_PrefixDict).
+        /// for each one. Save it in a dictionary (PrefixesDictionary).
         /// </summary>
         /// <param name="prefixXml"></param>
         private void BuildCallSignInfo(XElement prefixXml)
         {
             Hit hit = new Hit();
             List<Hit> hitList;
-
-            masks.Clear();
+            string currentValue;
 
             _PrimaryMaskList.Clear();
-
-            string currentValue;
 
             foreach (XElement element in prefixXml.Elements())
             {
@@ -226,9 +161,6 @@ namespace W6OP.CallParser
                     case "masks":
                         foreach (XElement mask in element.Elements())
                         {
-                            // masks.Add(mask.Value);
-                            //ExpandMaskEx(mask.Value);
-
                             ExpandMask(mask.Value);
                         }
                         break;
@@ -329,8 +261,6 @@ namespace W6OP.CallParser
                 hitList = new List<Hit>(prefixList.Count);
                 foreach (string prefix in prefixList)
                 {
-                    //if (hit.Kind != PrefixKind.pfDXCC)
-                    //{
                         hitList = new List<Hit>();
                         if (!PrefixesDictionary.ContainsKey(prefix))
                         {
@@ -339,83 +269,14 @@ namespace W6OP.CallParser
                         }
                         else
                         {
-                            //    //when we expand the mask to all possible values then some will be duplicated
-                            //    // ie.AL, NL for Alaska
+                             //when we expand the mask to all possible values then some will be duplicated
+                            // ie.AL, NL for Alaska
                             hitList = PrefixesDictionary[prefix];
                             hitList.Add(hit);
-                            //hitList = new List<Hit>();
-                            // Console.WriteLine(prefix + " duplicate: " + hit.Kind.ToString() + " : " + hit.Country);
                         }
-                    //}
                 }
             }
         }
-
-        // *********************************************************************************************************
-        /// <summary>
-        /// Expand the mask into its separate components.
-        /// </summary>
-        /// <param name="mask"></param>
-        internal List<List<string>> ExpandMaskEx(string mask)
-        {
-            HashSet<string> expandedMask;
-            string maskPart;
-            string newMask = mask;
-            char item;
-            int counter = 0;
-            int index;
-            int nextIndex;
-            int pass = 0;
-
-            allCharacters.Clear();
-
-            // TEMPORARY: get rid of "."
-            mask = mask.Replace(".", "");
-
-
-            while (counter < mask.Length)
-            {
-                item = mask[counter];
-                pass += 1;
-
-                switch (item.ToString())
-                {
-                    case "[":
-                        index = newMask.IndexOf("]");
-                        nextIndex = index + 1;
-                        maskPart = newMask.Substring(0, nextIndex);
-                        string[] maskComponents = maskPart.Split("[]".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                        expandedMask = ParseMask(maskComponents);
-                        allCharacters.Add(BuildPrefixList(expandedMask));
-                        counter += maskPart.Length;
-                        nextIndex = counter;
-                        newMask = mask.Substring(nextIndex);
-                        break;
-                    case "@":
-                    case "#":
-                    case "?":
-                        expandedMask = GetMetaMaskSet(item.ToString());
-                        allCharacters.Add(BuildPrefixList(expandedMask));
-                        counter += 1;
-                        newMask = mask.Substring(counter);
-                        break;
-                    default: // single character
-                        expandedMask = new HashSet<string>
-                        {
-                            item.ToString()
-                        };
-                        allCharacters.Add(BuildPrefixList(expandedMask));
-                        counter += 1;
-                        newMask = mask.Substring(counter);
-                        break;
-                }
-            }
-
-            return allCharacters;
-        }
-
-
-        // *********************************************************************************************************
 
         /// <summary>
         /// Expand the mask into its separate components.
@@ -425,7 +286,7 @@ namespace W6OP.CallParser
         {
             HashSet<string> expandedMask;
             string maskPart;
-            string newMask = mask;
+            string temporaryMask;
             char item;
             int counter = 0;
             int index;
@@ -434,9 +295,9 @@ namespace W6OP.CallParser
 
             allCharacters.Clear();
 
-            // TEMPORARY: get rid of "."
+            // TEMPORARY: get rid of "." - need to work on this
             mask = mask.Replace(".", "");
-
+            temporaryMask = mask;
 
             while (counter < mask.Length)
             {
@@ -446,15 +307,15 @@ namespace W6OP.CallParser
                 switch (item.ToString())
                 {
                     case "[":
-                        index = newMask.IndexOf("]");
+                        index = temporaryMask.IndexOf("]");
                         nextIndex = index + 1;
-                        maskPart = newMask.Substring(0, nextIndex);
+                        maskPart = temporaryMask.Substring(0, nextIndex);
                         string[] maskComponents = maskPart.Split("[]".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
                         expandedMask = ParseMask(maskComponents);
                         allCharacters.Add(BuildPrefixList(expandedMask));
                         counter += maskPart.Length;
                         nextIndex = counter;
-                        newMask = mask.Substring(nextIndex);
+                        temporaryMask = mask.Substring(nextIndex);
                         break;
                     case "@":
                     case "#":
@@ -462,7 +323,7 @@ namespace W6OP.CallParser
                         expandedMask = GetMetaMaskSet(item.ToString());
                         allCharacters.Add(BuildPrefixList(expandedMask));
                         counter += 1;
-                        newMask = mask.Substring(counter);
+                        temporaryMask = mask.Substring(counter);
                         break;
                     default: // single character
                         expandedMask = new HashSet<string>
@@ -471,7 +332,7 @@ namespace W6OP.CallParser
                         };
                         allCharacters.Add(BuildPrefixList(expandedMask));
                         counter += 1;
-                        newMask = mask.Substring(counter);
+                        temporaryMask = mask.Substring(counter);
                         break;
                 }
             }
@@ -481,12 +342,14 @@ namespace W6OP.CallParser
 
 
         /// <summary>
-        /// Primary
+        /// Start building the primary prefix list. Concatenate the first two entities.
+        /// If there are more entities to add then call the recursive secondary
+        /// method.
         /// </summary>
         /// <param name="allCharacters"></param>
         private void PopulatePrimaryPrefixList(List<List<string>> allCharacters)
         {
-            result = new List<string>();
+            List<string> result = new List<string>();
 
             // take first 2 columns
             foreach (string first in allCharacters[0])
@@ -509,7 +372,7 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// Recursive
+        /// Recursively add more entities to the primary prefix list.
         /// </summary>
         /// <param name="result"></param>
         /// <param name="allCharacters"></param>
@@ -527,6 +390,7 @@ namespace W6OP.CallParser
             {
                 allCharacters.RemoveRange(2, allCharacters.Count - 2);
             }
+            //-------------------------------------------------------------------------
 
             switch (allCharacters.Count)
             {
@@ -576,45 +440,7 @@ namespace W6OP.CallParser
             }
         }
 
-        /// <summary>
-        /// Recursive
-        /// </summary>
-        /// <param name="result"></param>
-        /// <param name="allCharacters"></param>
-        private void PopulatePrimaryPrefixListEx(List<string> result, List<List<string>> allCharacters)
-        {
-            List<string> tempResult2 = new List<string>();
-            tempResult.Clear();
-
-            Debug.Assert(false);
-
-            foreach (string pre in result)
-            {
-                foreach (string end in allCharacters[0])
-                {
-                    if (end != "/")
-                    {
-                        tempResult2.Add(pre + end);
-                    }
-                    else
-                    {
-                        tempResult2.Add(pre);
-                    }
-
-                }
-            }
-
-            allCharacters.RemoveRange(0, 1);
-            if (allCharacters.Count > 0)
-            {
-                PopulatePrimaryPrefixListEx(tempResult2, allCharacters);
-            }
-            else
-            {
-                _PrimaryMaskList.Add(tempResult2);
-            }
-        }
-
+       
         /// <summary>
         /// DELETE ??
         /// This just copys the contents of a hashset to a list.
@@ -851,45 +677,25 @@ namespace W6OP.CallParser
             return expandedMask;
         }
 
+        /// <summary>
+        /// Get the index in to the _Alphabet array.
+        /// </summary>
+        /// <param name="character"></param>
+        /// <returns></returns>
         private int GetCharacterIndex(string character)
         {
             return Array.IndexOf(_Alphabet, character);
         }
 
+        /// <summary>
+        /// Get the index in the _Numbers array.
+        /// </summary>
+        /// <param name="character"></param>
+        /// <returns></returns>
         private int GetNumberIndex(string character)
         {
             return Array.IndexOf(_Numbers, character);
         }
 
-    } // end class
-
-
-
-    /// <summary>
-    /// Get the enum value from the description.
-    /// </summary>
-    public static class EnumEx
-    {
-        public static T GetValueFromDescription<T>(string description)
-        {
-            var type = typeof(T);
-            if (!type.IsEnum) throw new InvalidOperationException();
-            foreach (var field in type.GetFields())
-            {
-                if (Attribute.GetCustomAttribute(field,
-                    typeof(DescriptionAttribute)) is DescriptionAttribute attribute)
-                {
-                    if (attribute.Description == description)
-                        return (T)field.GetValue(null);
-                }
-                else
-                {
-                    if (field.Name == description)
-                        return (T)field.GetValue(null);
-                }
-            }
-
-            return default;
-        }
     } // end class
 }
