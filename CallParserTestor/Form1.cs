@@ -9,7 +9,7 @@ using CsvHelper;
 
 namespace CallParserTestor
 {
-    public partial class Form1 : Form, ICallSignInfo
+    public partial class Form1 : Form
     {
         readonly PrefixFileParser _PrefixFileParser;
         CallLookUp _CallLookUp;

@@ -112,10 +112,9 @@ namespace W6OP.CallParser
     }
 
     /// <summary>
-    /// Lightweight struct for the hit meta data. It is necessary to
-    /// use this even though it has a significant time penalty because
-    /// of the multi threading finding matches. Some objects would get
-    /// updated on a different thread before they were added to the collection.
+    /// Lightweight struct for the hit meta data. I use a Struct
+    /// so I do not have to "new" a class object in loops. Too much
+    /// of a performnce hit.
     /// This is a Value type!
     /// </summary>
     public struct Hit
@@ -137,7 +136,7 @@ namespace W6OP.CallParser
         public string Name;
         public string Qth;
         public string Comment;
-        //public string CallbookEntry: Pointer; //to find out data sources
+        //public string CallbookEntry: Pointer; //todo: find out data sources
 
         public PrefixKind Kind;     //kind
         public string FullPrefix;   //what I determined the prefix to be - mostly for debugging
@@ -149,7 +148,7 @@ namespace W6OP.CallParser
         public string EndDate;
         public bool IsIota;
 
-        public string CallSign;
+        public string CallSign; // I put the call sign here only for pfDXCC types for reference/debugging
     }
 
 

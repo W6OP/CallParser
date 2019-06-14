@@ -71,7 +71,6 @@
   <ItemGroup>
     <Compile Include="CallLookUp.cs" />
     <Compile Include="CallParserCommon.cs" />
-    <Compile Include="ICallSignInfo.cs" />
     <Compile Include="PrefixFileParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace W6OP.CallParser
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface ICallSignInfo
     {
 
