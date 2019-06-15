@@ -52,6 +52,10 @@ namespace W6OP.CallParser
         private readonly Dictionary<string, List<Hit>> _PrefixesDictionary;
         private readonly Dictionary<Int32, Hit> _Adifs;
 
+        /// <summary>
+        /// Public constructor.
+        /// </summary>
+        /// <param name="prefixFileParser"></param>
         public CallLookUp(PrefixFileParser prefixFileParser)
         {
             this._PrefixesDictionary = prefixFileParser.PrefixesDictionary;
@@ -91,7 +95,6 @@ namespace W6OP.CallParser
 
             // parallel foreach almost twice as fast but requires blocking collection
             Parallel.ForEach(callSigns, callSign =>
-            //foreach (string callSign in callSigns)
             {
                 if (ValidateCallSign(callSign))
                 {
@@ -129,8 +132,8 @@ namespace W6OP.CallParser
             }
 
             IEnumerable<Hit> allHits = _HitList.AsEnumerable();
+
             return allHits;
-;
         }
 
 
@@ -196,7 +199,7 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// If a call sign has 3 components delete the one we don't need.
+        /// If a call sign has 3 components delete the one we don't need. (W4/W6OP/P)
         /// </summary>
         /// <param name="components"></param>
         /// <param name="callSign"></param>
@@ -352,6 +355,7 @@ namespace W6OP.CallParser
                     _HitList.Add(hit);
                 }
 
+                // get the top level DXCC hit
                 if (query.Count > 0)
                 {
                     Hit dxccHit = _Adifs[Convert.ToInt32(query[0].Dxcc)];
@@ -374,6 +378,7 @@ namespace W6OP.CallParser
                             _HitList.Add(hit);
                         }
 
+                        // get the top level DXCC hit
                         if (query.Count > 0)
                         {
                             Hit dxccHit = _Adifs[Convert.ToInt32(query[0].Dxcc)];
@@ -385,11 +390,6 @@ namespace W6OP.CallParser
                         callPart = callPart.Remove(callPart.Length - 1);
                 }
             }
-            //else
-            //{
-            //    // debugging - remember we are multi threaded here
-            //    //Console.WriteLine("Single Character: " + callPart + " : " + callAndprefix.call);
-            //}
         }
 
         /// <summary>
