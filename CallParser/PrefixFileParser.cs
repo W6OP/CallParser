@@ -587,7 +587,7 @@ namespace W6OP.CallParser
                 }
                 else
                 {
-                    // I seem to never hit this condition
+                    // I seem to never hit this condition.
                     bool fail = false;
                     Debug.Assert(fail);
                     // 31 = V31/
