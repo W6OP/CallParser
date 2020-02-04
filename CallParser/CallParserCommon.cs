@@ -35,7 +35,7 @@
  Created by Peter Bourget on 6/9/19.
  Copyright © 2019 Peter Bourget W6OP. All rights reserved.
  
- Description: Contain common elements of the program.
+ Description: Contains common elements of the program.
  */
 using System;
 using System.ComponentModel;

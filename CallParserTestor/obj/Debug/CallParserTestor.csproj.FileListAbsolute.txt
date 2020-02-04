@@ -25,7 +25,6 @@ C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallPars
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\obj\Debug\CallParserTestor.Form1.resources
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\obj\Debug\CallParserTestor.Properties.Resources.resources
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\obj\Debug\CallParserTestor.csproj.GenerateResource.cache
-C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\obj\Debug\CallParserTestor.csproj.CoreCompileInputs.cache
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\obj\Debug\CallParserTestor.csproj.CopyComplete
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\obj\Debug\CallParserTestor.csprojAssemblyReference.cache
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser2\CallParserTestor\obj\Debug\CallParserTestor.csprojAssemblyReference.cache

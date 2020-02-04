@@ -147,7 +147,7 @@ namespace W6OP.CallParser
         private void BuildCallSignInfo(XElement prefixXml)
         {
             Hit hit = new Hit();
-            List<Hit> hitList;
+            //List<Hit> hitList;
             string currentValue;
 
             _PrimaryMaskList.Clear();
@@ -256,26 +256,45 @@ namespace W6OP.CallParser
                 Admins.Add(admin);
             }
 
+            // DXCC is in ADIFs // Feb. 3, 2020
+            //if (hit.Kind != PrefixKind.pfDXCC)
+            //{
+                CollectHits(hit);
+            //}
+        }
+
+        /// <summary>
+        ///
+        /// need to really look at this and see if it can be simplified
+        /// too many loops
+        /// </summary>
+        /// <param name="hit"></param>
+        internal void CollectHits(Hit hit)
+        {
+           // Hit hit = new Hit();
+            List<Hit> hitList;
+
             foreach (List<string> prefixList in _PrimaryMaskList)
             {
                 hitList = new List<Hit>(prefixList.Count);
                 foreach (string prefix in prefixList)
                 {
-                        hitList = new List<Hit>();
-                        if (!PrefixesDictionary.ContainsKey(prefix))
-                        {
-                            hitList.Add(hit);
-                            PrefixesDictionary.Add(prefix, hitList);
-                        }
-                        else
-                        {
-                             //when we expand the mask to all possible values then some will be duplicated
-                            // ie.AL, NL for Alaska
-                            hitList = PrefixesDictionary[prefix];
-                            hitList.Add(hit);
-                        }
+                    hitList = new List<Hit>();
+                    if (!PrefixesDictionary.ContainsKey(prefix))
+                    {
+                        hitList.Add(hit);
+                        PrefixesDictionary.Add(prefix, hitList);
+                    }
+                    else
+                    {
+                        //when we expand the mask to all possible values then some will be duplicated
+                        // ie.AL, NL for Alaska
+                        hitList = PrefixesDictionary[prefix];
+                        hitList.Add(hit);
+                    }
                 }
             }
+
         }
 
         /// <summary>

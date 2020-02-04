@@ -51,6 +51,10 @@ namespace W6OP.CallParser
         private ConcurrentBag<Hit> _HitList;
         private readonly Dictionary<string, List<Hit>> _PrefixesDictionary;
         private readonly Dictionary<Int32, Hit> _Adifs;
+        
+        private readonly string[] _OneLetterSeries = { "B","F", "G", "I","K", "M", "N", "R", "W", "2" };
+
+
 
         /// <summary>
         /// Public constructor.
@@ -66,7 +70,7 @@ namespace W6OP.CallParser
         /// Batch lookup of call signs. A List<string> of calls may be sent in
         /// and each processed in parallel. A limit of 1 million per batch is
         /// enforced as Windows cannot handle the memory requirements for larger
-        /// collections.
+        /// collections (32 bit).
         /// 
         /// Why return IEnumerable<Hit>.
         /// Does code that calls the method only expect to iterate over it? Return an IEnumerable.
@@ -109,7 +113,7 @@ namespace W6OP.CallParser
              );
 
             IEnumerable<Hit> allHits = _HitList.AsEnumerable();
-            
+
             return allHits;
         }
 
@@ -170,6 +174,13 @@ namespace W6OP.CallParser
 
         /// <summary>
         /// Process a call sign into its component parts ie: W6OP/W4
+        /// Call signs in the international series are formed as indicated in Nos. 19.51to 19.71. 
+        /// The first two characters shall be two letters or a letter followed by a digit or a digit followed by a letter.
+        /// The first two characters or in certain cases the first character of a call sign constitute the nationality identification.
+        /// 
+        /// For call sign series beginning with B, F, G, I, K, M, N, R, W and 2, only the first character is required for nationality identification. 
+        /// In the cases of half series (i.e. when the first two characters are allocated to more than one Member State), 
+        /// the first three characters are required for nationality identification.
         /// </summary>
         /// <param name="callSign"></param>
         private void ProcessCallSign(string callSign)
@@ -180,13 +191,17 @@ namespace W6OP.CallParser
             switch (components.Count)
             {
                 case 1:
-                    callAndprefix = (components[0], components[0]);
+                    //callAndprefix = (components[0], components[0]);
+                    callAndprefix = (components[0], "");
+                    CollectMatchesEx(callAndprefix.call);
                     break;
                 case 2:
                     callAndprefix = ProcessPrefix(components);
+                    CollectMatchesEx(callAndprefix.callPrefix);
                     break;
                 case 3: // DC3RJ/P/W3 - remove excess parts
                     callAndprefix = TrimCallSign(components);
+                    CollectMatchesEx(callAndprefix.callPrefix);
                     break;
                 default:
                     // should I do anything here?
@@ -195,7 +210,7 @@ namespace W6OP.CallParser
                     break;
             }
 
-            CollectMatches(callAndprefix);
+            //CollectMatches(callAndprefix);
         }
 
         /// <summary>
@@ -387,9 +402,53 @@ namespace W6OP.CallParser
                         }
                     }
 
-                        callPart = callPart.Remove(callPart.Length - 1);
+                    callPart = callPart.Remove(callPart.Length - 1);
                 }
             }
+        }
+
+        /// <summary>
+        /// Start with first character of call and work until the end or the fourth character is reached.
+        /// In this case the call == the prefix
+        /// </summary>
+        /// <param name="callAndprefix"></param>
+        private void CollectMatchesEx(string call)
+        {
+            string firstPart; // = callAndprefix.call.Substring(0, 1);
+            Hit hit;
+
+            int count = 1;
+
+            while (count <= call.Count() && count < 5)
+            {
+                firstPart = call.Substring(0, count);
+                if (_PrefixesDictionary.ContainsKey(firstPart))
+                {
+                    List<Hit> query = _PrefixesDictionary[firstPart];
+                    foreach (Hit item in query)
+                    {
+                        hit = item;
+                        hit.CallSign = call;
+                        if (!_HitList.Contains(hit))
+                        {
+                            _HitList.Add(hit);
+
+                            if (item.Kind != PrefixKind.pfDXCC)
+                            {
+                                hit = _Adifs[Convert.ToInt32(item.Dxcc)];
+                                hit.CallSign = call;
+                                if (!_HitList.Contains(hit))
+                                {
+                                    _HitList.Add(hit);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                count++;
+            }
+            var a = 1;
         }
 
         /// <summary>

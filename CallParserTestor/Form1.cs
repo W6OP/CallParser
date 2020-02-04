@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using W6OP.CallParser;
 using CsvHelper;
+using System.Globalization;
 
 namespace CallParserTestor
 {
@@ -52,7 +53,7 @@ namespace CallParserTestor
             var sw = Stopwatch.StartNew();
 
             using (StreamReader reader = new StreamReader("rbn2.csv"))
-            using (var csv = new CsvReader(reader))
+            using (var csv = new CsvReader(reader)) //, CultureInfo.InvariantCulture))
             {
 
                 csv.Read();

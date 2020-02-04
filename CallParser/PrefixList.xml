@@ -15,7 +15,6 @@
 	</prefix>
 	<prefix>
 		<masks>
-      <mask>[RU][89][A-EH-WYZ]@@@</mask>
 			<mask>3B6</mask>
 			<mask>3B6/</mask>
 		</masks>
