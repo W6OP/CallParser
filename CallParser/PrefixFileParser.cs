@@ -136,7 +136,7 @@ namespace W6OP.CallParser
         private void ParsePrefixDataList(XDocument xDocument)
         {
             var prefixes = xDocument.Root.Elements("prefix");
-            IEnumerable<XElement> dxcc = prefixes.Elements().Where(x => x.Name == "dxcc_entity");
+            //IEnumerable<XElement> dxcc = prefixes.Elements().Where(x => x.Name == "dxcc_entity");
 
             var groups = xDocument.Descendants("prefix")
                 .GroupBy(x => (string)x.Element("dxcc_entity"))
@@ -144,11 +144,56 @@ namespace W6OP.CallParser
 
             //var group = groups[291];
 
-            foreach (XElement prefixXml in prefixes)
+            foreach (var group in groups)
             {
-                //IEnumerable<XElement> dxcc = prefixXml.Elements().Where(x => x.Name == "dxcc_entity");
-                BuildCallSignInfoEx(prefixXml);
+                BuildCallSignInfoEx(group);
             }
+
+            var a = 1;
+
+            // original code
+            //foreach (XElement prefixXml in prefixes)
+            //{
+            //    BuildCallSignInfo(prefixXml);
+            //}
+        }
+
+        List<string> TempList = new List<string>();
+
+        private void BuildCallSignInfoEx(IGrouping<string, XElement> group)
+        {
+            CallSignInfo callSignInfo;
+            IEnumerable<XElement> masks = group.Elements().Where(x => x.Name == "masks");
+            bool isInitialized = false;
+
+            TempList = new List<string>();
+
+            string dxcc_entity = group.Key; //.Elements().Where(x => x.Name == "dxcc_entity");
+
+            foreach (XElement element in masks.Descendants())
+            {
+               
+                if (element.Value != "") // empty is a DXCC node
+                {
+                    ExpandMask(element.Value);
+                    // populate the callSignInfo with the first one
+                    // the just point to it with he next
+                    if (!isInitialized)
+                    {
+                        callSignInfo = new CallSignInfo(element);
+                        // CallSignDictionary.Add()
+                    }
+                    else {
+                        //CallSignDictionary.Add()
+                    }
+                }
+            }
+
+            var a = 1;
+            //foreach (string prefix in _PrimaryMaskList)
+            //{
+
+            //}
         }
 
         /*
@@ -165,18 +210,18 @@ namespace W6OP.CallParser
       }
              */
 
-        private void BuildCallSignInfoEx(XElement prefixXml)
-        {
-            CallSignInfo callSignInfo = new CallSignInfo();
-            IEnumerable<XElement> masks = prefixXml.Elements().Where(x => x.Name == "masks");
-            foreach (XElement element in masks)
-            {
-                //ExpandMask(element.Value);
-                ExpandMask("K[ABDEFIJKMNOQ-Z]4");
-            }
+        //private void BuildCallSignInfoEx(XElement prefixXml)
+        //{
+        //    CallSignInfo callSignInfo = new CallSignInfo();
+        //    IEnumerable<XElement> masks = prefixXml.Elements().Where(x => x.Name == "masks");
+        //    foreach (XElement element in masks)
+        //    {
+        //        //ExpandMask(element.Value);
+        //        ExpandMask("K[ABDEFIJKMNOQ-Z]4");
+        //    }
 
-            var a = 1;
-        }
+        //    var a = 1;
+        //}
 
             /// <summary>
             /// Using the data in each prefix node build a Hit object
@@ -462,6 +507,7 @@ namespace W6OP.CallParser
                         foreach (string end in allCharacters[0])
                         {
                             tempResult2.Add(pre + end);
+                            TempList.Add(pre + end);
                         }
                     }
                     allCharacters.RemoveRange(0, 1);
@@ -481,6 +527,7 @@ namespace W6OP.CallParser
                         {
 
                             tempResult2.Add(pre + end);
+                            TempList.Add(pre + end);
                         }
                     }
                     allCharacters.RemoveRange(0, 2);
@@ -495,7 +542,6 @@ namespace W6OP.CallParser
             else
             {
                 _PrimaryMaskList.Add(tempResult2);
-
             }
         }
 

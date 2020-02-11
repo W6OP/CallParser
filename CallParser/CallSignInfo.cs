@@ -8,7 +8,7 @@ namespace W6OP.CallParser
 {
     public class CallSignInfo
     {
-        public CallSignInfo()
+        public CallSignInfo(System.Xml.Linq.XElement element)
         {
         }
 
