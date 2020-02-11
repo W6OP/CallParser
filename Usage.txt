@@ -1,61 +1,73 @@
 using W6OP.CallParser
 
-public class Class1
-    {
-        readonly PrefixFileParser _PrefixFileParser;
-        CallLookUp _CallLookUp;
-        List<string> _Records;  // = new List<string>();
+unit CallInf;
 
-		 public Class1()
-        {
-            _PrefixFileParser = new PrefixFileParser();
-        }
+interface
 
-		// Load the prefix fle. If a file path is passed in then load that file.
-        // Otherwise use the embedded resource file for the prefix list.
-		private void ParsePrefixFile (string filePath) 
-		{
-			 _PrefixFileParser.ParsePrefixFile("");
-			 //_PrefixFileParser.ParsePrefixFile(filePath);
-
-			  _CallLookUp = new CallLookUp(_PrefixFileParser);
-		}
-
-		/// <summary>
-        /// Single call lookup.
-        /// </summary>
-        public IEnumerable<Hit> LookupCall(string call)
-        {
-            if (_CallLookUp == null)
-            {
-                return null;
-            }
-
-            return _CallLookUp.LookUpCall(call);
-        }
-
-		/// <summary>
-        /// Batch lookup of call signs. A List<string> of calls may be sent in
-        /// and each processed in parallel. A limit of 1 million per batch is
-        /// enforced as Microsoft Windows cannot handle the memory requirements for larger
-        /// collections (32 bit).
-        /// 
-        /// Why return IEnumerable<Hit>.
-        /// Does code that calls the method only expect to iterate over it? Return an IEnumerable.
-        /// A caller that gets an IEnumerable result knows that if they want indexed access of the result, 
-        /// they will have to convert to a List, because IEnumerable simple isn't capable 
-        /// of it until it's been enumerated and put into an indexed structure. 
-		/// If I returned a List, I've taken away the ability to stream results which can have its own performance benefits. 
-        /// </summary>
-        public IEnumerable<Hit> LookupCall(List<string> callSigns)
-        {
-            if (_CallLookUp == null)
-            {
-                return null;
-            }
-
-            return _CallLookUp.LookUpCall(callSigns);
-        }
+uses
+  Windows, SysUtils, Generics.Collections;
 
 
-		} // end class
+type
+  //  cfMaritime = VE3NEA/MM (no dxcc or iota)
+  //  cfPortable = P5/VE3NEA, VE3NEA/7, VE3NEA/P, VE3NEA/M
+  //  cfSpecial = SQ2010NATO, M4A (special event or contest)
+  TCallsignFlag = (cfInvalid, cfMaritime, cfPortable, cfSpecial, cfClub,
+    cfBeacon, cfLotw, cfAmbigPrefix, cfQrp);
+
+
+  TCallsignFlags = set of TCallsignFlag;
+
+
+  TPrefixKind = (pfNone, pfDXCC, pfProvince, pfStation, pfDelDXCC, pfOldPrefix,
+    pfNonDXCC, pfInvalidPrefix, pfDelProvince, pfCity);
+
+
+  TCallsignInfo = class
+    //quick info
+    Dxcc,
+    Wae,
+    Iota,
+    Wap,
+    Cq,
+    Itu,
+    Admin1: string;
+    Location: TPoint;
+    Flags: TCallsignFlags;
+
+    //from callbook
+    Continent,
+    TimeZone,
+    Admin2,
+    Name,
+    Qth,
+    Comment: string;
+    CallbookEntry: Pointer; //to find out data sources
+
+    //from prefix
+    Kind: TPrefixKind;
+    FullPrefix,
+    MainPrefix,
+    Country,
+    Province,
+    StartDate, EndDate: string;
+
+    function IsIota: boolean;
+    end;
+
+
+  THitList = TObjectList<TCallsignInfo>;
+
+
+
+
+implementation
+
+{ TCallsignInfo }
+
+function TCallsignInfo.IsIota: boolean;
+begin
+  Result := (Iota <> '') and (Pos('------', Iota) < 1);
+end;
+
+end.

@@ -41,7 +41,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -60,8 +59,10 @@ namespace W6OP.CallParser
         /// Public fields.
         /// </summary>
         public Dictionary<string, List<Hit>> PrefixesDictionary { get; set; }
+        private SortedDictionary<string, CallSignInfo> CallSignDictionary;
         public Dictionary<Int32, Hit> Adifs { get; set; }
         public List<Admin> Admins;
+
 
         /// <summary>
         /// Normally these would be local variables but here they are global
@@ -83,6 +84,7 @@ namespace W6OP.CallParser
         /// </summary>
         public PrefixFileParser()
         {
+            
         }
 
         /// <summary>
@@ -97,6 +99,8 @@ namespace W6OP.CallParser
 
             // preallocate collection size for performance
             PrefixesDictionary = new Dictionary<string, List<Hit>>(10000000);
+            CallSignDictionary = new SortedDictionary<string, CallSignInfo>();
+
             Adifs = new Dictionary<int, Hit>();
             Admins = new List<Admin>();
 
@@ -132,19 +136,54 @@ namespace W6OP.CallParser
         private void ParsePrefixDataList(XDocument xDocument)
         {
             var prefixes = xDocument.Root.Elements("prefix");
+            IEnumerable<XElement> dxcc = prefixes.Elements().Where(x => x.Name == "dxcc_entity");
+
+            var groups = xDocument.Descendants("prefix")
+                .GroupBy(x => (string)x.Element("dxcc_entity"))
+                .ToList();
+
+            //var group = groups[291];
 
             foreach (XElement prefixXml in prefixes)
             {
-                BuildCallSignInfo(prefixXml);
+                //IEnumerable<XElement> dxcc = prefixXml.Elements().Where(x => x.Name == "dxcc_entity");
+                BuildCallSignInfoEx(prefixXml);
             }
         }
 
-        /// <summary>
-        /// Using the data in each prefix node build a Hit object
-        /// for each one. Save it in a dictionary (PrefixesDictionary).
-        /// </summary>
-        /// <param name="prefixXml"></param>
-        private void BuildCallSignInfo(XElement prefixXml)
+        /*
+         
+			SortedList<string, object="">
+    sl = new SortedList<string, object="">
+      ();
+      foreach(item in prefixesDoc) {
+      prefix = new prefix(xdoc.element);
+      foreach (mask in prefix) {
+      List call = GenerateCallSignm( prefix);
+      sl.Add(call, prefix);
+
+      }
+             */
+
+        private void BuildCallSignInfoEx(XElement prefixXml)
+        {
+            CallSignInfo callSignInfo = new CallSignInfo();
+            IEnumerable<XElement> masks = prefixXml.Elements().Where(x => x.Name == "masks");
+            foreach (XElement element in masks)
+            {
+                //ExpandMask(element.Value);
+                ExpandMask("K[ABDEFIJKMNOQ-Z]4");
+            }
+
+            var a = 1;
+        }
+
+            /// <summary>
+            /// Using the data in each prefix node build a Hit object
+            /// for each one. Save it in a dictionary (PrefixesDictionary).
+            /// </summary>
+            /// <param name="prefixXml"></param>
+            private void BuildCallSignInfo(XElement prefixXml)
         {
             Hit hit = new Hit();
             //List<Hit> hitList;
@@ -161,7 +200,8 @@ namespace W6OP.CallParser
                     case "masks":
                         foreach (XElement mask in element.Elements())
                         {
-                            ExpandMask(mask.Value);
+                            //ExpandMask(mask.Value);
+                            ExpandMask("K[ABDEFIJKMNOQ-Z]4");
                         }
                         break;
                     case "label":
@@ -230,7 +270,7 @@ namespace W6OP.CallParser
                 }
             }
 
-            if (hit.Kind == PrefixKind.pfInvalidPrefix)
+            if (hit.Kind == PrefixKind.InvalidPrefix)
             {
                 Adifs.Add(0, hit);
             }
@@ -245,12 +285,12 @@ namespace W6OP.CallParser
                 // }
             }
 
-            if (hit.Kind == PrefixKind.pfDXCC)
+            if (hit.Kind == PrefixKind.DXCC)
             {
                 Adifs.Add(hit.Dxcc, hit);
             }
 
-            if (!String.IsNullOrEmpty(hit.Admin1) && hit.Kind == PrefixKind.pfProvince)
+            if (!String.IsNullOrEmpty(hit.Admin1) && hit.Kind == PrefixKind.Province)
             {
                 Admin admin = new Admin(hit.Admin1, hit);
                 Admins.Add(admin);

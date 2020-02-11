@@ -19647,7 +19647,7 @@
 	</prefix>
 	<prefix>
 		<masks>
-			<mask>W/</mask>
+			<mask>W/</mask> <!-- W4OP-->
 		</masks>
 		<label>W</label>
 		<kind>pfDXCC</kind>
@@ -19660,18 +19660,18 @@
 		<lat>39.000</lat>
 		<long>-97.528</long>
 	</prefix>
-	<prefix>
-		<masks>
-			<mask>[KNW]4</mask>
-			<mask>K[ABDEFIJKMNOQ-Z]4</mask>
+  <prefix>
+		<masks> <!-- # = numeric, ? = alphanumeric, @ = alphabetic, . = stop, B-Z = range, / = contains / -->
+			<mask>[KNW]4</mask> <!-- K4, N4, W4-->
+			<mask>K[ABDEFIJKMNOQ-Z]4</mask> <!-- KB4 -->
 			<mask>A[A-GIJK]4</mask>
 			<mask>[NW][A-GIJKMNOQ-Z]4</mask>
 			<mask>KG4@@@</mask>
 			<mask>KC4A[.B-Z]</mask>
-			<mask>KC4AA[.G-Z]</mask>
+			<mask>KC4AA[.G-Z]</mask> <!-- KC4AAG ->> 291 --> <!-- sorted list callsign["call"] also can uses "contains" return prefix class instance-->
 			<mask>KC4U[.A-RT-Z]</mask>
 			<mask>KC4[#B-TV-Z]</mask>
-			<mask>KC4AA[A-F]@</mask>
+			<mask>KC4AA[A-F]@</mask>  
 			<mask>KC4US@@</mask>
 			<mask>W4/</mask>
 			<mask>KG4@.</mask>
@@ -19834,7 +19834,7 @@
 		<label>W.W5.W5[AR]</label>
 		<kind>pfProvince</kind>
 		<country>United States of America</country>
-		<province>Arcansas</province>
+		<province>Arkansas</province>
 		<dxcc_entity>291</dxcc_entity>
 		<province_id>AR</province_id>
 		<cq_zone>04</cq_zone>
@@ -20064,6 +20064,7 @@
 			<mask>[KNW][A-GIJKM-Z]6</mask>
 			<mask>A[A-GIJK]6</mask>
 			<mask>W6/</mask>
+      <!-- W6OP/W4 W4/W6OP-->
 		</masks>
 		<label>W.W6</label>
 		<kind>pfProvince</kind>

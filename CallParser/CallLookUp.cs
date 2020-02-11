@@ -98,18 +98,18 @@ namespace W6OP.CallParser
             }
 
             // parallel foreach almost twice as fast but requires blocking collection
-            Parallel.ForEach(callSigns, callSign =>
-            {
-                if (ValidateCallSign(callSign))
-                {
-                    ProcessCallSign(callSign);
-                }
-                else
-                {
+            _ = Parallel.ForEach(callSigns, callSign =>
+              {
+                  if (ValidateCallSign(callSign))
+                  {
+                      ProcessCallSign(callSign);
+                  }
+                  else
+                  {
                     // don't throw, just ignore bad calls
                     //Console.WriteLine("Invalid call sign format: " + callSign);
                 }
-            }
+              }
              );
 
             IEnumerable<Hit> allHits = _HitList.AsEnumerable();
@@ -433,7 +433,7 @@ namespace W6OP.CallParser
                         {
                             _HitList.Add(hit);
 
-                            if (item.Kind != PrefixKind.pfDXCC)
+                            if (item.Kind != PrefixKind.DXCC)
                             {
                                 hit = _Adifs[Convert.ToInt32(item.Dxcc)];
                                 hit.CallSign = call;

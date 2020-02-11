@@ -276,7 +276,7 @@ namespace CallParserTestor
                 foreach (Hit callSignInfo in sortedList)
                 {
                     
-                    if (callSignInfo.Kind == PrefixKind.pfDXCC)
+                    if (callSignInfo.Kind == PrefixKind.DXCC)
                     {
                         csv.WriteField(callSignInfo.CallSign);
                         csv.WriteField(callSignInfo.MainPrefix);

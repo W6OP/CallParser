@@ -47,16 +47,16 @@ namespace W6OP.CallParser
     /// </summary>
     public enum PrefixKind
     {
-        pfNone,
-        pfDXCC,
-        pfProvince,
-        pfStation,
-        pfDelDXCC,
-        pfOldPrefix,
-        pfNonDXCC,
-        pfInvalidPrefix,
-        pfDelProvince,
-        pfCity
+        None,
+        DXCC,
+        Province,
+        Station,
+        DelDXCC,
+        OldPrefix,
+        NonDXCC,
+        InvalidPrefix,
+        DelProvince,
+        City
     }
 
     /// <summary>
@@ -64,15 +64,15 @@ namespace W6OP.CallParser
     /// </summary>
     public enum CallSignFlag
     {
-        cfInvalid,
-        cfMaritime,
-        cfPortable,
-        cfSpecial,
-        cfClub,
-        cfBeacon,
-        cfLotw,
-        cfAmbigPrefix,
-        cfQrp
+        Invalid,
+        Maritime,
+        Portable,
+        Special,
+        Club,
+        Beacon,
+        Lotw,
+        AmbigPrefix,
+        Qrp
     }
 
     /// <summary>
