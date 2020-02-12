@@ -3,12 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace W6OP.CallParser
 {
     public class CallSignInfo
     {
         public CallSignInfo(System.Xml.Linq.XElement element)
+        {
+            BuildCallSignInfo(element);
+        }
+
+        public CallSignInfo()
         {
         }
 
@@ -19,8 +25,8 @@ namespace W6OP.CallParser
         private int wae;
         private string iota;
         private string wap;
-        private int cq;           //cq_zone
-        private int itu;          //itu_zone
+        private string cq;           //cq_zone
+        private string itu;          //itu_zone
         private string admin1;
         private string latitude;     //lat
         private string longitude;    //long
@@ -40,8 +46,8 @@ namespace W6OP.CallParser
         private string country;       //country
         private string province;     //province
 
-        private DateTime startDate;
-        private DateTime endDate;
+        private string startDate;
+        private string endDate;
         private bool isIota;
 
         private string callSign; // I put the call sign here only for pfDXCC types for reference/debugging
@@ -49,31 +55,117 @@ namespace W6OP.CallParser
         /// <summary>
         /// public properties
         /// </summary>
-        public int DXCC { get => dxcc; set => dxcc = value; }
-        public int WAE { get => wae; set => wae = value; }
-        public string Iota { get => iota; set => iota = value; }
-        public string WAP { get => wap; set => wap = value; }
-        public int Cq { get => cq; set => cq = value; }
-        public int Itu { get => itu; set => itu = value; }
-        public string Admin1 { get => admin1; set => admin1 = value; }
-        public string Latitude { get => latitude; set => latitude = value; }
-        public string Longitude { get => longitude; set => longitude = value; }
-        public CallSignFlag[] Flags { get => flags; set => flags = value; }
-        public string Continent { get => continent; set => continent = value; }
-        public string TimeZone { get => timeZone; set => timeZone = value; }
-        public string Admin2 { get => admin2; set => admin2 = value; }
-        public string Name { get => name; set => name = value; }
-        public string QTH { get => qth; set => qth = value; }
-        public string Comment { get => comment; set => comment = value; }
-        public PrefixKind Kind { get => kind; set => kind = value; }
-        public string FullPrefix { get => fullPrefix; set => fullPrefix = value; }
-        public string MainPrefix { get => mainPrefix; set => mainPrefix = value; }
-        public string Country { get => country; set => country = value; }
-        public string Province { get => province; set => province = value; }
-        public DateTime StartDate { get => startDate; set => startDate = value; }
-        public DateTime EndDate { get => endDate; set => endDate = value; }
-        public bool IsIota { get => isIota; set => isIota = value; }
-        public string CallSign { get => callSign; set => callSign = value; }
+        public int DXCC => dxcc;
+        public int WAE { get => wae; }
+        public string Iota { get => iota; }
+        public string WAP { get => wap; }
+        public string Cq { get => cq; }
+        public string Itu { get => itu; }
+        public string Admin1 { get => admin1; }
+        public string Latitude { get => latitude; }
+        public string Longitude { get => longitude; }
+        public CallSignFlag[] Flags { get => flags; }
+        public string Continent { get => continent; }
+        public string TimeZone { get => timeZone; }
+        public string Admin2 { get => admin2; }
+        public string Name { get => name; }
+        public string QTH { get => qth; }
+        public string Comment { get => comment; }
+        public PrefixKind Kind { get => kind; }
+        public string FullPrefix { get => fullPrefix; }
+        public string MainPrefix { get => mainPrefix; }
+        public string Country { get => country; }
+        public string Province { get => province; }
+        public string StartDate { get => startDate; }
+        public string EndDate { get => endDate; }
+        public bool IsIota { get => isIota; }
+        public string CallSign { get => callSign; }
+
+
+
+        private void BuildCallSignInfo(XElement prefixXml)
+        {
+            string currentValue;
+
+            foreach (XElement element in prefixXml.Elements())
+            {
+                currentValue = element.Value;
+
+                switch (element.Name.ToString())
+                {
+                    case "masks":
+                    //foreach (XElement mask in element.Elements())
+                    //{
+                    //    ExpandMask(mask.Value);
+                    //    //ExpandMask("K[ABDEFIJKMNOQ-Z]4");
+                    //}
+                    //break;
+                    case "label":
+                        fullPrefix = currentValue ?? "";
+                        if (currentValue.Contains("."))
+                        {
+                            // get string after the "."
+                            mainPrefix = fullPrefix.Substring(fullPrefix.LastIndexOf('.') + 1);
+                        }
+                        else
+                        {
+                            mainPrefix = fullPrefix;
+                        }
+                        break;
+                    case "kind":
+                        kind = EnumEx.GetValueFromDescription<PrefixKind>(currentValue);
+                        break;
+                    case "country":
+                        country = currentValue ?? "";
+                        break;
+                    case "province":
+                        province = currentValue ?? "";
+                        break;
+                    case "dxcc_entity":
+                        dxcc = Convert.ToInt32(currentValue);
+                        break;
+                    case "cq_zone":
+                        cq = currentValue ?? "";
+                        break;
+                    case "itu_zone":
+                        itu = currentValue ?? "";
+                        break;
+                    case "continent":
+                        continent = currentValue ?? "";
+                        break;
+                    case "time_zone":
+                        timeZone = currentValue ?? "";
+                        break;
+                    case "lat":
+                        latitude = currentValue ?? "";
+                        break;
+                    case "long":
+                        longitude = currentValue ?? "";
+                        break;
+                    case "city":
+                        qth = currentValue ?? "";
+                        break;
+                    case "wap_entity":
+                        wap = currentValue ?? "";
+                        break;
+                    case "wae_entity":
+                        wae = Convert.ToInt32(currentValue);
+                        break;
+                    case "province_id":
+                        admin1 = currentValue ?? "";
+                        break;
+                    case "start_date":
+                        startDate = currentValue ?? "";
+                        break;
+                    case "end_date":
+                        endDate = currentValue ?? "";
+                        break;
+                    default:
+                        currentValue = null;
+                        break;
+                }
+            }
+        }
     } // end class
 }
 

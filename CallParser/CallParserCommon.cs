@@ -47,15 +47,25 @@ namespace W6OP.CallParser
     /// </summary>
     public enum PrefixKind
     {
+        [Description("pfNone")]
         None,
+        [Description("pfDXCC")]
         DXCC,
+        [Description("pfProvince")]
         Province,
+        [Description("pfStation")]
         Station,
+        [Description("pfDelDXCC")]
         DelDXCC,
+        [Description("pfOldPrefix")]
         OldPrefix,
+        [Description("pfNonDXCC")]
         NonDXCC,
+        [Description("pfInvalidPrefix")]
         InvalidPrefix,
+        [Description("pfDelProvince")]
         DelProvince,
+        [Description("pfCity")]
         City
     }
 

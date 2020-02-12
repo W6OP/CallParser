@@ -59,8 +59,9 @@ namespace W6OP.CallParser
         /// Public fields.
         /// </summary>
         public Dictionary<string, List<Hit>> PrefixesDictionary { get; set; }
-        private SortedDictionary<string, CallSignInfo> CallSignDictionary;
+        private SortedDictionary<string, List<CallSignInfo>> CallSignDictionary;
         public Dictionary<Int32, Hit> Adifs { get; set; }
+        public Dictionary<Int32, CallSignInfo> Adifs2 { get; set; }
         public List<Admin> Admins;
 
 
@@ -84,7 +85,7 @@ namespace W6OP.CallParser
         /// </summary>
         public PrefixFileParser()
         {
-            
+
         }
 
         /// <summary>
@@ -99,9 +100,10 @@ namespace W6OP.CallParser
 
             // preallocate collection size for performance
             PrefixesDictionary = new Dictionary<string, List<Hit>>(10000000);
-            CallSignDictionary = new SortedDictionary<string, CallSignInfo>();
+            CallSignDictionary = new SortedDictionary<string, List<CallSignInfo>>();
 
             Adifs = new Dictionary<int, Hit>();
+            Adifs2 = new Dictionary<int, CallSignInfo>();
             Admins = new List<Admin>();
 
             _PrimaryMaskList = new HashSet<List<string>>();
@@ -162,33 +164,69 @@ namespace W6OP.CallParser
 
         private void BuildCallSignInfoEx(IGrouping<string, XElement> group)
         {
-            CallSignInfo callSignInfo;
+            List<CallSignInfo> callSignInfoList = new List<CallSignInfo>();
+            CallSignInfo callSignInfo = new CallSignInfo();
             IEnumerable<XElement> masks = group.Elements().Where(x => x.Name == "masks");
             bool isInitialized = false;
 
             TempList = new List<string>();
 
-            string dxcc_entity = group.Key; //.Elements().Where(x => x.Name == "dxcc_entity");
-
+            int dxcc_entity = Convert.ToInt32(group.Key);
+            if (dxcc_entity != 0)
+            {
+                XElement dxccElement = group.Descendants().Where(x => x.Name == "kind" && x.Value == "pfDXCC").First().Parent;
+                // create the DXCC structure
+                callSignInfo = new CallSignInfo(dxccElement);
+                Adifs2.Add(dxcc_entity, callSignInfo);
+            } else
+            {
+                XElement dxccElement = group.Descendants().Where(x => x.Name == "kind" && x.Value == "pfInvalidPrefix").First().Parent;
+                // create the DXCC structure
+                callSignInfo = new CallSignInfo(dxccElement);
+                Adifs2.Add(dxcc_entity, callSignInfo);
+            }
+            
             foreach (XElement element in masks.Descendants())
             {
-               
-                if (element.Value != "") // empty is a DXCC node
+
+                if (element.Value != "") // empty is usually a DXCC node
                 {
-                    ExpandMask(element.Value);
-                    // populate the callSignInfo with the first one
-                    // the just point to it with he next
                     if (!isInitialized)
                     {
-                        callSignInfo = new CallSignInfo(element);
-                        // CallSignDictionary.Add()
+                        isInitialized = true;
+                        callSignInfo = new CallSignInfo(element.Parent.Parent);
                     }
-                    else {
-                        //CallSignDictionary.Add()
-                    }
+                    
+                    ExpandMask(element.Value);
+                } 
+                else
+                {
+                    int d = 1;
                 }
             }
 
+            //callSignInfo = new CallSignInfo(element.Parent.Parent);
+            foreach (List<string> list in _PrimaryMaskList)
+            {
+                foreach(string item in list)
+                {
+                    if (!CallSignDictionary.ContainsKey(item))
+                    {
+                        callSignInfoList.Clear(); // = new List<CallSignInfo>();
+                        callSignInfoList.Add(callSignInfo);
+                        CallSignDictionary.Add(item, callSignInfoList);
+                    } 
+                    else // add to alternate dictionary
+                    {
+                        callSignInfoList = CallSignDictionary[item];
+                        callSignInfoList.Add(callSignInfo);
+                        Console.WriteLine(item);
+                    }  
+                }
+                
+            }
+
+            _PrimaryMaskList.Clear();
             var a = 1;
             //foreach (string prefix in _PrimaryMaskList)
             //{
@@ -223,12 +261,12 @@ namespace W6OP.CallParser
         //    var a = 1;
         //}
 
-            /// <summary>
-            /// Using the data in each prefix node build a Hit object
-            /// for each one. Save it in a dictionary (PrefixesDictionary).
-            /// </summary>
-            /// <param name="prefixXml"></param>
-            private void BuildCallSignInfo(XElement prefixXml)
+        /// <summary>
+        /// Using the data in each prefix node build a Hit object
+        /// for each one. Save it in a dictionary (PrefixesDictionary).
+        /// </summary>
+        /// <param name="prefixXml"></param>
+        private void BuildCallSignInfo(XElement prefixXml)
         {
             Hit hit = new Hit();
             //List<Hit> hitList;
@@ -245,8 +283,8 @@ namespace W6OP.CallParser
                     case "masks":
                         foreach (XElement mask in element.Elements())
                         {
-                            //ExpandMask(mask.Value);
-                            ExpandMask("K[ABDEFIJKMNOQ-Z]4");
+                            ExpandMask(mask.Value);
+                            //ExpandMask("K[ABDEFIJKMNOQ-Z]4");
                         }
                         break;
                     case "label":
@@ -344,7 +382,7 @@ namespace W6OP.CallParser
             // DXCC is in ADIFs // Feb. 3, 2020
             //if (hit.Kind != PrefixKind.pfDXCC)
             //{
-                CollectHits(hit);
+            CollectHits(hit);
             //}
         }
 
@@ -356,7 +394,7 @@ namespace W6OP.CallParser
         /// <param name="hit"></param>
         internal void CollectHits(Hit hit)
         {
-           // Hit hit = new Hit();
+            // Hit hit = new Hit();
             List<Hit> hitList;
 
             foreach (List<string> prefixList in _PrimaryMaskList)
@@ -461,6 +499,7 @@ namespace W6OP.CallParser
                 foreach (string second in allCharacters[1])
                 {
                     result.Add(first + second);
+                    TempList.Add(first + second);
                 }
             }
 
@@ -545,7 +584,7 @@ namespace W6OP.CallParser
             }
         }
 
-       
+
         /// <summary>
         /// DELETE ??
         /// This just copys the contents of a hashset to a list.
