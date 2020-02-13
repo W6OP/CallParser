@@ -1,27 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dx_atlas_prefixes>
-  <prefix>
-		<masks>
-			<mask>4U#[A-HJ-TV-Z]</mask>
-			<mask>4U##[A-HJ-TV-Z]</mask>
-			<mask>4U###[A-HJ-TV-Z]</mask>
-			<mask>4U####[A-HJ-TV-Z]</mask>
-			<mask>4U/</mask>
-			<mask>4U#/</mask>
-		</masks>
-		<label>OE.4U#VIC</label>
-		<kind>pfProvince</kind>
-		<country>Austria</country>
-		<province>IARC (Vienna)</province>
-		<dxcc_entity>206</dxcc_entity>
-		<wae_entity>901</wae_entity>
-		<cq_zone>15</cq_zone>
-		<itu_zone>28</itu_zone>
-		<continent>EU</continent>
-		<time_zone>Europe/Vienna</time_zone>
-		<lat>48.128</lat>
-		<long>16.222</long>
-	</prefix>
 	<prefix>
 		<masks/>
 		<label>3B6</label>

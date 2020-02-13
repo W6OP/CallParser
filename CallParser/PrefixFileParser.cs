@@ -59,7 +59,7 @@ namespace W6OP.CallParser
         /// Public fields.
         /// </summary>
         public Dictionary<string, List<Hit>> PrefixesDictionary { get; set; }
-        private SortedDictionary<string, List<CallSignInfo>> CallSignDictionary;
+        private SortedDictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
         public Dictionary<Int32, Hit> Adifs { get; set; }
         public Dictionary<Int32, CallSignInfo> Adifs2 { get; set; }
         public List<Admin> Admins;
@@ -100,7 +100,7 @@ namespace W6OP.CallParser
 
             // preallocate collection size for performance
             PrefixesDictionary = new Dictionary<string, List<Hit>>(10000000);
-            CallSignDictionary = new SortedDictionary<string, List<CallSignInfo>>();
+            CallSignDictionary = new SortedDictionary<string, HashSet<CallSignInfo>>();
 
             Adifs = new Dictionary<int, Hit>();
             Adifs2 = new Dictionary<int, CallSignInfo>();
@@ -151,7 +151,7 @@ namespace W6OP.CallParser
                 BuildCallSignInfoEx(group);
             }
 
-            var a = 1;
+            int a = 1;
 
             // original code
             //foreach (XElement prefixXml in prefixes)
@@ -164,7 +164,7 @@ namespace W6OP.CallParser
         int _Count = 0;
         private void BuildCallSignInfoEx(IGrouping<string, XElement> group)
         {
-            List<CallSignInfo> callSignInfoList = new List<CallSignInfo>();
+            HashSet<CallSignInfo> callSignInfoSet = new HashSet<CallSignInfo>();
             CallSignInfo callSignInfo = new CallSignInfo();
             IEnumerable<XElement> masks = group.Elements().Where(x => x.Name == "masks");
             bool isInitialized = false;
@@ -176,7 +176,7 @@ namespace W6OP.CallParser
                 XElement dxccElement = group.Descendants().Where(x => x.Name == "kind" && x.Value == "pfDXCC").First().Parent;
                 // create the DXCC structure
                 callSignInfo = new CallSignInfo(dxccElement);
-                _Count += 1;
+               // _Count += 1;
                 //TempList.Add("p");
                 Adifs2.Add(dxcc_entity, callSignInfo);
                 isDXCC = true;
@@ -186,7 +186,7 @@ namespace W6OP.CallParser
                 XElement dxccElement = group.Descendants().Where(x => x.Name == "kind" && x.Value == "pfInvalidPrefix").First().Parent;
                 // create the DXCC structure
                 callSignInfo = new CallSignInfo(dxccElement);
-                _Count += 1;
+                //_Count += 1;
                 //TempList.Add("p");
                 Adifs2.Add(dxcc_entity, callSignInfo);
                 isDXCC = true;
@@ -197,7 +197,7 @@ namespace W6OP.CallParser
                 masks = prefix.Elements().Where(x => x.Name == "masks");
 
                 callSignInfo = new CallSignInfo(prefix);
-                _Count += 1;
+                //_Count += 1;
 
                 foreach (XElement element in masks.Descendants())
                 {
@@ -208,20 +208,32 @@ namespace W6OP.CallParser
 
                         foreach (List<string> list in _PrimaryMaskList)
                         {
-                            callSignInfoList = new List<CallSignInfo>();
+                            //callSignInfoList = new List<CallSignInfo>();
+                            callSignInfoSet = new HashSet<CallSignInfo>();
                             foreach (string item in list)
                             {
                                 if (!CallSignDictionary.ContainsKey(item))
                                 {
-                                    //callSignInfoList.Clear();// = new List<CallSignInfo>();
-                                    callSignInfoList.Add(callSignInfo);
-                                    CallSignDictionary.Add(item, callSignInfoList);
+
+                                    callSignInfoSet.Add(callSignInfo);
+                                    CallSignDictionary.Add(item, callSignInfoSet);
+                                    //CallSignDictionary.Add(item, callSignInfoList);
                                 }
-                                else 
+                                else
                                 {
-                                    callSignInfoList = CallSignDictionary[item];
-                                    callSignInfoList.Add(callSignInfo);
-                                    //Console.WriteLine(item);
+                                    //callSignInfoList = CallSignDictionary[item];
+                                    //callSignInfoList.Add(callSignInfo);
+                                    callSignInfoSet.Add(callSignInfo);
+                                    HashSet<CallSignInfo> callInfoSet = CallSignDictionary[item];
+                                    if (callInfoSet.First().DXCC != callSignInfo.DXCC)
+                                    {
+                                        callInfoSet.UnionWith(callSignInfoSet);
+                                        _Count++;
+                                        Console.WriteLine(callInfoSet.First().Country + " : " + callInfoSet.First().DXCC + " : " + callInfoSet.First().Kind + " : " + item);
+                                        Console.WriteLine(callSignInfo.Country + " : " + callSignInfo.DXCC + " : " + callSignInfo.Kind + " : " + item);
+                                        Console.WriteLine("--------------------" + _Count.ToString() + "-----" +callInfoSet.Count.ToString() + "-------------------------");
+                                    }
+
                                 }
                             }
 
