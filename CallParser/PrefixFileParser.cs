@@ -161,15 +161,14 @@ namespace W6OP.CallParser
         }
 
         List<string> TempList = new List<string>();
-
+        int _Count = 0;
         private void BuildCallSignInfoEx(IGrouping<string, XElement> group)
         {
             List<CallSignInfo> callSignInfoList = new List<CallSignInfo>();
             CallSignInfo callSignInfo = new CallSignInfo();
             IEnumerable<XElement> masks = group.Elements().Where(x => x.Name == "masks");
             bool isInitialized = false;
-
-            TempList = new List<string>();
+            bool isDXCC = false;
 
             int dxcc_entity = Convert.ToInt32(group.Key);
             if (dxcc_entity != 0)
@@ -177,56 +176,87 @@ namespace W6OP.CallParser
                 XElement dxccElement = group.Descendants().Where(x => x.Name == "kind" && x.Value == "pfDXCC").First().Parent;
                 // create the DXCC structure
                 callSignInfo = new CallSignInfo(dxccElement);
+                _Count += 1;
+                //TempList.Add("p");
                 Adifs2.Add(dxcc_entity, callSignInfo);
-            } else
+                isDXCC = true;
+            }
+            else
             {
                 XElement dxccElement = group.Descendants().Where(x => x.Name == "kind" && x.Value == "pfInvalidPrefix").First().Parent;
                 // create the DXCC structure
                 callSignInfo = new CallSignInfo(dxccElement);
+                _Count += 1;
+                //TempList.Add("p");
                 Adifs2.Add(dxcc_entity, callSignInfo);
+                isDXCC = true;
             }
-            
-            foreach (XElement element in masks.Descendants())
-            {
 
-                if (element.Value != "") // empty is usually a DXCC node
+            foreach (XElement prefix in group)
+            {
+                masks = prefix.Elements().Where(x => x.Name == "masks");
+
+                callSignInfo = new CallSignInfo(prefix);
+                _Count += 1;
+
+                foreach (XElement element in masks.Descendants())
                 {
-                    if (!isInitialized)
+
+                    if (element.Value != "") // empty is usually a DXCC node
                     {
-                        isInitialized = true;
-                        callSignInfo = new CallSignInfo(element.Parent.Parent);
+                        ExpandMask(element.Value);
+
+                        foreach (List<string> list in _PrimaryMaskList)
+                        {
+                            callSignInfoList = new List<CallSignInfo>();
+                            foreach (string item in list)
+                            {
+                                if (!CallSignDictionary.ContainsKey(item))
+                                {
+                                    //callSignInfoList.Clear();// = new List<CallSignInfo>();
+                                    callSignInfoList.Add(callSignInfo);
+                                    CallSignDictionary.Add(item, callSignInfoList);
+                                }
+                                else 
+                                {
+                                    callSignInfoList = CallSignDictionary[item];
+                                    callSignInfoList.Add(callSignInfo);
+                                    //Console.WriteLine(item);
+                                }
+                            }
+
+                        }
                     }
-                    
-                    ExpandMask(element.Value);
-                } 
-                else
-                {
-                    int d = 1;
+                    else
+                    {
+                        int d = 1;
+                    }
+                    _PrimaryMaskList.Clear();
                 }
             }
 
             //callSignInfo = new CallSignInfo(element.Parent.Parent);
-            foreach (List<string> list in _PrimaryMaskList)
-            {
-                foreach(string item in list)
-                {
-                    if (!CallSignDictionary.ContainsKey(item))
-                    {
-                        callSignInfoList.Clear(); // = new List<CallSignInfo>();
-                        callSignInfoList.Add(callSignInfo);
-                        CallSignDictionary.Add(item, callSignInfoList);
-                    } 
-                    else // add to alternate dictionary
-                    {
-                        callSignInfoList = CallSignDictionary[item];
-                        callSignInfoList.Add(callSignInfo);
-                        Console.WriteLine(item);
-                    }  
-                }
-                
-            }
+            //foreach (List<string> list in _PrimaryMaskList)
+            //{
+            //    foreach(string item in list)
+            //    {
+            //        if (!CallSignDictionary.ContainsKey(item))
+            //        {
+            //            callSignInfoList.Clear(); // = new List<CallSignInfo>();
+            //            callSignInfoList.Add(callSignInfo);
+            //            CallSignDictionary.Add(item, callSignInfoList);
+            //        } 
+            //        else // add to alternate dictionary
+            //        {
+            //            callSignInfoList = CallSignDictionary[item];
+            //            callSignInfoList.Add(callSignInfo);
+            //            Console.WriteLine(item);
+            //        }  
+            //    }
 
-            _PrimaryMaskList.Clear();
+            //}
+
+            //_PrimaryMaskList.Clear();
             var a = 1;
             //foreach (string prefix in _PrimaryMaskList)
             //{
@@ -480,6 +510,8 @@ namespace W6OP.CallParser
             }
 
             PopulatePrimaryPrefixList(allCharacters);
+
+            var a = 1;
         }
 
 
@@ -499,7 +531,6 @@ namespace W6OP.CallParser
                 foreach (string second in allCharacters[1])
                 {
                     result.Add(first + second);
-                    TempList.Add(first + second);
                 }
             }
 
@@ -529,12 +560,13 @@ namespace W6OP.CallParser
             // are expanded I am limiting them to max of 4 characters long or we run
             // out of memory on a 32 bit system (any CPU). Remove these 3 lines if you
             // want the full possible list and are compiling x64.
-            if (allCharacters.Count > 3)
+            if (allCharacters.Count > 2)
             {
-                allCharacters.RemoveRange(2, allCharacters.Count - 2);
+                allCharacters.RemoveRange(1, allCharacters.Count - 1);
+                //allCharacters.RemoveRange(2, allCharacters.Count - 2);
             }
             //-------------------------------------------------------------------------
-
+            
             switch (allCharacters.Count)
             {
                 case 0:
@@ -546,7 +578,6 @@ namespace W6OP.CallParser
                         foreach (string end in allCharacters[0])
                         {
                             tempResult2.Add(pre + end);
-                            TempList.Add(pre + end);
                         }
                     }
                     allCharacters.RemoveRange(0, 1);
@@ -566,7 +597,6 @@ namespace W6OP.CallParser
                         {
 
                             tempResult2.Add(pre + end);
-                            TempList.Add(pre + end);
                         }
                     }
                     allCharacters.RemoveRange(0, 2);
