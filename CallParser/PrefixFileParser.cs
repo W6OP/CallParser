@@ -167,9 +167,7 @@ namespace W6OP.CallParser
             HashSet<CallSignInfo> callSignInfoSet = new HashSet<CallSignInfo>();
             CallSignInfo callSignInfo = new CallSignInfo();
             IEnumerable<XElement> masks = group.Elements().Where(x => x.Name == "masks");
-            bool isInitialized = false;
-            bool isDXCC = false;
-
+          
             int dxcc_entity = Convert.ToInt32(group.Key);
             if (dxcc_entity != 0)
             {
@@ -179,7 +177,6 @@ namespace W6OP.CallParser
                // _Count += 1;
                 //TempList.Add("p");
                 Adifs2.Add(dxcc_entity, callSignInfo);
-                isDXCC = true;
             }
             else
             {
@@ -189,7 +186,6 @@ namespace W6OP.CallParser
                 //_Count += 1;
                 //TempList.Add("p");
                 Adifs2.Add(dxcc_entity, callSignInfo);
-                isDXCC = true;
             }
 
             foreach (XElement prefix in group)
@@ -217,21 +213,26 @@ namespace W6OP.CallParser
 
                                     callSignInfoSet.Add(callSignInfo);
                                     CallSignDictionary.Add(item, callSignInfoSet);
-                                    //CallSignDictionary.Add(item, callSignInfoList);
+                                    //if (callSignInfo.Kind == PrefixKind.City)
+                                    //{
+                                    //    Console.WriteLine("******  CITY ********** ::::::::::::::::::::::::::::::::::::::" + callSignInfo.QTH);
+                                    //}
                                 }
                                 else
-                                {
-                                    //callSignInfoList = CallSignDictionary[item];
-                                    //callSignInfoList.Add(callSignInfo);
+                                {;
                                     callSignInfoSet.Add(callSignInfo);
                                     HashSet<CallSignInfo> callInfoSet = CallSignDictionary[item];
                                     if (callInfoSet.First().DXCC != callSignInfo.DXCC)
                                     {
                                         callInfoSet.UnionWith(callSignInfoSet);
                                         _Count++;
-                                        Console.WriteLine(callInfoSet.First().Country + " : " + callInfoSet.First().DXCC + " : " + callInfoSet.First().Kind + " : " + item);
-                                        Console.WriteLine(callSignInfo.Country + " : " + callSignInfo.DXCC + " : " + callSignInfo.Kind + " : " + item);
-                                        Console.WriteLine("--------------------" + _Count.ToString() + "-----" +callInfoSet.Count.ToString() + "-------------------------");
+                                        //Console.WriteLine(callInfoSet.First().Country + " : " + callInfoSet.First().DXCC + " : " + callInfoSet.First().Kind + " : " + item);
+                                        //Console.WriteLine(callSignInfo.Country + " : " + callSignInfo.DXCC + " : " + callSignInfo.Kind + " : " + item);
+                                        //if (callInfoSet.First().Kind == PrefixKind.City || callSignInfo.Kind == PrefixKind.City)
+                                        //{
+                                        //    Console.WriteLine("******  CITY **********");
+                                        //}
+                                        //Console.WriteLine("--------------------" + _Count.ToString() + "-----" +callInfoSet.Count.ToString() + "-------------------------");
                                     }
 
                                 }
