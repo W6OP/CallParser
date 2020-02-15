@@ -158,6 +158,9 @@ namespace W6OP.CallParser
             // check for empty or null string
             if (string.IsNullOrEmpty(callSign)) { return false; }
 
+            // calls must be at least 2 characters
+            if (callSign.Length < 2) { return false; }
+
             // check if first character is "/"
             if (callSign.IndexOf("/", 0, 1) == 0) { return false; }
 
@@ -418,17 +421,17 @@ namespace W6OP.CallParser
         private void CollectMatchesEx(string call)
         {
             HashSet<CallSignInfo> query;
-            string firstPart; // = callAndprefix.call.Substring(0, 1);
+            string callSignPart;
             CallSignInfo dxcc;
 
             int count = 1; // call.Length - 1;
 
             while (count <= call.Count() && count < 5)
             {
-                firstPart = call.Substring(0, count);
-                if (CallSignDictionary.ContainsKey(firstPart))
+                callSignPart = call.Substring(0, count);
+                if (CallSignDictionary.ContainsKey(callSignPart))
                 {
-                    query = CallSignDictionary[firstPart];
+                    query = CallSignDictionary[callSignPart];
                     foreach (CallSignInfo callSignInfo in query)
                     {
                         //item.CallSign = call;
