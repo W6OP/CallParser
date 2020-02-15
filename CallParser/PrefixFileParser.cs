@@ -59,9 +59,9 @@ namespace W6OP.CallParser
         /// Public fields.
         /// </summary>
         public Dictionary<string, List<Hit>> PrefixesDictionary { get; set; }
-        private SortedDictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
-        public Dictionary<Int32, Hit> Adifs { get; set; }
-        public Dictionary<Int32, CallSignInfo> Adifs2 { get; set; }
+        public SortedDictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
+        //public Dictionary<Int32, Hit> Adifs { get; set; }
+        public Dictionary<Int32, CallSignInfo> Adifs { get; set; }
         public List<Admin> Admins;
 
 
@@ -102,8 +102,8 @@ namespace W6OP.CallParser
             PrefixesDictionary = new Dictionary<string, List<Hit>>(10000000);
             CallSignDictionary = new SortedDictionary<string, HashSet<CallSignInfo>>();
 
-            Adifs = new Dictionary<int, Hit>();
-            Adifs2 = new Dictionary<int, CallSignInfo>();
+            //Adifs = new Dictionary<int, Hit>();
+            Adifs = new Dictionary<int, CallSignInfo>();
             Admins = new List<Admin>();
 
             _PrimaryMaskList = new HashSet<List<string>>();
@@ -176,7 +176,7 @@ namespace W6OP.CallParser
                 callSignInfo = new CallSignInfo(dxccElement);
                // _Count += 1;
                 //TempList.Add("p");
-                Adifs2.Add(dxcc_entity, callSignInfo);
+                Adifs.Add(dxcc_entity, callSignInfo);
             }
             else
             {
@@ -185,7 +185,7 @@ namespace W6OP.CallParser
                 callSignInfo = new CallSignInfo(dxccElement);
                 //_Count += 1;
                 //TempList.Add("p");
-                Adifs2.Add(dxcc_entity, callSignInfo);
+                Adifs.Add(dxcc_entity, callSignInfo);
             }
 
             foreach (XElement prefix in group)
@@ -398,7 +398,7 @@ namespace W6OP.CallParser
 
             if (hit.Kind == PrefixKind.InvalidPrefix)
             {
-                Adifs.Add(0, hit);
+                //Adifs.Add(0, hit);
             }
 
             if (hit.Wae != 0)
@@ -407,13 +407,13 @@ namespace W6OP.CallParser
                 // {
                 // temporarily made Pelagie Is.wae_entity 907 to eliminate dupe
                 // need permanent solution - may use enum for entity
-                Adifs.Add(hit.Wae, hit);
+                //Adifs.Add(hit.Wae, hit);
                 // }
             }
 
             if (hit.Kind == PrefixKind.DXCC)
             {
-                Adifs.Add(hit.Dxcc, hit);
+               // Adifs.Add(hit.Dxcc, hit);
             }
 
             if (!String.IsNullOrEmpty(hit.Admin1) && hit.Kind == PrefixKind.Province)

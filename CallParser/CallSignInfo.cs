@@ -79,9 +79,7 @@ namespace W6OP.CallParser
         public string StartDate { get => startDate; }
         public string EndDate { get => endDate; }
         public bool IsIota { get => isIota; }
-        public string CallSign { get => callSign; }
-
-
+        public string CallSign { get => callSign; set => callSign = value; }
 
         private void BuildCallSignInfo(XElement prefixXml)
         {

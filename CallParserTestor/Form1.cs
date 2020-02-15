@@ -7,6 +7,8 @@ using System.Windows.Forms;
 using W6OP.CallParser;
 using CsvHelper;
 using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CallParserTestor
 {
@@ -15,7 +17,7 @@ namespace CallParserTestor
         readonly PrefixFileParser _PrefixFileParser;
         CallLookUp _CallLookUp;
         List<string> _Records;  // = new List<string>();
-
+        Stopwatch stopwatch = new Stopwatch();
 
         public Form1()
         {
@@ -26,7 +28,7 @@ namespace CallParserTestor
 
         private void Form1_Load(object sender, EventArgs e)
         {
-          
+
         }
 
         /// <summary>
@@ -47,10 +49,10 @@ namespace CallParserTestor
         private void ButtonLoadCallSigns_Click(object sender, EventArgs e)
         {
             _Records = new List<string>();
-        
+
             Cursor.Current = Cursors.WaitCursor;
 
-            var sw = Stopwatch.StartNew();
+            stopwatch = Stopwatch.StartNew();
 
             using (StreamReader reader = new StreamReader("rbn2.csv"))
             using (var csv = new CsvReader(reader)) //, CultureInfo.InvariantCulture))
@@ -75,8 +77,8 @@ namespace CallParserTestor
                 }
             }
 
-            Console.WriteLine("Load Time: " + sw.ElapsedMilliseconds + "ms");
-            //label3.Text = ((float)(sw.ElapsedMilliseconds)).ToString() + "ms";
+            Console.WriteLine("Load Time: " + stopwatch.ElapsedMilliseconds + "ms");
+            //label3.Text = ((float)(stopwatch.ElapsedMilliseconds)).ToString() + "ms";
             label4.Text = _Records.Count.ToString() + " calls loaded";
             Cursor.Current = Cursors.Default;
         }
@@ -91,26 +93,32 @@ namespace CallParserTestor
         /// <param name="e"></param>
         private void ButtonSingleCallLookup_Click(object sender, EventArgs e)
         {
-            IEnumerable<Hit> hitCollection = null;
-            List<Hit> hitList;
+            IEnumerable<CallSignInfo> hitCollection = null;
+            List<CallSignInfo> hitList;
             float divisor = 1000;
+
+            if (_CallLookUp == null)
+            {
+                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
 
             try
             {
                 if (!String.IsNullOrEmpty(TextBoxCall.Text))
                 {
-                    var sw = Stopwatch.StartNew();
+                    stopwatch = Stopwatch.StartNew();
 
-                    hitCollection = LookupCall(TextBoxCall.Text);
+                    hitCollection = _CallLookUp.LookUpCall(TextBoxCall.Text);
 
                     if (hitCollection != null)
                     {
                         hitList = hitCollection.ToList();
 
                         Console.WriteLine(hitList.Count.ToString() + " hits returned");
-                        label1.Text = "Search Time: " + sw.ElapsedMilliseconds;
+                        label1.Text = "Search Time: " + stopwatch.ElapsedMilliseconds;
                         label2.Text = "Finished - hitcount = " + hitList.Count.ToString();
-                        label3.Text = ((float)(sw.ElapsedMilliseconds / divisor)).ToString() + "us";
+                        label3.Text = ((float)(stopwatch.ElapsedMilliseconds / divisor)).ToString() + "us";
                     }
                 }
             }
@@ -123,35 +131,55 @@ namespace CallParserTestor
             Console.WriteLine("Finished");
         }
 
-       
+
         /// <summary>
         /// Batch lookup.
-        /// Send in a list of all calls at once.
+        /// Send in a list of all calls at once. Be sure to move the task
+        /// off the GUI thread.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void ButtonBatchCallSignLookup_Click(object sender, EventArgs e)
         {
-            IEnumerable<Hit> hitCollection;
-            // need to preallocate space in collection
-            List<Hit> hitList = new List<Hit>(5000000);
-            float divisor = 1000;
+            if (_CallLookUp == null)
+            {
+                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
 
             Cursor.Current = Cursors.WaitCursor;
+            Task.Run(() => BatchCallSignLookup());
+        }
 
-            var sw = Stopwatch.StartNew();
 
-            hitCollection = LookupCall(_Records);
+        private void BatchCallSignLookup()
+        {
+            IEnumerable<CallSignInfo> hitCollection;
+            // need to preallocate space in collection
+            List<CallSignInfo> hitList = new List<CallSignInfo>(5000000);
 
-            label1.Text = "Search Time: " + sw.Elapsed; // + " ticks: " + sw.ElapsedTicks;
+            stopwatch = Stopwatch.StartNew();
 
+            hitCollection = _CallLookUp.LookUpCall(_Records);
             hitList.AddRange(hitCollection);
 
-            divisor = hitList.Count / 1000;
-            
-            label2.Text = "Finished - hitcount = " + hitList.Count.ToString();
-            label3.Text = ((float)(sw.ElapsedMilliseconds / divisor)).ToString() + " microseconds per call sign";
-            Console.WriteLine("Finished - hitcount = " + hitList.Count.ToString());
+            UpdateLabels(hitList.Count());
+        }
+
+        private void UpdateLabels(int count)
+        {
+            float divisor = 1000;
+
+            if (InvokeRequired)
+            {
+                this.BeginInvoke(new Action<Int32>(this.UpdateLabels), count);
+                return;
+            }
+
+            Cursor.Current = Cursors.Default;
+            label2.Text = "Finished - hitcount = " + count.ToString();
+            label1.Text = "Search Time: " + stopwatch.Elapsed;
+            label3.Text = ((float)(stopwatch.ElapsedMilliseconds / divisor)).ToString() + " microseconds per call sign";
 
             // save to a text file
             //var thread = new Thread(() =>
@@ -169,47 +197,40 @@ namespace CallParserTestor
         /// <param name="e"></param>
         private void ButtonSemiBatch_Click(object sender, EventArgs e)
         {
-            IEnumerable<Hit> hitCollection;
+            if (_CallLookUp == null)
+            {
+                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+            stopwatch = Stopwatch.StartNew();
+            Cursor.Current = Cursors.WaitCursor;
+            Task.Run(() => SemiBatchCallSignLookup());
+        }
+
+        private void SemiBatchCallSignLookup()
+        {
+            IEnumerable<CallSignInfo> hitCollection;
             // need to preallocate space in collection
-            List<Hit> hitList = new List<Hit>(5000000);
-            //float divisor = 1000;
+            List<CallSignInfo> hitList = new List<CallSignInfo>(5000000);
             int total = 0;
 
-            Cursor.Current = Cursors.WaitCursor;
-
-            var sw = Stopwatch.StartNew();
-            Cursor.Current = Cursors.WaitCursor;
+            stopwatch = Stopwatch.StartNew();
 
             foreach (string call in _Records)
             {
                 total += 1;
-                //if (total == _Records.Count - 5)
-                //{
-                //    var a = 2;
-                //}
-                hitCollection = LookupCall(call);
+
+                hitCollection = _CallLookUp.LookUpCall(call);
 
                 if (hitCollection != null)
                 {
                     hitList.AddRange(hitCollection);
                 }
-
-                Application.DoEvents();
             }
 
-            label1.Text = "Search Time: " + sw.Elapsed;
-            label2.Text = "Finished - hitcount = " + hitList.Count.ToString();
-            label3.Text =  ((float)(sw.ElapsedMilliseconds / hitList.Count)).ToString() + "us";
-            Console.WriteLine("Finished - hitcount = " + hitList.Count.ToString());
-
-            //var thread = new Thread(() =>
-            //{
-            //    Cursor.Current = Cursors.WaitCursor;
-            //    SaveHitList(hitList);
-            //});
-            //thread.Start();
+            UpdateLabels(hitList.Count());
         }
-
 
         /// <summary>
         /// Parse the prefix file.
@@ -218,27 +239,11 @@ namespace CallParserTestor
         public void ParsePrefixFile(string filePath)
         {
             Cursor.Current = Cursors.WaitCursor;
-            var sw = Stopwatch.StartNew();
+            stopwatch = Stopwatch.StartNew();
             _PrefixFileParser.ParsePrefixFile("");
-            Console.WriteLine("Load Time: " + sw.ElapsedMilliseconds + "ms");
+            Console.WriteLine("Load Time: " + stopwatch.ElapsedMilliseconds + "ms");
             Cursor.Current = Cursors.Default;
             _CallLookUp = new CallLookUp(_PrefixFileParser);
-        }
-
-        /// <summary>
-        /// Single call lookup.
-        /// </summary>
-        /// <param name="call"></param>
-        /// <returns></returns>
-        public IEnumerable<Hit> LookupCall(string call)
-        {
-            if (_CallLookUp == null)
-            {
-                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return null;
-            }
-
-            return _CallLookUp.LookUpCall(call);
         }
 
         /// <summary>
@@ -246,7 +251,7 @@ namespace CallParserTestor
         /// </summary>
         /// <param name="callSigns"></param>
         /// <returns></returns>
-        public IEnumerable<Hit> LookupCall(List<string> callSigns)
+        public IEnumerable<CallSignInfo> LookupCall(List<string> callSigns)
         {
             if (_CallLookUp == null)
             {
@@ -275,7 +280,7 @@ namespace CallParserTestor
                 //csv.WriteRecord();
                 foreach (Hit callSignInfo in sortedList)
                 {
-                    
+
                     if (callSignInfo.Kind == PrefixKind.DXCC)
                     {
                         csv.WriteField(callSignInfo.CallSign);
@@ -286,7 +291,7 @@ namespace CallParserTestor
                         csv.WriteField("----  " + callSignInfo.MainPrefix);
                     }
                     csv.WriteField(callSignInfo.Country);
-                    csv.WriteField(callSignInfo.Province);   
+                    csv.WriteField(callSignInfo.Province);
                     csv.WriteField(callSignInfo.Kind.ToString());
                     csv.WriteField(callSignInfo.Latitude);
                     csv.WriteField(callSignInfo.Longitude);
@@ -296,7 +301,7 @@ namespace CallParserTestor
 
             Console.WriteLine("Finished writing file");
             UpdateCursor();
-           // Cursor.Current = Cursors.Default;
+            // Cursor.Current = Cursors.Default;
         }
 
         /// <summary>
@@ -308,9 +313,9 @@ namespace CallParserTestor
 
         //    var thread = new Thread(() =>
         //    {
-        //        var sw = Stopwatch.StartNew();
+        //        stopwatch = Stopwatch.StartNew();
         //        hit = _CallLookUp.LookUpCall(_Records);
-        //        UpdateDisplay("Search Time: " + sw.ElapsedMilliseconds + "ms - ticks: " + sw.ElapsedTicks);
+        //        UpdateDisplay("Search Time: " + stopwatch.ElapsedMilliseconds + "ms - ticks: " + stopwatch.ElapsedTicks);
         //    });
         //    thread.Start();
         //}
