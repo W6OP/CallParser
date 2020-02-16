@@ -59,7 +59,7 @@
             this.TextBoxCall.Name = "TextBoxCall";
             this.TextBoxCall.Size = new System.Drawing.Size(100, 20);
             this.TextBoxCall.TabIndex = 1;
-            this.TextBoxCall.Text = "U5KV";
+            this.TextBoxCall.Text = "BU2EO";
             // 
             // button2
             // 

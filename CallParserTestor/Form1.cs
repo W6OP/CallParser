@@ -6,24 +6,30 @@ using System.Linq;
 using System.Windows.Forms;
 using W6OP.CallParser;
 using CsvHelper;
-using System.Globalization;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace CallParserTestor
 {
+    /// <summary>
+    /// GUI tester of CallParser with sample code.
+    /// </summary>
     public partial class Form1 : Form
     {
-        readonly PrefixFileParser _PrefixFileParser;
-        CallLookUp _CallLookUp;
-        List<string> _Records;  // = new List<string>();
-        Stopwatch stopwatch = new Stopwatch();
+        private readonly PrefixFileParser _PrefixFileParser;
+        private CallLookUp _CallLookUp;
+        private List<string> _Records; 
+        private Stopwatch stopwatch = new Stopwatch();
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public Form1()
         {
             InitializeComponent();
 
-            _PrefixFileParser = new PrefixFileParser();
+            PrefixFileParser prefixFileParser = new PrefixFileParser();
+            _PrefixFileParser = prefixFileParser;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -55,9 +61,8 @@ namespace CallParserTestor
             stopwatch = Stopwatch.StartNew();
 
             using (StreamReader reader = new StreamReader("rbn2.csv"))
-            using (var csv = new CsvReader(reader)) //, CultureInfo.InvariantCulture))
+            using (var csv = new CsvReader(reader))
             {
-
                 csv.Read();
                 csv.ReadHeader();
                 while (csv.Read())
@@ -119,6 +124,14 @@ namespace CallParserTestor
                         label1.Text = "Search Time: " + stopwatch.ElapsedMilliseconds;
                         label2.Text = "Finished - hitcount = " + hitList.Count.ToString();
                         label3.Text = ((float)(stopwatch.ElapsedMilliseconds / divisor)).ToString() + "us";
+
+                        // save to a text file
+                        var thread = new Thread(() =>
+                        {
+                            Cursor.Current = Cursors.WaitCursor;
+                            SaveHitList(hitList);
+                        });
+                        thread.Start();
                     }
                 }
             }
@@ -266,19 +279,19 @@ namespace CallParserTestor
         /// Create a CSV file and save a bunch of hits to see if they are correct.
         /// </summary>
         /// <param name="hitList"></param>
-        private void SaveHitList(List<Hit> hitList)
+        private void SaveHitList(List<CallSignInfo> hitList)
         {
             String folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             String file = Path.Combine(folderPath, "hits.csv");
 
-            List<Hit> sortedList = hitList;    //.OrderBy(o => o.CallSign).ToList();
+            List<CallSignInfo> sortedList = hitList.OrderBy(o => o.Country).ThenBy(x => x.Kind).ToList();
 
             using (TextWriter writer = new StreamWriter(file, false, System.Text.Encoding.UTF8))
             {
                 var csv = new CsvWriter(writer);
                 //csv.WriteRecords(hitList); // where values implements IEnumerable
                 //csv.WriteRecord();
-                foreach (Hit callSignInfo in sortedList)
+                foreach (CallSignInfo callSignInfo in sortedList)
                 {
 
                     if (callSignInfo.Kind == PrefixKind.DXCC)

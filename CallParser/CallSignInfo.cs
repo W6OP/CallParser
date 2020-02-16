@@ -92,12 +92,7 @@ namespace W6OP.CallParser
                 switch (element.Name.ToString())
                 {
                     case "masks":
-                    //foreach (XElement mask in element.Elements())
-                    //{
-                    //    ExpandMask(mask.Value);
-                    //    //ExpandMask("K[ABDEFIJKMNOQ-Z]4");
-                    //}
-                    //break;
+                    break;
                     case "label":
                         fullPrefix = currentValue ?? "";
                         if (currentValue.Contains("."))

@@ -424,42 +424,40 @@ namespace W6OP.CallParser
             string callSignPart;
             CallSignInfo dxcc;
 
-            int count = 1; // call.Length - 1;
+            int count = call.Length - 1;
 
-            while (count <= call.Count() && count < 5)
+            //    // only use the first 4 characters - faster search you would think
+            //    // but truncating the string has some overhead - more accurate result though
+            // MOVE THIS TO CALLING METHOD
+            callSignPart = call.Length > 3 ? call.Substring(0, 4) : call;
+
+            //while (count <= call.Count() && count < 5)
+            while (count > 2)
             {
-                callSignPart = call.Substring(0, count);
+                //callSignPart = call.Substring(0, count);
                 if (CallSignDictionary.ContainsKey(callSignPart))
                 {
                     query = CallSignDictionary[callSignPart];
                     foreach (CallSignInfo callSignInfo in query)
                     {
-                        //item.CallSign = call;
-                        HitList.Add(callSignInfo);
-                        if (callSignInfo.Kind != PrefixKind.DXCC)
+                        if (!HitList.Contains(callSignInfo))
                         {
-                            dxcc = Adifs[callSignInfo.DXCC];
-                            HitList.Add(dxcc);
+                            callSignInfo.CallSign = call;
+                            HitList.Add(callSignInfo);
+                            if (callSignInfo.Kind != PrefixKind.DXCC)
+                            {
+                                dxcc = Adifs[callSignInfo.DXCC];
+                                if (!HitList.Contains(dxcc))
+                                {
+                                    dxcc.CallSign = call;
+                                    HitList.Add(dxcc);
+                                }
+                            }
                         }
-
-                        //if (!HitList.Contains(item))
-                        //{
-                        //    HitList.Add(item);
-
-                            //    if (item.Kind != PrefixKind.DXCC)
-                            //    {
-                            //        hit = Adifs[Convert.ToInt32(item.DXCC)];
-                            //        hit.CallSign = call;
-                            //        if (!HitList.Contains(hit))
-                            //        {
-                            //            HitList.Add(hit);
-                            //        }
-                            //    }
-                            //}
                     }
                 }
-
-                count++;
+                count--;
+                callSignPart = call.Substring(0, count);
             }
             var a = 1;
         }

@@ -167,14 +167,14 @@ namespace W6OP.CallParser
             HashSet<CallSignInfo> callSignInfoSet = new HashSet<CallSignInfo>();
             CallSignInfo callSignInfo = new CallSignInfo();
             IEnumerable<XElement> masks = group.Elements().Where(x => x.Name == "masks");
-          
+
             int dxcc_entity = Convert.ToInt32(group.Key);
             if (dxcc_entity != 0)
             {
                 XElement dxccElement = group.Descendants().Where(x => x.Name == "kind" && x.Value == "pfDXCC").First().Parent;
                 // create the DXCC structure
                 callSignInfo = new CallSignInfo(dxccElement);
-               // _Count += 1;
+                // _Count += 1;
                 //TempList.Add("p");
                 Adifs.Add(dxcc_entity, callSignInfo);
             }
@@ -208,73 +208,71 @@ namespace W6OP.CallParser
                             callSignInfoSet = new HashSet<CallSignInfo>();
                             foreach (string item in list)
                             {
+                                // ------------------------------------------------
+                                if (item == "BU2" || item == "BO2")
+                                {
+                                    var f = 1;
+                                }
+                                // -------------------------------------------------
                                 if (!CallSignDictionary.ContainsKey(item))
                                 {
 
                                     callSignInfoSet.Add(callSignInfo);
                                     CallSignDictionary.Add(item, callSignInfoSet);
-                                    //if (callSignInfo.Kind == PrefixKind.City)
+
+                                    // -----------------------------------------------
+                                    //if (CallSignDictionary.ContainsKey("BU2"))
                                     //{
-                                    //    Console.WriteLine("******  CITY ********** ::::::::::::::::::::::::::::::::::::::" + callSignInfo.QTH);
+                                    //    HashSet<CallSignInfo> test = CallSignDictionary["BU2"];
+                                    //    if (test.Count > 2)
+                                    //    {
+                                    //        var r = 2;
+                                    //    }
                                     //}
+                                    // ---------------------------------------
                                 }
                                 else
-                                {;
+                                {
                                     callSignInfoSet.Add(callSignInfo);
-                                    HashSet<CallSignInfo> callInfoSet = CallSignDictionary[item];
-                                    if (callInfoSet.First().DXCC != callSignInfo.DXCC)
+                                    HashSet<CallSignInfo> callDictionarySet = CallSignDictionary[item];
+
+                                    if (callDictionarySet.First().DXCC != callSignInfo.DXCC)
                                     {
-                                        callInfoSet.UnionWith(callSignInfoSet);
+                                        callDictionarySet.UnionWith(callSignInfoSet);
                                         _Count++;
-                                        //Console.WriteLine(callInfoSet.First().Country + " : " + callInfoSet.First().DXCC + " : " + callInfoSet.First().Kind + " : " + item);
-                                        //Console.WriteLine(callSignInfo.Country + " : " + callSignInfo.DXCC + " : " + callSignInfo.Kind + " : " + item);
-                                        //if (callInfoSet.First().Kind == PrefixKind.City || callSignInfo.Kind == PrefixKind.City)
-                                        //{
-                                        //    Console.WriteLine("******  CITY **********");
-                                        //}
-                                        //Console.WriteLine("--------------------" + _Count.ToString() + "-----" +callInfoSet.Count.ToString() + "-------------------------");
                                     }
 
-                                }
-                            }
+                                    //if (CallSignDictionary["BU2"] == CallSignDictionary["BO2"])
+                                    //{
+                                    //    var d = 1;
+                                    //}
 
+                                    // ---------------------------------------------------
+                                    //if (CallSignDictionary.ContainsKey("BU2"))
+                                    //{
+                                    //    HashSet<CallSignInfo> test = CallSignDictionary["BU2"];
+                                    //    if (test.Count > 2)
+                                    //    {
+                                    //        var r = 2;
+                                    //    }
+                                    //}
+                                    // -------------------------------------------------
+                                }
+
+                                //if (CallSignDictionary.ContainsKey("BU2"))
+                                //{
+                                //    HashSet<CallSignInfo> test = CallSignDictionary["BU2"];
+                                //    if (test.Count > 1)
+                                //    {
+                                //        var r = 2;
+                                //    }
+                                //} 
+                            }
                         }
-                    }
-                    else
-                    {
-                        int d = 1;
                     }
                     _PrimaryMaskList.Clear();
                 }
             }
-
-            //callSignInfo = new CallSignInfo(element.Parent.Parent);
-            //foreach (List<string> list in _PrimaryMaskList)
-            //{
-            //    foreach(string item in list)
-            //    {
-            //        if (!CallSignDictionary.ContainsKey(item))
-            //        {
-            //            callSignInfoList.Clear(); // = new List<CallSignInfo>();
-            //            callSignInfoList.Add(callSignInfo);
-            //            CallSignDictionary.Add(item, callSignInfoList);
-            //        } 
-            //        else // add to alternate dictionary
-            //        {
-            //            callSignInfoList = CallSignDictionary[item];
-            //            callSignInfoList.Add(callSignInfo);
-            //            Console.WriteLine(item);
-            //        }  
-            //    }
-
-            //}
-
-            //_PrimaryMaskList.Clear();
-            var a = 1;
-            //foreach (string prefix in _PrimaryMaskList)
-            //{
-
-            //}
         }
 
         /*
@@ -304,164 +302,38 @@ namespace W6OP.CallParser
         //    var a = 1;
         //}
 
-        /// <summary>
-        /// Using the data in each prefix node build a Hit object
-        /// for each one. Save it in a dictionary (PrefixesDictionary).
-        /// </summary>
-        /// <param name="prefixXml"></param>
-        private void BuildCallSignInfo(XElement prefixXml)
-        {
-            Hit hit = new Hit();
-            //List<Hit> hitList;
-            string currentValue;
+        ///// <summary>
+        /////
+        ///// need to really look at this and see if it can be simplified
+        ///// too many loops
+        ///// </summary>
+        ///// <param name="hit"></param>
+        //internal void CollectHits(Hit hit)
+        //{
+        //    List<Hit> hitList;
 
-            _PrimaryMaskList.Clear();
+        //    foreach (List<string> prefixList in _PrimaryMaskList)
+        //    {
+        //        hitList = new List<Hit>(prefixList.Count);
+        //        foreach (string prefix in prefixList)
+        //        {
+        //            hitList = new List<Hit>();
+        //            if (!PrefixesDictionary.ContainsKey(prefix))
+        //            {
+        //                hitList.Add(hit);
+        //                PrefixesDictionary.Add(prefix, hitList);
+        //            }
+        //            else
+        //            {
+        //                //when we expand the mask to all possible values then some will be duplicated
+        //                // ie.AL, NL for Alaska
+        //                hitList = PrefixesDictionary[prefix];
+        //                hitList.Add(hit);
+        //            }
+        //        }
+        //    }
 
-            foreach (XElement element in prefixXml.Elements())
-            {
-                currentValue = element.Value;
-
-                switch (element.Name.ToString())
-                {
-                    case "masks":
-                        foreach (XElement mask in element.Elements())
-                        {
-                            ExpandMask(mask.Value);
-                            //ExpandMask("K[ABDEFIJKMNOQ-Z]4");
-                        }
-                        break;
-                    case "label":
-                        hit.FullPrefix = currentValue ?? "";
-                        if (currentValue.Contains("."))
-                        {
-                            // get string after the "."
-                            hit.MainPrefix = hit.FullPrefix.Substring(hit.FullPrefix.LastIndexOf('.') + 1);
-                        }
-                        else
-                        {
-                            hit.MainPrefix = hit.FullPrefix;
-                        }
-                        break;
-                    case "kind":
-                        hit.Kind = EnumEx.GetValueFromDescription<PrefixKind>(currentValue);
-                        break;
-                    case "country":
-                        hit.Country = currentValue ?? "";
-                        break;
-                    case "province":
-                        hit.Province = currentValue ?? "";
-                        break;
-                    case "dxcc_entity":
-                        hit.Dxcc = Convert.ToInt32(currentValue);
-                        break;
-                    case "cq_zone":
-                        hit.Cq = currentValue ?? "";
-                        break;
-                    case "itu_zone":
-                        hit.Itu = currentValue ?? "";
-                        break;
-                    case "continent":
-                        hit.Continent = currentValue ?? "";
-                        break;
-                    case "time_zone":
-                        hit.TimeZone = currentValue ?? "";
-                        break;
-                    case "lat":
-                        hit.Latitude = currentValue ?? "";
-                        break;
-                    case "long":
-                        hit.Longitude = currentValue ?? "";
-                        break;
-                    case "city":
-                        hit.Qth = currentValue ?? "";
-                        break;
-                    case "wap_entity":
-                        hit.Wap = currentValue ?? "";
-                        break;
-                    case "wae_entity":
-                        hit.Wae = Convert.ToInt32(currentValue);
-                        break;
-                    case "province_id":
-                        hit.Admin1 = currentValue ?? "";
-                        break;
-                    case "start_date":
-                        hit.StartDate = currentValue ?? "";
-                        break;
-                    case "end_date":
-                        hit.EndDate = currentValue ?? "";
-                        break;
-                    default:
-                        currentValue = null;
-                        break;
-                }
-            }
-
-            if (hit.Kind == PrefixKind.InvalidPrefix)
-            {
-                //Adifs.Add(0, hit);
-            }
-
-            if (hit.Wae != 0)
-            {
-                // if (!Adifs.ContainsKey(hit.Wae))
-                // {
-                // temporarily made Pelagie Is.wae_entity 907 to eliminate dupe
-                // need permanent solution - may use enum for entity
-                //Adifs.Add(hit.Wae, hit);
-                // }
-            }
-
-            if (hit.Kind == PrefixKind.DXCC)
-            {
-               // Adifs.Add(hit.Dxcc, hit);
-            }
-
-            if (!String.IsNullOrEmpty(hit.Admin1) && hit.Kind == PrefixKind.Province)
-            {
-                Admin admin = new Admin(hit.Admin1, hit);
-                Admins.Add(admin);
-            }
-
-            // DXCC is in ADIFs // Feb. 3, 2020
-            //if (hit.Kind != PrefixKind.pfDXCC)
-            //{
-            CollectHits(hit);
-            //}
-        }
-
-        /// <summary>
-        ///
-        /// need to really look at this and see if it can be simplified
-        /// too many loops
-        /// </summary>
-        /// <param name="hit"></param>
-        internal void CollectHits(Hit hit)
-        {
-            // Hit hit = new Hit();
-            List<Hit> hitList;
-
-            foreach (List<string> prefixList in _PrimaryMaskList)
-            {
-                hitList = new List<Hit>(prefixList.Count);
-                foreach (string prefix in prefixList)
-                {
-                    hitList = new List<Hit>();
-                    if (!PrefixesDictionary.ContainsKey(prefix))
-                    {
-                        hitList.Add(hit);
-                        PrefixesDictionary.Add(prefix, hitList);
-                    }
-                    else
-                    {
-                        //when we expand the mask to all possible values then some will be duplicated
-                        // ie.AL, NL for Alaska
-                        hitList = PrefixesDictionary[prefix];
-                        hitList.Add(hit);
-                    }
-                }
-            }
-
-        }
+        //}
 
         /// <summary>
         /// Expand the mask into its separate components.
@@ -523,8 +395,6 @@ namespace W6OP.CallParser
             }
 
             PopulatePrimaryPrefixList(allCharacters);
-
-            var a = 1;
         }
 
 
@@ -579,7 +449,7 @@ namespace W6OP.CallParser
                 //allCharacters.RemoveRange(2, allCharacters.Count - 2);
             }
             //-------------------------------------------------------------------------
-            
+
             switch (allCharacters.Count)
             {
                 case 0:
