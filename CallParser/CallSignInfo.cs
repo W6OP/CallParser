@@ -19,6 +19,11 @@ namespace W6OP.CallParser
         {
         }
 
+        public CallSignInfo ShallowCopy()
+        {
+            return (CallSignInfo)this.MemberwiseClone();
+        }
+
         /// <summary>
         /// private fields
         /// </summary>
