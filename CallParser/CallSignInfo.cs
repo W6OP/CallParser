@@ -11,6 +11,7 @@ namespace W6OP.CallParser
     {
         public CallSignInfo(System.Xml.Linq.XElement element)
         {
+            prefixKey = new HashSet<string>();
             BuildCallSignInfo(element);
         }
 
@@ -21,6 +22,7 @@ namespace W6OP.CallParser
         /// <summary>
         /// private fields
         /// </summary>
+        private HashSet<string> prefixKey;
         private int dxcc;  //dxcc_entity
         private int wae;
         private string iota;
@@ -80,6 +82,7 @@ namespace W6OP.CallParser
         public string EndDate { get => endDate; }
         public bool IsIota { get => isIota; }
         public string CallSign { get => callSign; set => callSign = value; }
+        public HashSet<string> PrefixKey { get => prefixKey; set => prefixKey = value; }
 
         private void BuildCallSignInfo(XElement prefixXml)
         {

@@ -59,7 +59,7 @@ namespace W6OP.CallParser
         /// Public fields.
         /// </summary>
         public Dictionary<string, List<Hit>> PrefixesDictionary { get; set; }
-        public SortedDictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
+        public Dictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
         //public Dictionary<Int32, Hit> Adifs { get; set; }
         public Dictionary<Int32, CallSignInfo> Adifs { get; set; }
         public List<Admin> Admins;
@@ -70,13 +70,13 @@ namespace W6OP.CallParser
         /// so I don't have overhead of "new" in loops. Can use .Clear() instead
         /// sometimes but not always.
         /// </summary>
-        private List<string> tempResult = new List<string>();
-        private List<List<string>> allCharacters = new List<List<string>>();
+        //private List<string> tempResult = new List<string>();
+        // private List<List<string>> allCharacters = new List<List<string>>();
 
         /// <summary>
         /// Private fields.
         /// </summary>
-        private HashSet<List<string>> _PrimaryMaskList;
+        private HashSet<string> _PrimaryMaskList;
         private readonly string[] _Alphabet = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
         private readonly string[] _Numbers = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
@@ -100,13 +100,13 @@ namespace W6OP.CallParser
 
             // preallocate collection size for performance
             PrefixesDictionary = new Dictionary<string, List<Hit>>(10000000);
-            CallSignDictionary = new SortedDictionary<string, HashSet<CallSignInfo>>();
+            CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>();
 
             //Adifs = new Dictionary<int, Hit>();
             Adifs = new Dictionary<int, CallSignInfo>();
             Admins = new List<Admin>();
 
-            _PrimaryMaskList = new HashSet<List<string>>();
+            _PrimaryMaskList = new HashSet<string>();
 
             if (File.Exists(prefixFilePath))
             {
@@ -160,8 +160,10 @@ namespace W6OP.CallParser
             //}
         }
 
-        List<string> TempList = new List<string>();
-        int _Count = 0;
+       /// <summary>
+       /// 
+       /// </summary>
+       /// <param name="group"></param>
         private void BuildCallSignInfoEx(IGrouping<string, XElement> group)
         {
             HashSet<CallSignInfo> callSignInfoSet = new HashSet<CallSignInfo>();
@@ -174,8 +176,6 @@ namespace W6OP.CallParser
                 XElement dxccElement = group.Descendants().Where(x => x.Name == "kind" && x.Value == "pfDXCC").First().Parent;
                 // create the DXCC structure
                 callSignInfo = new CallSignInfo(dxccElement);
-                // _Count += 1;
-                //TempList.Add("p");
                 Adifs.Add(dxcc_entity, callSignInfo);
             }
             else
@@ -183,8 +183,6 @@ namespace W6OP.CallParser
                 XElement dxccElement = group.Descendants().Where(x => x.Name == "kind" && x.Value == "pfInvalidPrefix").First().Parent;
                 // create the DXCC structure
                 callSignInfo = new CallSignInfo(dxccElement);
-                //_Count += 1;
-                //TempList.Add("p");
                 Adifs.Add(dxcc_entity, callSignInfo);
             }
 
@@ -193,80 +191,32 @@ namespace W6OP.CallParser
                 masks = prefix.Elements().Where(x => x.Name == "masks");
 
                 callSignInfo = new CallSignInfo(prefix);
-                //_Count += 1;
 
                 foreach (XElement element in masks.Descendants())
                 {
-
                     if (element.Value != "") // empty is usually a DXCC node
                     {
                         ExpandMask(element.Value);
 
-                        foreach (List<string> list in _PrimaryMaskList)
+                        callSignInfoSet = new HashSet<CallSignInfo>();
+                        foreach (string item in _PrimaryMaskList)
                         {
-                            //callSignInfoList = new List<CallSignInfo>();
-                            callSignInfoSet = new HashSet<CallSignInfo>();
-                            foreach (string item in list)
+                            callSignInfo.PrefixKey.Add(item);
+                            if (!CallSignDictionary.ContainsKey(item))
                             {
-                                // ------------------------------------------------
-                                if (item == "BU2" || item == "BO2")
+                                
+                                callSignInfoSet.Add(callSignInfo);
+                                CallSignDictionary.Add(item, callSignInfoSet);
+                            }
+                            else
+                            {
+                                callSignInfoSet.Add(callSignInfo);
+                                HashSet<CallSignInfo> callDictionarySet = CallSignDictionary[item];
+
+                                if (callDictionarySet.First().DXCC != callSignInfo.DXCC)
                                 {
-                                    var f = 1;
+                                    callDictionarySet.UnionWith(callSignInfoSet);
                                 }
-                                // -------------------------------------------------
-                                if (!CallSignDictionary.ContainsKey(item))
-                                {
-
-                                    callSignInfoSet.Add(callSignInfo);
-                                    CallSignDictionary.Add(item, callSignInfoSet);
-
-                                    // -----------------------------------------------
-                                    //if (CallSignDictionary.ContainsKey("BU2"))
-                                    //{
-                                    //    HashSet<CallSignInfo> test = CallSignDictionary["BU2"];
-                                    //    if (test.Count > 2)
-                                    //    {
-                                    //        var r = 2;
-                                    //    }
-                                    //}
-                                    // ---------------------------------------
-                                }
-                                else
-                                {
-                                    callSignInfoSet.Add(callSignInfo);
-                                    HashSet<CallSignInfo> callDictionarySet = CallSignDictionary[item];
-
-                                    if (callDictionarySet.First().DXCC != callSignInfo.DXCC)
-                                    {
-                                        callDictionarySet.UnionWith(callSignInfoSet);
-                                        _Count++;
-                                    }
-
-                                    //if (CallSignDictionary["BU2"] == CallSignDictionary["BO2"])
-                                    //{
-                                    //    var d = 1;
-                                    //}
-
-                                    // ---------------------------------------------------
-                                    //if (CallSignDictionary.ContainsKey("BU2"))
-                                    //{
-                                    //    HashSet<CallSignInfo> test = CallSignDictionary["BU2"];
-                                    //    if (test.Count > 2)
-                                    //    {
-                                    //        var r = 2;
-                                    //    }
-                                    //}
-                                    // -------------------------------------------------
-                                }
-
-                                //if (CallSignDictionary.ContainsKey("BU2"))
-                                //{
-                                //    HashSet<CallSignInfo> test = CallSignDictionary["BU2"];
-                                //    if (test.Count > 1)
-                                //    {
-                                //        var r = 2;
-                                //    }
-                                //} 
                             }
                         }
                     }
@@ -302,39 +252,6 @@ namespace W6OP.CallParser
         //    var a = 1;
         //}
 
-        ///// <summary>
-        /////
-        ///// need to really look at this and see if it can be simplified
-        ///// too many loops
-        ///// </summary>
-        ///// <param name="hit"></param>
-        //internal void CollectHits(Hit hit)
-        //{
-        //    List<Hit> hitList;
-
-        //    foreach (List<string> prefixList in _PrimaryMaskList)
-        //    {
-        //        hitList = new List<Hit>(prefixList.Count);
-        //        foreach (string prefix in prefixList)
-        //        {
-        //            hitList = new List<Hit>();
-        //            if (!PrefixesDictionary.ContainsKey(prefix))
-        //            {
-        //                hitList.Add(hit);
-        //                PrefixesDictionary.Add(prefix, hitList);
-        //            }
-        //            else
-        //            {
-        //                //when we expand the mask to all possible values then some will be duplicated
-        //                // ie.AL, NL for Alaska
-        //                hitList = PrefixesDictionary[prefix];
-        //                hitList.Add(hit);
-        //            }
-        //        }
-        //    }
-
-        //}
-
         /// <summary>
         /// Expand the mask into its separate components.
         /// </summary>
@@ -350,7 +267,7 @@ namespace W6OP.CallParser
             int nextIndex;
             int pass = 0;
 
-            allCharacters.Clear();
+            List<List<string>> allCharacters = new List<List<string>>();
 
             // TEMPORARY: get rid of "." - need to work on this
             mask = mask.Replace(".", "");
@@ -406,25 +323,29 @@ namespace W6OP.CallParser
         /// <param name="allCharacters"></param>
         private void PopulatePrimaryPrefixList(List<List<string>> allCharacters)
         {
-            List<string> result = new List<string>();
-
             // take first 2 columns
             foreach (string first in allCharacters[0])
             {
                 foreach (string second in allCharacters[1])
                 {
-                    result.Add(first + second);
+#if DEBUG
+                    if (_PrimaryMaskList.Contains(first + second))
+                    {
+                        var a = 1;
+                    }
+#endif
+                    _PrimaryMaskList.Add(first + second);
                 }
             }
 
             allCharacters.RemoveRange(0, 2);
             if (allCharacters.Count > 0)
             {
-                PopulatePrimaryPrefixList(result, allCharacters);
+                PopulatePrimaryPrefixList(_PrimaryMaskList, allCharacters);
             }
             else
             {
-                _PrimaryMaskList.Add(result);
+                //_PrimaryMaskList = result;
             }
         }
 
@@ -433,11 +354,11 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="result"></param>
         /// <param name="allCharacters"></param>
-        private void PopulatePrimaryPrefixList(List<string> result, List<List<string>> allCharacters)
+        private void PopulatePrimaryPrefixList(HashSet<string> result, List<List<string>> allCharacters)
         {
 
-            List<string> tempResult2 = new List<string>();
-            tempResult.Clear();
+            HashSet<string> tempResult2 = new HashSet<string>();
+            HashSet<string> tempResult = new HashSet<string>();
 
             // Because there are millions of possible call signs possible when the masks
             // are expanded I am limiting them to max of 4 characters long or we run
@@ -493,7 +414,7 @@ namespace W6OP.CallParser
             }
             else
             {
-                _PrimaryMaskList.Add(tempResult2);
+                _PrimaryMaskList = tempResult2;
             }
         }
 

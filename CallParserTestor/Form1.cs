@@ -102,6 +102,8 @@ namespace CallParserTestor
             List<CallSignInfo> hitList;
             float divisor = 1000;
 
+            // U5KV - Ukraine and Russia
+
             if (_CallLookUp == null)
             {
                 MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -169,14 +171,22 @@ namespace CallParserTestor
         {
             IEnumerable<CallSignInfo> hitCollection;
             // need to preallocate space in collection
-            List<CallSignInfo> hitList = new List<CallSignInfo>(5000000);
+            //List<CallSignInfo> hitList = new List<CallSignInfo>(5000000);
 
             stopwatch = Stopwatch.StartNew();
 
             hitCollection = _CallLookUp.LookUpCall(_Records);
-            hitList.AddRange(hitCollection);
+            //hitList.AddRange(hitCollection);
 
-            UpdateLabels(hitList.Count());
+            UpdateLabels(hitCollection.Count());
+
+            // save to a text file
+            var thread = new Thread(() =>
+            {
+                Cursor.Current = Cursors.WaitCursor;
+                SaveHitList(hitCollection.ToList());
+            });
+            thread.Start();
         }
 
         private void UpdateLabels(int count)
@@ -283,15 +293,15 @@ namespace CallParserTestor
         {
             String folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             String file = Path.Combine(folderPath, "hits.csv");
-
-            List<CallSignInfo> sortedList = hitList.OrderBy(o => o.Country).ThenBy(x => x.Kind).ToList();
+            int lineCount = 2500;
+            //List<CallSignInfo> sortedList = hitList.OrderBy(o => o.Country).ThenBy(x => x.Kind).ToList();
 
             using (TextWriter writer = new StreamWriter(file, false, System.Text.Encoding.UTF8))
             {
                 var csv = new CsvWriter(writer);
                 //csv.WriteRecords(hitList); // where values implements IEnumerable
                 //csv.WriteRecord();
-                foreach (CallSignInfo callSignInfo in sortedList)
+                foreach (CallSignInfo callSignInfo in hitList)
                 {
 
                     if (callSignInfo.Kind == PrefixKind.DXCC)
@@ -308,7 +318,15 @@ namespace CallParserTestor
                     csv.WriteField(callSignInfo.Kind.ToString());
                     csv.WriteField(callSignInfo.Latitude);
                     csv.WriteField(callSignInfo.Longitude);
+                    csv.WriteField(callSignInfo.MainPrefix);
+                    csv.WriteField(callSignInfo.FullPrefix);
                     csv.NextRecord();
+
+                    lineCount--;
+                    if (lineCount <= 0)
+                    {
+                        break;
+                    }
                 }
             }
 
