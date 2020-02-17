@@ -95,14 +95,15 @@ namespace W6OP.CallParser
 
             Console.WriteLine("Callsigns: " + callSigns.Count.ToString());
 
-            if (callSigns.Count > 1500000)
+            if (!Environment.Is64BitProcess && callSigns.Count > 1500000)
             {
                 throw new Exception("To many entries. Please reduce the number of entries to 1.5 million or less.");
             }
 
             // parallel foreach almost twice as fast but requires blocking collection
-             _ = Parallel.ForEach(callSigns, callSign =>
-           // foreach(string callSign in callSigns)
+            // need to use non parallel foreach for debugging
+            // _ = Parallel.ForEach(callSigns, callSign =>
+            foreach(string callSign in callSigns)
               {
                   if (ValidateCallSign(callSign))
                   {
@@ -111,14 +112,14 @@ namespace W6OP.CallParser
                   else
                   {
                     // don't throw, just ignore bad calls
-                    //Console.WriteLine("Invalid call sign format: " + callSign);
+                    Console.WriteLine("Invalid call sign format: " + callSign);
                 }
               }
-             );
+            // );
 
-            IEnumerable<CallSignInfo> allHits = HitList.AsEnumerable();
+           // IEnumerable<CallSignInfo> allHits = HitList.AsEnumerable();
 
-            return allHits;
+            return HitList.AsEnumerable(); ;
         }
 
         /// <summary>
@@ -139,9 +140,9 @@ namespace W6OP.CallParser
                 //throw new Exception("Invalid call sign format"); // EMBELLISH
             }
 
-            IEnumerable<CallSignInfo> allHits = HitList.AsEnumerable();
+            //IEnumerable<CallSignInfo> allHits = HitList.AsEnumerable();
 
-            return allHits;
+            return HitList.AsEnumerable();
         }
 
 
@@ -165,7 +166,7 @@ namespace W6OP.CallParser
             if (callSign.IndexOf("/", 0, 1) == 0) { return false; }
 
             // check if second character is "/"
-            if (callSign.IndexOf("/", 1, 1) == 1) { return false; }
+            //if (callSign.IndexOf("/", 1, 1) == 1) { return false; }
 
             // check for a "-" ie: VE7CC-7, OH6BG-1, WZ7I-3 
             if (callSign.IndexOf("-") != -1) { return false; }
@@ -195,19 +196,24 @@ namespace W6OP.CallParser
             (string call, string callPrefix) callAndprefix; // = ("", ""); // tuple
             List<string> components = callSign.Split('/').ToList();
 
+            if (callSign.IndexOf("F/EA") != -1)
+            {
+                int a = 0;
+            }
+
             switch (components.Count)
             {
                 case 1:
                     callAndprefix = (components[0], "");
-                    CollectMatchesOld(callAndprefix.call);
+                    CollectMatchesOld(callAndprefix.call, callSign);
                     break;
                 case 2:
                     callAndprefix = ProcessPrefix(components);
-                    CollectMatchesOld(callAndprefix.callPrefix);
+                    CollectMatchesOld(callAndprefix.callPrefix, callSign);
                     break;
                 case 3: // DC3RJ/P/W3 - remove excess parts
                     callAndprefix = TrimCallSign(components);
-                    CollectMatchesOld(callAndprefix.callPrefix);
+                    CollectMatchesOld(callAndprefix.callPrefix, callSign);
                     break;
                 default:
                     // should I do anything here?
@@ -326,6 +332,11 @@ namespace W6OP.CallParser
                 }
             }
 
+            if (prefix.Length == 1)
+            {
+                prefix += "/";
+            }
+
             return (call, callPrefix: prefix);
         }
 
@@ -356,77 +367,56 @@ namespace W6OP.CallParser
         /// Then start removing characters from the back until we can find a match.
         /// Once we have a match we will see if we can find a child that is a better match.
         /// </summary>
-        /// <param name="callAndprefix"></param>
-        private void CollectMatchesOld(string call)
+        /// <param name="callOrPrefix"></param>
+        private void CollectMatchesOld(string callOrPrefix, string fullCall)
         {
-            string callPart = call;
+            //string callPart = call;
 
             // only use the first 4 characters - faster search you would think
             // but truncating the string has some overhead - more accurate result though
-            callPart = callPart.Length > 3 ? callPart.Substring(0, 4) : callPart;
+            callOrPrefix = callOrPrefix.Length > 3 ? callOrPrefix.Substring(0, 4) : callOrPrefix;
 
-            if (CallSignDictionary.ContainsKey(callPart))
+            if (CallSignDictionary.ContainsKey(callOrPrefix))
             {
-                List<CallSignInfo> query = CallSignDictionary[callPart].ToList();
+                List<CallSignInfo> query = CallSignDictionary[callOrPrefix].ToList();
 
-                foreach (CallSignInfo callSignInfo in query)
+                foreach (CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(callOrPrefix)))
                 {
-                    callSignInfo.CallSign = call;
+                    callSignInfo.CallSign = fullCall;
                     HitList.Add(callSignInfo);
 
                     if ( callSignInfo.Kind != PrefixKind.DXCC)
                     {
-                        // NEW
                         CallSignInfo dxccHit = Adifs[Convert.ToInt32(query[0].DXCC)];
-                        dxccHit.CallSign = call;
+                        dxccHit.CallSign = fullCall;
                         HitList.Add(dxccHit);
                     }
                 }
-
-                // get the top level DXCC CallSignInfo
-                //if (query.Count > 0 && callSignInfo)
-                //{
-                //    // NEW
-                //    CallSignInfo dxccHit = Adifs[Convert.ToInt32(query[0].DXCC)];
-                //    dxccHit.CallSign = call;
-                //    HitList.Add(dxccHit);
-                //}
             }
 
-            if (callPart.Length > 1)
+            if (callOrPrefix.Length > 1)
             {
-                callPart = callPart.Remove(callPart.Length - 1);
-                while (callPart != string.Empty)
+                callOrPrefix = callOrPrefix.Remove(callOrPrefix.Length - 1);
+                while (callOrPrefix != string.Empty)
                 {
-                    if (CallSignDictionary.ContainsKey(callPart))
+                    if (CallSignDictionary.ContainsKey(callOrPrefix))
                     {
-                        List<CallSignInfo> query = CallSignDictionary[callPart].ToList();
+                        List<CallSignInfo> query = CallSignDictionary[callOrPrefix].ToList();
 
-                        foreach (CallSignInfo hit in query.Where(x => x.PrefixKey.Contains(callPart)))
+                        foreach (CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(callOrPrefix)))
                         {
-                            hit.CallSign = call;
-                            HitList.Add(hit);
+                            callSignInfo.CallSign = fullCall;
+                            HitList.Add(callSignInfo);
                             
-                            if (hit.Kind != PrefixKind.DXCC)
+                            if (callSignInfo.Kind != PrefixKind.DXCC)
                             {
-                                // NEW
                                 CallSignInfo dxccHit = Adifs[Convert.ToInt32(query[0].DXCC)];
-                                dxccHit.CallSign = call;
+                                dxccHit.CallSign = fullCall;
                                 HitList.Add(dxccHit);
                             }
                         }
-
-                        // get the top level DXCC hit
-                        //if (query.Count > 0)
-                        //{
-                        //    // NEW
-                        //    //CallSignInfo dxccHit = Adifs2[Convert.ToInt32(query[0].Dxcc)];
-                        //    //dxccHit.CallSign = callAndprefix.call;
-                        //    //_HitList.Add(dxccHit);
-                        //}
                     }
-
-                    callPart = callPart.Remove(callPart.Length - 1);
+                    callOrPrefix = callOrPrefix.Remove(callOrPrefix.Length - 1);
                 }
             }
         }
