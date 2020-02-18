@@ -160,7 +160,7 @@ namespace W6OP.CallParser
             if (callSign.Length < 2) { return false; }
 
             // check if first character is "/"
-            if (callSign.IndexOf("/", 0, 1) == 0) { return false; }
+            //if (callSign.IndexOf("/", 0, 1) == 0) { return false; }
 
             // check for a "-" ie: VE7CC-7, OH6BG-1, WZ7I-3 
             if (callSign.IndexOf("-") != -1) { return false; }
@@ -187,7 +187,14 @@ namespace W6OP.CallParser
         /// <param name="callSign"></param>
         private void ProcessCallSign(string callSign)
         {
-            (string call, string callPrefix) callAndprefix; // = ("", ""); // tuple
+            (string call, string callPrefix) callAndprefix; 
+            
+            // strip leading "/"
+            if (callSign.IndexOf("/", 0, 1) == 0)
+            {
+                callSign = callSign.Substring(1);
+            }
+
             List<string> components = callSign.Split('/').ToList();
 
             switch (components.Count)
