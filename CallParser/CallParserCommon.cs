@@ -107,60 +107,19 @@ namespace W6OP.CallParser
     }
 
     /// <summary>
-    /// Substitute for a TStringList in Delphi.
+    /// Admin Key
     /// </summary>
     public class Admin
     {
         public string AdminKey { get; set; }
-        public Hit CallInfo { get; set; }
+        public CallSignInfo CallInfo { get; set; }
 
-        public Admin(string admin, Hit hit)
+        public Admin(string admin, CallSignInfo hit)
         {
             AdminKey = admin;
             CallInfo = hit;
         }
     }
-
-    /// <summary>
-    /// Lightweight struct for the hit meta data. I use a Struct
-    /// so I do not have to "new" a class object in loops. Too much
-    /// of a performnce hit.
-    /// This is a Value type!
-    /// </summary>
-    public struct Hit
-    {
-        public int Dxcc;  //dxcc_entity
-        public int Wae;
-        public string Iota;
-        public string Wap;
-        public string Cq;           //cq_zone
-        public string Itu;          //itu_zone
-        public string Admin1;
-        public string Latitude;     //lat
-        public string Longitude;    //long
-        public CallSignFlag[] Flags;
-
-        public string Continent;     //continent
-        public string TimeZone;     //time_zone
-        public string Admin2;
-        public string Name;
-        public string Qth;
-        public string Comment;
-        //public string CallbookEntry: Pointer; //todo: find out data sources
-
-        public PrefixKind Kind;     //kind
-        public string FullPrefix;   //what I determined the prefix to be - mostly for debugging
-        public string MainPrefix;
-        public string Country;       //country
-        public string Province;     //province
-
-        public string StartDate;
-        public string EndDate;
-        public bool IsIota;
-
-        public string CallSign; // I put the call sign here only for pfDXCC types for reference/debugging
-    }
-
 
     /// <summary>
     /// Extension class to get the enum value from the description.

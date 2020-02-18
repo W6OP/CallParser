@@ -88,7 +88,7 @@ namespace W6OP.CallParser
         /// may change, but the caller can always turn an IEnumerable into a List if they need to.
         /// </summary>
         /// <param name="callSigns"></param>
-        /// <returns></returns>
+        /// <returns>IEnumerable<CallSignInfo></returns>
         public IEnumerable<CallSignInfo> LookUpCall(List<string> callSigns)
         {
             HitList = new ConcurrentBag<CallSignInfo>();
@@ -102,8 +102,8 @@ namespace W6OP.CallParser
 
             // parallel foreach almost twice as fast but requires blocking collection
             // need to use non parallel foreach for debugging
-            // _ = Parallel.ForEach(callSigns, callSign =>
-            foreach(string callSign in callSigns)
+            _ = Parallel.ForEach(callSigns, callSign =>
+           // foreach(string callSign in callSigns)
               {
                   if (ValidateCallSign(callSign))
                   {
@@ -115,9 +115,7 @@ namespace W6OP.CallParser
                     Console.WriteLine("Invalid call sign format: " + callSign);
                 }
               }
-            // );
-
-           // IEnumerable<CallSignInfo> allHits = HitList.AsEnumerable();
+             );
 
             return HitList.AsEnumerable(); ;
         }
@@ -126,7 +124,7 @@ namespace W6OP.CallParser
         /// Look up a single call sign. First make sure it is a valid call sign.
         /// </summary>
         /// <param name="callSign"></param>
-        /// <returns></returns>
+        /// <returns>IEnumerable<CallSignInfo></returns>
         public IEnumerable<CallSignInfo> LookUpCall(string callSign)
         {
             HitList = new ConcurrentBag<CallSignInfo>();
@@ -137,10 +135,9 @@ namespace W6OP.CallParser
             }
             else
             {
-                //throw new Exception("Invalid call sign format"); // EMBELLISH
+                // don't throw, just ignore bad calls
+                Console.WriteLine("Invalid call sign format: " + callSign);
             }
-
-            //IEnumerable<CallSignInfo> allHits = HitList.AsEnumerable();
 
             return HitList.AsEnumerable();
         }
@@ -148,7 +145,7 @@ namespace W6OP.CallParser
 
         /// <summary>
         /// Check for empty call.
-        /// Check for no alpha characters.
+        /// Check for no alpha only calls.
         /// A call must be made up of only alpha, numeric and can have one or more "/".
         /// Must start with letter or number.
         /// </summary>
@@ -164,9 +161,6 @@ namespace W6OP.CallParser
 
             // check if first character is "/"
             if (callSign.IndexOf("/", 0, 1) == 0) { return false; }
-
-            // check if second character is "/"
-            //if (callSign.IndexOf("/", 1, 1) == 1) { return false; }
 
             // check for a "-" ie: VE7CC-7, OH6BG-1, WZ7I-3 
             if (callSign.IndexOf("-") != -1) { return false; }
@@ -196,24 +190,19 @@ namespace W6OP.CallParser
             (string call, string callPrefix) callAndprefix; // = ("", ""); // tuple
             List<string> components = callSign.Split('/').ToList();
 
-            //if (callSign.IndexOf("F/EA") != -1)
-            //{
-            //    int a = 0;
-            //}
-
             switch (components.Count)
             {
                 case 1:
                     callAndprefix = (components[0], "");
-                    CollectMatchesOld(callAndprefix.call, callSign);
+                    CollectMatches(callAndprefix.call, callSign);
                     break;
                 case 2:
                     callAndprefix = ProcessPrefix(components);
-                    CollectMatchesOld(callAndprefix.callPrefix, callSign);
+                    CollectMatches(callAndprefix.callPrefix, callSign);
                     break;
                 case 3: // DC3RJ/P/W3 - remove excess parts
                     callAndprefix = TrimCallSign(components);
-                    CollectMatchesOld(callAndprefix.callPrefix, callSign);
+                    CollectMatches(callAndprefix.callPrefix, callSign);
                     break;
                 default:
                     // should I do anything here?
@@ -228,7 +217,7 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="components"></param>
         /// <param name="callSign"></param>
-        /// <returns></returns>
+        /// <returns>(string call, string callPrefix)</returns>
         private (string call, string callPrefix) TrimCallSign(List<string> components)
         {
             int counter = 0;
@@ -268,7 +257,7 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="callSign"></param>
         /// <param name="components"></param>
-        /// <returns></returns>
+        /// <returns>(string call, string callPrefix)</returns>
         private (string call, string callPrefix) ProcessPrefix(List<string> components)
         {
             string call = "";
@@ -345,7 +334,7 @@ namespace W6OP.CallParser
         /// Sometimes there are exceptions to the rule we can't handle in other places.
         /// </summary>
         /// <param name="components"></param>
-        /// <returns></returns>
+        /// <returns>bool</returns>
         private bool CheckExceptions(List<string> components)
         {
             if (components[0].Length > 1)
@@ -369,10 +358,9 @@ namespace W6OP.CallParser
         /// Need to clone each object so the full callsign is assigned correctly to each hit.
         /// </summary>
         /// <param name="callOrPrefix"></param>
-        private void CollectMatchesOld(string callOrPrefix, string fullCall)
+        /// /// <param name="fullCall"></param>
+        private void CollectMatches(string callOrPrefix, string fullCall)
         {
-            //string callPart = call;
-
             // only use the first 4 characters - faster search you would think
             // but truncating the string has some overhead - more accurate result though
             callOrPrefix = callOrPrefix.Length > 3 ? callOrPrefix.Substring(0, 4) : callOrPrefix;
@@ -427,56 +415,6 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// Start with first character of call and work until the end or the fourth character is reached.
-        /// In this case the call == the prefix
-        /// </summary>
-        /// <param name="callAndprefix"></param>
-        private void CollectMatches(string callOrPrefix, string fullCall)
-        {
-            HashSet<CallSignInfo> query;
-            //string callSignPart;
-            CallSignInfo dxcc;
-
-            int count = callOrPrefix.Length - 1;
-
-            //    // only use the first 4 characters - faster search you would think
-            //    // but truncating the string has some overhead - more accurate result though
-            // MOVE THIS TO CALLING METHOD
-            callOrPrefix = callOrPrefix.Length > 3 ? callOrPrefix.Substring(0, 4) : callOrPrefix;
-
-            //while (count <= call.Count() && count < 5)
-            while (callOrPrefix.Length > 1)
-            {
-                //callSignPart = call.Substring(0, count);
-                if (CallSignDictionary.ContainsKey(callOrPrefix))
-                {
-                    query = CallSignDictionary[callOrPrefix];
-                    foreach (CallSignInfo callSignInfo in query)
-                    {
-
-                       // if (!HitList.Contains(callSignInfo))
-                       // {
-                            callSignInfo.CallSign = fullCall;
-                            HitList.Add(callSignInfo);
-                            if (callSignInfo.Kind != PrefixKind.DXCC)
-                            {
-                                dxcc = Adifs[callSignInfo.DXCC];
-                                if (!HitList.Contains(dxcc))
-                                {
-                                    dxcc.CallSign = fullCall;
-                                    HitList.Add(dxcc);
-                                }
-                            }
-                       // }
-                    }
-                }
-                count--;
-                callOrPrefix = callOrPrefix.Substring(0, count);
-            }
-            var a = 1;
-        }
-
-        /// <summary>
         /// Check for non alpha numerics other than "/"
         /// DON'T USE THIS!
         /// REGEX IS A HUGE TIME SINK - more than doubles run time
@@ -493,6 +431,7 @@ namespace W6OP.CallParser
 
         /// <summary>
         /// Test if a string is numeric.
+        /// This is duplicated - need to move to common file.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>

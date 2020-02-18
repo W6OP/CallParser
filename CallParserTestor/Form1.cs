@@ -1,4 +1,43 @@
-﻿using System;
+﻿/**
+ * Copyright (c) 2019 Peter Bourget W6OP
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * Notwithstanding the foregoing, you may not use, copy, modify, merge, publish,
+ * distribute, sublicense, create a derivative work, and/or sell copies of the
+ * Software in any work that is designed, intended, or marketed for pedagogical or
+ * instructional purposes related to programming, coding, application development,
+ * or information technology.  Permission for such use, copying, modification,
+ * merger, publication, distribution, sublicensing, creation of derivative works,
+ * or sale is expressly withheld.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+/*
+ CallParserTestor.cs
+ CallParser
+ 
+ Created by Peter Bourget on 6/9/19.
+ Copyright © 2019 Peter Bourget W6OP. All rights reserved.
+ 
+ Description: Windows forms program to show usage and test with.
+ */
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -30,11 +69,6 @@ namespace CallParserTestor
 
             PrefixFileParser prefixFileParser = new PrefixFileParser();
             _PrefixFileParser = prefixFileParser;
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
         }
 
         /// <summary>
@@ -83,16 +117,13 @@ namespace CallParserTestor
             }
 
             Console.WriteLine("Load Time: " + stopwatch.ElapsedMilliseconds + "ms");
-            //label3.Text = ((float)(stopwatch.ElapsedMilliseconds)).ToString() + "ms";
             label4.Text = _Records.Count.ToString() + " calls loaded";
             Cursor.Current = Cursors.Default;
         }
 
 
         /// <summary>
-        /// What should I do about W/M0RYB or F/M0RYB
-        /// 
-        /// LOOKUP A SINGLE CALL SIGN.
+        /// Look up a single call
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -101,8 +132,6 @@ namespace CallParserTestor
             IEnumerable<CallSignInfo> hitCollection = null;
             List<CallSignInfo> hitList;
             float divisor = 1000;
-
-            // U5KV - Ukraine and Russia
 
             if (_CallLookUp == null)
             {
@@ -170,13 +199,10 @@ namespace CallParserTestor
         private void BatchCallSignLookup()
         {
             IEnumerable<CallSignInfo> hitCollection;
-            // need to preallocate space in collection
-            //List<CallSignInfo> hitList = new List<CallSignInfo>(5000000);
-
+           
             stopwatch = Stopwatch.StartNew();
 
             hitCollection = _CallLookUp.LookUpCall(_Records);
-            //hitList.AddRange(hitCollection);
 
             UpdateLabels(hitCollection.Count());
 
@@ -189,28 +215,26 @@ namespace CallParserTestor
             thread.Start();
         }
 
+        /// <summary>
+        /// Marshall to the GUI thread if necessary.
+        /// </summary>
+        /// <param name="count"></param>
         private void UpdateLabels(int count)
         {
             float divisor = 1000;
 
-            if (InvokeRequired)
+            if (!InvokeRequired)
+            {
+                Cursor.Current = Cursors.Default;
+                label2.Text = "Finished - hitcount = " + count.ToString();
+                label1.Text = "Search Time: " + stopwatch.Elapsed;
+                label3.Text = ((float)(stopwatch.ElapsedMilliseconds / divisor)).ToString() + " microseconds per call sign";
+            }
+            else
             {
                 this.BeginInvoke(new Action<Int32>(this.UpdateLabels), count);
                 return;
             }
-
-            Cursor.Current = Cursors.Default;
-            label2.Text = "Finished - hitcount = " + count.ToString();
-            label1.Text = "Search Time: " + stopwatch.Elapsed;
-            label3.Text = ((float)(stopwatch.ElapsedMilliseconds / divisor)).ToString() + " microseconds per call sign";
-
-            // save to a text file
-            //var thread = new Thread(() =>
-            //{
-            //    Cursor.Current = Cursors.WaitCursor;
-            //    SaveHitList(hitList);
-            //});
-            //thread.Start();
         }
 
         /// <summary>
@@ -293,14 +317,13 @@ namespace CallParserTestor
         {
             String folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             String file = Path.Combine(folderPath, "hits.csv");
-            int lineCount = 2500;
+            int lineCount = 5500;
             //List<CallSignInfo> sortedList = hitList.OrderBy(o => o.Country).ThenBy(x => x.Kind).ToList();
 
             using (TextWriter writer = new StreamWriter(file, false, System.Text.Encoding.UTF8))
             {
                 var csv = new CsvWriter(writer);
-                //csv.WriteRecords(hitList); // where values implements IEnumerable
-                //csv.WriteRecord();
+     
                 foreach (CallSignInfo callSignInfo in hitList)
                 {
 
@@ -332,44 +355,20 @@ namespace CallParserTestor
 
             Console.WriteLine("Finished writing file");
             UpdateCursor();
-            // Cursor.Current = Cursors.Default;
         }
 
-        /// <summary>
-        /// Doesn't really make any difference.
-        /// </summary>
-        //private void Test()
-        //{
-        //    List<Hit> hit;
-
-        //    var thread = new Thread(() =>
-        //    {
-        //        stopwatch = Stopwatch.StartNew();
-        //        hit = _CallLookUp.LookUpCall(_Records);
-        //        UpdateDisplay("Search Time: " + stopwatch.ElapsedMilliseconds + "ms - ticks: " + stopwatch.ElapsedTicks);
-        //    });
-        //    thread.Start();
-        //}
-
-        private void UpdateDisplay(string message)
-        {
-            if (InvokeRequired)
-            {
-                this.BeginInvoke(new Action<string>(this.UpdateDisplay), message);
-                return;
-            }
-
-            label1.Text = message;
-        }
 
         private void UpdateCursor()
         {
-            if (InvokeRequired)
+            if (!InvokeRequired)
+            {
+                Cursor.Current = Cursors.Default;
+            }
+            else
             {
                 this.BeginInvoke(new Action(this.UpdateCursor));
                 return;
             }
-            Cursor.Current = Cursors.Default;
         }
 
     } // end class
