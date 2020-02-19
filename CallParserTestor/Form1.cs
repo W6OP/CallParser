@@ -151,6 +151,18 @@ namespace CallParserTestor
         /// Batch lookup.
         /// Send in a list of all calls at once. Be sure to move the task
         /// off the GUI thread.
+        /// 
+        /// Why return IEnumerable<CallSignInfo>.
+        /// Do you only expect to iterate over it? Return an IEnumerable.
+        /// I shouldn't care about what the caller does with it, because the return type 
+        /// clearly states what the returned value is capable of doing. Any caller that gets 
+        /// an IEnumerable result knows that if they want indexed access of the result, 
+        /// they will have to convert to a List, because IEnumerable simple isn't capable 
+        /// of it until it's been enumerated and put into an indexed structure. 
+        /// I don't assume what the callers are doing, otherwise I end up taking functionality 
+        /// away from them. For example, by returning a List, I would have taken away the ability to 
+        /// stream results which can have its own performance benefits. My implementation 
+        /// may change, but the caller can always turn an IEnumerable into a List if they need to.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
