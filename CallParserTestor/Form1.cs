@@ -18,6 +18,7 @@ using W6OP.CallParser;
 using CsvHelper;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Drawing;
 
 namespace CallParserTestor
 {
@@ -28,7 +29,7 @@ namespace CallParserTestor
     {
         private readonly PrefixFileParser _PrefixFileParser;
         private CallLookUp _CallLookUp;
-        private List<string> _Records; 
+        private List<string> _Records;
         private Stopwatch stopwatch = new Stopwatch();
 
         /// <summary>
@@ -47,9 +48,9 @@ namespace CallParserTestor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ButtonParsePrefixFile_Click(object sender, EventArgs e)
+        private void ButtonLoadPrefixFile_Click(object sender, EventArgs e)
         {
-            ParsePrefixFile("");
+            ParsePrefixFile(TextBoxPrefixFilePath.Text);
         }
 
         /// <summary>
@@ -88,7 +89,7 @@ namespace CallParserTestor
             }
 
             Console.WriteLine("Load Time: " + stopwatch.ElapsedMilliseconds + "ms");
-            label4.Text = _Records.Count.ToString() + " calls loaded";
+            LabelCallsLoaded.Text = _Records.Count.ToString() + " calls loaded";
             Cursor.Current = Cursors.Default;
         }
 
@@ -102,13 +103,16 @@ namespace CallParserTestor
         {
             IEnumerable<CallSignInfo> hitCollection = null;
             List<CallSignInfo> hitList;
-            float divisor = 1000;
+            //float divisor = 1000;
 
             if (_CallLookUp == null)
             {
                 MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
+
+            ListViewResults.Items.Clear();
+            LabelCallsLoaded.Text = "";
 
             try
             {
@@ -120,19 +124,24 @@ namespace CallParserTestor
 
                     if (hitCollection != null)
                     {
-                        hitList = hitCollection.ToList();
-
+                        hitList = hitCollection.ToList();   //.OrderByDescending(o => o.DXCC).ThenByDescending(x => x.Kind).ToList();
+                        
                         Console.WriteLine(hitList.Count.ToString() + " hits returned");
-                        label1.Text = "Search Time: " + stopwatch.ElapsedMilliseconds;
-                        label2.Text = "Finished - hitcount = " + hitList.Count.ToString();
-                        label3.Text = ((float)(stopwatch.ElapsedMilliseconds / divisor)).ToString() + "us";
+                        //LabelElapsedTime.Text = "Total Time: " + stopwatch.ElapsedMilliseconds;
+                        LabelHitCount.Text = "Finished - hitcount = " + hitList.Count.ToString();
+                        //LabelPerCallTime.Text = ((float)(stopwatch.ElapsedMilliseconds / divisor)).ToString() + "us per call";
+
+                        foreach (CallSignInfo hit in hitList)
+                        {
+                            UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.DXCC.ToString());
+                        }
 
                         // save to a text file
                         var thread = new Thread(() =>
-                        {
-                            Cursor.Current = Cursors.WaitCursor;
-                            SaveHitList(hitList);
-                        });
+                    {
+                        Cursor.Current = Cursors.WaitCursor;
+                        SaveHitList(hitList);
+                    });
                         thread.Start();
                     }
                 }
@@ -182,12 +191,24 @@ namespace CallParserTestor
         private void BatchCallSignLookup()
         {
             IEnumerable<CallSignInfo> hitCollection;
-           
+            int count = 0;
+
             stopwatch = Stopwatch.StartNew();
 
             hitCollection = _CallLookUp.LookUpCall(_Records);
 
             UpdateLabels(hitCollection.Count());
+
+            //hitCollection = hitCollection.OrderByDescending(o => o.CallSign).ThenByDescending(x => x.Kind).ToList();
+            foreach (CallSignInfo hit in hitCollection)
+            {
+                count++;
+                UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.DXCC.ToString());
+                if (count > 200) // runaway limit
+                {
+                    break;
+                }
+            }
 
             // save to a text file
             var thread = new Thread(() =>
@@ -209,13 +230,57 @@ namespace CallParserTestor
             if (!InvokeRequired)
             {
                 Cursor.Current = Cursors.Default;
-                label2.Text = "Finished - hitcount = " + count.ToString();
-                label1.Text = "Search Time: " + stopwatch.Elapsed;
-                label3.Text = ((float)(stopwatch.ElapsedMilliseconds / divisor)).ToString() + " microseconds per call sign";
+
+                LabelElapsedTime.Text = "";
+                LabelHitCount.Text = "";
+                LabelPerCallTime.Text = "";
+                //LabelCallsLoaded.Text = "";
+
+                LabelHitCount.Text = "Finished - hitcount = " + count.ToString();
+                LabelElapsedTime.Text = "Total Time: " + stopwatch.Elapsed;
+                LabelPerCallTime.Text = ((float)(stopwatch.ElapsedMilliseconds / divisor)).ToString("#0.0000") + " us per call sign";
             }
             else
             {
                 this.BeginInvoke(new Action<Int32>(this.UpdateLabels), count);
+                return;
+            }
+        }
+
+        /// <summary>
+        /// Prevent cross thread calls.
+        /// UpdateListViewResults(call, hit.Kind.ToString(), hit.Country, hit.Province, "new", "");
+        /// UpdateListViewResults(call, hit.Kind, hit.Country, hit.Province, "old", "");
+        /// </summary>
+        /// <param name="call"></param>
+        /// <param name="clear"></param>
+        private void UpdateListViewResults(string call, PrefixKind kind, string country, string province, string dxcc)
+        {
+            if (!InvokeRequired)
+            {
+                ListViewItem item;
+
+                if (kind == PrefixKind.DXCC)
+                {
+                    item = new ListViewItem(call);
+                    item.BackColor = Color.Honeydew;
+                } else
+                {
+                    item = new ListViewItem("--- " + call);
+                    item.BackColor = Color.LightGray;
+                }
+                
+                item.SubItems.Add(kind.ToString());
+                item.SubItems.Add(country);
+                item.SubItems.Add(province);
+                item.SubItems.Add(dxcc);
+                //ListViewResults.Items.Insert(0, item);
+                ListViewResults.Items.Add(item);
+                Application.DoEvents();
+            }
+            else
+            {
+                this.BeginInvoke(new Action<string, PrefixKind, string, string, string>(this.UpdateListViewResults), call, kind, country, province, dxcc);
                 return;
             }
         }
@@ -306,7 +371,7 @@ namespace CallParserTestor
             using (TextWriter writer = new StreamWriter(file, false, System.Text.Encoding.UTF8))
             {
                 var csv = new CsvWriter(writer);
-     
+
                 foreach (CallSignInfo callSignInfo in hitList)
                 {
 
@@ -354,5 +419,15 @@ namespace CallParserTestor
             }
         }
 
+        private void ButtonSelectFolder_Click(object sender, EventArgs e)
+        {
+            if (OpenPrefixFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                if (File.Exists(OpenPrefixFileDialog.FileName))
+                {
+                    TextBoxPrefixFilePath.Text = OpenPrefixFileDialog.FileName;
+                }
+            }
+         }
     } // end class
 }
