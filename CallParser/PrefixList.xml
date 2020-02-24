@@ -17713,13 +17713,16 @@
 	</prefix>
 	<prefix>
 		<masks>
-			<mask>B[M-QU-X]9[#BDEFIJNQRTUVXYZ]</mask>
+			<mask>B[M-QU-X]9[#BDEFIJNQRTUVXYZ]</mask> <!-- BM91, BM92..9 -->
 			<mask>B[VW]/</mask>
-			<mask>B[MNPQU-X][1-8]@</mask>
+			<mask>B[MNPQU-X][1-8]@</mask> <!-- BU2E -->
 			<mask>BO[3-8]#</mask>
 			<mask>B[MNPQU-X]0[#A-NP-Z]</mask>
 			<mask>BO0[#A-JLNP-Z]</mask>
 			<mask>B[VW][09]/</mask>
+      <!--  case "@": // alpha
+                    case "#": // numeric
+                    case "?": // alphanumeric -->
 		</masks>
 		<label>BV</label>
 		<kind>pfDXCC</kind>

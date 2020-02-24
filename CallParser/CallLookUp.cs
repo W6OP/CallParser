@@ -158,8 +158,8 @@ namespace W6OP.CallParser
         /// <param name="callSign"></param>
         private void ProcessCallSign(string callSign)
         {
-            (string call, string callPrefix) callAndprefix; 
-            
+            (string call, string callPrefix) callAndprefix;
+
             // strip leading "/"
             if (callSign.IndexOf("/", 0, 1) == 0)
             {
@@ -175,10 +175,15 @@ namespace W6OP.CallParser
                     CollectMatches(callAndprefix.call, callSign);
                     break;
                 case 2:
+                    // now add the "/" back to the first component
+                    components[0] = components[0] + "/";
                     callAndprefix = ProcessPrefix(components);
                     CollectMatches(callAndprefix.callPrefix, callSign);
                     break;
                 case 3: // DC3RJ/P/W3 - remove excess parts
+                    // now add the "/" back to the first component
+                    //components[1] = "/" + components[1];
+                    //components[2] = "/" + components[2];
                     callAndprefix = TrimCallSign(components);
                     CollectMatches(callAndprefix.callPrefix, callSign);
                     break;
