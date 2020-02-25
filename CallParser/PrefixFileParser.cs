@@ -16,6 +16,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace W6OP.CallParser
@@ -101,6 +102,9 @@ namespace W6OP.CallParser
             {
                 BuildCallSignInfo(group);
             }
+
+            //int distinctCount = CallSignDictionary.Select(x => x.Value).Distinct().Count();
+            //var a = 2;
         }
 
        /// <summary>
@@ -145,6 +149,7 @@ namespace W6OP.CallParser
                         ExpandMask(element.Value);
 
                         callSignInfoSet = new HashSet<CallSignInfo>();
+                       // _ = Parallel.ForEach(PrimaryMaskList, item =>
                         foreach (string item in PrimaryMaskList)
                         {
                             callSignInfo.PrefixKey.Add(item);
@@ -165,6 +170,7 @@ namespace W6OP.CallParser
                                 }
                             }
                         }
+                        // );
                     }
                     PrimaryMaskList.Clear();
                 }
@@ -274,10 +280,10 @@ namespace W6OP.CallParser
             // out of memory on a 32 bit system (any CPU). Remove these 3 lines if you
             // want the full possible list and are compiling x64. The extra characters
             // are not necessary to determine the dxcc entity.
-            if (allCharacters.Count > 2)
-            {
-                allCharacters.RemoveRange(1, allCharacters.Count - 1);
-            }
+            //if (allCharacters.Count > 2)
+            //{
+            //    allCharacters.RemoveRange(1, allCharacters.Count - 1);
+            //}
          
             switch (allCharacters.Count)
             {

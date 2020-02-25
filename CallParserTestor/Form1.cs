@@ -50,7 +50,8 @@ namespace CallParserTestor
         /// <param name="e"></param>
         private void ButtonLoadPrefixFile_Click(object sender, EventArgs e)
         {
-            ParsePrefixFile(TextBoxPrefixFilePath.Text);
+            //ParsePrefixFile(TextBoxPrefixFilePath.Text);
+            Task.Run(() => ParsePrefixFile(TextBoxPrefixFilePath.Text));
         }
 
         /// <summary>
@@ -187,7 +188,9 @@ namespace CallParserTestor
             Task.Run(() => BatchCallSignLookup());
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         private void BatchCallSignLookup()
         {
             IEnumerable<CallSignInfo> hitCollection;
@@ -331,15 +334,18 @@ namespace CallParserTestor
         /// Parse the prefix file.
         /// </summary>
         /// <param name="filePath"></param>
-        public void ParsePrefixFile(string filePath)
+        private void ParsePrefixFile(string filePath)
         {
             Cursor.Current = Cursors.WaitCursor;
             stopwatch = Stopwatch.StartNew();
+            //Task.Run(() => ParsePrefixFile(filePath));
             _PrefixFileParser.ParsePrefixFile("");
             Console.WriteLine("Load Time: " + stopwatch.ElapsedMilliseconds + "ms");
             Cursor.Current = Cursors.Default;
             _CallLookUp = new CallLookUp(_PrefixFileParser);
         }
+
+    
 
         /// <summary>
         /// Batch lookup.

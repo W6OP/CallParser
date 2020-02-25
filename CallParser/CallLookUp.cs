@@ -345,8 +345,8 @@ namespace W6OP.CallParser
         private void CollectMatches(string callOrPrefix, string fullCall)
         {
             // only use the first 4 characters - faster search you would think
-            // but truncating the string has some overhead - more accurate result though
-            callOrPrefix = callOrPrefix.Length > 3 ? callOrPrefix.Substring(0, 4) : callOrPrefix;
+            // but truncating the string has some overhead - more accurate result though -- or is it ???
+            //callOrPrefix = callOrPrefix.Length > 3 ? callOrPrefix.Substring(0, 4) : callOrPrefix;
 
             if (CallSignDictionary.ContainsKey(callOrPrefix))
             {
