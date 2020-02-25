@@ -98,13 +98,15 @@ namespace W6OP.CallParser
                 .GroupBy(x => (string)x.Element("dxcc_entity"))
                 .ToList();
 
+            int b = 1;
+
             foreach (var group in groups)
             {
                 BuildCallSignInfo(group);
             }
 
             //int distinctCount = CallSignDictionary.Select(x => x.Value).Distinct().Count();
-            //var a = 2;
+            int a = 2;
         }
 
        /// <summary>
@@ -138,7 +140,7 @@ namespace W6OP.CallParser
             {
                 masks = prefix.Elements().Where(x => x.Name == "masks");
 
-                // CallSignInfo class poulates itself
+                // CallSignInfo class populates itself
                 callSignInfo = new CallSignInfo(prefix);
 
                 foreach (XElement element in masks.Descendants())
@@ -148,29 +150,26 @@ namespace W6OP.CallParser
                         // expand the mask if it exists
                         ExpandMask(element.Value);
 
+                        // this must be "new()" not Clear() or it clears existing objects in the CallSignDictionary
                         callSignInfoSet = new HashSet<CallSignInfo>();
-                       // _ = Parallel.ForEach(PrimaryMaskList, item =>
-                        foreach (string item in PrimaryMaskList)
+                        foreach (string mask in PrimaryMaskList)
                         {
-                            callSignInfo.PrefixKey.Add(item);
-                            if (!CallSignDictionary.ContainsKey(item))
+                            callSignInfo.PrefixKey.Add(mask);
+                            callSignInfoSet.Add(callSignInfo);
+
+                            if (!CallSignDictionary.ContainsKey(mask))
                             {
-                                callSignInfoSet.Add(callSignInfo);
-                                CallSignDictionary.Add(item, callSignInfoSet);
+                                CallSignDictionary.Add(mask, callSignInfoSet);
                             }
                             else
                             {
-                                callSignInfoSet.Add(callSignInfo);
-                                HashSet<CallSignInfo> callDictionarySet = CallSignDictionary[item];
-
-                                if (callDictionarySet.First().DXCC != callSignInfo.DXCC)
+                                if (CallSignDictionary[mask].First().DXCC != callSignInfo.DXCC)
                                 {
-                                    // this is to eliminate dupes - not really necessary with the hashset
-                                    callDictionarySet.UnionWith(callSignInfoSet);
+                                    // this is to eliminate dupes 
+                                    CallSignDictionary[mask].UnionWith(callSignInfoSet);
                                 }
                             }
                         }
-                        // );
                     }
                     PrimaryMaskList.Clear();
                 }

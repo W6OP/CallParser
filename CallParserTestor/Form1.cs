@@ -50,7 +50,8 @@ namespace CallParserTestor
         /// <param name="e"></param>
         private void ButtonLoadPrefixFile_Click(object sender, EventArgs e)
         {
-            //ParsePrefixFile(TextBoxPrefixFilePath.Text);
+            //Cursor.Current = Cursors.WaitCursor;
+            UseWaitCursor = true;
             Task.Run(() => ParsePrefixFile(TextBoxPrefixFilePath.Text));
         }
 
@@ -336,12 +337,11 @@ namespace CallParserTestor
         /// <param name="filePath"></param>
         private void ParsePrefixFile(string filePath)
         {
-            Cursor.Current = Cursors.WaitCursor;
             stopwatch = Stopwatch.StartNew();
-            //Task.Run(() => ParsePrefixFile(filePath));
             _PrefixFileParser.ParsePrefixFile("");
             Console.WriteLine("Load Time: " + stopwatch.ElapsedMilliseconds + "ms");
-            Cursor.Current = Cursors.Default;
+            UpdateCursor();
+            //UseWaitCursor = false;
             _CallLookUp = new CallLookUp(_PrefixFileParser);
         }
 
@@ -416,6 +416,7 @@ namespace CallParserTestor
         {
             if (!InvokeRequired)
             {
+                UseWaitCursor = false;
                 Cursor.Current = Cursors.Default;
             }
             else
