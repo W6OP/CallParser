@@ -192,7 +192,7 @@ namespace W6OP.CallParser
             int pass = 0;
 
             List<List<string>> allCharacters = new List<List<string>>();
-
+           
             // TEMPORARY: get rid of "." - need to work on this
             mask = mask.Replace(".", "");
             temporaryMask = mask;
@@ -209,8 +209,7 @@ namespace W6OP.CallParser
                         nextIndex = index + 1;
                         maskPart = temporaryMask.Substring(0, nextIndex);
                         string[] maskComponents = maskPart.Split("[]".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                        expandedMask = ParseMask(maskComponents);
-                        allCharacters.Add(BuildPrefixList(expandedMask));
+                        allCharacters.Add(ParseMask(maskComponents));
                         counter += maskPart.Length;
                         nextIndex = counter;
                         temporaryMask = mask.Substring(nextIndex);
@@ -218,8 +217,7 @@ namespace W6OP.CallParser
                     case "@": // alpha
                     case "#": // numeric
                     case "?": // alphanumeric
-                        expandedMask = GetMetaMaskSet(item.ToString());
-                        allCharacters.Add(BuildPrefixList(expandedMask));
+                        allCharacters.Add(GetMetaMaskSet(item.ToString()).ToList());
                         counter += 1;
                         temporaryMask = mask.Substring(counter);
                         break;
@@ -228,7 +226,7 @@ namespace W6OP.CallParser
                         {
                             item.ToString()
                         };
-                        allCharacters.Add(BuildPrefixList(expandedMask));
+                        allCharacters.Add(expandedMask.ToList());
                         counter += 1;
                         temporaryMask = mask.Substring(counter);
                         break;
@@ -337,17 +335,17 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="expandedMask"></param>
         /// <returns>List<string></returns>
-        private List<string> BuildPrefixList(HashSet<string> expandedMask)
-        {
-            List<string> characters = new List<string>();
+        //private List<string> BuildPrefixList(HashSet<string> expandedMask)
+        //{
+        //    List<string> characters = new List<string>();
 
-            foreach (string piece in expandedMask)
-            {
-                characters.Add(piece);
-            }
+        //    foreach (string piece in expandedMask)
+        //    {
+        //        characters.Add(piece);
+        //    }
 
-            return characters;
-        }
+        //    return characters;
+        //}
 
         /// <summary>
         /// Look at each character and see if it is a meta character to be expanded
@@ -355,7 +353,7 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="components"></param>
         /// <returns>HashSet<string></returns>
-        private HashSet<string> ParseMask(string[] components)
+        private List<string> ParseMask(string[] components)
         {
             string currentCharacter;
             string nextCharacter;
@@ -371,12 +369,12 @@ namespace W6OP.CallParser
 
                 if (counter >= componentString.Length)
                 {
-                    return expandedMask; // completed
+                    return expandedMask.ToList(); // completed
                 }
 
                 if (componentString[counter].ToString() == string.Empty)
                 {
-                    return expandedMask; // completed
+                    return expandedMask.ToList(); // completed
                 }
 
                 // TODO: double check the [0-9-W] is processed correctly - 7[RT-Y][016-9@] - [AKW]L#/
@@ -448,7 +446,7 @@ namespace W6OP.CallParser
                 }
             } 
 
-            return expandedMask;
+            return expandedMask.ToList();
         }
 
         /// <summary>
@@ -542,26 +540,14 @@ namespace W6OP.CallParser
             switch (characterType)
             {
                 case CharacterType.numeric:
-                    foreach (string digit in Numbers)
-                    {
-                        expandedMask.Add(digit);
-                    }
+                    expandedMask = new HashSet<string>(Numbers);
                     break;
                 case CharacterType.alphanumeric:
-                    foreach (string digit in Numbers)
-                    {
-                        expandedMask.Add(digit);
-                    }
-                    foreach (string letter in Alphabet)
-                    {
-                        expandedMask.Add(letter);
-                    }
+                    expandedMask = new HashSet<string>(Numbers);
+                    expandedMask.UnionWith(Alphabet);
                     break;
                 case CharacterType.alphabetical:
-                    foreach (string letter in Alphabet)
-                    {
-                        expandedMask.Add(letter);
-                    }
+                    expandedMask = new HashSet<string>(Alphabet);
                     break;
                 default:
                     break;
