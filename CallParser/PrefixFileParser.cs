@@ -152,33 +152,27 @@ namespace W6OP.CallParser
                     {
                         // expand the mask if it exists
                         ExpandMaskEx(element.Value);
-                        //ExpandMask(element.Value);
-
-                        //if (PrimaryMaskList.Count != PrimaryMaskListEx.Count)
-                        //{
-                        //    Debug.Assert(PrimaryMaskList.Count != PrimaryMaskListEx.Count);
-                        //    int s = 1;
-                        //}
+                        
                         // this must be "new()" not Clear() or it clears existing objects in the CallSignDictionary
-                        callSignInfoSet = new HashSet<CallSignInfo>();
-                        foreach (string mask in PrimaryMaskListEx)
-                        {
-                            callSignInfo.PrefixKey.Add(mask);
-                            callSignInfoSet.Add(callSignInfo);
+                        //callSignInfoSet = new HashSet<CallSignInfo>();
+                        //foreach (string mask in PrimaryMaskListEx)
+                        //{
+                        //    callSignInfo.PrefixKey.Add(mask);
+                        //    callSignInfoSet.Add(callSignInfo);
 
-                            if (!CallSignDictionary.ContainsKey(mask))
-                            {
-                                CallSignDictionary.Add(mask, callSignInfoSet);
-                            }
-                            else
-                            {
-                                if (CallSignDictionary[mask].First().DXCC != callSignInfo.DXCC)
-                                {
-                                    // this is to eliminate dupes 
-                                    CallSignDictionary[mask].UnionWith(callSignInfoSet);
-                                }
-                            }
-                        }
+                        //    if (!CallSignDictionary.ContainsKey(mask))
+                        //    {
+                        //        CallSignDictionary.Add(mask, callSignInfoSet);
+                        //    }
+                        //    else
+                        //    {
+                        //        if (CallSignDictionary[mask].First().DXCC != callSignInfo.DXCC)
+                        //        {
+                        //            // this is to eliminate dupes 
+                        //            CallSignDictionary[mask].UnionWith(callSignInfoSet);
+                        //        }
+                        //    }
+                        //}
                     }
                     PrimaryMaskList.Clear();
                     PrimaryMaskListEx.Clear();
@@ -197,7 +191,7 @@ namespace W6OP.CallParser
             int counter = 0;
             int index;
             string expression = "";
-            char item;
+            string item;
             // TEMPORARY: get rid of "." - need to work on this
             mask = mask.Replace(".", "");
             mask = String.Concat(mask.Where(c => !Char.IsWhiteSpace(c))); // sometimes "-" has spaces around it [1 - 8]
@@ -208,8 +202,8 @@ namespace W6OP.CallParser
 
             while (counter < length)
             {
-                item = mask[0];
-                switch (item.ToString())
+                item = mask.Substring(0,1);
+                switch (item)
                 {
                     case "[": // range
                         index = mask.IndexOf("]");
@@ -268,27 +262,10 @@ namespace W6OP.CallParser
 
         private void CombineComponents(string expression)
         {
-            List<string> expressionList = new List<string>();
-            List<string> tempList = new List<string>();
+            HashSet<string> expressionList = new HashSet<string>();
             HashSet<char[]> charsList = new HashSet<char[]>();
 
-            //expression = "AB[AKNW]L/";
-
-            //expression = expression.Substring(1, expression.IndexOf("]") - 1);
             charsList = BuildCharArray(charsList, expression);
-
-
-            // now have array of each component of the string - first may be empty
-            //string[] s1 = expression.Split("[]".ToCharArray(),  StringSplitOptions.RemoveEmptyEntries);
-            //char[] letters = new char[s1.Length];
-
-            //// [AKNW]L/
-            //// get HashSet with all component arrays
-            //foreach (string c in s1)
-            //{
-            //    letters = c.ToCharArray();
-            //    charsList.Add(letters);
-            //}
 
             // have list of arrays
             // for each caracter in the first list append each character of the second list
@@ -320,8 +297,6 @@ namespace W6OP.CallParser
             {
                 PrimaryMaskListEx = expressionList.ToHashSet();
             }
-            // return expressionList;
-            //PrimaryMaskListEx = expressionList.ToHashSet();
         }
 
         private HashSet<char[]> BuildCharArray(HashSet<char[]> charsList, string expression)
@@ -391,11 +366,6 @@ namespace W6OP.CallParser
                         charsList.Add(singles);
                     }
                 }
-
-                //char[] letters2 = new char[temp.Length];
-                //letters2 = temp.ToCharArray();
-                //charsList.Add(letters2);
-
             }
 
             if (expression.Length > 0)
@@ -406,10 +376,14 @@ namespace W6OP.CallParser
             return charsList;
         }
 
-        private void CombineRemainder(HashSet<char[]> charsList, List<string> expressionList)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="charsList"></param>
+        /// <param name="expressionList"></param>
+        private void CombineRemainder(HashSet<char[]> charsList, HashSet<string> expressionList)
         {
-            List<string> tempList = new List<string>();
-
+            HashSet<string> tempList = new HashSet<string>();
             char[] first = charsList.First();
 
             if (charsList.Count > 0)
@@ -423,16 +397,13 @@ namespace W6OP.CallParser
                 }
             }
 
-            expressionList = tempList;
-            PrimaryMaskListEx = tempList.ToHashSet();
+            PrimaryMaskListEx = tempList;
 
             if (charsList.Count > 1)
             {
                 charsList.Remove(first);
-                CombineRemainder(charsList, expressionList);
+                CombineRemainder(charsList, tempList);
             }
-
-
         }
 
 
