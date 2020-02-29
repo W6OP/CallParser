@@ -15,6 +15,9 @@
 	</prefix>
 	<prefix>
 		<masks>
+      <mask>[AKNW]L/</mask><!-- DELETE THIS NODE-->
+      <mask>[AKW]L#/</mask> <!-- DELETE THIS NODE-->
+      <mask>[AKNW]L</mask> <!-- DELETE THIS NODE-->      
 			<mask>3B6</mask>
 			<mask>3B6/</mask>
 		</masks>

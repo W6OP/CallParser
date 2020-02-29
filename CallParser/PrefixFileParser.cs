@@ -16,6 +16,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -38,6 +39,7 @@ namespace W6OP.CallParser
         /// Private fields.
         /// </summary>
         private HashSet<string> PrimaryMaskList;
+        private HashSet<string> PrimaryMaskListEx;
         private readonly string[] Alphabet = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
         private readonly string[] Numbers = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
@@ -63,6 +65,7 @@ namespace W6OP.CallParser
             Admins = new List<Admin>();
 
             PrimaryMaskList = new HashSet<string>();
+            PrimaryMaskListEx = new HashSet<string>();
 
             if (File.Exists(prefixFilePath))
             {
@@ -109,10 +112,10 @@ namespace W6OP.CallParser
             int a = 2;
         }
 
-       /// <summary>
-       /// Loop through all of the prefix nodes and expand the masks for each prefix.
-       /// </summary>
-       /// <param name="group"></param>
+        /// <summary>
+        /// Loop through all of the prefix nodes and expand the masks for each prefix.
+        /// </summary>
+        /// <param name="group"></param>
         private void BuildCallSignInfo(IGrouping<string, XElement> group)
         {
             HashSet<CallSignInfo> callSignInfoSet = new HashSet<CallSignInfo>();
@@ -148,8 +151,14 @@ namespace W6OP.CallParser
                     if (element.Value != "") // empty is usually a DXCC node
                     {
                         // expand the mask if it exists
+                        ExpandMaskEx("1[#C-Z]");
                         ExpandMask(element.Value);
 
+                        if (PrimaryMaskList.Count != PrimaryMaskListEx.Count)
+                        {
+                            Debug.Assert(PrimaryMaskList.Count != PrimaryMaskListEx.Count);
+                            int s = 1;
+                        }
                         // this must be "new()" not Clear() or it clears existing objects in the CallSignDictionary
                         callSignInfoSet = new HashSet<CallSignInfo>();
                         foreach (string mask in PrimaryMaskList)
@@ -172,8 +181,299 @@ namespace W6OP.CallParser
                         }
                     }
                     PrimaryMaskList.Clear();
+                    PrimaryMaskListEx.Clear();
                 }
             }
+        }
+
+
+        /// <summary>
+        /// Convert mask to regular expression
+        /// </summary>
+        /// <param name="mask"></param>
+        internal void ExpandMaskEx(string mask)
+        {
+            string maskPart;
+            int counter = 0;
+            int index;
+            string expression = "";
+            char item;
+            // TEMPORARY: get rid of "." - need to work on this
+            mask = mask.Replace(".", "");
+            mask = String.Concat(mask.Where(c => !Char.IsWhiteSpace(c))); // sometimes "-" has spaces around it
+
+            //mask = "[0Q]?A"; //"B[MNPQU-X#][1-8]@"; //B[MNPQU-X]0[#A-NP-Z]
+            int length = mask.Length;
+            string[] stringArray = { "@", "#", "?", "-" };
+
+            while (counter < length)
+            {
+                item = mask[0];
+                switch (item.ToString())
+                {
+                    case "[": // range
+                        index = mask.IndexOf("]");
+                        maskPart = mask.Substring(0, index + 1);
+                        counter += maskPart.Length;
+                        mask = mask.Substring(maskPart.Length);
+                        // look for expando in the set
+                        if (stringArray.Any(maskPart.Contains))
+                        {
+                            maskPart = string.Join("", GetMetaMaskSetEx(maskPart));
+                        }
+                        expression += maskPart;
+                        break;
+                    case "@": // alpha
+                        //expression += "[A-Z]";
+                        expression += "[" + String.Join("", Alphabet) + "]";
+                        counter += 1;
+                        if (counter < length)
+                        {
+                            mask = mask.Substring(1);
+                        }
+                        break;
+                    case "#": // numeric
+                        //expression += "[0-9]";
+                        expression += "[" + String.Join("", Numbers) + "]";
+                        counter += 1;
+                        if (counter < length)
+                        {
+                            mask = mask.Substring(1);
+                        }
+                        break;
+                    case "?": // alphanumeric
+                        //expression += "[0-9A-Z]";
+                        expression += "[" + String.Join("", Numbers) + String.Join("", Alphabet) + "]";
+                        counter += 1;
+                        if (counter < length)
+                        {
+                            mask = mask.Substring(1);
+                        }
+                        break;
+                    default: // single character
+                        expression += item.ToString();
+                        counter += 1;
+                        if (counter < length)
+                        {
+                            mask = mask.Substring(1);
+                        }
+                        break;
+                }
+            }
+
+            CombineComponents(expression);
+            //PrimaryMaskListEx = expressionList.ToHashSet();
+        }
+
+        private void CombineComponents(string expression)
+        {
+            List<string> expressionList = new List<string>();
+            List<string> tempList = new List<string>();
+            HashSet<char[]> charsList = new HashSet<char[]>();
+
+            //expression = "AB[AKNW]L/";
+
+            //expression = expression.Substring(1, expression.IndexOf("]") - 1);
+            charsList = BuildCharArray(charsList, expression);
+
+
+            // now have array of each component of the string - first may be empty
+            //string[] s1 = expression.Split("[]".ToCharArray(),  StringSplitOptions.RemoveEmptyEntries);
+            //char[] letters = new char[s1.Length];
+
+            //// [AKNW]L/
+            //// get HashSet with all component arrays
+            //foreach (string c in s1)
+            //{
+            //    letters = c.ToCharArray();
+            //    charsList.Add(letters);
+            //}
+
+            // have list of arrays
+            // for each caracter in the first list append each character of the second list
+            if (charsList.Count == 1)
+            {
+                PrimaryMaskListEx.Add(new string(charsList.First()));
+                return;
+            }
+
+            char[] first = charsList.First();
+            char[] next = charsList.Skip(1).First();
+
+            foreach (char firstItem in first)
+            {
+                foreach (char nextItem in next)
+                {
+                    expressionList.Add(firstItem.ToString() + nextItem);
+                }
+            }
+
+            // are there more?
+            if (charsList.Count > 2)
+            {
+                charsList.Remove(first);
+                charsList.Remove(next);
+                CombineRemainder(charsList, expressionList);
+            }
+            else
+            {
+                PrimaryMaskListEx = expressionList.ToHashSet();
+            }
+            // return expressionList;
+            //PrimaryMaskListEx = expressionList.ToHashSet();
+        }
+
+        private HashSet<char[]> BuildCharArray(HashSet<char[]> charsList, string expression)
+        {
+            string temp;
+
+            // first get everything in blocks separated by []
+            if (expression.IndexOf("[") != -1 && expression.IndexOf("[") == 0)
+            {
+                temp = expression.Substring(1, expression.IndexOf("]") - 1);
+                switch (temp.IndexOf("-"))
+                {
+                    case -1:
+                        {
+                            char[] letters2 = new char[temp.Length];
+                            letters2 = temp.ToCharArray();
+                            charsList.Add(letters2);
+                            expression = expression.Remove(0, expression.IndexOf("]") + 1);
+                            break;
+                        }
+
+                    default:
+                        {
+                           // temp = temp.Replace(" ", ""); // sometimes the "-" has spaces around it
+                            while (temp[0] != '-' ) 
+                            {
+                                char[] letters3 = new char[1];
+                                letters3[0] = temp[0]; //.ToCharArray();
+                                charsList.Add(letters3);
+                                temp = temp.Remove(0, 1);
+                            }
+                            HashSet<string> tempMask = BuildRange(charsList.Last()[0].ToString(), temp[1].ToString());
+
+                            charsList.Remove(charsList.Last());
+
+                            //tempMask.Remove(tempMask.First());
+                            char[] letters2 = new char[tempMask.Count];
+                            string output = string.Join("", tempMask);
+                            letters2 = output.ToCharArray();
+                            charsList.Add(letters2);
+                            expression = expression.Remove(0, expression.IndexOf("]") + 1);
+                            break;
+                        }                 // if (EnumEx.GetValueFromDescription<CharacterType>(x.ToString()) == CharacterType.dash)
+                }                 // if (EnumEx.GetValueFromDescription<CharacterType>(x.ToString()) == CharacterType.dash)
+            }
+            else
+            {
+                if (expression.IndexOf("[") != -1)
+                {
+                    temp = expression.Substring(0, expression.IndexOf("["));
+                    expression = expression.Remove(0, expression.IndexOf("["));
+                    foreach (char x in temp)
+                    {
+                        char[] singles = new char[1];
+                        singles[0] = x;
+                        charsList.Add(singles);
+                    }
+                    //char[] letters2 = new char[temp.Length];
+                    //letters2 = temp.ToCharArray();
+                    //charsList.Add(letters2);
+                }
+                else
+                {
+                    temp = expression;
+                    expression = expression.Remove(0, temp.Length);
+                    foreach (char x in temp)
+                    {
+                        char[] singles = new char[1];
+                        singles[0] = x;
+                        charsList.Add(singles);
+                    }
+                }
+
+                //char[] letters2 = new char[temp.Length];
+                //letters2 = temp.ToCharArray();
+                //charsList.Add(letters2);
+
+            }
+
+            if (expression.Length > 0)
+            {
+                charsList = BuildCharArray(charsList, expression);
+            }
+
+            return charsList;
+        }
+
+        //public static string TrimAllWithInplaceCharArray(string str)
+        //{
+        //    var len = str.Length;
+        //    var src = str.ToCharArray();
+        //    int dstIdx = 0;
+        //    for (int i = 0; i < len; i++)
+        //    {
+        //        var ch = src[i];
+        //        if (!isWhiteSpace(ch))
+        //            src[dstIdx++] = ch;
+        //    }
+        //    return new string(src, 0, dstIdx);
+        //}
+
+        //public static bool IsWhiteSpace(char c)
+        //{
+        //    if (IsLatin1(c))
+        //    {
+        //        return (IsWhiteSpaceLatin1(c));
+        //    }
+        //    return CharUnicodeInfo.IsWhiteSpace(c);
+        //}
+
+        private void CombineRemainder(HashSet<char[]> charsList, List<string> expressionList)
+        {
+            List<string> tempList = new List<string>();
+
+            char[] first = charsList.First();
+
+            if (charsList.Count > 0)
+            {
+                foreach (string prefix in expressionList)
+                {
+                    foreach (char nextItem in first)
+                    {
+                        tempList.Add(prefix + nextItem.ToString());
+                    }
+                }
+            }
+
+            expressionList = tempList;
+            PrimaryMaskListEx = tempList.ToHashSet();
+
+            if (charsList.Count > 1)
+            {
+                charsList.Remove(first);
+                CombineRemainder(charsList, expressionList);
+            }
+
+
+        }
+
+
+
+        /// <summary>
+        /// Expand the #, @ and ? symbols
+        /// </summary>
+        /// <param name="maskPart"></param>
+        /// <returns></returns>
+        private string ExpandMetaCharacter(string maskPart)
+        {
+            maskPart = maskPart.Replace("@", "A-Z");
+            maskPart = maskPart.Replace("#", "0-9");
+            maskPart = maskPart.Replace("@", "A-Z0-9");
+
+            return maskPart;
         }
 
         /// <summary>
@@ -192,10 +492,13 @@ namespace W6OP.CallParser
             int pass = 0;
 
             List<List<string>> allCharacters = new List<List<string>>();
-           
+
             // TEMPORARY: get rid of "." - need to work on this
             mask = mask.Replace(".", "");
+            mask = String.Concat(mask.Where(c => !Char.IsWhiteSpace(c))); // sometimes "-" has spaces around it
             temporaryMask = mask;
+
+            
 
             while (counter < mask.Length)
             {
@@ -281,7 +584,7 @@ namespace W6OP.CallParser
             //{
             //    allCharacters.RemoveRange(1, allCharacters.Count - 1);
             //}
-         
+
             switch (allCharacters.Count)
             {
                 case 0:
@@ -444,7 +747,7 @@ namespace W6OP.CallParser
                     }
                     counter += 1;
                 }
-            } 
+            }
 
             return expandedMask.ToList();
         }
@@ -554,6 +857,75 @@ namespace W6OP.CallParser
             }
 
             return expandedMask;
+        }
+
+        private string GetMetaMaskSetEx(string expando = "")
+        {
+            string expandedMask = "";
+            //CharacterType characterType = EnumEx.GetValueFromDescription<CharacterType>(character);
+
+
+            if (expando.IndexOf("#") != -1)
+            {
+                expando = expando.Replace("#", string.Join("", Numbers));
+            }
+
+            if (expando.IndexOf("@") != -1)
+            {
+                expando = expando = expando.Replace("@", string.Join("", Alphabet));
+            }
+
+            if (expando.IndexOf("?") != -1)
+            {
+                string temp = string.Join("", Numbers);
+                temp += string.Join("", Alphabet);
+                expando = expando.Replace("?", temp);
+            }
+
+            if (expando.IndexOf("-") != -1)
+            {
+                expandedMask += expando.Substring(0, expando.IndexOf("-") - 1);
+                string post = expando.Substring(expando.IndexOf("-") + 2);
+                string currentCharacter = expando.Substring(expando.IndexOf("-") - 1, 1);
+                string nextCharacter = expando.Substring(expando.IndexOf("-") + 1, 1);
+                HashSet<string> expandedMe = BuildRange(currentCharacter, nextCharacter);
+                foreach (string s in expandedMe)
+                {
+                    expandedMask += s;
+                }
+                expandedMask += post;
+            }
+
+
+            //switch (expando.Contains())
+            //{
+            //    case .Contains("#"):
+            //        expandedMask =  string.Join("", Numbers);
+            //        break;
+            //    case CharacterType.alphanumeric:
+            //        //expandedMask = new HashSet<string>(Numbers);
+            //        //expandedMask.UnionWith(Alphabet);
+            //        break;
+            //    case CharacterType.alphabetical:
+            //        //expandedMask = new HashSet<string>(Alphabet);
+            //        break;
+            //    case CharacterType.dash:
+            //        expandedMask = expando.Substring(0, expando.IndexOf("-") - 1);
+            //        string post = expando.Substring(expando.IndexOf("-") + 2);
+            //        string currentCharacter = expando.Substring(expando.IndexOf("-") - 1, 1);
+            //        string nextCharacter = expando.Substring(expando.IndexOf("-") + 1, 1);
+            //       HashSet<string> expandedMe = BuildRange(currentCharacter, nextCharacter);
+            //        foreach(string s in expandedMe)
+            //        {
+            //            expandedMask += s;
+            //        }
+            //        expandedMask += post;
+            //        break;
+            //    default:
+            //        break;
+            //}
+
+            return expandedMask + "]";
         }
 
         /// <summary>
