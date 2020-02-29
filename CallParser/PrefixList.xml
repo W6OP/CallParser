@@ -14,10 +14,7 @@
 		<long>58.550</long>
 	</prefix>
 	<prefix>
-		<masks>
-      <mask>[AKNW]L/</mask><!-- DELETE THIS NODE-->
-      <mask>[AKW]L#/</mask> <!-- DELETE THIS NODE-->
-      <mask>[AKNW]L</mask> <!-- DELETE THIS NODE-->      
+		<masks>   
 			<mask>3B6</mask>
 			<mask>3B6/</mask>
 		</masks>

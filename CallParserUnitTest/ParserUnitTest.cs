@@ -33,6 +33,12 @@ namespace CallParserUnitTest
         }
 
         [TestMethod]
+        private void TestMask()
+        {
+
+        }
+
+        [TestMethod]
         public void CallLookUp()
         {
             List<CallSignInfo> result;

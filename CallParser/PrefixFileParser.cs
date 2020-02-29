@@ -151,17 +151,17 @@ namespace W6OP.CallParser
                     if (element.Value != "") // empty is usually a DXCC node
                     {
                         // expand the mask if it exists
-                        ExpandMaskEx("1[#C-Z]");
-                        ExpandMask(element.Value);
+                        ExpandMaskEx(element.Value);
+                        //ExpandMask(element.Value);
 
-                        if (PrimaryMaskList.Count != PrimaryMaskListEx.Count)
-                        {
-                            Debug.Assert(PrimaryMaskList.Count != PrimaryMaskListEx.Count);
-                            int s = 1;
-                        }
+                        //if (PrimaryMaskList.Count != PrimaryMaskListEx.Count)
+                        //{
+                        //    Debug.Assert(PrimaryMaskList.Count != PrimaryMaskListEx.Count);
+                        //    int s = 1;
+                        //}
                         // this must be "new()" not Clear() or it clears existing objects in the CallSignDictionary
                         callSignInfoSet = new HashSet<CallSignInfo>();
-                        foreach (string mask in PrimaryMaskList)
+                        foreach (string mask in PrimaryMaskListEx)
                         {
                             callSignInfo.PrefixKey.Add(mask);
                             callSignInfoSet.Add(callSignInfo);
@@ -188,7 +188,7 @@ namespace W6OP.CallParser
 
 
         /// <summary>
-        /// Convert mask to regular expression
+        /// Break up the mask into sections and expand all of the meta characters.
         /// </summary>
         /// <param name="mask"></param>
         internal void ExpandMaskEx(string mask)
@@ -200,10 +200,10 @@ namespace W6OP.CallParser
             char item;
             // TEMPORARY: get rid of "." - need to work on this
             mask = mask.Replace(".", "");
-            mask = String.Concat(mask.Where(c => !Char.IsWhiteSpace(c))); // sometimes "-" has spaces around it
-
-            //mask = "[0Q]?A"; //"B[MNPQU-X#][1-8]@"; //B[MNPQU-X]0[#A-NP-Z]
+            mask = String.Concat(mask.Where(c => !Char.IsWhiteSpace(c))); // sometimes "-" has spaces around it [1 - 8]
             int length = mask.Length;
+            //mask = "[0Q]?A"; //"B[MNPQU-X#][1-8]@"; //B[MNPQU-X]0[#A-NP-Z]
+
             string[] stringArray = { "@", "#", "?", "-" };
 
             while (counter < length)
@@ -225,7 +225,8 @@ namespace W6OP.CallParser
                         break;
                     case "@": // alpha
                         //expression += "[A-Z]";
-                        expression += "[" + String.Join("", Alphabet) + "]";
+                        // use constant for performance
+                        expression += "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]";       //"[" + String.Join("", Alphabet) + "]";
                         counter += 1;
                         if (counter < length)
                         {
@@ -234,7 +235,7 @@ namespace W6OP.CallParser
                         break;
                     case "#": // numeric
                         //expression += "[0-9]";
-                        expression += "[" + String.Join("", Numbers) + "]";
+                        expression += "[0123456789]";       // "[" + String.Join("", Numbers) + "]";
                         counter += 1;
                         if (counter < length)
                         {
@@ -243,7 +244,7 @@ namespace W6OP.CallParser
                         break;
                     case "?": // alphanumeric
                         //expression += "[0-9A-Z]";
-                        expression += "[" + String.Join("", Numbers) + String.Join("", Alphabet) + "]";
+                        expression += "[ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789]";       // "[" + String.Join("", Numbers) + String.Join("", Alphabet) + "]";
                         counter += 1;
                         if (counter < length)
                         {
@@ -378,9 +379,6 @@ namespace W6OP.CallParser
                         singles[0] = x;
                         charsList.Add(singles);
                     }
-                    //char[] letters2 = new char[temp.Length];
-                    //letters2 = temp.ToCharArray();
-                    //charsList.Add(letters2);
                 }
                 else
                 {
@@ -407,29 +405,6 @@ namespace W6OP.CallParser
 
             return charsList;
         }
-
-        //public static string TrimAllWithInplaceCharArray(string str)
-        //{
-        //    var len = str.Length;
-        //    var src = str.ToCharArray();
-        //    int dstIdx = 0;
-        //    for (int i = 0; i < len; i++)
-        //    {
-        //        var ch = src[i];
-        //        if (!isWhiteSpace(ch))
-        //            src[dstIdx++] = ch;
-        //    }
-        //    return new string(src, 0, dstIdx);
-        //}
-
-        //public static bool IsWhiteSpace(char c)
-        //{
-        //    if (IsLatin1(c))
-        //    {
-        //        return (IsWhiteSpaceLatin1(c));
-        //    }
-        //    return CharUnicodeInfo.IsWhiteSpace(c);
-        //}
 
         private void CombineRemainder(HashSet<char[]> charsList, List<string> expressionList)
         {
@@ -753,6 +728,80 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="currentCharacter"></param>
+        /// <param name="nextCharacter"></param>
+        /// <returns></returns>
+        private string BuildRangeEx(string currentCharacter, string nextCharacter)
+        {
+            //HashSet<string> expandedMask = new HashSet<string>();
+            string expandedMaskEx = "";
+
+            // both numeric
+            if (IsNumeric(currentCharacter) && IsNumeric(nextCharacter))
+            {
+                if (Convert.ToInt32(currentCharacter) < Convert.ToInt32(nextCharacter))
+                {
+                    int start = GetNumberIndex(currentCharacter);
+                    int end = GetNumberIndex(nextCharacter);
+
+                    for (int index = start; index <= end; index++)
+                    {
+                        //expandedMask.Add(Numbers[index]);
+                        expandedMaskEx += Numbers[index];
+                    }
+                }
+                else
+                {
+                    // I seem to never hit this condition.
+                    bool fail = false;
+                    Debug.Assert(fail);
+                    // 31 = V31/
+                    //expandedMask.Append(currentCharacter);
+                    expandedMaskEx += currentCharacter;
+                    //expandedMask = new HashSet<string>();
+                    //expandedMask.Append(nextCharacter);
+                    expandedMaskEx += nextCharacter;
+                    //expandedMask = new HashSet<string>();
+                }
+            }
+
+            // both alpha
+            if (!IsNumeric(currentCharacter) && !IsNumeric(nextCharacter))
+            {
+                int start = GetCharacterIndex(currentCharacter);
+                int end = GetCharacterIndex(nextCharacter);
+
+                for (int index = start; index <= end; index++)
+                {
+                    //expandedMask.Add(Alphabet[index]);
+                    expandedMaskEx += Alphabet[index];
+                }
+            }
+
+            // numeric --> alpha
+            if (IsNumeric(currentCharacter) && !IsNumeric(nextCharacter))
+            {
+                int start = GetCharacterIndex(nextCharacter);
+                int end = GetCharacterIndex("Z");
+
+                for (int index = start; index <= end; index++)
+                {
+                    //expandedMask.Add(Alphabet[index]);
+                    expandedMaskEx += Alphabet[index];
+                }
+            }
+
+            if (!IsNumeric(currentCharacter) && IsNumeric(nextCharacter))
+            {
+                Debug.Assert(!IsNumeric(currentCharacter) && IsNumeric(nextCharacter));
+            }
+
+            return expandedMaskEx;
+        }
+
+        /// <summary>
         /// A "-" was found which indicates a range. Build the alpha or numeric range to return.
         /// </summary>
         /// <param name="currentCharacter"></param>
@@ -859,73 +908,47 @@ namespace W6OP.CallParser
             return expandedMask;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="expando"></param>
+        /// <returns></returns>
         private string GetMetaMaskSetEx(string expando = "")
         {
-            string expandedMask = "";
-            //CharacterType characterType = EnumEx.GetValueFromDescription<CharacterType>(character);
-
-
             if (expando.IndexOf("#") != -1)
             {
-                expando = expando.Replace("#", string.Join("", Numbers));
+                expando = expando.Replace("#", "0123456789");
             }
 
             if (expando.IndexOf("@") != -1)
             {
-                expando = expando = expando.Replace("@", string.Join("", Alphabet));
+                expando = expando.Replace("@", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
             }
 
             if (expando.IndexOf("?") != -1)
             {
-                string temp = string.Join("", Numbers);
-                temp += string.Join("", Alphabet);
-                expando = expando.Replace("?", temp);
+                //string temp = String.Join("", Numbers) + String.Join("", Alphabet);
+                //temp += string.Join("", Alphabet);
+                expando = expando.Replace("?", "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
             }
 
-            if (expando.IndexOf("-") != -1)
+            while (expando.IndexOf("-") != -1)
             {
-                expandedMask += expando.Substring(0, expando.IndexOf("-") - 1);
+                string expandedMask = expando.Substring(0, expando.IndexOf("-") - 1);
                 string post = expando.Substring(expando.IndexOf("-") + 2);
                 string currentCharacter = expando.Substring(expando.IndexOf("-") - 1, 1);
                 string nextCharacter = expando.Substring(expando.IndexOf("-") + 1, 1);
-                HashSet<string> expandedMe = BuildRange(currentCharacter, nextCharacter);
-                foreach (string s in expandedMe)
-                {
-                    expandedMask += s;
-                }
+                //HashSet<string> expandedMe = BuildRangeEx(currentCharacter, nextCharacter);
+                //foreach (string s in expandedMe)
+                //{
+                //    expandedMask += s;
+                //}
+                expandedMask += BuildRangeEx(currentCharacter, nextCharacter);
                 expandedMask += post;
+                expando = expandedMask;
             }
 
-
-            //switch (expando.Contains())
-            //{
-            //    case .Contains("#"):
-            //        expandedMask =  string.Join("", Numbers);
-            //        break;
-            //    case CharacterType.alphanumeric:
-            //        //expandedMask = new HashSet<string>(Numbers);
-            //        //expandedMask.UnionWith(Alphabet);
-            //        break;
-            //    case CharacterType.alphabetical:
-            //        //expandedMask = new HashSet<string>(Alphabet);
-            //        break;
-            //    case CharacterType.dash:
-            //        expandedMask = expando.Substring(0, expando.IndexOf("-") - 1);
-            //        string post = expando.Substring(expando.IndexOf("-") + 2);
-            //        string currentCharacter = expando.Substring(expando.IndexOf("-") - 1, 1);
-            //        string nextCharacter = expando.Substring(expando.IndexOf("-") + 1, 1);
-            //       HashSet<string> expandedMe = BuildRange(currentCharacter, nextCharacter);
-            //        foreach(string s in expandedMe)
-            //        {
-            //            expandedMask += s;
-            //        }
-            //        expandedMask += post;
-            //        break;
-            //    default:
-            //        break;
-            //}
-
-            return expandedMask + "]";
+            return expando;
         }
 
         /// <summary>
