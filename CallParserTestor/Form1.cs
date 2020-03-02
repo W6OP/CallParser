@@ -338,7 +338,7 @@ namespace CallParserTestor
         private void ParsePrefixFile(string filePath)
         {
             stopwatch = Stopwatch.StartNew();
-            _PrefixFileParser.ParsePrefixFile("");
+            _PrefixFileParser.ParsePrefixFile(TextBoxPrefixFilePath.Text);
             Console.WriteLine("Load Time: " + stopwatch.ElapsedMilliseconds + "ms");
             UpdateCursor();
             //UseWaitCursor = false;

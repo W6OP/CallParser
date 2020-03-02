@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 
 namespace W6OP.CallParser
@@ -89,6 +90,9 @@ namespace W6OP.CallParser
         private void BuildCallSignInfo(XElement prefixXml)
         {
             string currentValue;
+
+            var points = prefixXml.Descendants("country");
+            var point = points.FirstOrDefault();
 
             foreach (XElement element in prefixXml.Elements())
             {

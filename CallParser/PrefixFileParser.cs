@@ -18,6 +18,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace W6OP.CallParser
@@ -48,6 +49,12 @@ namespace W6OP.CallParser
         /// </summary>
         public PrefixFileParser()
         {
+            // preallocate space
+            CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>(1100000);
+            Adifs = new Dictionary<int, CallSignInfo>();
+            Admins = new List<Admin>();
+
+            PrimaryMaskList = new HashSet<string>();
         }
 
         /// <summary>
@@ -58,19 +65,26 @@ namespace W6OP.CallParser
         public void ParsePrefixFile(string prefixFilePath)
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
-            XDocument xDocument;
-
-            CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>();
-            Adifs = new Dictionary<int, CallSignInfo>();
-            Admins = new List<Admin>();
-
-            PrimaryMaskList = new HashSet<string>();
 
             if (File.Exists(prefixFilePath))
             {
                 try
                 {
-                    xDocument = XDocument.Load(prefixFilePath);
+                    using (XmlReader reader = XmlReader.Create(prefixFilePath))
+                    {
+                        while (reader.Read())
+                        {
+                            if (reader.IsStartElement())
+                            {
+                                if (reader.Name == "prefix")
+                                {
+                                    XElement prefix = XElement.ReadFrom(reader) as XElement;
+                                    CallSignInfo callSignInfo = new CallSignInfo(prefix);
+                                    BuildCallSignInfoEx(prefix, callSignInfo);
+                                }
+                            }
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -81,35 +95,80 @@ namespace W6OP.CallParser
             {
                 using (StreamReader stream = new StreamReader(assembly.GetManifestResourceStream("W6OP.CallParser.PrefixList.xml")))
                 {
-                    xDocument = XDocument.Load(stream);
+                    using (XmlReader reader = XmlReader.Create(stream))
+                    {
+                        while (reader.Read())
+                        {
+                            if (reader.IsStartElement())
+                            {
+                                if (reader.Name == "prefix")
+                                {
+                                    XElement prefix = XElement.ReadFrom(reader) as XElement;
+                                    //Task.Run(() => SemiBatchCallSignLookup());
+                                    CallSignInfo callSignInfo = new CallSignInfo(prefix);
+                                    BuildCallSignInfoEx(prefix, callSignInfo);
+                                }
+                            }
+                        }
+                    }
                 }
             }
-
-            ParsePrefixDataList(xDocument);
         }
 
         /// <summary>
-        /// Parse the xml prefix data list. 
-        /// Loop through each prefix node.
+        /// Loop through all of the prefix nodes and expand the masks for each prefix.
         /// </summary>
-        /// <param name="xDoc"></param>
-        private void ParsePrefixDataList(XDocument xDocument)
+        /// <param name="prefix"></param>
+        private void BuildCallSignInfoEx(XElement prefix, CallSignInfo callSignInfo)
         {
-            var prefixes = xDocument.Root.Elements("prefix");
-            var groups = xDocument.Descendants("prefix")
-                .GroupBy(x => (string)x.Element("dxcc_entity"))
-                .ToList();
+            HashSet<CallSignInfo> callSignInfoSet = new HashSet<CallSignInfo>();
 
-            int b = 1;
+            IEnumerable<XElement> masks = prefix.Elements().Where(x => x.Name == "masks");
 
-            foreach (var group in groups)
+            XElement dxcc_kind = prefix.Descendants().Where(x => x.Name == "kind").First();
+
+            if (dxcc_kind.Value == "pfDXCC")
             {
-                BuildCallSignInfo(group);
+                int dxcc = Convert.ToInt32(prefix.Descendants().Where(x => x.Name == "dxcc_entity").First().Value);
+                Adifs.Add(dxcc, callSignInfo);
             }
 
-            //int distinctCount = CallSignDictionary.Select(x => x.Value).Distinct().Count();
-            int a = 2;
+            if (dxcc_kind.Value == "pfInvalidPrefix")
+            {
+                Adifs.Add(0, callSignInfo);
+            }
+
+            foreach (XElement element in masks.Descendants())
+            {
+                if (element.Value != "") // empty is usually a DXCC node
+                {
+                    // expand the mask if it exists
+                    ExpandMask(element.Value);
+                    // this must be "new()" not Clear() or it clears existing objects in the CallSignDictionary
+                    callSignInfoSet = new HashSet<CallSignInfo>();
+                    foreach (string mask in PrimaryMaskList)
+                    {
+                        callSignInfo.PrefixKey.Add(mask);
+                        callSignInfoSet.Add(callSignInfo);
+
+                        if (!CallSignDictionary.ContainsKey(mask))
+                        {
+                            CallSignDictionary.Add(mask, callSignInfoSet);
+                        }
+                        else
+                        {
+                            if (CallSignDictionary[mask].First().DXCC != callSignInfo.DXCC)
+                            {
+                                // this is to eliminate dupes 
+                                CallSignDictionary[mask].UnionWith(callSignInfoSet);
+                            }
+                        }
+                    }
+                }
+                PrimaryMaskList.Clear();
+            }
         }
+
 
         /// <summary>
         /// Loop through all of the prefix nodes and expand the masks for each prefix.
@@ -217,7 +276,7 @@ namespace W6OP.CallParser
                         break;
                     case "@": // alpha
                         // use constant for performance
-                        expression += "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]";      
+                        expression += "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]";
                         counter += 1;
                         if (counter < length)
                         {
@@ -225,7 +284,7 @@ namespace W6OP.CallParser
                         }
                         break;
                     case "#": // numeric
-                        expression += "[0123456789]";     
+                        expression += "[0123456789]";
                         counter += 1;
                         if (counter < length)
                         {
@@ -233,7 +292,7 @@ namespace W6OP.CallParser
                         }
                         break;
                     case "?": // alphanumeric
-                        expression += "[ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789]";      
+                        expression += "[ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789]";
                         counter += 1;
                         if (counter < length)
                         {
@@ -308,7 +367,7 @@ namespace W6OP.CallParser
             {
                 temp = expression.Substring(1, expression.IndexOf("]") - 1);
                 charsList.Add(temp.ToCharArray());
-                expression = expression.Remove(0, expression.IndexOf("]") + 1);     
+                expression = expression.Remove(0, expression.IndexOf("]") + 1);
             }
             else
             {
