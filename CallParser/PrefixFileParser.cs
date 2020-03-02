@@ -58,8 +58,10 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// Load the prefix fle. If a file path is passed in then load that file.
-        /// Otherwise use the embedded resource file for the prefix list.
+        /// Read the prefix fle. If a file path is passed in then read that file.
+        /// Otherwise use the embedded resource file for the prefix list. I use an
+        /// XMLReader so the file is not actually loaded into memory, only the 
+        /// elements I am currently working with.
         /// </summary>
         /// <param name="prefixFilePath"></param>
         public void ParsePrefixFile(string prefixFilePath)
@@ -113,6 +115,7 @@ namespace W6OP.CallParser
                     }
                 }
             }
+            var a = 1;
         }
 
         /// <summary>
@@ -168,75 +171,6 @@ namespace W6OP.CallParser
                 PrimaryMaskList.Clear();
             }
         }
-
-
-        /// <summary>
-        /// Loop through all of the prefix nodes and expand the masks for each prefix.
-        /// </summary>
-        /// <param name="group"></param>
-        private void BuildCallSignInfo(IGrouping<string, XElement> group)
-        {
-            HashSet<CallSignInfo> callSignInfoSet = new HashSet<CallSignInfo>();
-            CallSignInfo callSignInfo = new CallSignInfo();
-            IEnumerable<XElement> masks = group.Elements().Where(x => x.Name == "masks");
-
-            int dxcc_entity = Convert.ToInt32(group.Key);
-            if (dxcc_entity != 0)
-            {
-                XElement dxccElement = group.Descendants().Where(x => x.Name == "kind" && x.Value == "pfDXCC").First().Parent;
-                // create the DXCC structure and save in the Adifs list.
-                callSignInfo = new CallSignInfo(dxccElement);
-                Adifs.Add(dxcc_entity, callSignInfo);
-            }
-            else
-            {
-                XElement dxccElement = group.Descendants().Where(x => x.Name == "kind" && x.Value == "pfInvalidPrefix").First().Parent;
-                // create the DXCC structure and save in the Adifs list.
-                callSignInfo = new CallSignInfo(dxccElement);
-                Adifs.Add(dxcc_entity, callSignInfo);
-            }
-
-            // loop through each prefix node
-            foreach (XElement prefix in group)
-            {
-                masks = prefix.Elements().Where(x => x.Name == "masks");
-
-                // CallSignInfo class populates itself
-                callSignInfo = new CallSignInfo(prefix);
-
-                foreach (XElement element in masks.Descendants())
-                {
-                    if (element.Value != "") // empty is usually a DXCC node
-                    {
-                        // expand the mask if it exists
-                        ExpandMask(element.Value);
-
-                        // this must be "new()" not Clear() or it clears existing objects in the CallSignDictionary
-                        callSignInfoSet = new HashSet<CallSignInfo>();
-                        foreach (string mask in PrimaryMaskList)
-                        {
-                            callSignInfo.PrefixKey.Add(mask);
-                            callSignInfoSet.Add(callSignInfo);
-
-                            if (!CallSignDictionary.ContainsKey(mask))
-                            {
-                                CallSignDictionary.Add(mask, callSignInfoSet);
-                            }
-                            else
-                            {
-                                if (CallSignDictionary[mask].First().DXCC != callSignInfo.DXCC)
-                                {
-                                    // this is to eliminate dupes 
-                                    CallSignDictionary[mask].UnionWith(callSignInfoSet);
-                                }
-                            }
-                        }
-                    }
-                    PrimaryMaskList.Clear();
-                }
-            }
-        }
-
 
         /// <summary>
         /// Break up the mask into sections and expand all of the meta characters.
@@ -315,7 +249,7 @@ namespace W6OP.CallParser
 
         private void CombineComponents(string expression)
         {
-            HashSet<string> expressionList = new HashSet<string>();
+            //HashSet<string> expressionList = new HashSet<string>();
             HashSet<char[]> charsList = new HashSet<char[]>();
 
             charsList = BuildCharArray(charsList, expression);
@@ -335,7 +269,8 @@ namespace W6OP.CallParser
             {
                 foreach (char nextItem in next)
                 {
-                    expressionList.Add(firstItem.ToString() + nextItem);
+                    //expressionList.Add(firstItem.ToString() + nextItem);
+                    PrimaryMaskList.Add(firstItem.ToString() + nextItem);
                 }
             }
 
@@ -344,11 +279,12 @@ namespace W6OP.CallParser
             {
                 charsList.Remove(first);
                 charsList.Remove(next);
-                CombineRemainder(charsList, expressionList);
+                //CombineRemainder(charsList, expressionList);
+                CombineRemainder(charsList);
             }
             else
             {
-                PrimaryMaskList = expressionList.ToHashSet();
+                //PrimaryMaskList = expressionList.ToHashSet();
             }
         }
 
@@ -404,20 +340,22 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="charsList"></param>
         /// <param name="expressionList"></param>
-        private void CombineRemainder(HashSet<char[]> charsList, HashSet<string> expressionList)
+        private void CombineRemainder(HashSet<char[]> charsList)
         {
             HashSet<string> tempList = new HashSet<string>();
             char[] first = charsList.First();
 
             if (charsList.Count > 0)
             {
-                foreach (string prefix in expressionList)
+                 _ = Parallel.ForEach(PrimaryMaskList, prefix =>
+                //foreach (string prefix in PrimaryMaskList)
                 {
                     foreach (char nextItem in first)
                     {
                         tempList.Add(prefix + nextItem);
                     }
                 }
+                );
             }
 
             // this statement must be here before the stack is unwound
@@ -426,7 +364,7 @@ namespace W6OP.CallParser
             if (charsList.Count > 1)
             {
                 charsList.Remove(first);
-                CombineRemainder(charsList, tempList);
+                CombineRemainder(charsList);
             }
         }
 
