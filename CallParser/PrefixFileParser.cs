@@ -146,7 +146,9 @@ namespace W6OP.CallParser
                 if (element.Value != "") // empty is usually a DXCC node
                 {
                     // expand the mask if it exists
-                    ExpandMask(element.Value);
+                        ExpandMask(element.Value);
+                    
+                    //Console.WriteLine(element.Value);
                     // this must be "new()" not Clear() or it clears existing objects in the CallSignDictionary
                     callSignInfoSet = new HashSet<CallSignInfo>();
                     foreach (string mask in PrimaryMaskList)
@@ -249,8 +251,7 @@ namespace W6OP.CallParser
 
         private void CombineComponents(string expression)
         {
-            //HashSet<string> expressionList = new HashSet<string>();
-            HashSet<char[]> charsList = new HashSet<char[]>();
+            HashSet<string[]> charsList = new HashSet<string[]>(1000);
 
             charsList = BuildCharArray(charsList, expression);
 
@@ -258,18 +259,17 @@ namespace W6OP.CallParser
             // for each caracter in the first list append each character of the second list
             if (charsList.Count == 1)
             {
-                PrimaryMaskList.Add(new string(charsList.First()));
+                PrimaryMaskList.Add(charsList.First().ToString());
                 return;
             }
 
-            char[] first = charsList.First();
-            char[] next = charsList.Skip(1).First();
+            string[] first = charsList.First();
+            string[] next = charsList.Skip(1).First();
 
-            foreach (char firstItem in first)
+            foreach (string firstItem in first)
             {
-                foreach (char nextItem in next)
+                foreach (string nextItem in next)
                 {
-                    //expressionList.Add(firstItem.ToString() + nextItem);
                     PrimaryMaskList.Add(firstItem.ToString() + nextItem);
                 }
             }
@@ -279,7 +279,6 @@ namespace W6OP.CallParser
             {
                 charsList.Remove(first);
                 charsList.Remove(next);
-                //CombineRemainder(charsList, expressionList);
                 CombineRemainder(charsList);
             }
             else
@@ -294,7 +293,7 @@ namespace W6OP.CallParser
         /// <param name="charsList"></param>
         /// <param name="expression"></param>
         /// <returns></returns>
-        private HashSet<char[]> BuildCharArray(HashSet<char[]> charsList, string expression)
+        private HashSet<string[]> BuildCharArray(HashSet<string[]> charsList, string expression)
         {
             string temp;
 
@@ -302,7 +301,7 @@ namespace W6OP.CallParser
             if (expression.IndexOf("[") != -1 && expression.IndexOf("[") == 0)
             {
                 temp = expression.Substring(1, expression.IndexOf("]") - 1);
-                charsList.Add(temp.ToCharArray());
+                charsList.Add(temp.Select(c => c.ToString()).ToArray());
                 expression = expression.Remove(0, expression.IndexOf("]") + 1);
             }
             else
@@ -313,7 +312,7 @@ namespace W6OP.CallParser
                     expression = expression.Remove(0, expression.IndexOf("["));
                     foreach (char x in temp)
                     {
-                        charsList.Add(new char[1] { x });
+                        charsList.Add(new string[1] { x.ToString() });
                     }
                 }
                 else
@@ -322,7 +321,7 @@ namespace W6OP.CallParser
                     expression = expression.Remove(0, temp.Length);
                     foreach (char x in temp)
                     {
-                        charsList.Add(new char[1] { x });
+                        charsList.Add(new string[1] { x.ToString() });
                     }
                 }
             }
@@ -340,22 +339,22 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="charsList"></param>
         /// <param name="expressionList"></param>
-        private void CombineRemainder(HashSet<char[]> charsList)
+        private void CombineRemainder(HashSet<string[]> charsList)
         {
-            HashSet<string> tempList = new HashSet<string>();
-            char[] first = charsList.First();
+            HashSet<string> tempList = new HashSet<string>(1000);
+            string[] first = charsList.First();
 
             if (charsList.Count > 0)
             {
-                 _ = Parallel.ForEach(PrimaryMaskList, prefix =>
-                //foreach (string prefix in PrimaryMaskList)
+                // _ = Parallel.ForEach(PrimaryMaskList, prefix =>
+                foreach (string prefix in PrimaryMaskList)
                 {
-                    foreach (char nextItem in first)
+                    foreach (string nextItem in first)
                     {
                         tempList.Add(prefix + nextItem);
                     }
                 }
-                );
+                //);
             }
 
             // this statement must be here before the stack is unwound

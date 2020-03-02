@@ -53,6 +53,7 @@ namespace CallParserTestor
             //Cursor.Current = Cursors.WaitCursor;
             UseWaitCursor = true;
             Task.Run(() => ParsePrefixFile(TextBoxPrefixFilePath.Text));
+            //ParsePrefixFile(TextBoxPrefixFilePath.Text);
         }
 
         /// <summary>
