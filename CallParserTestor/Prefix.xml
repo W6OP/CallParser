@@ -17715,7 +17715,7 @@
 		<masks>
 			<mask>B[M-QU-X]9[#BDEFIJNQRTUVXYZ]</mask>
 			<mask>B[VW]/</mask>
-			<mask>B[MNPQU-X][1-8]#</mask>
+			<mask>B[MNPQU-X][1-8]@</mask>
 			<mask>BO[3-8]#</mask>
 			<mask>B[MNPQU-X]0[#A-NP-Z]</mask>
 			<mask>BO0[#A-JLNP-Z]</mask>

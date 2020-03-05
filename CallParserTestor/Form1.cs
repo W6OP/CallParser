@@ -182,7 +182,7 @@ namespace CallParserTestor
         {
             if (_CallLookUp == null)
             {
-                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missing Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
 
