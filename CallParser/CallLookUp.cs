@@ -158,7 +158,7 @@ namespace W6OP.CallParser
         /// <param name="callSign"></param>
         private void ProcessCallSign(string callSign)
         {
-            (string call, string callPrefix) callAndprefix;
+            (string baseCall, string callPrefix) callAndprefix;
 
             // strip leading "/"
             if (callSign.IndexOf("/", 0, 1) == 0)
@@ -171,21 +171,21 @@ namespace W6OP.CallParser
             switch (components.Count)
             {
                 case 1:
-                    callAndprefix = (components[0], "");
-                    CollectMatches(callAndprefix.call, callSign);
+                    callAndprefix = (components[0], components[0]);
+                    CollectMatches(callAndprefix, callSign);
                     break;
                 case 2:
                     // now add the "/" back to the first component
                     components[0] = components[0] + "/";
                     callAndprefix = ProcessPrefix(components);
-                    CollectMatches(callAndprefix.callPrefix, callSign);
+                    CollectMatches(callAndprefix, callSign);
                     break;
                 case 3: // DC3RJ/P/W3 - remove excess parts
                     // now add the "/" back to the first component
                     //components[1] = "/" + components[1];
                     //components[2] = "/" + components[2];
                     callAndprefix = TrimCallSign(components);
-                    CollectMatches(callAndprefix.callPrefix, callSign);
+                    CollectMatches(callAndprefix, callSign);
                     break;
                 default:
                     // should I do anything here?
@@ -201,13 +201,13 @@ namespace W6OP.CallParser
         /// <param name="components"></param>
         /// <param name="callSign"></param>
         /// <returns>(string call, string callPrefix)</returns>
-        private (string call, string callPrefix) TrimCallSign(List<string> components)
+        private (string baseCall, string callPrefix) TrimCallSign(List<string> components)
         {
             int counter = 0;
             List<string> tempComponents = new List<string>();
-            (string call, string callPrefix) callAndprefix = ("", "");
+            (string baseCall, string callPrefix) callAndprefix = ("", "");
 
-            callAndprefix.call = "";
+            callAndprefix.baseCall = "";
             callAndprefix.callPrefix = "";
 
             foreach (string component in components)
@@ -241,7 +241,7 @@ namespace W6OP.CallParser
         /// <param name="callSign"></param>
         /// <param name="components"></param>
         /// <returns>(string call, string callPrefix)</returns>
-        private (string call, string callPrefix) ProcessPrefix(List<string> components)
+        private (string baseCall, string callPrefix) ProcessPrefix(List<string> components)
         {
             string call = "";
             string prefix = "";
@@ -256,14 +256,20 @@ namespace W6OP.CallParser
 
             if (call.Length == prefix.Length)
             {
-                // swap call and prefix
+                // swap call and prefix - why?
                 call += prefix;
                 prefix = call.Substring(0, call.Length - prefix.Length);
                 call = call.Substring(prefix.Length);
             }
 
+            // BU2EO/W4
+            if (prefix.Length < 4 & call.IndexOf("/") != -1)
+            {
+                call = call.Replace("/", "");
+            }
+
             // should the prefix be tossed out
-            if (Array.Find(rejectPrefixes, element => element == call) != null)
+            if (Array.Find(rejectPrefixes, element => element == prefix) != null)
             {
                 call = prefix;
             }
@@ -309,7 +315,7 @@ namespace W6OP.CallParser
                 prefix += "/";
             }
 
-            return (call, callPrefix: prefix);
+            return (baseCall: call, callPrefix: prefix);
         }
 
 
@@ -342,17 +348,17 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="callOrPrefix"></param>
         /// /// <param name="fullCall"></param>
-        private void CollectMatches(string callOrPrefix, string fullCall)
+        private void CollectMatches((string baseCall, string callPrefix) callAndprefix, string fullCall)
         {
             // only use the first 4 characters - faster search you would think
             // but truncating the string has some overhead - more accurate result though -- or is it ???
             //callOrPrefix = callOrPrefix.Length > 3 ? callOrPrefix.Substring(0, 4) : callOrPrefix;
 
-            if (CallSignDictionary.ContainsKey(callOrPrefix))
+            if (CallSignDictionary.ContainsKey(callAndprefix.callPrefix))
             {
-                List<CallSignInfo> query = CallSignDictionary[callOrPrefix].ToList();
+                List<CallSignInfo> query = CallSignDictionary[callAndprefix.callPrefix].ToList();
 
-                foreach (CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(callOrPrefix)))
+                foreach (CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(callAndprefix.callPrefix)))
                 {
                     CallSignInfo info = callSignInfo.ShallowCopy();
                     info.CallSign = fullCall;
@@ -366,18 +372,19 @@ namespace W6OP.CallParser
                         HitList.Add(dxcc);
                     }
                 }
+                return;
             }
 
-            if (callOrPrefix.Length > 1)
+            if (callAndprefix.callPrefix.Length > 1)
             {
-                callOrPrefix = callOrPrefix.Remove(callOrPrefix.Length - 1);
-                while (callOrPrefix != string.Empty)
+                callAndprefix.callPrefix = callAndprefix.callPrefix.Remove(callAndprefix.callPrefix.Length - 1);
+                while (callAndprefix.callPrefix != string.Empty)
                 {
-                    if (CallSignDictionary.ContainsKey(callOrPrefix))
+                    if (CallSignDictionary.ContainsKey(callAndprefix.callPrefix))
                     {
-                        List<CallSignInfo> query = CallSignDictionary[callOrPrefix].ToList();
+                        List<CallSignInfo> query = CallSignDictionary[callAndprefix.callPrefix].ToList();
 
-                        foreach (CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(callOrPrefix)))
+                        foreach (CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(callAndprefix.callPrefix)))
                         {
                             CallSignInfo info = callSignInfo.ShallowCopy();
                             info.CallSign = fullCall;
@@ -392,7 +399,7 @@ namespace W6OP.CallParser
                             }
                         }
                     }
-                    callOrPrefix = callOrPrefix.Remove(callOrPrefix.Length - 1);
+                    callAndprefix.callPrefix = callAndprefix.callPrefix.Remove(callAndprefix.callPrefix.Length - 1);
                 }
             }
         }
