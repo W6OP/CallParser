@@ -39,10 +39,12 @@ namespace W6OP.CallParser
         /// <summary>
         /// Private fields.
         /// </summary>
-        //private HashSet<string> PrimaryMaskList;
-        //private HashSet<string> PrimaryMaskList;
         private readonly string[] Alphabet = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
         private readonly string[] Numbers = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+
+        private readonly HashSet<string[]> Numerics;
+        private readonly HashSet<string[]> Alphabetics;
+        private readonly HashSet<string[]> AlphaNumerics;
 
         /// <summary>
         /// Default constructor.
@@ -54,7 +56,21 @@ namespace W6OP.CallParser
             Adifs = new Dictionary<int, CallSignInfo>();
             Admins = new List<Admin>();
 
-            //PrimaryMaskList = new HashSet<string>();
+            // pre building give huge performance gain parsing prefix file
+            Numerics = new HashSet<string[]>
+            {
+                "0123456789".Select(c => c.ToString()).ToArray()
+            };
+
+            Alphabetics = new HashSet<string[]>
+            {
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ".Select(c => c.ToString()).ToArray()
+            };
+
+            AlphaNumerics = new HashSet<string[]>
+            {
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".Select(c => c.ToString()).ToArray()
+            };
         }
 
         /// <summary>
@@ -70,8 +86,6 @@ namespace W6OP.CallParser
             CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>(1100000);
             Adifs = new Dictionary<int, CallSignInfo>();
             Admins = new List<Admin>();
-
-            //PrimaryMaskList = new HashSet<string>(5000);
 
             Assembly assembly = Assembly.GetExecutingAssembly();
 
@@ -121,7 +135,6 @@ namespace W6OP.CallParser
                     }
                 }
             }
-            var a = 1;
         }
 
         /// <summary>
@@ -153,8 +166,7 @@ namespace W6OP.CallParser
                 {
                     // expand the mask if it exists
                     primaryMaskList = ExpandMask(element.Value);
-                    
-                    //Console.WriteLine(element.Value);
+
                     // this must be "new()" not Clear() or it clears existing objects in the CallSignDictionary
                     callSignInfoSet = new HashSet<CallSignInfo>();
                     foreach (string mask in primaryMaskList)
@@ -193,9 +205,9 @@ namespace W6OP.CallParser
             string item;
             // TEMPORARY: get rid of "." - need to work on this
             mask = mask.Replace(".", "");
-            mask = String.Concat(mask.Where(c => !Char.IsWhiteSpace(c))); // sometimes "-" has spaces around it [1 - 8]
+            // sometimes "-" has spaces around it [1 - 8]
+            mask = String.Concat(mask.Where(c => !Char.IsWhiteSpace(c)));
             int length = mask.Length;
-            //mask = "[0Q]?A"; //"B[MNPQU-X#][1-8]@"; //B[MNPQU-X]0[#A-NP-Z]
 
             string[] stringArray = { "@", "#", "?", "-" };
 
@@ -218,7 +230,7 @@ namespace W6OP.CallParser
                         break;
                     case "@": // alpha
                         // use constant for performance
-                        expression += "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]";
+                        expression += "[@]"; //"[ABCDEFGHIJKLMNOPQRSTUVWXYZ]";
                         counter += 1;
                         if (counter < length)
                         {
@@ -226,7 +238,7 @@ namespace W6OP.CallParser
                         }
                         break;
                     case "#": // numeric
-                        expression += "[0123456789]";
+                        expression += "[#]"; //"[0123456789]";
                         counter += 1;
                         if (counter < length)
                         {
@@ -234,7 +246,7 @@ namespace W6OP.CallParser
                         }
                         break;
                     case "?": // alphanumeric
-                        expression += "[ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789]";
+                        expression += "[?]"; //"[ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789]";
                         counter += 1;
                         if (counter < length)
                         {
@@ -255,6 +267,11 @@ namespace W6OP.CallParser
             return CombineComponents(expression);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
         private HashSet<string> CombineComponents(string expression)
         {
             HashSet<string> primaryMaskList = new HashSet<string>(5000);
@@ -279,7 +296,7 @@ namespace W6OP.CallParser
                 foreach (string nextItem in next)
                 {
                     // slightly faster than concatenation
-                    builder = new StringBuilder().Append(firstItem).Append(nextItem);    
+                    builder = new StringBuilder().Append(firstItem).Append(nextItem);
                     primaryMaskList.Add(builder.ToString());
                 }
             }
@@ -291,29 +308,10 @@ namespace W6OP.CallParser
                 charsList.Remove(next);
                 primaryMaskList = CombineRemainder(charsList, primaryMaskList);
             }
-           
+
             return primaryMaskList;
         }
 
-        public int ParallelForWithLocalFinally()
-        {
-            int total = 0;
-            //int parts = 8;
-            //int partSize = ITEMS / parts;
-            //var parallel = Parallel.For(0, parts,
-            //    localInit: () => 0L, // Initializes the "localTotal"
-            //    body: (iter, state, localTotal) =>
-            //    {
-            //        for (int j = iter * partSize; j < (iter + 1) * partSize; j++)
-            //        {
-            //            localTotal += arr[j];
-            //        }
-
-            //        return localTotal;
-            //    },
-            //    localFinally: (localTotal) => { total += localTotal; });
-            return total;
-        }
 
         /// <summary>
         /// 
@@ -329,7 +327,21 @@ namespace W6OP.CallParser
             if (expression.IndexOf("[") != -1 && expression.IndexOf("[") == 0)
             {
                 temp = expression.Substring(1, expression.IndexOf("]") - 1);
-                charsList.Add(temp.Select(c => c.ToString()).ToArray());
+                switch (temp)
+                {
+                    case "@":
+                        charsList.UnionWith(Alphabetics);
+                        break;
+                    case "#":
+                        charsList.UnionWith(Numerics);
+                        break;
+                    case "?":
+                        charsList.UnionWith(AlphaNumerics);
+                        break;
+                    default:
+                        charsList.Add(temp.Select(c => c.ToString()).ToArray());
+                        break;
+                }
                 expression = expression.Remove(0, expression.IndexOf("]") + 1);
             }
             else
@@ -370,22 +382,18 @@ namespace W6OP.CallParser
         private HashSet<string> CombineRemainder(HashSet<string[]> charsList, HashSet<string> primaryMaskList)
         {
             HashSet<string> tempList = new HashSet<string>(1000);
-            //StringBuilder builder;
 
             string[] first = charsList.First();
 
             if (charsList.Count > 0)
             {
-                // _ = Parallel.ForEach(PrimaryMaskList, prefix =>
                 foreach (string prefix in primaryMaskList)
                 {
                     foreach (string nextItem in first)
                     {
-                        //builder = new StringBuilder().Append(prefix).Append(nextItem);
                         tempList.Add(prefix + nextItem);
                     }
                 }
-                //);
             }
 
             // this statement must be here before the stack is unwound
@@ -422,15 +430,6 @@ namespace W6OP.CallParser
                     {
                         expandedMask += Numbers[index];
                     }
-                }
-                else
-                {
-                    // I seem to never hit this condition.
-                    bool fail = false;
-                    Debug.Assert(fail);
-                    // 31 = V31/
-                    expandedMask += currentCharacter;
-                    expandedMask += nextCharacter;
                 }
             }
 

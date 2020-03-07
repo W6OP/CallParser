@@ -50,10 +50,8 @@ namespace CallParserTestor
         /// <param name="e"></param>
         private void ButtonLoadPrefixFile_Click(object sender, EventArgs e)
         {
-            //Cursor.Current = Cursors.WaitCursor;
             UseWaitCursor = true;
             Task.Run(() => ParsePrefixFile(TextBoxPrefixFilePath.Text));
-            //ParsePrefixFile(TextBoxPrefixFilePath.Text);
         }
 
         /// <summary>
@@ -106,7 +104,6 @@ namespace CallParserTestor
         {
             IEnumerable<CallSignInfo> hitCollection = null;
             List<CallSignInfo> hitList;
-            //float divisor = 1000;
 
             if (_CallLookUp == null)
             {
@@ -130,9 +127,7 @@ namespace CallParserTestor
                         hitList = hitCollection.ToList();   //.OrderByDescending(o => o.DXCC).ThenByDescending(x => x.Kind).ToList();
                         
                         Console.WriteLine(hitList.Count.ToString() + " hits returned");
-                        //LabelElapsedTime.Text = "Total Time: " + stopwatch.ElapsedMilliseconds;
                         LabelHitCount.Text = "Finished - hitcount = " + hitList.Count.ToString();
-                        //LabelPerCallTime.Text = ((float)(stopwatch.ElapsedMilliseconds / divisor)).ToString() + "us per call";
 
                         foreach (CallSignInfo hit in hitList)
                         {
@@ -186,6 +181,7 @@ namespace CallParserTestor
                 return;
             }
 
+            ListViewResults.Items.Clear();
             Cursor.Current = Cursors.WaitCursor;
             Task.Run(() => BatchCallSignLookup());
         }
@@ -204,7 +200,6 @@ namespace CallParserTestor
 
             UpdateLabels(hitCollection.Count());
 
-            //hitCollection = hitCollection.OrderByDescending(o => o.CallSign).ThenByDescending(x => x.Kind).ToList();
             foreach (CallSignInfo hit in hitCollection)
             {
                 count++;
@@ -239,7 +234,6 @@ namespace CallParserTestor
                 LabelElapsedTime.Text = "";
                 LabelHitCount.Text = "";
                 LabelPerCallTime.Text = "";
-                //LabelCallsLoaded.Text = "";
 
                 LabelHitCount.Text = "Finished - hitcount = " + count.ToString();
                 LabelElapsedTime.Text = "Total Time: " + stopwatch.Elapsed;
@@ -279,7 +273,6 @@ namespace CallParserTestor
                 item.SubItems.Add(country);
                 item.SubItems.Add(province);
                 item.SubItems.Add(dxcc);
-                //ListViewResults.Items.Insert(0, item);
                 ListViewResults.Items.Add(item);
                 Application.DoEvents();
             }
@@ -303,6 +296,7 @@ namespace CallParserTestor
                 return;
             }
 
+            ListViewResults.Items.Clear();
             stopwatch = Stopwatch.StartNew();
             Cursor.Current = Cursors.WaitCursor;
             Task.Run(() => SemiBatchCallSignLookup());
