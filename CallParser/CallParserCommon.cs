@@ -14,6 +14,17 @@ using System.ComponentModel;
 namespace W6OP.CallParser
 {
     /// <summary>
+    /// Allows Tri State Bool
+    /// </summary>
+    public enum TriState : byte // Byte for reduced memory use.
+    {
+        CallSign,
+        Prefix,
+        CallOrPrefix,
+        None
+    }
+
+    /// <summary>
     /// Valid kinds pf prefixes.
     /// </summary>
     public enum PrefixKind

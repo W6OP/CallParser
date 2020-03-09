@@ -22,10 +22,10 @@ namespace W6OP.CallParser
         private ConcurrentBag<CallSignInfo> HitList;
         //private readonly Dictionary<string, List<Hit>> _PrefixesDictionary;
         private readonly Dictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
-       //private readonly Dictionary<Int32, Hit> _Adifs;
+        //private readonly Dictionary<Int32, Hit> _Adifs;
         private Dictionary<Int32, CallSignInfo> Adifs { get; set; }
 
-        private readonly string[] _OneLetterSeries = { "B","F", "G", "I","K", "M", "N", "R", "W", "2" };
+        private readonly string[] _OneLetterSeries = { "B", "F", "G", "I", "K", "M", "N", "R", "W", "2" };
 
 
 
@@ -74,18 +74,18 @@ namespace W6OP.CallParser
             // parallel foreach almost twice as fast but requires blocking collection
             // need to use non parallel foreach for debugging
             _ = Parallel.ForEach(callSigns, callSign =>
-           // foreach(string callSign in callSigns)
-              {
-                  if (ValidateCallSign(callSign))
-                  {
-                      ProcessCallSign(callSign);
-                  }
-                  else
-                  {
+            // foreach(string callSign in callSigns)
+            {
+                if (ValidateCallSign(callSign))
+                {
+                    ProcessCallSign(callSign);
+                }
+                else
+                {
                     // don't throw, just ignore bad calls
                     Console.WriteLine("Invalid call sign format: " + callSign);
                 }
-              }
+            }
              );
 
             return HitList.AsEnumerable(); ;
@@ -131,16 +131,16 @@ namespace W6OP.CallParser
             if (callSign.Length < 2) { return false; }
 
             // check if first character is "/"
-            //if (callSign.IndexOf("/", 0, 1) == 0) { return false; }
+            if (callSign.IndexOf("/", 0, 1) == 0) { return false; }
 
             // check for a "-" ie: VE7CC-7, OH6BG-1, WZ7I-3 
             if (callSign.IndexOf("-") != -1) { return false; }
 
             // can't be all numbers
-            if (IsNumeric(callSign)) { return false; }
+            if (callSign.All(char.IsDigit)) { return false; }
 
             // look for at least one number character
-            if (!callSign.Where(x => Char.IsDigit(x)).Any()) { return false; }
+            if (!callSign.Any(char.IsDigit)) { return false; }
 
             return true;
         }
@@ -176,7 +176,7 @@ namespace W6OP.CallParser
                     break;
                 case 2:
                     // now add the "/" back to the first component
-                    components[0] = components[0] + "/";
+                    //components[0] = components[0] + "/";
                     callAndprefix = ProcessPrefix(components);
                     CollectMatches(callAndprefix, callSign);
                     break;
@@ -254,70 +254,168 @@ namespace W6OP.CallParser
             // longest
             call = components.OrderBy(c => c.Length).Last();
 
-            if (call.Length == prefix.Length)
+            if (rejectPrefixes.Contains(call)) { return (baseCall: call, callPrefix: prefix); }
+
+            if (rejectPrefixes.Contains(prefix)) { return (baseCall: call, callPrefix: call); }
+
+            // 3 characters all text ie: MMM
+            if (prefix.Length > 2)
             {
-                // swap call and prefix - why?
-                call += prefix;
-                prefix = call.Substring(0, call.Length - prefix.Length);
-                call = call.Substring(prefix.Length);
+                if (prefix.All(char.IsLetter)) { return (baseCall: call, callPrefix: call); }
             }
 
-            // BU2EO/W4
-            if (prefix.Length < 4 & call.IndexOf("/") != -1)
-            {
-                call = call.Replace("/", "");
-            }
-
-            // should the prefix be tossed out
-            if (Array.Find(rejectPrefixes, element => element == prefix) != null)
+            // "KHRTY/W4"
+            if (!call.Any(char.IsDigit))
             {
                 call = prefix;
+                return (baseCall: call, callPrefix: prefix);
             }
 
-            if (Array.Find(rejectPrefixes, element => element == prefix) != null)
-            {
-                prefix = call;
-            }
 
-            if (prefix == string.Empty)
-            {
-                // collectMatches expects the prefix to be populated - that is what we search on
-                Debug.Assert(prefix == string.Empty);
-            }
+            // can we determine if one doesn't meet the correct pattern
+            //TriState isCallAPrefix = IsCallSignOrPrefix(call);
+            //TriState isPrefixACall = IsCallSignOrPrefix(prefix);
 
-            // call can be W4/LU2ART or LU2ART/W4 but make it W4/LU2ART
-            if (!IsNumeric(prefix)) // AM70URE/8 --> 8/AM70URE
-            {
-                if (CheckExceptions(components))
-                {
-                    call = call + "/" + prefix;
-                }
-                else
-                {
-                    call = prefix + "/" + call;
-                }
-            }
-            else
-            {
-                for (int i = 0; i < call.Length; i++)
-                {
-                    if (IsNumeric(call[i].ToString()))
-                    {
-                        call = call.Replace(call[i].ToString(), prefix);
-                        prefix = call;
-                        break;
-                    }
-                }
-            }
+            //if (IsCallSignOrPrefix(call) == TriState.Prefix && IsCallSignOrPrefix(prefix) == TriState.CallSign ) 
+            //{
 
-            if (prefix.Length == 1)
+            //}
+
+            TriState state = TriState.None;
+
+            switch (state)
             {
-                prefix += "/";
+                case TriState _ when IsCallSignOrPrefix(call) == TriState.CallSign && IsCallSignOrPrefix(prefix) == TriState.Prefix:
+                    return (baseCall: call, callPrefix: prefix);
+
+                case TriState _ when IsCallSignOrPrefix(call) == TriState.Prefix && IsCallSignOrPrefix(prefix) == TriState.CallSign:
+                    return (baseCall: prefix, callPrefix: call);
+
+                case TriState _ when IsCallSignOrPrefix(call) == TriState.CallSign && IsCallSignOrPrefix(prefix) == TriState.CallOrPrefix:
+                    return (baseCall: call, callPrefix: prefix);
+
+                case TriState _ when IsCallSignOrPrefix(call) == TriState.CallOrPrefix && IsCallSignOrPrefix(call) == TriState.Prefix:
+                    return (baseCall: call, callPrefix: prefix);
+
+                case TriState _ when IsCallSignOrPrefix(call) == TriState.CallOrPrefix && IsCallSignOrPrefix(call) == TriState.CallSign:
+                    return (baseCall: prefix, callPrefix: call);
+
+                default:
+                    break;
             }
 
             return (baseCall: call, callPrefix: prefix);
+            // swap call and prefix - assuming shortest is the prefix
+            //if (call.Length == prefix.Length)
+            //{
+            //    call += prefix;
+            //    prefix = call.Substring(0, call.Length - prefix.Length);
+            //    call = call.Substring(prefix.Length);
+            //}
+
+            // BU2EO/W4
+            //if (prefix.Length < 4 & call.IndexOf("/") != -1)
+            //{
+            //    call = call.Replace("/", "");
+            //}
+
+            //// should the prefix be tossed out - since we are also going to test for text only
+            //// prefix or call this isn't really necessary
+            //if (Array.Find(rejectPrefixes, element => element == prefix) != null)
+            //{
+            //    call = prefix;
+            //}
+
+            //if (Array.Find(rejectPrefixes, element => element == call) != null)
+            //{
+            //    prefix = call;
+            //}
+
+            // call can be W4/LU2ART or LU2ART/W4
+            //if (!prefix.All(char.IsDigit)) // AM70URE/8 --> 8/AM70URE
+            //{
+            //    if (CheckExceptions(components))
+            //    {
+            //        call = call + "/" + prefix;
+            //    }
+            //    else
+            //    {
+            //        prefix += "/";
+            //    }
+            //}
+            //else
+            //{
+            //    for (int i = 0; i < call.Length; i++)
+            //    {
+            //        if (IsNumeric(call[i].ToString()))
+            //        {
+            //            call = call.Replace(call[i].ToString(), prefix);
+            //            prefix = call;
+            //            break;
+            //        }
+            //    }
+            //}
+
+            //if (prefix.Length == 1)
+            //{
+            //    prefix += "/";
+            //}
+
+            // return (baseCall: call, callPrefix: prefix);
         }
 
+        /// <summary>
+        /// //one of "@","@@","#@","#@@" followed by 1-4 digits followed by 1-6 letters
+        /// </summary>
+        /// <param name="candidate"></param>
+        /// <returns></returns>
+        private TriState IsCallSignOrPrefix(string candidate)
+        {
+            string[] validCalls = { "@", "@@", "@#@@", "@#@@@", "#@", "#@@", "#@#@", "#@#@@", "#@#@@@", "#@#@@@@", "#@#@@@@@", "@@#", "@@#@", "@@#@@", "@@#@@@" }; // KH6Z
+            string[] validPrefixes = { "@", "@@", "@@#", "@@#@", "@#", "@#@", "@##", "#", "#@", "#@@", "#@#", "#@@#" };
+            TriState state = TriState.None;
+
+            string pattern = BuildPattern(candidate);
+
+            switch (state)
+            {
+                case TriState _ when (validCalls.Contains(pattern) && validPrefixes.Contains(pattern)):
+                    return TriState.CallOrPrefix;
+                case TriState _ when (validCalls.Contains(pattern)):
+                    return TriState.CallSign;
+                case TriState _ when (validPrefixes.Contains(pattern)):
+                    return TriState.CallSign;
+            }
+
+            return TriState.None;
+        }
+
+        ///// <summary>
+        ///// //one of valid patterns of portable prefixes, and prefix is known
+        ///// ValidPrefixes = ':@:@@:@@#:@@#@:@#:@#@:@##:#@:#@@:#@#:#@@#:';
+        ///// </summary>
+        ///// <param name="candidate"></param>
+        ///// <returns></returns>
+
+
+        private string BuildPattern(string candidate)
+        {
+            string pattern = "";
+
+            foreach (char item in candidate)
+            {
+                if (Char.IsLetter(item))
+                {
+                    pattern += "@";
+                }
+                else
+                {
+                    pattern += "#";
+                }
+            }
+
+            return pattern;
+        }
 
         /// <summary>
         /// Sometimes there are exceptions to the rule we can't handle in other places.
@@ -354,6 +452,12 @@ namespace W6OP.CallParser
             // but truncating the string has some overhead - more accurate result though -- or is it ???
             //callOrPrefix = callOrPrefix.Length > 3 ? callOrPrefix.Substring(0, 4) : callOrPrefix;
 
+            // add the "/" back on for the shorter prefixes
+            if (callAndprefix.callPrefix.Length < 4)
+            {
+                callAndprefix.callPrefix += "/";
+            }
+
             if (CallSignDictionary.ContainsKey(callAndprefix.callPrefix))
             {
                 List<CallSignInfo> query = CallSignDictionary[callAndprefix.callPrefix].ToList();
@@ -364,7 +468,7 @@ namespace W6OP.CallParser
                     info.CallSign = fullCall;
                     HitList.Add(info);
 
-                    if ( callSignInfo.Kind != PrefixKind.DXCC)
+                    if (callSignInfo.Kind != PrefixKind.DXCC)
                     {
                         CallSignInfo dxccHit = Adifs[Convert.ToInt32(query[0].DXCC)];
                         CallSignInfo dxcc = dxccHit.ShallowCopy();
@@ -372,7 +476,7 @@ namespace W6OP.CallParser
                         HitList.Add(dxcc);
                     }
                 }
-                return;
+                return; // this needs checking
             }
 
             if (callAndprefix.callPrefix.Length > 1)
