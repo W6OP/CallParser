@@ -14,8 +14,8 @@
 		<long>58.550</long>
 	</prefix>
 	<prefix>
-		<masks>   
-			<mask>3B6</mask>
+		<masks>
+      <mask>3B6</mask>
 			<mask>3B6/</mask>
 		</masks>
 		<label>3B6.3B6</label>

@@ -41,10 +41,11 @@ namespace W6OP.CallParser
         /// </summary>
         private readonly string[] Alphabet = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
         private readonly string[] Numbers = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+        private readonly string[] AlphaNumerics = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
 
-        private readonly HashSet<string[]> Numerics;
-        private readonly HashSet<string[]> Alphabetics;
-        private readonly HashSet<string[]> AlphaNumerics;
+        //private readonly HashSet<string[]> Numerics;
+        //private readonly HashSet<string[]> Alphabetics;
+        //private readonly HashSet<string[]> AlphaNumerics;
 
         /// <summary>
         /// Default constructor.
@@ -57,20 +58,20 @@ namespace W6OP.CallParser
             Admins = new List<Admin>();
 
             // pre building give huge performance gain parsing prefix file
-            Numerics = new HashSet<string[]>
-            {
-                "0123456789".Select(c => c.ToString()).ToArray()
-            };
+            //Numerics = new HashSet<string[]>
+            //{
+            //    "0123456789".Select(c => c.ToString()).ToArray()
+            //};
 
-            Alphabetics = new HashSet<string[]>
-            {
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZ".Select(c => c.ToString()).ToArray()
-            };
+            //Alphabetics = new HashSet<string[]>
+            //{
+            //    "ABCDEFGHIJKLMNOPQRSTUVWXYZ".Select(c => c.ToString()).ToArray()
+            //};
 
-            AlphaNumerics = new HashSet<string[]>
-            {
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".Select(c => c.ToString()).ToArray()
-            };
+            //AlphaNumerics = new HashSet<string[]>
+            //{
+            //    "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".Select(c => c.ToString()).ToArray()
+            //};
         }
 
         /// <summary>
@@ -275,7 +276,7 @@ namespace W6OP.CallParser
         private HashSet<string> CombineComponents(string expression)
         {
             HashSet<string> primaryMaskList = new HashSet<string>(5000);
-            HashSet<string[]> charsList = new HashSet<string[]>(1000);
+            List<string[]> charsList = new List<string[]>(1000);
             StringBuilder builder;
 
             charsList = BuildCharArray(charsList, expression);
@@ -319,7 +320,7 @@ namespace W6OP.CallParser
         /// <param name="charsList"></param>
         /// <param name="expression"></param>
         /// <returns></returns>
-        private HashSet<string[]> BuildCharArray(HashSet<string[]> charsList, string expression)
+        private List<string[]> BuildCharArray(List<string[]> charsList, string expression)
         {
             string temp;
 
@@ -330,13 +331,13 @@ namespace W6OP.CallParser
                 switch (temp)
                 {
                     case "@":
-                        charsList.UnionWith(Alphabetics);
+                        charsList.Add(Alphabet);
                         break;
                     case "#":
-                        charsList.UnionWith(Numerics);
+                        charsList.Add(Numbers);
                         break;
                     case "?":
-                        charsList.UnionWith(AlphaNumerics);
+                        charsList.Add(AlphaNumerics);
                         break;
                     default:
                         charsList.Add(temp.Select(c => c.ToString()).ToArray());
@@ -379,7 +380,7 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="charsList"></param>
         /// <param name="expressionList"></param>
-        private HashSet<string> CombineRemainder(HashSet<string[]> charsList, HashSet<string> primaryMaskList)
+        private HashSet<string> CombineRemainder(List<string[]> charsList, HashSet<string> primaryMaskList)
         {
             HashSet<string> tempList = new HashSet<string>(1000);
 
