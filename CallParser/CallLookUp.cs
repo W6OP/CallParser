@@ -243,6 +243,7 @@ namespace W6OP.CallParser
         /// <returns>(string call, string callPrefix)</returns>
         private (string baseCall, string callPrefix) ProcessPrefix(List<string> components)
         {
+            TriState state = TriState.None;
             string call = "";
             string prefix = "";
             // added "R" as a beacon for R/IK3OTW
@@ -271,108 +272,81 @@ namespace W6OP.CallParser
                 return (baseCall: call, callPrefix: prefix);
             }
 
+            /*
+             //resolve ambiguities
+              FStructure := StringReplace(FStructure, 'UU', 'PC', [rfReplaceAll]);
+              FStructure := StringReplace(FStructure, 'CU', 'CP', [rfReplaceAll]);
+              FStructure := StringReplace(FStructure, 'UC', 'PC', [rfReplaceAll]);
+              FStructure := StringReplace(FStructure, 'UP', 'CP', [rfReplaceAll]);
+              FStructure := StringReplace(FStructure, 'PU', 'PC', [rfReplaceAll]);
+              FStructure := StringReplace(FStructure, 'U',   'C', [rfReplaceAll]);
+             
+             */
 
-            // can we determine if one doesn't meet the correct pattern
-            //TriState isCallAPrefix = IsCallSignOrPrefix(call);
-            //TriState isPrefixACall = IsCallSignOrPrefix(prefix);
-
-            //if (IsCallSignOrPrefix(call) == TriState.Prefix && IsCallSignOrPrefix(prefix) == TriState.CallSign ) 
-            //{
-
-            //}
-
-            TriState state = TriState.None;
+            TriState callState = IsCallSignOrPrefix(call);
+            TriState prefixState = IsCallSignOrPrefix(prefix);
 
             switch (state)
             {
-                case TriState _ when IsCallSignOrPrefix(call) == TriState.CallSign && IsCallSignOrPrefix(prefix) == TriState.Prefix:
+                case TriState _ when callState == TriState.CallSign && prefixState == TriState.Prefix:
                     return (baseCall: call, callPrefix: prefix);
 
-                case TriState _ when IsCallSignOrPrefix(call) == TriState.Prefix && IsCallSignOrPrefix(prefix) == TriState.CallSign:
+                case TriState _ when callState == TriState.Prefix && prefixState == TriState.CallSign:
                     return (baseCall: prefix, callPrefix: call);
-
-                case TriState _ when IsCallSignOrPrefix(call) == TriState.CallSign && IsCallSignOrPrefix(prefix) == TriState.CallOrPrefix:
+                // 'UU', 'PC'
+                case TriState _ when callState == TriState.None && prefixState == TriState.None: 
                     return (baseCall: call, callPrefix: prefix);
-
-                case TriState _ when IsCallSignOrPrefix(call) == TriState.CallOrPrefix && IsCallSignOrPrefix(call) == TriState.Prefix:
+                // 'CU', 'CP'
+                case TriState _ when callState == TriState.CallSign && prefixState == TriState.None:
                     return (baseCall: call, callPrefix: prefix);
+                // 'UC', 'PC'
+                case TriState _ when callState == TriState.None && prefixState == TriState.CallSign:
+                    return (baseCall: call, callPrefix: prefix);
+                // 'UP', 'CP'
+                case TriState _ when callState == TriState.None && prefixState == TriState.Prefix:
+                    return (baseCall: call, callPrefix: prefix);
+                // 'PU', 'PC'
+                case TriState _ when callState == TriState.Prefix && prefixState == TriState.None:
+                    return (baseCall: call, callPrefix: prefix);
+                // 'U',  'C'
+                case TriState _ when callState == TriState.Prefix && prefixState == TriState.None:
+                    return (baseCall: call, callPrefix: call);
+                    // 'C', 'C' BU VU3 VU7
+                case TriState _ when callState == TriState.CallSign && prefixState == TriState.CallSign:
+                    if (call.First() == 'B')
+                    {
+                        return (baseCall: prefix, callPrefix: call);
+                    } 
+                    else if (call.StartsWith("VU4") || call.StartsWith("VU7"))
+                    {
+                        return (baseCall: prefix, callPrefix: call);
+                    }
+                    break;
+                //case TriState _ when IsCallSignOrPrefix(call) == TriState.CallOrPrefix && IsCallSignOrPrefix(call) == TriState.CallSign:
+                //    return (baseCall: prefix, callPrefix: call);
 
-                case TriState _ when IsCallSignOrPrefix(call) == TriState.CallOrPrefix && IsCallSignOrPrefix(call) == TriState.CallSign:
-                    return (baseCall: prefix, callPrefix: call);
+
+
+
 
                 default:
                     break;
             }
 
             return (baseCall: call, callPrefix: prefix);
-            // swap call and prefix - assuming shortest is the prefix
-            //if (call.Length == prefix.Length)
-            //{
-            //    call += prefix;
-            //    prefix = call.Substring(0, call.Length - prefix.Length);
-            //    call = call.Substring(prefix.Length);
-            //}
-
-            // BU2EO/W4
-            //if (prefix.Length < 4 & call.IndexOf("/") != -1)
-            //{
-            //    call = call.Replace("/", "");
-            //}
-
-            //// should the prefix be tossed out - since we are also going to test for text only
-            //// prefix or call this isn't really necessary
-            //if (Array.Find(rejectPrefixes, element => element == prefix) != null)
-            //{
-            //    call = prefix;
-            //}
-
-            //if (Array.Find(rejectPrefixes, element => element == call) != null)
-            //{
-            //    prefix = call;
-            //}
-
-            // call can be W4/LU2ART or LU2ART/W4
-            //if (!prefix.All(char.IsDigit)) // AM70URE/8 --> 8/AM70URE
-            //{
-            //    if (CheckExceptions(components))
-            //    {
-            //        call = call + "/" + prefix;
-            //    }
-            //    else
-            //    {
-            //        prefix += "/";
-            //    }
-            //}
-            //else
-            //{
-            //    for (int i = 0; i < call.Length; i++)
-            //    {
-            //        if (IsNumeric(call[i].ToString()))
-            //        {
-            //            call = call.Replace(call[i].ToString(), prefix);
-            //            prefix = call;
-            //            break;
-            //        }
-            //    }
-            //}
-
-            //if (prefix.Length == 1)
-            //{
-            //    prefix += "/";
-            //}
-
-            // return (baseCall: call, callPrefix: prefix);
+           
         }
 
         /// <summary>
         /// //one of "@","@@","#@","#@@" followed by 1-4 digits followed by 1-6 letters
+        /// ValidPrefixes = ':@:@@:@@#:@@#@:@#:@#@:@##:#@:#@@:#@#:#@@#:';
         /// </summary>
         /// <param name="candidate"></param>
         /// <returns></returns>
         private TriState IsCallSignOrPrefix(string candidate)
         {
             string[] validCalls = { "@", "@@", "@#@@", "@#@@@", "#@", "#@@", "#@#@", "#@#@@", "#@#@@@", "#@#@@@@", "#@#@@@@@", "@@#", "@@#@", "@@#@@", "@@#@@@" }; // KH6Z
-            string[] validPrefixes = { "@", "@@", "@@#", "@@#@", "@#", "@#@", "@##", "#", "#@", "#@@", "#@#", "#@@#" };
+            string[] validPrefixes = { "@", "@@", "@@#", "@@#@", "@#", "@#@", "@##", "#@", "#@@", "#@#", "#@@#" };
             TriState state = TriState.None;
 
             string pattern = BuildPattern(candidate);
@@ -381,10 +355,12 @@ namespace W6OP.CallParser
             {
                 case TriState _ when (validCalls.Contains(pattern) && validPrefixes.Contains(pattern)):
                     return TriState.CallOrPrefix;
+
                 case TriState _ when (validCalls.Contains(pattern)):
                     return TriState.CallSign;
+
                 case TriState _ when (validPrefixes.Contains(pattern)):
-                    return TriState.CallSign;
+                    return TriState.Prefix;
             }
 
             return TriState.None;
