@@ -148,17 +148,19 @@ namespace W6OP.CallParser
             HashSet<string> primaryMaskList = new HashSet<string>();
             IEnumerable<XElement> masks = prefix.Elements().Where(x => x.Name == "masks");
 
-            XElement dxcc_kind = prefix.Descendants().Where(x => x.Name == "kind").First();
-
-            if (dxcc_kind.Value == "pfDXCC")
+            if (callSignInfo.Kind == PrefixKind.DXCC)
             {
-                int dxcc = Convert.ToInt32(prefix.Descendants().Where(x => x.Name == "dxcc_entity").First().Value);
-                Adifs.Add(dxcc, callSignInfo);
+                Adifs.Add(Convert.ToInt32(callSignInfo.DXCC), callSignInfo);
             }
 
-            if (dxcc_kind.Value == "pfInvalidPrefix")
+            if (callSignInfo.Kind == PrefixKind.InvalidPrefix)
             {
                 Adifs.Add(0, callSignInfo);
+            }
+
+            if (callSignInfo.WAE != 0)
+            {
+                Adifs.Add(callSignInfo.WAE, callSignInfo);
             }
 
             foreach (XElement element in masks.Descendants())
