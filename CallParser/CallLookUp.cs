@@ -74,7 +74,7 @@ namespace W6OP.CallParser
             // parallel foreach almost twice as fast but requires blocking collection
             // need to use non parallel foreach for debugging
             _ = Parallel.ForEach(callSigns, callSign =>
-            // foreach(string callSign in callSigns)
+             //foreach(string callSign in callSigns)
             {
                 if (ValidateCallSign(callSign))
                 {
@@ -131,7 +131,7 @@ namespace W6OP.CallParser
             if (callSign.Length < 2) { return false; }
 
             // check if first character is "/"
-            if (callSign.IndexOf("/", 0, 1) == 0) { return false; }
+            //if (callSign.IndexOf("/", 0, 1) == 0) { return false; }
 
             // check for a "-" ie: VE7CC-7, OH6BG-1, WZ7I-3 
             if (callSign.IndexOf("-") != -1) { return false; }
@@ -160,10 +160,15 @@ namespace W6OP.CallParser
         {
             (string baseCall, string callPrefix) callAndprefix;
 
-            // strip leading "/"
-            if (callSign.IndexOf("/", 0, 1) == 0)
+            // strip leading or trailing "/"
+            if (callSign.First() == '/')
             {
                 callSign = callSign.Substring(1);
+            }
+
+            if (callSign.Last() == '/')
+            {
+                callSign = callSign.Remove(callSign.Length - 1, 1);
             }
 
             List<string> components = callSign.Split('/').ToList();
@@ -175,15 +180,10 @@ namespace W6OP.CallParser
                     CollectMatches(callAndprefix, callSign);
                     break;
                 case 2:
-                    // now add the "/" back to the first component
-                    //components[0] = components[0] + "/";
-                    callAndprefix = ProcessPrefix(components);
+                    callAndprefix = TrimCallSign(components);
                     CollectMatches(callAndprefix, callSign);
                     break;
                 case 3: // DC3RJ/P/W3 - remove excess parts
-                    // now add the "/" back to the first component
-                    //components[1] = "/" + components[1];
-                    //components[2] = "/" + components[2];
                     callAndprefix = TrimCallSign(components);
                     CollectMatches(callAndprefix, callSign);
                     break;
@@ -196,34 +196,51 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// If a call sign has 3 components delete the one we don't need. (W4/W6OP/P)
+        /// If a call sign has 2 or more components look at each component
+        /// and see if some should be removed
         /// </summary>
         /// <param name="components"></param>
         /// <param name="callSign"></param>
         /// <returns>(string call, string callPrefix)</returns>
         private (string baseCall, string callPrefix) TrimCallSign(List<string> components)
         {
-            int counter = 0;
+            //string tempComponents1;
+            //string tempComponents2;
             List<string> tempComponents = new List<string>();
             (string baseCall, string callPrefix) callAndprefix = ("", "");
-
-            callAndprefix.baseCall = "";
-            callAndprefix.callPrefix = "";
+            // added "R" as a beacon for R/IK3OTW
+            // "U" for U/K2KRG
+            string[] rejectPrefixes = { "U", "R", "A", "B", "M", "P", "MM", "AM", "QRP", "QRPP", "LH", "LGT", "ANT", "WAP", "AAW", "FJL" };
 
             foreach (string component in components)
             {
-                if (component.Length != 1)
-                {
-                    if (counter == 0)
-                    {
-                        counter += 1;
-                        tempComponents.Add(component);
-                    }
-                    else
-                    {
-                        tempComponents.Add(component);
-                    }
+                if (!rejectPrefixes.Contains(component)) {
+                    tempComponents.Add(component);
                 }
+            }
+
+            if (tempComponents.Count == 1) { return (baseCall: tempComponents[0], callPrefix: tempComponents[0]); }
+
+            if (tempComponents.Count > 2)
+            {
+                // do some more work
+            }
+
+            // what if single digit?  IT9RGY/4 ??
+            // for now I will replace digit in call with it until I know what to do
+            // of course this only works when a single digit is in the call
+            if (tempComponents[0].Length == 1 && int.TryParse(tempComponents[0], out int _))
+            {
+                string result = new String(tempComponents[1].Where(x => Char.IsDigit(x)).ToArray());
+                tempComponents[1] = tempComponents[1].Replace(result, tempComponents[0]);
+                tempComponents[0] = tempComponents[1];
+            }
+
+            if (tempComponents[1].Length == 1 && int.TryParse(tempComponents[1], out int _))
+            {
+                string result = new String(tempComponents[0].Where(x => Char.IsDigit(x)).ToArray());
+                tempComponents[0] = tempComponents[0].Replace(result, tempComponents[1]);
+                tempComponents[1] = tempComponents[0];
             }
 
             callAndprefix = ProcessPrefix(tempComponents);
@@ -244,33 +261,18 @@ namespace W6OP.CallParser
         private (string baseCall, string callPrefix) ProcessPrefix(List<string> components)
         {
             TriState state = TriState.None;
-            string call = "";
-            string prefix = "";
+            string component1;
+            string component2;
             // added "R" as a beacon for R/IK3OTW
             // "U" for U/K2KRG
             string[] rejectPrefixes = { "U", "R", "A", "B", "M", "P", "MM", "AM", "QRP", "QRPP", "LH", "LGT", "ANT", "WAP", "AAW", "FJL" };
 
-            // shortest
-            prefix = components.OrderBy(c => c.Length).FirstOrDefault();
-            // longest
-            call = components.OrderBy(c => c.Length).Last();
+            component1 = components[0]; 
+            component2 = components[1];
 
-            if (rejectPrefixes.Contains(call)) { return (baseCall: call, callPrefix: prefix); }
 
-            if (rejectPrefixes.Contains(prefix)) { return (baseCall: call, callPrefix: call); }
-
-            // 3 characters all text ie: MMM
-            if (prefix.Length > 2)
-            {
-                if (prefix.All(char.IsLetter)) { return (baseCall: call, callPrefix: call); }
-            }
-
-            // "KHRTY/W4"
-            if (!call.Any(char.IsDigit))
-            {
-                call = prefix;
-                return (baseCall: call, callPrefix: prefix);
-            }
+            if (rejectPrefixes.Contains(component1)) { return (baseCall: component2, callPrefix: component2); }
+            if (rejectPrefixes.Contains(component2)) { return (baseCall: component1, callPrefix: component1); }
 
             /*
              //resolve ambiguities
@@ -283,57 +285,57 @@ namespace W6OP.CallParser
              
              */
 
-            TriState callState = IsCallSignOrPrefix(call);
-            TriState prefixState = IsCallSignOrPrefix(prefix);
+            TriState component1State = IsCallSignOrPrefix(component1);
+            TriState component2State = IsCallSignOrPrefix(component2);
 
             switch (state)
             {
-                case TriState _ when callState == TriState.CallSign && prefixState == TriState.Prefix:
-                    return (baseCall: call, callPrefix: prefix);
+                case TriState _ when component1State == TriState.CallSign && component2State == TriState.Prefix:
+                    return (baseCall: component1, callPrefix: component2);
 
-                case TriState _ when callState == TriState.Prefix && prefixState == TriState.CallSign:
-                    return (baseCall: prefix, callPrefix: call);
+                case TriState _ when component1State == TriState.Prefix && component2State == TriState.CallSign:
+                    return (baseCall: component2, callPrefix: component1);
                 // 'UU', 'PC'
-                case TriState _ when callState == TriState.None && prefixState == TriState.None: 
-                    return (baseCall: call, callPrefix: prefix);
+                case TriState _ when component1State == TriState.None && component2State == TriState.None: 
+                    return (baseCall: component1, callPrefix: component2);
                 // 'CU', 'CP'
-                case TriState _ when callState == TriState.CallSign && prefixState == TriState.None:
-                    return (baseCall: call, callPrefix: prefix);
+                case TriState _ when component1State == TriState.CallSign && component2State == TriState.None:
+                    return (baseCall: component1, callPrefix: component2);
                 // 'UC', 'PC'
-                case TriState _ when callState == TriState.None && prefixState == TriState.CallSign:
-                    return (baseCall: call, callPrefix: prefix);
+                case TriState _ when component1State == TriState.None && component2State == TriState.CallSign:
+                    return (baseCall: component1, callPrefix: component2);
                 // 'UP', 'CP'
-                case TriState _ when callState == TriState.None && prefixState == TriState.Prefix:
-                    return (baseCall: call, callPrefix: prefix);
+                case TriState _ when component1State == TriState.None && component2State == TriState.Prefix:
+                    return (baseCall: component1, callPrefix: component2);
                 // 'PU', 'PC'
-                case TriState _ when callState == TriState.Prefix && prefixState == TriState.None:
-                    return (baseCall: call, callPrefix: prefix);
+                case TriState _ when component1State == TriState.Prefix && component2State == TriState.None:
+                    return (baseCall: component1, callPrefix: component2);
                 // 'U',  'C'
-                case TriState _ when callState == TriState.Prefix && prefixState == TriState.None:
-                    return (baseCall: call, callPrefix: call);
+                case TriState _ when component1State == TriState.Prefix && component2State == TriState.None:
+                    return (baseCall: component1, callPrefix: component1);
                     // 'C', 'C' BU VU3 VU7
-                case TriState _ when callState == TriState.CallSign && prefixState == TriState.CallSign:
-                    if (call.First() == 'B')
+                case TriState _ when component1State == TriState.CallSign && component2State == TriState.CallSign:
+                    if (component1.First() == 'B')
                     {
-                        return (baseCall: prefix, callPrefix: call);
+                        return (baseCall: component2, callPrefix: component1);
                     } 
-                    else if (call.StartsWith("VU4") || call.StartsWith("VU7"))
+                    else if (component1.StartsWith("VU4") || component1.StartsWith("VU7"))
                     {
-                        return (baseCall: prefix, callPrefix: call);
+                        return (baseCall: component2, callPrefix: component1);
                     }
                     break;
-                //case TriState _ when IsCallSignOrPrefix(call) == TriState.CallOrPrefix && IsCallSignOrPrefix(call) == TriState.CallSign:
-                //    return (baseCall: prefix, callPrefix: call);
 
+                case TriState _ when component1State == TriState.CallSign && component2State == TriState.CallOrPrefix:
+                    return (baseCall: component1, callPrefix: component2);
 
-
-
+                case TriState _ when component1State == TriState.CallOrPrefix && component2State == TriState.Prefix:
+                    return (baseCall: component1, callPrefix: component2);
 
                 default:
                     break;
             }
 
-            return (baseCall: call, callPrefix: prefix);
+            return (baseCall: component1, callPrefix: component2);
            
         }
 
@@ -347,13 +349,14 @@ namespace W6OP.CallParser
         {
             string[] validCalls = { "@", "@@", "@#@@", "@#@@@", "#@", "#@@", "#@#@", "#@#@@", "#@#@@@", "#@#@@@@", "#@#@@@@@", "@@#", "@@#@", "@@#@@", "@@#@@@" }; // KH6Z
             string[] validPrefixes = { "@", "@@", "@@#", "@@#@", "@#", "@#@", "@##", "#@", "#@@", "#@#", "#@@#" };
+            string[] validPrefixOrCall = { "@@#@", "@#@" };
             TriState state = TriState.None;
 
             string pattern = BuildPattern(candidate);
 
             switch (state)
             {
-                case TriState _ when (validCalls.Contains(pattern) && validPrefixes.Contains(pattern)):
+                case TriState _ when (validPrefixOrCall.Contains(pattern)):
                     return TriState.CallOrPrefix;
 
                 case TriState _ when (validCalls.Contains(pattern)):
@@ -394,42 +397,20 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// Sometimes there are exceptions to the rule we can't handle in other places.
-        /// </summary>
-        /// <param name="components"></param>
-        /// <returns>bool</returns>
-        private bool CheckExceptions(List<string> components)
-        {
-            if (components[0].Length > 1)
-            {
-                switch (components[0].Substring(0, 2))
-                {
-                    case "BY":
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// First see if we can find a match for the max prefix of 4 characters.
-        /// Then start removing characters from the back until we can find a match.
-        /// Once we have a match we will see if we can find a child that is a better match.
-        /// Need to clone each object so the full callsign is assigned correctly to each hit.
+        /// First see if we can find a match for the full prefix. I don't use the call in the tuple
+        /// but pass it in for future use. If there is not a match start removing characters from the 
+        /// back until we can find a match.
+        /// Once we have a match we will see if we can find a child that is a better match. Also get the
+        /// DXCC parent if this is not a top level entity.
+        /// Need to clone (shallow copy) each object so the full callsign is assigned correctly to each hit.
         /// </summary>
         /// <param name="callOrPrefix"></param>
         /// /// <param name="fullCall"></param>
         private void CollectMatches((string baseCall, string callPrefix) callAndprefix, string fullCall)
         {
-            // only use the first 4 characters - faster search you would think
-            // but truncating the string has some overhead - more accurate result though -- or is it ???
-            //callOrPrefix = callOrPrefix.Length > 3 ? callOrPrefix.Substring(0, 4) : callOrPrefix;
-
             // add the "/" back on for the shorter prefixes
-            if (callAndprefix.callPrefix.Length < 4)
+            // this might result in one extra iteration but will catch G/, W/, W4/, VU@@/
+            if (callAndprefix.callPrefix.Length <= 4)
             {
                 callAndprefix.callPrefix += "/";
             }
