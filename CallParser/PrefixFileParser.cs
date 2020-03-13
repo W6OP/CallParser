@@ -33,7 +33,7 @@ namespace W6OP.CallParser
         /// Public fields.
         /// </summary>
         public Dictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
-        public Dictionary<int, CallSignInfo> Adifs { get; set; }
+        public SortedDictionary<int, CallSignInfo> Adifs { get; set; }
         public List<Admin> Admins;
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace W6OP.CallParser
         {
             // preallocate space
             CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>();
-            Adifs = new Dictionary<int, CallSignInfo>();
+            Adifs = new SortedDictionary<int, CallSignInfo>();
             Admins = new List<Admin>();
 
             // pre building give huge performance gain parsing prefix file
@@ -85,7 +85,7 @@ namespace W6OP.CallParser
         {
             // cleanup if running more than once
             CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>(1100000);
-            Adifs = new Dictionary<int, CallSignInfo>();
+            Adifs = new SortedDictionary<int, CallSignInfo>();
             Admins = new List<Admin>();
 
             Assembly assembly = Assembly.GetExecutingAssembly();
@@ -177,16 +177,20 @@ namespace W6OP.CallParser
                         callSignInfo.PrefixKey.Add(mask);
                         callSignInfoSet.Add(callSignInfo);
 
-                        if (!CallSignDictionary.ContainsKey(mask))
+                        //all DXCC kinds are in ADIFS
+                        if (callSignInfo.Kind != PrefixKind.DXCC)
                         {
-                            CallSignDictionary.Add(mask, callSignInfoSet);
-                        }
-                        else
-                        {
-                            if (CallSignDictionary[mask].First().DXCC != callSignInfo.DXCC)
+                            if (!CallSignDictionary.ContainsKey(mask))
                             {
-                                // this is to eliminate dupes 
-                                CallSignDictionary[mask].UnionWith(callSignInfoSet);
+                                CallSignDictionary.Add(mask, callSignInfoSet);
+                            }
+                            else
+                            {
+                                if (CallSignDictionary[mask].First().DXCC != callSignInfo.DXCC)
+                                {
+                                    // this is to eliminate dupes 
+                                    CallSignDictionary[mask].UnionWith(callSignInfoSet);
+                                }
                             }
                         }
                     }

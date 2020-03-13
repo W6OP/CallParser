@@ -23,7 +23,7 @@ namespace W6OP.CallParser
         //private readonly Dictionary<string, List<Hit>> _PrefixesDictionary;
         private readonly Dictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
         //private readonly Dictionary<Int32, Hit> _Adifs;
-        private Dictionary<Int32, CallSignInfo> Adifs { get; set; }
+        private SortedDictionary<Int32, CallSignInfo> Adifs { get; set; }
 
         private readonly string[] _OneLetterSeries = { "B", "F", "G", "I", "K", "M", "N", "R", "W", "2" };
 
@@ -430,6 +430,8 @@ namespace W6OP.CallParser
                         CallSignInfo dxccHit = Adifs[Convert.ToInt32(query[0].DXCC)];
                         CallSignInfo dxcc = dxccHit.ShallowCopy();
                         dxcc.CallSign = fullCall;
+                        dxcc.BaseCall = callAndprefix.baseCall;
+                        dxcc.SearchPrefix = callAndprefix.callPrefix; // this needs correction
                         HitList.Add(dxcc);
                     }
                 }
@@ -456,6 +458,8 @@ namespace W6OP.CallParser
                                 CallSignInfo dxccHit = Adifs[Convert.ToInt32(query[0].DXCC)];
                                 CallSignInfo dxcc = dxccHit.ShallowCopy();
                                 dxcc.CallSign = fullCall;
+                                dxcc.BaseCall = callAndprefix.baseCall;
+                                dxcc.SearchPrefix = callAndprefix.callPrefix;
                                 HitList.Add(dxcc);
                             }
                         }

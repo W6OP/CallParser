@@ -25,7 +25,7 @@ namespace W6OP.CallParser
         /// <summary>
         /// private fields
         /// </summary>
-        private HashSet<string> prefixKey;
+        private HashSet<string> prefixKey; // key for making this object hashable for searches
         private int dxcc;  //dxcc_entity
         private int wae;
         private string iota;
@@ -46,8 +46,9 @@ namespace W6OP.CallParser
         //public string CallbookEntry: Pointer; //todo: find out data sources
 
         private PrefixKind kind;     //kind
-        private string fullPrefix;   //what I determined the prefix to be - mostly for debugging
-        private string mainPrefix;
+        private string baseCall;
+        private string portablePrefix;   //what I determined the prefix to be - mostly for debugging
+        private string searchPrefix;
         private string country;       //country
         private string province;     //province
 
@@ -55,11 +56,12 @@ namespace W6OP.CallParser
         private string endDate;
         private bool isIota;
 
-        private string callSign; // I put the call sign here only for pfDXCC types for reference/debugging
+        private string fullCallSign; // I put the call sign here only for pfDXCC types for reference/debugging
 
         /// <summary>
         /// public properties
         /// </summary>
+        public HashSet<string> PrefixKey { get => prefixKey; set => prefixKey = value; }
         public int DXCC => dxcc;
         public int WAE { get => wae; }
         public string Iota { get => iota; }
@@ -77,15 +79,15 @@ namespace W6OP.CallParser
         public string QTH { get => qth; }
         public string Comment { get => comment; }
         public PrefixKind Kind { get => kind; }
-        public string FullPrefix { get => fullPrefix; }
-        public string MainPrefix { get => mainPrefix; }
+        public string PortablePrefix { get => portablePrefix; set => portablePrefix = value; }
+        public string SearchPrefix { get => searchPrefix; set => searchPrefix = value; }
         public string Country { get => country; }
         public string Province { get => province; }
         public string StartDate { get => startDate; }
         public string EndDate { get => endDate; }
         public bool IsIota { get => isIota; }
-        public string CallSign { get => callSign; set => callSign = value; }
-        public HashSet<string> PrefixKey { get => prefixKey; set => prefixKey = value; }
+        public string CallSign { get => fullCallSign; set => fullCallSign = value; }
+        public string BaseCall { get => baseCall; set => baseCall = value; }
 
         private void BuildCallSignInfo(XElement prefixXml)
         {
@@ -103,15 +105,15 @@ namespace W6OP.CallParser
                     case "masks":
                     break;
                     case "label":
-                        fullPrefix = currentValue ?? "";
+                        portablePrefix = currentValue ?? "";
                         if (currentValue.Contains("."))
                         {
                             // get string after the "."
-                            mainPrefix = fullPrefix.Substring(fullPrefix.LastIndexOf('.') + 1);
+                            searchPrefix = portablePrefix.Substring(portablePrefix.LastIndexOf('.') + 1);
                         }
                         else
                         {
-                            mainPrefix = fullPrefix;
+                            searchPrefix = portablePrefix;
                         }
                         break;
                     case "kind":

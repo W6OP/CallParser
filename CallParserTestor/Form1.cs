@@ -379,19 +379,19 @@ namespace CallParserTestor
                     if (callSignInfo.Kind == PrefixKind.DXCC)
                     {
                         csv.WriteField(callSignInfo.CallSign);
-                        csv.WriteField(callSignInfo.MainPrefix);
+                        csv.WriteField(callSignInfo.SearchPrefix);
                     }
                     else
                     {
-                        csv.WriteField("----  " + callSignInfo.MainPrefix);
+                        csv.WriteField("----  " + callSignInfo.SearchPrefix);
                     }
                     csv.WriteField(callSignInfo.Country);
                     csv.WriteField(callSignInfo.Province);
                     csv.WriteField(callSignInfo.Kind.ToString());
                     csv.WriteField(callSignInfo.Latitude);
                     csv.WriteField(callSignInfo.Longitude);
-                    csv.WriteField(callSignInfo.MainPrefix);
-                    csv.WriteField(callSignInfo.FullPrefix);
+                    csv.WriteField(callSignInfo.SearchPrefix);
+                    csv.WriteField(callSignInfo.PortablePrefix);
                     csv.NextRecord();
 
                     lineCount--;
