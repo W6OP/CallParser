@@ -35,6 +35,7 @@ namespace W6OP.CallParser
         public Dictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
         public SortedDictionary<int, CallSignInfo> Adifs { get; set; }
         public List<Admin> Admins;
+        public Dictionary<string, int> PortablePrefixes;
 
         /// <summary>
         /// Private fields.
@@ -56,23 +57,23 @@ namespace W6OP.CallParser
             CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>();
             Adifs = new SortedDictionary<int, CallSignInfo>();
             Admins = new List<Admin>();
+            PortablePrefixes = new Dictionary<string, int>();
+        // pre building give huge performance gain parsing prefix file
+        //Numerics = new HashSet<string[]>
+        //{
+        //    "0123456789".Select(c => c.ToString()).ToArray()
+        //};
 
-            // pre building give huge performance gain parsing prefix file
-            //Numerics = new HashSet<string[]>
-            //{
-            //    "0123456789".Select(c => c.ToString()).ToArray()
-            //};
+        //Alphabetics = new HashSet<string[]>
+        //{
+        //    "ABCDEFGHIJKLMNOPQRSTUVWXYZ".Select(c => c.ToString()).ToArray()
+        //};
 
-            //Alphabetics = new HashSet<string[]>
-            //{
-            //    "ABCDEFGHIJKLMNOPQRSTUVWXYZ".Select(c => c.ToString()).ToArray()
-            //};
-
-            //AlphaNumerics = new HashSet<string[]>
-            //{
-            //    "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".Select(c => c.ToString()).ToArray()
-            //};
-        }
+        //AlphaNumerics = new HashSet<string[]>
+        //{
+        //    "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".Select(c => c.ToString()).ToArray()
+        //};
+    }
 
         /// <summary>
         /// Read the prefix fle. If a file path is passed in then read that file.
@@ -104,7 +105,7 @@ namespace W6OP.CallParser
                                 {
                                     XElement prefix = XElement.ReadFrom(reader) as XElement;
                                     CallSignInfo callSignInfo = new CallSignInfo(prefix);
-                                    BuildCallSignInfoEx(prefix, callSignInfo);
+                                    BuildCallSignInfo(prefix, callSignInfo);
                                 }
                             }
                         }
@@ -129,7 +130,7 @@ namespace W6OP.CallParser
                                 {
                                     XElement prefix = XElement.ReadFrom(reader) as XElement;
                                     CallSignInfo callSignInfo = new CallSignInfo(prefix);
-                                    BuildCallSignInfoEx(prefix, callSignInfo);
+                                    BuildCallSignInfo(prefix, callSignInfo);
                                 }
                             }
                         }
@@ -142,7 +143,7 @@ namespace W6OP.CallParser
         /// Loop through all of the prefix nodes and expand the masks for each prefix.
         /// </summary>
         /// <param name="prefix"></param>
-        private void BuildCallSignInfoEx(XElement prefix, CallSignInfo callSignInfo)
+        private void BuildCallSignInfo(XElement prefix, CallSignInfo callSignInfo)
         {
             HashSet<CallSignInfo> callSignInfoSet = new HashSet<CallSignInfo>();
             HashSet<string> primaryMaskList = new HashSet<string>();
@@ -176,6 +177,19 @@ namespace W6OP.CallParser
                     {
                         callSignInfo.PrefixKey.Add(mask);
                         callSignInfoSet.Add(callSignInfo);
+
+                        //if (mask.IndexOf("BU2EO") != -1)
+                        //{
+                        //    var a = 1;
+                        //}
+                        if (mask.EndsWith("/"))
+                        {
+                            if (!PortablePrefixes.ContainsKey(mask)) // .Substring(0, mask.Length - 1)
+                            {
+                                PortablePrefixes.Add(mask, callSignInfo.DXCC); //.Substring(0, mask.Length - 1)
+                            }
+                        }
+
 
                         //all DXCC kinds are in ADIFS
                         if (callSignInfo.Kind != PrefixKind.DXCC)
