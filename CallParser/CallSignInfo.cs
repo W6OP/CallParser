@@ -50,7 +50,7 @@ namespace W6OP.CallParser
         private string portablePrefix;   //what I determined the prefix to be - mostly for debugging
         private string searchPrefix;
         private string country;       //country
-        private string province;     //province
+        private string province;     //province 
 
         private string startDate;
         private string endDate;
@@ -118,6 +118,12 @@ namespace W6OP.CallParser
                         break;
                     case "kind":
                         kind = EnumEx.GetValueFromDescription<PrefixKind>(currentValue);
+                        //initialize since DXCC kind does not have province 
+                        //-prevent user having to check for null on a common field
+                        if (kind == PrefixKind.DXCC)
+                        {
+                            province = "";
+                        }
                         break;
                     case "country":
                         country = currentValue ?? "";

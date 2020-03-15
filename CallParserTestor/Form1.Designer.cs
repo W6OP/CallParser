@@ -28,6 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.button1 = new System.Windows.Forms.Button();
             this.TextBoxCall = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
@@ -49,6 +51,12 @@
             this.ButtonSelectFolder = new System.Windows.Forms.Button();
             this.OpenPrefixFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.LabelCallsLoadedDistinct = new System.Windows.Forms.Label();
+            this.DataGridViewResults = new System.Windows.Forms.DataGridView();
+            this.callLookUpBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.panel1 = new System.Windows.Forms.Panel();
+            ((System.ComponentModel.ISupportInitialize)(this.DataGridViewResults)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.callLookUpBindingSource)).BeginInit();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
@@ -151,17 +159,18 @@
             // 
             // ListViewResults
             // 
+            this.ListViewResults.BackColor = System.Drawing.Color.Honeydew;
             this.ListViewResults.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1,
             this.columnHeader2,
             this.columnHeader3,
             this.columnHeader4,
             this.columnHeader5});
-            this.ListViewResults.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.ListViewResults.Dock = System.Windows.Forms.DockStyle.Top;
             this.ListViewResults.HideSelection = false;
-            this.ListViewResults.Location = new System.Drawing.Point(0, 236);
+            this.ListViewResults.Location = new System.Drawing.Point(0, 0);
             this.ListViewResults.Name = "ListViewResults";
-            this.ListViewResults.Size = new System.Drawing.Size(772, 321);
+            this.ListViewResults.Size = new System.Drawing.Size(610, 130);
             this.ListViewResults.TabIndex = 12;
             this.ListViewResults.UseCompatibleStateImageBehavior = false;
             this.ListViewResults.View = System.Windows.Forms.View.Details;
@@ -222,15 +231,48 @@
             this.LabelCallsLoadedDistinct.Size = new System.Drawing.Size(0, 15);
             this.LabelCallsLoadedDistinct.TabIndex = 15;
             // 
+            // DataGridViewResults
+            // 
+            this.DataGridViewResults.AllowUserToAddRows = false;
+            this.DataGridViewResults.AllowUserToDeleteRows = false;
+            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.MidnightBlue;
+            this.DataGridViewResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle2;
+            this.DataGridViewResults.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            this.DataGridViewResults.BackgroundColor = System.Drawing.Color.Honeydew;
+            this.DataGridViewResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.DataGridViewResults.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.DataGridViewResults.Location = new System.Drawing.Point(0, 130);
+            this.DataGridViewResults.Name = "DataGridViewResults";
+            this.DataGridViewResults.ReadOnly = true;
+            this.DataGridViewResults.Size = new System.Drawing.Size(610, 431);
+            this.DataGridViewResults.TabIndex = 16;
+            // 
+            // callLookUpBindingSource
+            // 
+            this.callLookUpBindingSource.DataSource = typeof(W6OP.CallParser.CallLookUp);
+            // 
+            // panel1
+            // 
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panel1.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.panel1.Controls.Add(this.DataGridViewResults);
+            this.panel1.Controls.Add(this.ListViewResults);
+            this.panel1.Location = new System.Drawing.Point(0, 204);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(610, 561);
+            this.panel1.TabIndex = 17;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(772, 557);
+            this.ClientSize = new System.Drawing.Size(610, 765);
+            this.Controls.Add(this.panel1);
             this.Controls.Add(this.LabelCallsLoadedDistinct);
             this.Controls.Add(this.ButtonSelectFolder);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.ListViewResults);
             this.Controls.Add(this.ButtonSemiBatch);
             this.Controls.Add(this.LabelCallsLoaded);
             this.Controls.Add(this.ButtonLoadPrefixFile);
@@ -245,6 +287,9 @@
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "Form1";
             this.Text = "Form1";
+            ((System.ComponentModel.ISupportInitialize)(this.DataGridViewResults)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.callLookUpBindingSource)).EndInit();
+            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -273,6 +318,9 @@
         private System.Windows.Forms.Button ButtonSelectFolder;
         private System.Windows.Forms.OpenFileDialog OpenPrefixFileDialog;
         private System.Windows.Forms.Label LabelCallsLoadedDistinct;
+        private System.Windows.Forms.DataGridView DataGridViewResults;
+        private System.Windows.Forms.BindingSource callLookUpBindingSource;
+        private System.Windows.Forms.Panel panel1;
     }
 }
 

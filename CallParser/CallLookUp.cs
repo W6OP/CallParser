@@ -72,8 +72,8 @@ namespace W6OP.CallParser
 
             // parallel foreach almost twice as fast but requires blocking collection
             // need to use non parallel foreach for debugging
-            // _ = Parallel.ForEach(callSigns, callSign =>
-            foreach (string callSign in callSigns)
+             _ = Parallel.ForEach(callSigns, callSign =>
+            //foreach (string callSign in callSigns)
             {
                 if (ValidateCallSign(callSign))
                 {
@@ -85,9 +85,9 @@ namespace W6OP.CallParser
                     Console.WriteLine("Invalid call sign format: " + callSign);
                 }
             }
-            //);
+            );
 
-            return HitList.AsEnumerable(); ;
+            return HitList.AsEnumerable();
         }
 
         /// <summary>
@@ -462,7 +462,7 @@ namespace W6OP.CallParser
                 }
 
                 // for 4U1A and 4U1N
-                if (searchTerm.Length > 3 && searchTerm.Substring(0,3) == "4U1")
+                if (searchTerm.Length > 3 && searchTerm.Substring(0,2) == "4U")
                 {
                     CheckAdditionalDXCCEntities(callAndprefix, fullCall);
                 }
@@ -515,6 +515,7 @@ namespace W6OP.CallParser
 
             foreach (CallSignInfo callSignInfo in query)
             {
+                // trying to eliminate dupes - big performance hit, let user do it?
                 //if (HitList.Where(q => q.Country == callSignInfo.Country).ToList().Count == 0)
                 //{
                     CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();

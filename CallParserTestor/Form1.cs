@@ -19,6 +19,8 @@ using CsvHelper;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Drawing;
+using System.ComponentModel;
+using System.Data;
 
 namespace CallParserTestor
 {
@@ -41,6 +43,7 @@ namespace CallParserTestor
 
             PrefixFileParser prefixFileParser = new PrefixFileParser();
             _PrefixFileParser = prefixFileParser;
+            DataGridViewResults.AlternatingRowsDefaultCellStyle.BackColor = Color.AliceBlue;
         }
 
         /// <summary>
@@ -125,7 +128,7 @@ namespace CallParserTestor
                     if (hitCollection != null)
                     {
                         hitList = hitCollection.ToList();   //.OrderByDescending(o => o.DXCC).ThenByDescending(x => x.Kind).ToList();
-                        
+
                         Console.WriteLine(hitList.Count.ToString() + " hits returned");
                         LabelHitCount.Text = "Finished - hitcount = " + hitList.Count.ToString();
 
@@ -181,18 +184,22 @@ namespace CallParserTestor
                 return;
             }
 
-            ListViewResults.Items.Clear();
+            //ListViewResults.Items.Clear();
+
+            DataGridViewResults.DataSource = null;
+
             Cursor.Current = Cursors.WaitCursor;
             Task.Run(() => BatchCallSignLookup());
         }
 
+        
         /// <summary>
         /// 
         /// </summary>
         private void BatchCallSignLookup()
         {
             IEnumerable<CallSignInfo> hitCollection;
-            int count = 0;
+            //int count = 0;
 
             stopwatch = Stopwatch.StartNew();
 
@@ -200,15 +207,22 @@ namespace CallParserTestor
 
             UpdateLabels(hitCollection.Count());
 
-            foreach (CallSignInfo hit in hitCollection)
-            {
-                count++;
-                UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.DXCC.ToString());
-                if (count > 200) // runaway limit
-                {
-                    break;
-                }
-            }
+            
+            UpdateDataGrid(hitCollection);
+
+            //List<CallSignInfo> query = hitCollection.Where(q => q.CallSign.Contains("4U1")).ToList();
+
+            //foreach (CallSignInfo hit in hitCollection)
+            //{
+            //    count++;
+
+            //    UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.DXCC.ToString());
+
+            //    if (count > 300) // runaway limit
+            //    {
+            //        break;
+            //    }
+            //}
 
             // save to a text file
             var thread = new Thread(() =>
@@ -217,6 +231,54 @@ namespace CallParserTestor
                 SaveHitList(hitCollection.ToList());
             });
             thread.Start();
+        }
+
+        private void UpdateDataGrid(IEnumerable<CallSignInfo> hitCollection)
+        {
+            DataTable dt = new DataTable();
+
+            Cursor.Current = Cursors.WaitCursor;
+
+            if (!InvokeRequired)
+            {
+                using (dt = new DataTable())
+                {
+                    dt.Columns.Add("CallSign");
+                    dt.Columns.Add("Kind");
+                    dt.Columns.Add("Country");
+                    dt.Columns.Add("Province");
+                    dt.Columns.Add("DXCC");
+
+                    foreach (CallSignInfo oItem in hitCollection)
+                    {
+                        if (oItem.Kind == PrefixKind.DXCC)
+                        {
+                            dt.Rows.Add(new object[] { oItem.CallSign, oItem.Kind, oItem.Country, oItem.Province ?? "", oItem.DXCC.ToString() });
+                        }
+                        else
+                        {
+                            dt.Rows.Add(new object[] { "", oItem.Kind, oItem.Country, oItem.Province ?? "", oItem.DXCC.ToString() });
+                        }   
+                    }
+                }
+                try
+                {
+                    DataGridViewResults.DataSource = dt;
+                }
+                catch (Exception ex)
+                {
+                    string a = ex.Message;
+                } 
+                finally
+                {
+                    UpdateCursor();
+                }
+            }
+            else
+            {
+                this.BeginInvoke(new Action<IEnumerable<CallSignInfo>>(this.UpdateDataGrid), hitCollection);
+                return;
+            }
         }
 
         /// <summary>
@@ -263,15 +325,16 @@ namespace CallParserTestor
                 {
                     item = new ListViewItem(call);
                     item.BackColor = Color.Honeydew;
-                } else
+                }
+                else
                 {
                     item = new ListViewItem("--- " + call);
                     item.BackColor = Color.LightGray;
                 }
-                
+
                 item.SubItems.Add(kind.ToString());
                 item.SubItems.Add(country);
-                item.SubItems.Add(province);
+                item.SubItems.Add(province ?? "");
                 item.SubItems.Add(dxcc);
                 ListViewResults.Items.Add(item);
                 Application.DoEvents();
@@ -340,7 +403,7 @@ namespace CallParserTestor
             _CallLookUp = new CallLookUp(_PrefixFileParser);
         }
 
-    
+
 
         /// <summary>
         /// Batch lookup.
@@ -386,7 +449,7 @@ namespace CallParserTestor
                         csv.WriteField("----  " + callSignInfo.SearchPrefix);
                     }
                     csv.WriteField(callSignInfo.Country);
-                    csv.WriteField(callSignInfo.Province);
+                    csv.WriteField(callSignInfo.Province ?? "");
                     csv.WriteField(callSignInfo.Kind.ToString());
                     csv.WriteField(callSignInfo.Latitude);
                     csv.WriteField(callSignInfo.Longitude);
@@ -430,6 +493,6 @@ namespace CallParserTestor
                     TextBoxPrefixFilePath.Text = OpenPrefixFileDialog.FileName;
                 }
             }
-         }
+        }
     } // end class
 }
