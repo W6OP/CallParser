@@ -65,10 +65,10 @@ namespace W6OP.CallParser
 
             Console.WriteLine("Callsigns: " + callSigns.Count.ToString());
 
-            if (!Environment.Is64BitProcess && callSigns.Count > 1500000)
-            {
-                throw new Exception("To many entries. Please reduce the number of entries to 1.5 million or less.");
-            }
+            //if (!Environment.Is64BitProcess && callSigns.Count > 1500000)
+            //{
+            //    throw new Exception("To many entries. Please reduce the number of entries to 1.5 million or less.");
+            //}
 
             // parallel foreach almost twice as fast but requires blocking collection
             // need to use non parallel foreach for debugging
@@ -277,9 +277,6 @@ namespace W6OP.CallParser
             // is this a portable prefix?
             if (PortablePrefixes.ContainsKey(component1 + "/")) { return (baseCall: component2, callPrefix: component1 + "/"); }
 
-
-
-
             /*
              //resolve ambiguities
               FStructure := StringReplace(FStructure, 'UU', 'PC', [rfReplaceAll]);
@@ -413,15 +410,18 @@ namespace W6OP.CallParser
         /// /// <param name="fullCall"></param>
         private void CollectMatches((string baseCall, string callPrefix) callAndprefix, string fullCall)
         {
+            string searchTerm = callAndprefix.callPrefix;
+            string baseCall = callAndprefix.baseCall;
+
             // check for portable prefixes
             // this will catch G/, W/, W4/, VU@@/ VU4@@/
-            if (PortablePrefixes.ContainsKey(callAndprefix.callPrefix))
+            if (PortablePrefixes.ContainsKey(searchTerm))
             {
-                CallSignInfo callSignInfo = Adifs[PortablePrefixes[callAndprefix.callPrefix]];
+                CallSignInfo callSignInfo = Adifs[PortablePrefixes[searchTerm]];
                 CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
                 callSignInfoCopy.CallSign = fullCall;
-                callSignInfoCopy.BaseCall = callAndprefix.baseCall;
-                callSignInfoCopy.SearchPrefix = callAndprefix.callPrefix; // this needs correction
+                callSignInfoCopy.BaseCall = baseCall;
+                callSignInfoCopy.SearchPrefix = searchTerm; // this needs correction
                 HitList.Add(callSignInfoCopy);
 
                 if (callSignInfo.Kind != PrefixKind.DXCC)
@@ -429,23 +429,23 @@ namespace W6OP.CallParser
                     callSignInfo = Adifs[callSignInfo.DXCC];
                     CallSignInfo callSignInfoCopyDxcc = callSignInfo.ShallowCopy();
                     callSignInfoCopyDxcc.CallSign = fullCall;
-                    callSignInfoCopyDxcc.BaseCall = callAndprefix.baseCall;
-                    callSignInfoCopyDxcc.SearchPrefix = callAndprefix.callPrefix; // this needs correction
+                    callSignInfoCopyDxcc.BaseCall = baseCall;
+                    callSignInfoCopyDxcc.SearchPrefix = searchTerm; // this needs correction
                     HitList.Add(callSignInfoCopyDxcc);
                 }
                 return;
             }
 
-            if (CallSignDictionary.ContainsKey(callAndprefix.callPrefix))
+            if (CallSignDictionary.ContainsKey(searchTerm))
             {
-                List<CallSignInfo> query = CallSignDictionary[callAndprefix.callPrefix].ToList();
+                List<CallSignInfo> query = CallSignDictionary[searchTerm].ToList();
 
-                foreach (CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(callAndprefix.callPrefix)))
+                foreach (CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(searchTerm)))
                 {
                     CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
                     callSignInfoCopy.CallSign = fullCall;
-                    callSignInfoCopy.BaseCall = callAndprefix.baseCall;
-                    callSignInfoCopy.SearchPrefix = callAndprefix.callPrefix;
+                    callSignInfoCopy.BaseCall = baseCall;
+                    callSignInfoCopy.SearchPrefix = searchTerm;
                     HitList.Add(callSignInfoCopy);
 
                     // this should be refactored to get it out of his foreach loop - 
@@ -455,33 +455,36 @@ namespace W6OP.CallParser
                         CallSignInfo callSignInfoDxcc = Adifs[Convert.ToInt32(query[0].DXCC)];
                         CallSignInfo callSignInfoCopyDxcc = callSignInfoDxcc.ShallowCopy();
                         callSignInfoCopyDxcc.CallSign = fullCall;
-                        callSignInfoCopyDxcc.BaseCall = callAndprefix.baseCall;
-                        callSignInfoCopyDxcc.SearchPrefix = callAndprefix.callPrefix; // this needs correction
+                        callSignInfoCopyDxcc.BaseCall = baseCall;
+                        callSignInfoCopyDxcc.SearchPrefix = searchTerm; // this needs correction
                         HitList.Add(callSignInfoCopyDxcc);
                     }
                 }
 
                 // for 4U1A and 4U1N
-                CheckAdditionalDXCCEntities(callAndprefix, fullCall);
-
+                if (searchTerm.Length > 3 && searchTerm.Substring(0,3) == "4U1")
+                {
+                    CheckAdditionalDXCCEntities(callAndprefix, fullCall);
+                }
+                
                 return;
             }
 
-            if (callAndprefix.callPrefix.Length > 1)
+            if (searchTerm.Length > 1)
             {
-                callAndprefix.callPrefix = callAndprefix.callPrefix.Remove(callAndprefix.callPrefix.Length - 1);
-                while (callAndprefix.callPrefix != string.Empty)
+                searchTerm = searchTerm.Remove(searchTerm.Length - 1);
+                while (searchTerm != string.Empty)
                 {
-                    if (CallSignDictionary.ContainsKey(callAndprefix.callPrefix))
+                    if (CallSignDictionary.ContainsKey(searchTerm))
                     {
-                        List<CallSignInfo> query = CallSignDictionary[callAndprefix.callPrefix].ToList();
+                        List<CallSignInfo> query = CallSignDictionary[searchTerm].ToList();
 
-                        foreach (CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(callAndprefix.callPrefix)))
+                        foreach (CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(searchTerm)))
                         {
                             CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
                             callSignInfoCopy.CallSign = fullCall;
-                            callSignInfoCopy.BaseCall = callAndprefix.baseCall;
-                            callSignInfoCopy.SearchPrefix = callAndprefix.callPrefix;
+                            callSignInfoCopy.BaseCall = baseCall;
+                            callSignInfoCopy.SearchPrefix = searchTerm;
                             HitList.Add(callSignInfoCopy);
 
                             if (callSignInfo.Kind != PrefixKind.DXCC)
@@ -489,18 +492,15 @@ namespace W6OP.CallParser
                                 CallSignInfo callSignInfoDxcc = Adifs[Convert.ToInt32(query[0].DXCC)];
                                 CallSignInfo callSignInfoCopyDxcc = callSignInfoDxcc.ShallowCopy();
                                 callSignInfoCopyDxcc.CallSign = fullCall;
-                                callSignInfoCopyDxcc.BaseCall = callAndprefix.baseCall;
-                                callSignInfoCopyDxcc.SearchPrefix = callAndprefix.callPrefix;
+                                callSignInfoCopyDxcc.BaseCall = baseCall;
+                                callSignInfoCopyDxcc.SearchPrefix = searchTerm;
                                 HitList.Add(callSignInfoCopyDxcc);
                             }
                         }
                     }
-                    callAndprefix.callPrefix = callAndprefix.callPrefix.Remove(callAndprefix.callPrefix.Length - 1);
+                    searchTerm = searchTerm.Remove(searchTerm.Length - 1);
                 }
             }
-
-            // for 4U1A and 4U1N
-            CheckAdditionalDXCCEntities(callAndprefix, fullCall);
         }
 
         /// <summary>
@@ -515,14 +515,14 @@ namespace W6OP.CallParser
 
             foreach (CallSignInfo callSignInfo in query)
             {
-                if (HitList.Where(q => q.Country == callSignInfo.Country).ToList().Count == 0)
-                {
+                //if (HitList.Where(q => q.Country == callSignInfo.Country).ToList().Count == 0)
+                //{
                     CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
                     callSignInfoCopy.CallSign = fullCall;
                     callSignInfoCopy.BaseCall = callAndprefix.baseCall;
                     callSignInfoCopy.SearchPrefix = callAndprefix.callPrefix;
                     HitList.Add(callSignInfoCopy);
-                }
+               // }
             }
         }
 

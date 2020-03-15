@@ -48,6 +48,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.ButtonSelectFolder = new System.Windows.Forms.Button();
             this.OpenPrefixFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.LabelCallsLoadedDistinct = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // button1
@@ -92,7 +93,7 @@
             // LabelElapsedTime
             // 
             this.LabelElapsedTime.AutoSize = true;
-            this.LabelElapsedTime.Location = new System.Drawing.Point(15, 184);
+            this.LabelElapsedTime.Location = new System.Drawing.Point(398, 186);
             this.LabelElapsedTime.Name = "LabelElapsedTime";
             this.LabelElapsedTime.Size = new System.Drawing.Size(0, 15);
             this.LabelElapsedTime.TabIndex = 4;
@@ -213,11 +214,20 @@
             this.OpenPrefixFileDialog.FileName = "prefix.xml";
             this.OpenPrefixFileDialog.Filter = "Prefix File|*.xml";
             // 
+            // LabelCallsLoadedDistinct
+            // 
+            this.LabelCallsLoadedDistinct.AutoSize = true;
+            this.LabelCallsLoadedDistinct.Location = new System.Drawing.Point(13, 176);
+            this.LabelCallsLoadedDistinct.Name = "LabelCallsLoadedDistinct";
+            this.LabelCallsLoadedDistinct.Size = new System.Drawing.Size(0, 15);
+            this.LabelCallsLoadedDistinct.TabIndex = 15;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(772, 557);
+            this.Controls.Add(this.LabelCallsLoadedDistinct);
             this.Controls.Add(this.ButtonSelectFolder);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.ListViewResults);
@@ -262,6 +272,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button ButtonSelectFolder;
         private System.Windows.Forms.OpenFileDialog OpenPrefixFileDialog;
+        private System.Windows.Forms.Label LabelCallsLoadedDistinct;
     }
 }
 

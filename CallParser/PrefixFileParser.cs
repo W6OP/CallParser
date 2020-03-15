@@ -171,11 +171,6 @@ namespace W6OP.CallParser
                     // expand the mask if it exists
                     primaryMaskList = ExpandMask(element.Value);
 
-                    if (element.Value == "4U#[A-HJ-TV-Z]" || element.Value == "4U#[A-TW-Z]")
-                    {
-                        var a = 1;
-                    }
-
                     // this must be "new()" not Clear() or it clears existing objects in the CallSignDictionary
                     callSignInfoSet = new HashSet<CallSignInfo>();
                     foreach (string mask in primaryMaskList)

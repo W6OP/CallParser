@@ -78,19 +78,19 @@ namespace CallParserTestor
                     _Records.Add(csv.GetField("dx").ToUpper());
 
                     //// comment out to keep list to 1 million
-                    //temp = csv.GetField("callsign");
+                    //string temp = csv.GetField("callsign");
                     //// check for a "_" ie: VE7CC-7, OH6BG-1, WZ7I-3 - remove the characters "-x"
                     //if (temp.IndexOf("-") != -1)
                     //{
                     //    temp = temp.Substring(0, temp.IndexOf("-"));
                     //}
                     //_Records.Add(temp.ToUpper());
-
                 }
             }
 
             Console.WriteLine("Load Time: " + stopwatch.ElapsedMilliseconds + "ms");
-            LabelCallsLoaded.Text = _Records.Count.ToString() + " calls loaded";
+            LabelCallsLoaded.Text = _Records.Count.ToString() + " total calls loaded";
+            LabelCallsLoadedDistinct.Text = _Records.Distinct().Count().ToString() + " unique calls loaded";
             Cursor.Current = Cursors.Default;
         }
 
