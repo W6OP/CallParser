@@ -72,8 +72,8 @@ namespace W6OP.CallParser
 
             // parallel foreach almost twice as fast but requires blocking collection
             // need to use non parallel foreach for debugging
-           // _ = Parallel.ForEach(callSigns, callSign =>
-             foreach(string callSign in callSigns)
+            // _ = Parallel.ForEach(callSigns, callSign =>
+            foreach (string callSign in callSigns)
             {
                 if (ValidateCallSign(callSign))
                 {
@@ -85,7 +85,7 @@ namespace W6OP.CallParser
                     Console.WriteLine("Invalid call sign format: " + callSign);
                 }
             }
-             //);
+            //);
 
             return HitList.AsEnumerable(); ;
         }
@@ -213,7 +213,8 @@ namespace W6OP.CallParser
 
             foreach (string component in components)
             {
-                if (!rejectPrefixes.Contains(component)) {
+                if (!rejectPrefixes.Contains(component))
+                {
                     tempComponents.Add(component);
                 }
             }
@@ -266,7 +267,7 @@ namespace W6OP.CallParser
             // "U" for U/K2KRG
             string[] rejectPrefixes = { "U", "R", "A", "B", "M", "P", "MM", "AM", "QRP", "QRPP", "LH", "LGT", "ANT", "WAP", "AAW", "FJL" };
 
-            component1 = components[0]; 
+            component1 = components[0];
             component2 = components[1];
 
 
@@ -301,7 +302,7 @@ namespace W6OP.CallParser
                 case TriState _ when component1State == TriState.Prefix && component2State == TriState.CallSign:
                     return (baseCall: component2, callPrefix: component1);
                 // 'UU', 'PC'
-                case TriState _ when component1State == TriState.None && component2State == TriState.None: 
+                case TriState _ when component1State == TriState.None && component2State == TriState.None:
                     return (baseCall: component1, callPrefix: component2);
                 // 'CU', 'CP'
                 case TriState _ when component1State == TriState.CallSign && component2State == TriState.None:
@@ -318,12 +319,12 @@ namespace W6OP.CallParser
                 // 'U',  'C'
                 case TriState _ when component1State == TriState.Prefix && component2State == TriState.None:
                     return (baseCall: component1, callPrefix: component1);
-                    // 'C', 'C' BU VU3 VU7
+                // 'C', 'C' BU VU3 VU7
                 case TriState _ when component1State == TriState.CallSign && component2State == TriState.CallSign:
                     if (component1.First() == 'B')
                     {
                         return (baseCall: component2, callPrefix: component1);
-                    } 
+                    }
                     else if (component1.StartsWith("VU4") || component1.StartsWith("VU7"))
                     {
                         return (baseCall: component2, callPrefix: component1);
@@ -459,7 +460,11 @@ namespace W6OP.CallParser
                         HitList.Add(callSignInfoCopyDxcc);
                     }
                 }
-                return; 
+
+                // for 4U1A and 4U1N
+                CheckAdditionalDXCCEntities(callAndprefix, fullCall);
+
+                return;
             }
 
             if (callAndprefix.callPrefix.Length > 1)
@@ -491,6 +496,32 @@ namespace W6OP.CallParser
                         }
                     }
                     callAndprefix.callPrefix = callAndprefix.callPrefix.Remove(callAndprefix.callPrefix.Length - 1);
+                }
+            }
+
+            // for 4U1A and 4U1N
+            CheckAdditionalDXCCEntities(callAndprefix, fullCall);
+        }
+
+        /// <summary>
+        /// Some calls overlap different enities, specifically 4U1A (IARC) and 4U1N (ITU) and Austria
+        /// so I check the DXCC list (Adifs) to find them
+        /// </summary>
+        /// <param name="callAndprefix"></param>
+        /// <param name="fullCall"></param>
+        private void CheckAdditionalDXCCEntities((string baseCall, string callPrefix) callAndprefix, string fullCall)
+        {
+            List<CallSignInfo> query = Adifs.Values.Where(q => q.PrefixKey.Contains(callAndprefix.callPrefix)).ToList();
+
+            foreach (CallSignInfo callSignInfo in query)
+            {
+                if (HitList.Where(q => q.Country == callSignInfo.Country).ToList().Count == 0)
+                {
+                    CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
+                    callSignInfoCopy.CallSign = fullCall;
+                    callSignInfoCopy.BaseCall = callAndprefix.baseCall;
+                    callSignInfoCopy.SearchPrefix = callAndprefix.callPrefix;
+                    HitList.Add(callSignInfoCopy);
                 }
             }
         }
