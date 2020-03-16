@@ -77,7 +77,15 @@ namespace W6OP.CallParser
             {
                 if (ValidateCallSign(callSign))
                 {
-                    ProcessCallSign(callSign);
+                    try
+                    {
+                        ProcessCallSign(callSign);
+                    }
+                    catch (Exception)
+                    {
+                        // bury exception
+                        Console.WriteLine("Invalid call sign format: " + callSign);
+                    }
                 }
                 else
                 {
@@ -85,7 +93,7 @@ namespace W6OP.CallParser
                     Console.WriteLine("Invalid call sign format: " + callSign);
                 }
             }
-            );
+             );
 
             return HitList.AsEnumerable();
         }
@@ -101,7 +109,14 @@ namespace W6OP.CallParser
 
             if (ValidateCallSign(callSign))
             {
-                ProcessCallSign(callSign);
+                try
+                {
+                    ProcessCallSign(callSign);
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
             }
             else
             {
@@ -223,11 +238,11 @@ namespace W6OP.CallParser
 
             if (tempComponents.Count > 2)
             {
-                // do some more work
+                throw new Exception("Call sign has too many components.");
             }
 
             // what if single digit?  IT9RGY/4 ??
-            // for now I will replace digit in call with it until I know what to do
+            // replace digit in call with it 
             // of course this only works when a single digit is in the call
             if (tempComponents[0].Length == 1 && int.TryParse(tempComponents[0], out int _))
             {
@@ -238,9 +253,16 @@ namespace W6OP.CallParser
 
             if (tempComponents[1].Length == 1 && int.TryParse(tempComponents[1], out int _))
             {
-                string result = new String(tempComponents[0].Where(x => Char.IsDigit(x)).ToArray());
-                tempComponents[0] = tempComponents[0].Replace(result, tempComponents[1]);
-                tempComponents[1] = tempComponents[0];
+                try
+                {
+                    string result = new String(tempComponents[0].Where(x => Char.IsDigit(x)).ToArray());
+                    tempComponents[0] = tempComponents[0].Replace(result, tempComponents[1]);
+                    tempComponents[1] = tempComponents[0];
+                }
+                catch (Exception) // WAW/4
+                {
+                    throw;
+                }
             }
 
             callAndprefix = ProcessPrefix(tempComponents);
@@ -436,6 +458,7 @@ namespace W6OP.CallParser
                 return;
             }
 
+            // is the full call in the dictionary
             if (CallSignDictionary.ContainsKey(searchTerm))
             {
                 List<CallSignInfo> query = CallSignDictionary[searchTerm].ToList();
@@ -462,11 +485,11 @@ namespace W6OP.CallParser
                 }
 
                 // for 4U1A and 4U1N
-                if (searchTerm.Length > 3 && searchTerm.Substring(0,2) == "4U")
+                if (searchTerm.Length > 3 && searchTerm.Substring(0, 2) == "4U")
                 {
                     CheckAdditionalDXCCEntities(callAndprefix, fullCall);
                 }
-                
+
                 return;
             }
 
@@ -498,8 +521,20 @@ namespace W6OP.CallParser
                             }
                         }
                     }
+                    // is it in the DXCC list
+                    //if (HitList.Count == 0)
+                    //{
+                    //    CheckAdditionalDXCCEntities(callAndprefix, fullCall);
+                    //}
+
                     searchTerm = searchTerm.Remove(searchTerm.Length - 1);
                 }
+            }
+
+            // could this be a DXCC only prefix kind? - (B1Z, B7M)
+            if (HitList.Count == 0)
+            {
+                CheckAdditionalDXCCEntities(callAndprefix, fullCall);
             }
         }
 
@@ -516,14 +551,23 @@ namespace W6OP.CallParser
             foreach (CallSignInfo callSignInfo in query)
             {
                 // trying to eliminate dupes - big performance hit, let user do it?
+                // I think this only happens with 4U1x calls
                 //if (HitList.Where(q => q.Country == callSignInfo.Country).ToList().Count == 0)
                 //{
-                    CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
-                    callSignInfoCopy.CallSign = fullCall;
-                    callSignInfoCopy.BaseCall = callAndprefix.baseCall;
-                    callSignInfoCopy.SearchPrefix = callAndprefix.callPrefix;
-                    HitList.Add(callSignInfoCopy);
-               // }
+                CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
+                callSignInfoCopy.CallSign = fullCall;
+                callSignInfoCopy.BaseCall = callAndprefix.baseCall;
+                callSignInfoCopy.SearchPrefix = callAndprefix.callPrefix;
+                HitList.Add(callSignInfoCopy);
+                // }
+            }
+
+            // recurse for calls like VP8PJ where only the VP8 portion is used
+            if (HitList.Count == 0)
+            {
+                callAndprefix.callPrefix = callAndprefix.callPrefix.Remove(callAndprefix.callPrefix.Length - 1);
+                if (callAndprefix.callPrefix.Length == 0) { return; }
+                CheckAdditionalDXCCEntities(callAndprefix, fullCall);
             }
         }
 

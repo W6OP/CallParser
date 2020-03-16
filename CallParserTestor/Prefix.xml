@@ -17713,7 +17713,8 @@
 	</prefix>
 	<prefix>
 		<masks>
-			<mask>B[M-QU-X]9[#BDEFIJNQRTUVXYZ]</mask>
+      <!-- https://law.moj.gov.tw/Eng/LawClass/LawAll.aspx?PCode=K0060032 -->
+			<mask>B[M-QU-X]9[#BDEFIJNQRTUVXYZ]</mask> <!--  Ｍ, Ｎ, Ｏ, Ｐ, Ｑ, Ｕ, Ｖ, Ｗ and Ｘ.-->
 			<mask>B[VW]/</mask>
 			<mask>B[MNPQU-X][1-8]@</mask>
 			<mask>BO[3-8]#</mask>

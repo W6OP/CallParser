@@ -34,6 +34,8 @@ namespace CallParserTestor
         private List<string> _Records;
         private Stopwatch stopwatch = new Stopwatch();
 
+        private List<string> CompoundCalls;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -44,6 +46,8 @@ namespace CallParserTestor
             PrefixFileParser prefixFileParser = new PrefixFileParser();
             _PrefixFileParser = prefixFileParser;
             DataGridViewResults.AlternatingRowsDefaultCellStyle.BackColor = Color.AliceBlue;
+
+            CompoundCalls = new List<string>(500000);
         }
 
         /// <summary>
@@ -70,33 +74,46 @@ namespace CallParserTestor
 
             stopwatch = Stopwatch.StartNew();
 
-            using (StreamReader reader = new StreamReader("rbn2.csv"))
-            using (var csv = new CsvReader(reader))
+            if (CheckBoxCompoundCalls.Checked)
             {
-                csv.Read();
-                csv.ReadHeader();
-                while (csv.Read())
+                using (StreamReader reader = new StreamReader("compound.csv"))
                 {
-                    csv.Configuration.MissingFieldFound = null;
-                    _Records.Add(csv.GetField("dx").ToUpper());
+                    while (!reader.EndOfStream)
+                    {
+                        _Records.Add(reader.ReadLine());
+                    }
+                }
+            }
+            else
+            {
+                using (StreamReader reader = new StreamReader("rbn2.csv"))
+                using (var csv = new CsvReader(reader))
+                {
+                    csv.Read();
+                    csv.ReadHeader();
+                    while (csv.Read())
+                    {
+                        csv.Configuration.MissingFieldFound = null;
+                        _Records.Add(csv.GetField("dx").ToUpper()); //dx_pfx
 
-                    //// comment out to keep list to 1 million
-                    //string temp = csv.GetField("callsign");
-                    //// check for a "_" ie: VE7CC-7, OH6BG-1, WZ7I-3 - remove the characters "-x"
-                    //if (temp.IndexOf("-") != -1)
-                    //{
-                    //    temp = temp.Substring(0, temp.IndexOf("-"));
-                    //}
-                    //_Records.Add(temp.ToUpper());
+                        //// comment out to keep list to 1 million - most of the rest are dupes anyway
+                        //string temp = csv.GetField("callsign");
+                        //// check for a "_" ie: VE7CC-7, OH6BG-1, WZ7I-3 - remove the characters "-x"
+                        //if (temp.IndexOf("-") != -1)
+                        //{
+                        //    temp = temp.Substring(0, temp.IndexOf("-"));
+                        //}
+                        //_Records.Add(temp.ToUpper());
+                    }
                 }
             }
 
             Console.WriteLine("Load Time: " + stopwatch.ElapsedMilliseconds + "ms");
             LabelCallsLoaded.Text = _Records.Count.ToString() + " total calls loaded";
-            LabelCallsLoadedDistinct.Text = _Records.Distinct().Count().ToString() + " unique calls loaded";
+            string compound = _Records.Where(g => g.Contains("/")).Distinct().Count().ToString();
+            LabelCallsLoadedDistinct.Text = _Records.Distinct().Count().ToString() + " unique calls - (" + compound + " compound)";
             Cursor.Current = Cursors.Default;
         }
-
 
         /// <summary>
         /// Look up a single call
@@ -192,45 +209,33 @@ namespace CallParserTestor
             Task.Run(() => BatchCallSignLookup());
         }
 
-        
         /// <summary>
         /// 
         /// </summary>
         private void BatchCallSignLookup()
         {
             IEnumerable<CallSignInfo> hitCollection;
-            //int count = 0;
-
+            
             stopwatch = Stopwatch.StartNew();
 
-            hitCollection = _CallLookUp.LookUpCall(_Records);
-
-            UpdateLabels(hitCollection.Count());
-
-            
-            UpdateDataGrid(hitCollection);
-
-            //List<CallSignInfo> query = hitCollection.Where(q => q.CallSign.Contains("4U1")).ToList();
-
-            //foreach (CallSignInfo hit in hitCollection)
-            //{
-            //    count++;
-
-            //    UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.DXCC.ToString());
-
-            //    if (count > 300) // runaway limit
-            //    {
-            //        break;
-            //    }
-            //}
-
-            // save to a text file
-            var thread = new Thread(() =>
+            try
             {
-                Cursor.Current = Cursors.WaitCursor;
-                SaveHitList(hitCollection.ToList());
-            });
-            thread.Start();
+                hitCollection = _CallLookUp.LookUpCall(_Records);
+                UpdateLabels(hitCollection.Count());
+                UpdateDataGrid(hitCollection);
+
+                // save to a text file
+                var thread = new Thread(() =>
+                {
+                    Cursor.Current = Cursors.WaitCursor;
+                    SaveHitList(hitCollection.ToList());
+                });
+                thread.Start();
+            }
+            catch (Exception ex)
+            {
+                string m = ex.Message;
+            }
         }
 
         private void UpdateDataGrid(IEnumerable<CallSignInfo> hitCollection)
@@ -258,7 +263,7 @@ namespace CallParserTestor
                         else
                         {
                             dt.Rows.Add(new object[] { "", oItem.Kind, oItem.Country, oItem.Province ?? "", oItem.DXCC.ToString() });
-                        }   
+                        }
                     }
                 }
                 try
@@ -268,7 +273,7 @@ namespace CallParserTestor
                 catch (Exception ex)
                 {
                     string a = ex.Message;
-                } 
+                }
                 finally
                 {
                     UpdateCursor();
@@ -403,8 +408,6 @@ namespace CallParserTestor
             _CallLookUp = new CallLookUp(_PrefixFileParser);
         }
 
-
-
         /// <summary>
         /// Batch lookup.
         /// </summary>
@@ -469,7 +472,9 @@ namespace CallParserTestor
             UpdateCursor();
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         private void UpdateCursor()
         {
             if (!InvokeRequired)
@@ -484,6 +489,11 @@ namespace CallParserTestor
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonSelectFolder_Click(object sender, EventArgs e)
         {
             if (OpenPrefixFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -493,6 +503,86 @@ namespace CallParserTestor
                     TextBoxPrefixFilePath.Text = OpenPrefixFileDialog.FileName;
                 }
             }
+        }
+
+        /// <summary>
+        /// Handle button click to build compound caall file.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button4_Click(object sender, EventArgs e)
+        {
+            // 20110205.csv 20140406.csv 20140409.csv 20160207.csv 20200105.csv
+            BuildCompoundCallFile(Path.Combine(@"C:\Users\pbourget\Downloads\Reverse beacon", "20110205.csv"));
+            BuildCompoundCallFile(Path.Combine(@"C:\Users\pbourget\Downloads\Reverse beacon", "20140406.csv"));
+            BuildCompoundCallFile(Path.Combine(@"C:\Users\pbourget\Downloads\Reverse beacon", "20140409.csv"));
+            BuildCompoundCallFile(Path.Combine(@"C:\Users\pbourget\Downloads\Reverse beacon", "20160207.csv"));
+            BuildCompoundCallFile(Path.Combine(@"C:\Users\pbourget\Downloads\Reverse beacon", "20200105.csv"));
+
+            //int a = 1;
+            // save to a text file
+            var thread = new Thread(() =>
+            {
+                Cursor.Current = Cursors.WaitCursor;
+                SaveHitList(CompoundCalls);
+            });
+            thread.Start();
+        }
+
+        /// <summary>
+        /// Read and add to List all compound calls.
+        /// </summary>
+        /// <param name="filePath"></param>
+        private void BuildCompoundCallFile(string filePath)
+        {
+            using (StreamReader reader = new StreamReader(filePath))
+            using (var csv = new CsvReader(reader))
+            {
+                csv.Read();
+                csv.ReadHeader();
+                while (csv.Read())
+                {
+                    csv.Configuration.MissingFieldFound = null;
+                    string dx = csv.GetField("dx");
+                    if (dx.Contains("/"))
+                    {
+                        CompoundCalls.Add(dx.ToUpper());
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Save the compound call list to a file.
+        /// </summary>
+        /// <param name="compoundCalls"></param>
+        private void SaveHitList(List<string> compoundCalls)
+        {
+            String folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            String file = Path.Combine(folderPath, "compound.csv");
+            //int lineCount = 5500;
+
+            List<string> compounds = CompoundCalls.Where(g => g.Contains("/")).Distinct().ToList();
+
+            using (TextWriter writer = new StreamWriter(file, false, System.Text.Encoding.UTF8))
+            {
+                var csv = new CsvWriter(writer);
+
+                foreach (string call in compounds)
+                {
+                    csv.WriteField(call);
+                    csv.NextRecord();
+
+                    //lineCount--;
+                    //if (lineCount <= 0)
+                    //{
+                    //    break;
+                    //}
+                }
+            }
+
+            Console.WriteLine("Finished writing compound file");
+            // UpdateCursor();
         }
     } // end class
 }

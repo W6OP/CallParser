@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.button1 = new System.Windows.Forms.Button();
             this.TextBoxCall = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
@@ -52,16 +52,18 @@
             this.OpenPrefixFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.LabelCallsLoadedDistinct = new System.Windows.Forms.Label();
             this.DataGridViewResults = new System.Windows.Forms.DataGridView();
-            this.callLookUpBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.panel1 = new System.Windows.Forms.Panel();
+            this.button4 = new System.Windows.Forms.Button();
+            this.CheckBoxCompoundCalls = new System.Windows.Forms.CheckBox();
+            this.callLookUpBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewResults)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.callLookUpBindingSource)).BeginInit();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.callLookUpBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(229, 90);
+            this.button1.Location = new System.Drawing.Point(300, 90);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(154, 27);
             this.button1.TabIndex = 0;
@@ -72,11 +74,11 @@
             // TextBoxCall
             // 
             this.TextBoxCall.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.TextBoxCall.Location = new System.Drawing.Point(390, 92);
+            this.TextBoxCall.Location = new System.Drawing.Point(466, 93);
             this.TextBoxCall.Name = "TextBoxCall";
             this.TextBoxCall.Size = new System.Drawing.Size(116, 23);
             this.TextBoxCall.TabIndex = 1;
-            this.TextBoxCall.Text = "4U1A";
+            this.TextBoxCall.Text = "JR2FJC/W/2";
             // 
             // button2
             // 
@@ -90,7 +92,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(229, 157);
+            this.button3.Location = new System.Drawing.Point(300, 156);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(154, 27);
             this.button3.TabIndex = 3;
@@ -101,7 +103,7 @@
             // LabelElapsedTime
             // 
             this.LabelElapsedTime.AutoSize = true;
-            this.LabelElapsedTime.Location = new System.Drawing.Point(398, 186);
+            this.LabelElapsedTime.Location = new System.Drawing.Point(463, 185);
             this.LabelElapsedTime.Name = "LabelElapsedTime";
             this.LabelElapsedTime.Size = new System.Drawing.Size(0, 15);
             this.LabelElapsedTime.TabIndex = 4;
@@ -109,7 +111,7 @@
             // LabelHitCount
             // 
             this.LabelHitCount.AutoSize = true;
-            this.LabelHitCount.Location = new System.Drawing.Point(395, 129);
+            this.LabelHitCount.Location = new System.Drawing.Point(463, 128);
             this.LabelHitCount.Name = "LabelHitCount";
             this.LabelHitCount.Size = new System.Drawing.Size(0, 15);
             this.LabelHitCount.TabIndex = 5;
@@ -117,7 +119,7 @@
             // LabelPerCallTime
             // 
             this.LabelPerCallTime.AutoSize = true;
-            this.LabelPerCallTime.Location = new System.Drawing.Point(395, 163);
+            this.LabelPerCallTime.Location = new System.Drawing.Point(463, 162);
             this.LabelPerCallTime.Name = "LabelPerCallTime";
             this.LabelPerCallTime.Size = new System.Drawing.Size(0, 15);
             this.LabelPerCallTime.TabIndex = 6;
@@ -142,14 +144,14 @@
             // LabelCallsLoaded
             // 
             this.LabelCallsLoaded.AutoSize = true;
-            this.LabelCallsLoaded.Location = new System.Drawing.Point(12, 157);
+            this.LabelCallsLoaded.Location = new System.Drawing.Point(12, 165);
             this.LabelCallsLoaded.Name = "LabelCallsLoaded";
             this.LabelCallsLoaded.Size = new System.Drawing.Size(0, 15);
             this.LabelCallsLoaded.TabIndex = 10;
             // 
             // ButtonSemiBatch
             // 
-            this.ButtonSemiBatch.Location = new System.Drawing.Point(229, 123);
+            this.ButtonSemiBatch.Location = new System.Drawing.Point(300, 123);
             this.ButtonSemiBatch.Name = "ButtonSemiBatch";
             this.ButtonSemiBatch.Size = new System.Drawing.Size(154, 27);
             this.ButtonSemiBatch.TabIndex = 11;
@@ -170,7 +172,7 @@
             this.ListViewResults.HideSelection = false;
             this.ListViewResults.Location = new System.Drawing.Point(0, 0);
             this.ListViewResults.Name = "ListViewResults";
-            this.ListViewResults.Size = new System.Drawing.Size(610, 130);
+            this.ListViewResults.Size = new System.Drawing.Size(633, 130);
             this.ListViewResults.TabIndex = 12;
             this.ListViewResults.UseCompatibleStateImageBehavior = false;
             this.ListViewResults.View = System.Windows.Forms.View.Details;
@@ -209,7 +211,7 @@
             // 
             // ButtonSelectFolder
             // 
-            this.ButtonSelectFolder.Location = new System.Drawing.Point(475, 42);
+            this.ButtonSelectFolder.Location = new System.Drawing.Point(466, 42);
             this.ButtonSelectFolder.Name = "ButtonSelectFolder";
             this.ButtonSelectFolder.Size = new System.Drawing.Size(31, 23);
             this.ButtonSelectFolder.TabIndex = 14;
@@ -226,7 +228,7 @@
             // LabelCallsLoadedDistinct
             // 
             this.LabelCallsLoadedDistinct.AutoSize = true;
-            this.LabelCallsLoadedDistinct.Location = new System.Drawing.Point(13, 176);
+            this.LabelCallsLoadedDistinct.Location = new System.Drawing.Point(13, 184);
             this.LabelCallsLoadedDistinct.Name = "LabelCallsLoadedDistinct";
             this.LabelCallsLoadedDistinct.Size = new System.Drawing.Size(0, 15);
             this.LabelCallsLoadedDistinct.TabIndex = 15;
@@ -235,8 +237,8 @@
             // 
             this.DataGridViewResults.AllowUserToAddRows = false;
             this.DataGridViewResults.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.MidnightBlue;
-            this.DataGridViewResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.MidnightBlue;
+            this.DataGridViewResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.DataGridViewResults.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.DataGridViewResults.BackgroundColor = System.Drawing.Color.Honeydew;
             this.DataGridViewResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -244,12 +246,8 @@
             this.DataGridViewResults.Location = new System.Drawing.Point(0, 130);
             this.DataGridViewResults.Name = "DataGridViewResults";
             this.DataGridViewResults.ReadOnly = true;
-            this.DataGridViewResults.Size = new System.Drawing.Size(610, 431);
+            this.DataGridViewResults.Size = new System.Drawing.Size(633, 431);
             this.DataGridViewResults.TabIndex = 16;
-            // 
-            // callLookUpBindingSource
-            // 
-            this.callLookUpBindingSource.DataSource = typeof(W6OP.CallParser.CallLookUp);
             // 
             // panel1
             // 
@@ -261,14 +259,43 @@
             this.panel1.Controls.Add(this.ListViewResults);
             this.panel1.Location = new System.Drawing.Point(0, 204);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(610, 561);
+            this.panel1.Size = new System.Drawing.Size(633, 561);
             this.panel1.TabIndex = 17;
+            // 
+            // button4
+            // 
+            this.button4.Enabled = false;
+            this.button4.Location = new System.Drawing.Point(466, 16);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(75, 23);
+            this.button4.TabIndex = 18;
+            this.button4.Text = "button4";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Visible = false;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
+            // CheckBoxCompoundCalls
+            // 
+            this.CheckBoxCompoundCalls.AutoSize = true;
+            this.CheckBoxCompoundCalls.Location = new System.Drawing.Point(174, 128);
+            this.CheckBoxCompoundCalls.Name = "CheckBoxCompoundCalls";
+            this.CheckBoxCompoundCalls.Size = new System.Drawing.Size(115, 19);
+            this.CheckBoxCompoundCalls.TabIndex = 19;
+            this.CheckBoxCompoundCalls.Text = "Compound Calls";
+            this.CheckBoxCompoundCalls.UseVisualStyleBackColor = true;
+            // 
+            // callLookUpBindingSource
+            // 
+            this.callLookUpBindingSource.DataSource = typeof(W6OP.CallParser.CallLookUp);
             // 
             // Form1
             // 
+            this.AcceptButton = this.button1;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(610, 765);
+            this.ClientSize = new System.Drawing.Size(631, 765);
+            this.Controls.Add(this.CheckBoxCompoundCalls);
+            this.Controls.Add(this.button4);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.LabelCallsLoadedDistinct);
             this.Controls.Add(this.ButtonSelectFolder);
@@ -288,8 +315,8 @@
             this.Name = "Form1";
             this.Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewResults)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.callLookUpBindingSource)).EndInit();
             this.panel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.callLookUpBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -321,6 +348,8 @@
         private System.Windows.Forms.DataGridView DataGridViewResults;
         private System.Windows.Forms.BindingSource callLookUpBindingSource;
         private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.CheckBox CheckBoxCompoundCalls;
     }
 }
 

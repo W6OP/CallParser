@@ -44,10 +44,6 @@ namespace W6OP.CallParser
         private readonly string[] Numbers = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
         private readonly string[] AlphaNumerics = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
 
-        //private readonly HashSet<string[]> Numerics;
-        //private readonly HashSet<string[]> Alphabetics;
-        //private readonly HashSet<string[]> AlphaNumerics;
-
         /// <summary>
         /// Default constructor.
         /// </summary>
@@ -58,21 +54,6 @@ namespace W6OP.CallParser
             Adifs = new SortedDictionary<int, CallSignInfo>();
             Admins = new List<Admin>();
             PortablePrefixes = new Dictionary<string, int>();
-        // pre building give huge performance gain parsing prefix file
-        //Numerics = new HashSet<string[]>
-        //{
-        //    "0123456789".Select(c => c.ToString()).ToArray()
-        //};
-
-        //Alphabetics = new HashSet<string[]>
-        //{
-        //    "ABCDEFGHIJKLMNOPQRSTUVWXYZ".Select(c => c.ToString()).ToArray()
-        //};
-
-        //AlphaNumerics = new HashSet<string[]>
-        //{
-        //    "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".Select(c => c.ToString()).ToArray()
-        //};
     }
 
         /// <summary>
@@ -178,18 +159,14 @@ namespace W6OP.CallParser
                         callSignInfo.PrefixKey.Add(mask);
                         callSignInfoSet.Add(callSignInfo);
 
-                        //if (mask.IndexOf("BU2EO") != -1)
-                        //{
-                        //    var a = 1;
-                        //}
                         if (mask.EndsWith("/"))
                         {
-                            if (!PortablePrefixes.ContainsKey(mask)) // .Substring(0, mask.Length - 1)
+                            // used in CallLookUp to identify portable prefixes
+                            if (!PortablePrefixes.ContainsKey(mask)) 
                             {
-                                PortablePrefixes.Add(mask, callSignInfo.DXCC); //.Substring(0, mask.Length - 1)
+                                PortablePrefixes.Add(mask, callSignInfo.DXCC); 
                             }
                         }
-
 
                         //all DXCC kinds are in ADIFS
                         if (callSignInfo.Kind != PrefixKind.DXCC)
@@ -251,7 +228,7 @@ namespace W6OP.CallParser
                         break;
                     case "@": // alpha
                         // use constant for performance
-                        expression += "[@]"; //"[ABCDEFGHIJKLMNOPQRSTUVWXYZ]";
+                        expression += "[@]";
                         counter += 1;
                         if (counter < length)
                         {
@@ -259,7 +236,7 @@ namespace W6OP.CallParser
                         }
                         break;
                     case "#": // numeric
-                        expression += "[#]"; //"[0123456789]";
+                        expression += "[#]";
                         counter += 1;
                         if (counter < length)
                         {
@@ -267,7 +244,7 @@ namespace W6OP.CallParser
                         }
                         break;
                     case "?": // alphanumeric
-                        expression += "[?]"; //"[ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789]";
+                        expression += "[?]";
                         counter += 1;
                         if (counter < length)
                         {
