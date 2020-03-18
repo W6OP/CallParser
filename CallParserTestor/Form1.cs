@@ -34,6 +34,8 @@ namespace CallParserTestor
         private List<string> _Records;
         private Stopwatch stopwatch = new Stopwatch();
 
+        private Dictionary<string, string> CompoundKeyValuePairs;
+
         private List<string> CompoundCalls;
 
         /// <summary>
@@ -76,7 +78,7 @@ namespace CallParserTestor
 
             if (CheckBoxCompoundCalls.Checked)
             {
-                using (StreamReader reader = new StreamReader("compound.csv"))
+                using (StreamReader reader = new StreamReader("compound.txt"))
                 {
                     while (!reader.EndOfStream)
                     {
@@ -241,7 +243,6 @@ namespace CallParserTestor
         private void UpdateDataGrid(IEnumerable<CallSignInfo> hitCollection)
         {
             DataTable dt = new DataTable();
-
             Cursor.Current = Cursors.WaitCursor;
 
             if (!InvokeRequired)
@@ -256,15 +257,26 @@ namespace CallParserTestor
 
                     foreach (CallSignInfo oItem in hitCollection)
                     {
-                        if (oItem.Kind == PrefixKind.DXCC)
+                        if (CompoundKeyValuePairs.ContainsKey(oItem.CallSign))
                         {
-                            dt.Rows.Add(new object[] { oItem.CallSign, oItem.Kind, oItem.Country, oItem.Province ?? "", oItem.DXCC.ToString() });
+                           string country = CompoundKeyValuePairs[oItem.CallSign];
+                           if (country != oItem.Country && oItem.Kind != PrefixKind.Province)
+                            {
+                                dt.Rows.Add(new object[] { oItem.CallSign, oItem.Kind, oItem.Country, "Delphi: " + country, "" });
+                            }
                         }
-                        else
-                        {
-                            dt.Rows.Add(new object[] { "", oItem.Kind, oItem.Country, oItem.Province ?? "", oItem.DXCC.ToString() });
-                        }
+                        
+                        //if (oItem.Kind == PrefixKind.DXCC)
+                        //{
+                        //    dt.Rows.Add(new object[] { oItem.CallSign, oItem.Kind, oItem.Country, oItem.Province ?? "", oItem.DXCC.ToString() });
+                        //}
+                        //else
+                        //{
+                        //    dt.Rows.Add(new object[] { "", oItem.Kind, oItem.Country, oItem.Province ?? "", oItem.DXCC.ToString() });
+                        //}
                     }
+
+                    SaveDiscrepancies(dt);
                 }
                 try
                 {
@@ -512,6 +524,9 @@ namespace CallParserTestor
         /// <param name="e"></param>
         private void button4_Click(object sender, EventArgs e)
         {
+            LoadCompoundCompareFile();
+            return;
+
             // 20110205.csv 20140406.csv 20140409.csv 20160207.csv 20200105.csv
             BuildCompoundCallFile(Path.Combine(@"C:\Users\pbourget\Downloads\Reverse beacon", "20110205.csv"));
             BuildCompoundCallFile(Path.Combine(@"C:\Users\pbourget\Downloads\Reverse beacon", "20140406.csv"));
@@ -553,13 +568,35 @@ namespace CallParserTestor
         }
 
         /// <summary>
+        /// Load output from Delphi compound file test.
+        /// </summary>
+        private void LoadCompoundCompareFile()
+        {
+            CompoundKeyValuePairs = new Dictionary<string, string>();
+
+            using (StreamReader reader = new StreamReader(@"C:\Users\pbourget\Documents\CallParserTest.csv"))
+            using (var csv = new CsvReader(reader))
+            {
+                csv.Read();
+                csv.ReadHeader();
+                while (csv.Read())
+                {
+                    csv.Configuration.MissingFieldFound = null;
+                    string callSign = csv.GetField("callsign");
+                    string country = csv.GetField("country");
+                    CompoundKeyValuePairs.Add(callSign,country.Trim());
+                }
+            }
+        }
+
+        /// <summary>
         /// Save the compound call list to a file.
         /// </summary>
         /// <param name="compoundCalls"></param>
         private void SaveHitList(List<string> compoundCalls)
         {
             String folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            String file = Path.Combine(folderPath, "compound.csv");
+            String file = Path.Combine(folderPath, "compound.txt");
             //int lineCount = 5500;
 
             List<string> compounds = CompoundCalls.Where(g => g.Contains("/")).Distinct().ToList();
@@ -583,6 +620,41 @@ namespace CallParserTestor
 
             Console.WriteLine("Finished writing compound file");
             // UpdateCursor();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="table"></param>
+        private void SaveDiscrepancies(DataTable table)
+        {
+                String folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                String file = Path.Combine(folderPath, "Discrepancies.txt");
+
+                using (TextWriter writer = new StreamWriter(file, false, System.Text.Encoding.UTF8))
+                {
+                    var csv = new CsvWriter(writer);
+
+                    foreach (DataRow row in table.Rows)
+                    {
+                        csv.WriteField(row["CallSign"]);
+                        csv.WriteField(row["Kind"]);
+                        csv.WriteField(row["Country"]);
+                        csv.WriteField(row["Province"]);
+                        csv.WriteField(row["DXCC"]);
+                        csv.NextRecord();
+
+                    }
+                }
+
+                Console.WriteLine("Finished writing discrepancies file");
+            // UpdateCursor();
+            //dt.Columns.Add("CallSign");
+            //dt.Columns.Add("Kind");
+            //dt.Columns.Add("Country");
+            //dt.Columns.Add("Province");
+            //dt.Columns.Add("DXCC");
+
         }
     } // end class
 }

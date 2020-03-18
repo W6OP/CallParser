@@ -255,6 +255,7 @@ namespace W6OP.CallParser
             {
                 try
                 {
+                    // this will change W6OP/4 to W4OP and R44YETI/5 to R5YETI
                     string result = new String(tempComponents[0].Where(x => Char.IsDigit(x)).ToArray());
                     tempComponents[0] = tempComponents[0].Replace(result, tempComponents[1]);
                     tempComponents[1] = tempComponents[0];
@@ -264,6 +265,21 @@ namespace W6OP.CallParser
                     throw;
                 }
             }
+
+            //if (tempComponents[1].Length > 1 && tempComponents[1].Length < 4)
+            //{
+            //    try
+            //    {
+            //        if (!PortablePrefixes.ContainsKey(tempComponents[1] + "/")) 
+            //        {
+            //            tempComponents[1] = "";
+            //        }
+            //    }
+            //    catch (Exception) 
+            //    {
+            //        throw;
+            //    }
+            //}
 
             callAndprefix = ProcessPrefix(tempComponents);
 
@@ -287,7 +303,7 @@ namespace W6OP.CallParser
             string component2;
             // added "R" as a beacon for R/IK3OTW
             // "U" for U/K2KRG
-            string[] rejectPrefixes = { "U", "R", "A", "B", "M", "P", "MM", "AM", "QRP", "QRPP", "LH", "LGT", "ANT", "WAP", "AAW", "FJL" };
+            string[] rejectPrefixes = { "U", "R", "A", "B", "M", "P", "MM", "AM", "QRP", "QRPP", "QR", "LH", "LGT", "ANT", "WAP", "AAW", "FJL" };
 
             component1 = components[0];
             component2 = components[1];
