@@ -78,7 +78,7 @@
             this.TextBoxCall.Name = "TextBoxCall";
             this.TextBoxCall.Size = new System.Drawing.Size(116, 23);
             this.TextBoxCall.TabIndex = 1;
-            this.TextBoxCall.Text = "JR2FJC/W/2";
+            this.TextBoxCall.Text = "SV1HFM/40V1HFM/4";
             // 
             // button2
             // 

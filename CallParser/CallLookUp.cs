@@ -23,9 +23,11 @@ namespace W6OP.CallParser
         private readonly Dictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
         private SortedDictionary<int, CallSignInfo> Adifs { get; set; }
         private readonly Dictionary<string, int> PortablePrefixes;
-        private readonly string[] _OneLetterSeries = { "B", "F", "G", "I", "K", "M", "N", "R", "W", "2" };
-
-
+        //private readonly string[] _OneLetterSeries = { "B", "F", "G", "I", "K", "M", "N", "R", "W", "2" };
+        private readonly string[] SingleCharPrefixes = { "F", "G", "I", "M", "R", "W" };
+        // added "R" as a beacon for R/IK3OTW
+        // "U" for U/K2KRG
+        private readonly string[] RejectPrefixes = { "U", "R", "A", "B", "M", "P", "MM", "AM", "QR", "QRP", "QRPP", "LH", "LGT", "ANT", "WAP", "AAW", "FJL", "MOBILE" };
 
         /// <summary>
         /// Public constructor.
@@ -63,7 +65,11 @@ namespace W6OP.CallParser
         {
             HitList = new ConcurrentBag<CallSignInfo>();
 
-            Console.WriteLine("Callsigns: " + callSigns.Count.ToString());
+            if (callSigns == null)
+            {
+                throw new Exception("The call sign list must contain at least one entry.");
+            }
+           // Console.WriteLine("Callsigns: " + callSigns.Count.ToString());
 
             //if (!Environment.Is64BitProcess && callSigns.Count > 1500000)
             //{
@@ -72,8 +78,8 @@ namespace W6OP.CallParser
 
             // parallel foreach almost twice as fast but requires blocking collection
             // need to use non parallel foreach for debugging
-             _ = Parallel.ForEach(callSigns, callSign =>
-            //foreach (string callSign in callSigns)
+            // _ = Parallel.ForEach(callSigns, callSign =>
+            foreach (string callSign in callSigns)
             {
                 if (ValidateCallSign(callSign))
                 {
@@ -93,7 +99,7 @@ namespace W6OP.CallParser
                     Console.WriteLine("Invalid call sign format: " + callSign);
                 }
             }
-             );
+            //);
 
             return HitList.AsEnumerable();
         }
@@ -115,7 +121,7 @@ namespace W6OP.CallParser
                 }
                 catch (Exception)
                 {
-                    throw;
+                    throw new Exception("Invalid call sign format.");
                 }
             }
             else
@@ -211,75 +217,48 @@ namespace W6OP.CallParser
 
         /// <summary>
         /// If a call sign has 2 or more components look at each component
-        /// and see if some should be removed
+        /// and see if some should be removed or modified
         /// </summary>
         /// <param name="components"></param>
         /// <param name="callSign"></param>
         /// <returns>(string call, string callPrefix)</returns>
         private (string baseCall, string callPrefix) TrimCallSign(List<string> components)
         {
-            //string tempComponents1;
-            //string tempComponents2;
+            //string components0;
+            //string components1;
             List<string> tempComponents = new List<string>();
             (string baseCall, string callPrefix) callAndprefix = ("", "");
+            //string result;
             // added "R" as a beacon for R/IK3OTW
             // "U" for U/K2KRG
-            string[] rejectPrefixes = { "U", "R", "A", "B", "M", "P", "MM", "AM", "QRP", "QRPP", "LH", "LGT", "ANT", "WAP", "AAW", "FJL" };
+            
 
+            // strip off /MM /QRP etc.
             foreach (string component in components)
             {
-                if (!rejectPrefixes.Contains(component))
+                if (!RejectPrefixes.Contains(component))
                 {
                     tempComponents.Add(component);
                 }
             }
 
-            if (tempComponents.Count == 1) { return (baseCall: tempComponents[0], callPrefix: tempComponents[0]); }
+            // WAW/4 ==> 4
+            if (tempComponents.Count == 1)
+            {
+                if (tempComponents[0].Length > 3)
+                {
+                    return (baseCall: tempComponents[0], callPrefix: tempComponents[0]);
+                }
+                else
+                {
+                    throw new Exception("Invalid call sign format.");
+                }
+            }
 
             if (tempComponents.Count > 2)
             {
                 throw new Exception("Call sign has too many components.");
             }
-
-            // what if single digit?  IT9RGY/4 ??
-            // replace digit in call with it 
-            // of course this only works when a single digit is in the call
-            if (tempComponents[0].Length == 1 && int.TryParse(tempComponents[0], out int _))
-            {
-                string result = new String(tempComponents[1].Where(x => Char.IsDigit(x)).ToArray());
-                tempComponents[1] = tempComponents[1].Replace(result, tempComponents[0]);
-                tempComponents[0] = tempComponents[1];
-            }
-
-            if (tempComponents[1].Length == 1 && int.TryParse(tempComponents[1], out int _))
-            {
-                try
-                {
-                    // this will change W6OP/4 to W4OP and R44YETI/5 to R5YETI
-                    string result = new String(tempComponents[0].Where(x => Char.IsDigit(x)).ToArray());
-                    tempComponents[0] = tempComponents[0].Replace(result, tempComponents[1]);
-                    tempComponents[1] = tempComponents[0];
-                }
-                catch (Exception) // WAW/4
-                {
-                    throw;
-                }
-            }
-
-            //if (tempComponents[1].Length > 1 && tempComponents[1].Length < 4)
-            //{
-            //    try
-            //    {
-            //        if (!PortablePrefixes.ContainsKey(tempComponents[1] + "/")) 
-            //        {
-            //            tempComponents[1] = "";
-            //        }
-            //    }
-            //    catch (Exception) 
-            //    {
-            //        throw;
-            //    }
-            //}
 
             callAndprefix = ProcessPrefix(tempComponents);
 
@@ -299,84 +278,133 @@ namespace W6OP.CallParser
         private (string baseCall, string callPrefix) ProcessPrefix(List<string> components)
         {
             TriState state = TriState.None;
+            string component0;
             string component1;
-            string component2;
+            string result;
             // added "R" as a beacon for R/IK3OTW
             // "U" for U/K2KRG
-            string[] rejectPrefixes = { "U", "R", "A", "B", "M", "P", "MM", "AM", "QRP", "QRPP", "QR", "LH", "LGT", "ANT", "WAP", "AAW", "FJL" };
 
-            component1 = components[0];
-            component2 = components[1];
+            component0 = components[0];
+            component1 = components[1];
+
+            //if (rejectPrefixes.Contains(component0)) { return (baseCall: component1, callPrefix: component1); }
+            //if (rejectPrefixes.Contains(component1)) { return (baseCall: component0, callPrefix: component0); }
 
 
-            if (rejectPrefixes.Contains(component1)) { return (baseCall: component2, callPrefix: component2); }
-            if (rejectPrefixes.Contains(component2)) { return (baseCall: component1, callPrefix: component1); }
+            // this will change W6OP/4 to W4OP and R44YETI/5 to R5YETI
+            // and fix 
+            try
+            {
+                switch (components)
+                {
+                    case List<string> _ when component0.Length == 1 && int.TryParse(component0, out int _):
+                        result = new String(component1.Where(x => Char.IsDigit(x)).ToArray());
+                        component1 = component1.Replace(result, component0);
+                        component0 = component1;
+                        break;
+                    case List<string> _ when component1.Length == 1 && int.TryParse(component1, out int _):
+                        result = new String(component0.Where(x => Char.IsDigit(x)).ToArray());
+                        component0 = component0.Replace(result, component1);
+                        component1 = component0;
+                        break;
+                }
+            }
+            catch (Exception) // WAW/4
+            {
+                throw;
+            }
 
             // is this a portable prefix?
-            if (PortablePrefixes.ContainsKey(component1 + "/")) { return (baseCall: component2, callPrefix: component1 + "/"); }
+            if (PortablePrefixes.ContainsKey(component0 + "/")) { return (baseCall: component1, callPrefix: component0 + "/"); }
+            // can this happen ??
+            if (PortablePrefixes.ContainsKey(component1 + "/")) { return (baseCall: component0, callPrefix: component1 + "/"); }
 
-            /*
-             //resolve ambiguities
-              FStructure := StringReplace(FStructure, 'UU', 'PC', [rfReplaceAll]);
-              FStructure := StringReplace(FStructure, 'CU', 'CP', [rfReplaceAll]);
-              FStructure := StringReplace(FStructure, 'UC', 'PC', [rfReplaceAll]);
-              FStructure := StringReplace(FStructure, 'UP', 'CP', [rfReplaceAll]);
-              FStructure := StringReplace(FStructure, 'PU', 'PC', [rfReplaceAll]);
-              FStructure := StringReplace(FStructure, 'U',   'C', [rfReplaceAll]);
-             
-             */
+            // valid single character prefix
+            if (component0.Length == 1 && SingleCharPrefixes.Contains(component0)) { return (baseCall: component1, callPrefix: component0); }
 
+            TriState component0State = IsCallSignOrPrefix(component0);
             TriState component1State = IsCallSignOrPrefix(component1);
-            TriState component2State = IsCallSignOrPrefix(component2);
 
             switch (state)
             {
-                case TriState _ when component1State == TriState.CallSign && component2State == TriState.Prefix:
-                    return (baseCall: component1, callPrefix: component2);
+                // CallSign and Prefix
+                // C - P 
+                case TriState _ when component0State == TriState.CallSign && component1State == TriState.Prefix:
+                    return (baseCall: component0, callPrefix: component1);
 
-                case TriState _ when component1State == TriState.Prefix && component2State == TriState.CallSign:
-                    return (baseCall: component2, callPrefix: component1);
-                // 'UU', 'PC'
-                case TriState _ when component1State == TriState.None && component2State == TriState.None:
-                    return (baseCall: component1, callPrefix: component2);
-                // 'CU', 'CP'
-                case TriState _ when component1State == TriState.CallSign && component2State == TriState.None:
-                    return (baseCall: component1, callPrefix: component2);
-                // 'UC', 'PC'
-                case TriState _ when component1State == TriState.None && component2State == TriState.CallSign:
-                    return (baseCall: component1, callPrefix: component2);
-                // 'UP', 'CP'
-                case TriState _ when component1State == TriState.None && component2State == TriState.Prefix:
-                    return (baseCall: component1, callPrefix: component2);
-                // 'PU', 'PC'
-                case TriState _ when component1State == TriState.Prefix && component2State == TriState.None:
-                    return (baseCall: component1, callPrefix: component2);
-                // 'U',  'C'
-                case TriState _ when component1State == TriState.Prefix && component2State == TriState.None:
-                    return (baseCall: component1, callPrefix: component1);
-                // 'C', 'C' BU VU3 VU7
-                case TriState _ when component1State == TriState.CallSign && component2State == TriState.CallSign:
-                    if (component1.First() == 'B')
+                // P - C 
+                case TriState _ when component0State == TriState.Prefix && component1State == TriState.CallSign:
+                    return (baseCall: component1, callPrefix: component0);
+
+                // C - C BU VU3 VU7
+                case TriState _ when component0State == TriState.CallSign && component1State == TriState.CallSign:
+                    if (component0.First() == 'B')
                     {
-                        return (baseCall: component2, callPrefix: component1);
+                        return (baseCall: component1, callPrefix: component0);
                     }
-                    else if (component1.StartsWith("VU4") || component1.StartsWith("VU7"))
+                    else if (component0.StartsWith("VU4") || component0.StartsWith("VU7"))
                     {
-                        return (baseCall: component2, callPrefix: component1);
+                        return (baseCall: component1, callPrefix: component0);
                     }
                     break;
 
-                case TriState _ when component1State == TriState.CallSign && component2State == TriState.CallOrPrefix:
-                    return (baseCall: component1, callPrefix: component2);
+                // P - P
+                case TriState _ when component0State == TriState.Prefix && component1State == TriState.Prefix:
+                    return (baseCall: component0, callPrefix: component1);
 
-                case TriState _ when component1State == TriState.CallOrPrefix && component2State == TriState.Prefix:
-                    return (baseCall: component1, callPrefix: component2);
+                // CallOrPrefix check
+                // CorP - CorP
+                case TriState _ when component0State == TriState.CallOrPrefix && component1State == TriState.CallOrPrefix:
+                    return (baseCall: component0, callPrefix: component1);
+               
+                    // C - CorP
+                case TriState _ when component0State == TriState.CallSign && component1State == TriState.CallOrPrefix:
+                    return (baseCall: component0, callPrefix: component1);
 
+                // P - CorP
+                case TriState _ when component0State == TriState.Prefix && component1State == TriState.CallOrPrefix:
+                    return (baseCall: component1, callPrefix: component0);
+
+                // CorP - C
+                case TriState _ when component0State == TriState.CallOrPrefix && component1State == TriState.CallSign:
+                    return (baseCall: component1, callPrefix: component0);
+
+                // CorP - P
+                case TriState _ when component0State == TriState.CallOrPrefix && component1State == TriState.Prefix:
+                    return (baseCall: component0, callPrefix: component1);
+
+                // CallSign, Prefix, CallOrprefix and None
+                // 'CU', 'CP'
+                case TriState _ when component0State == TriState.CallSign && component1State == TriState.None:
+                    return (baseCall: component0, callPrefix: component0);
+
+                // 'PU', 'PC'
+                case TriState _ when component0State == TriState.Prefix && component1State == TriState.None:
+                    return (baseCall: component0, callPrefix: component1);
+
+                case TriState _ when component0State == TriState.CallOrPrefix && component1State == TriState.None:
+                    return (baseCall: component0, callPrefix: component0);
+
+                // None and CallSign, Prefix, CallOrprefix
+                // 'UC', 'PC'
+                case TriState _ when component0State == TriState.None && component1State == TriState.CallSign:
+                    return (baseCall: component1, callPrefix: component1);
+
+                // 'UP', 'CP'
+                case TriState _ when component0State == TriState.None && component1State == TriState.Prefix:
+                    return (baseCall: component1, callPrefix: component1);
+                
+                case TriState _ when component0State == TriState.None && component1State == TriState.CallOrPrefix:
+                    return (baseCall: component1, callPrefix: component1);
+
+                // 'UU', 'PC'
+                case TriState _ when component0State == TriState.None && component1State == TriState.None:
+                    return (baseCall: component0, callPrefix: component1);
                 default:
                     break;
             }
 
-            return (baseCall: component1, callPrefix: component2);
+            return (baseCall: component0, callPrefix: component1);
         }
 
         /// <summary>
@@ -387,7 +415,8 @@ namespace W6OP.CallParser
         /// <returns></returns>
         private TriState IsCallSignOrPrefix(string candidate)
         {
-            string[] validCalls = { "@", "@@", "@#@@", "@#@@@", "#@", "#@@", "#@#@", "#@#@@", "#@#@@@", "#@#@@@@", "#@#@@@@@", "@@#", "@@#@", "@@#@@", "@@#@@@" }; // KH6Z
+            string[] validCallStructures = { "@#@@", "@#@@@", "@##@", "@##@@", "@##@@@", "@@#@", "@@#@@", "@@#@@@", "#@#@", "#@#@@", "#@#@@@", "#@@#@", "#@@#@@" }; // KH6Z
+            // string[] validCallStructures = { "@", "@@", "@#@@", "@#@@@", "#@", "#@@", "#@#@", "#@#@@", "#@#@@@", "#@#@@@@", "#@#@@@@@", "@@#", "@@#@", "@@#@@", "@@#@@@" }; // KH6Z
             string[] validPrefixes = { "@", "@@", "@@#", "@@#@", "@#", "@#@", "@##", "#@", "#@@", "#@#", "#@@#" };
             string[] validPrefixOrCall = { "@@#@", "@#@" };
             TriState state = TriState.None;
@@ -399,7 +428,7 @@ namespace W6OP.CallParser
                 case TriState _ when (validPrefixOrCall.Contains(pattern)):
                     return TriState.CallOrPrefix;
 
-                case TriState _ when (validCalls.Contains(pattern)):
+                case TriState _ when (validCallStructures.Contains(pattern)):
                     return TriState.CallSign;
 
                 case TriState _ when (validPrefixes.Contains(pattern)):
@@ -416,7 +445,11 @@ namespace W6OP.CallParser
         ///// <param name="candidate"></param>
         ///// <returns></returns>
 
-
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="candidate"></param>
+            /// <returns></returns>
         private string BuildPattern(string candidate)
         {
             string pattern = "";

@@ -236,7 +236,7 @@ namespace CallParserTestor
             }
             catch (Exception ex)
             {
-                string m = ex.Message;
+                MessageBox.Show(ex.Message);
             }
         }
 
