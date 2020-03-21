@@ -289,7 +289,9 @@ namespace W6OP.CallParser
             string[] first = charsList.First();
             string[] next = charsList.Skip(1).First();
 
-            foreach (string firstItem in first)
+            // saves about 1/2 second overall
+            _ = Parallel.ForEach(first, firstItem =>
+            //foreach (string firstItem in first)
             {
                 foreach (string nextItem in next)
                 {
@@ -298,6 +300,7 @@ namespace W6OP.CallParser
                     primaryMaskList.Add(builder.ToString());
                 }
             }
+            );
 
             // are there more?
             if (charsList.Count > 2)

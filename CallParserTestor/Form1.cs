@@ -78,7 +78,8 @@ namespace CallParserTestor
 
             if (CheckBoxCompoundCalls.Checked)
             {
-                using (StreamReader reader = new StreamReader("compound.txt"))
+                // using (StreamReader reader = new StreamReader("compound.txt"))
+                using (StreamReader reader = new StreamReader("PSKReporterCalls.txt"))
                 {
                     while (!reader.EndOfStream)
                     {
@@ -168,7 +169,7 @@ namespace CallParserTestor
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                MessageBox.Show(ex.Message);
             }
 
             Cursor.Current = Cursors.Default;
@@ -257,23 +258,27 @@ namespace CallParserTestor
 
                     foreach (CallSignInfo oItem in hitCollection)
                     {
-                        if (CompoundKeyValuePairs.ContainsKey(oItem.CallSign))
+                        if (CompoundKeyValuePairs != null)
                         {
-                           string country = CompoundKeyValuePairs[oItem.CallSign];
-                           if (country != oItem.Country && oItem.Kind != PrefixKind.Province)
+                            if (CompoundKeyValuePairs.ContainsKey(oItem.CallSign))
                             {
-                                dt.Rows.Add(new object[] { oItem.CallSign, oItem.Kind, oItem.Country, "Delphi: " + country, "" });
+                                string country = CompoundKeyValuePairs[oItem.CallSign];
+                                if (country != oItem.Country && oItem.Kind != PrefixKind.Province)
+                                {
+                                    dt.Rows.Add(new object[] { oItem.CallSign, oItem.Kind, oItem.Country, "Delphi: " + country, "" });
+                                }
+                            }
+                        } else
+                        {
+                            if (oItem.Kind == PrefixKind.DXCC)
+                            {
+                                dt.Rows.Add(new object[] { oItem.CallSign, oItem.Kind, oItem.Country, oItem.Province ?? "", oItem.DXCC.ToString() });
+                            }
+                            else
+                            {
+                                dt.Rows.Add(new object[] { "", oItem.Kind, oItem.Country, oItem.Province ?? "", oItem.DXCC.ToString() });
                             }
                         }
-                        
-                        //if (oItem.Kind == PrefixKind.DXCC)
-                        //{
-                        //    dt.Rows.Add(new object[] { oItem.CallSign, oItem.Kind, oItem.Country, oItem.Province ?? "", oItem.DXCC.ToString() });
-                        //}
-                        //else
-                        //{
-                        //    dt.Rows.Add(new object[] { "", oItem.Kind, oItem.Country, oItem.Province ?? "", oItem.DXCC.ToString() });
-                        //}
                     }
 
                     SaveDiscrepancies(dt);
