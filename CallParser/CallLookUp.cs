@@ -85,18 +85,26 @@ namespace W6OP.CallParser
                 {
                     try
                     {
+                        //if (callSign == "CM4FAR/R") //CM4FAR/R
+                        //{
+                        //    var a = 1;
+                        //}
                         ProcessCallSign(callSign);
                     }
-                    catch (Exception)
+                    //catch (ArgumentException aex) // "NX7F ES AK7ID/P"
+                    //{
+                    //    var a = 1;
+                    //}
+                    catch (Exception ex)
                     {
                         // bury exception
-                        Console.WriteLine("Invalid call sign format: " + callSign);
+                        //Console.WriteLine("Invalid call sign format: " + callSign);
                     }
                 }
                 else
                 {
                     // don't throw, just ignore bad calls
-                    Console.WriteLine("Invalid call sign format: " + callSign);
+                   // Console.WriteLine("Invalid call sign format: " + callSign);
                 }
             }
             //);
@@ -126,8 +134,8 @@ namespace W6OP.CallParser
             }
             else
             {
-                // don't throw, just ignore bad calls
-                Console.WriteLine("Invalid call sign format: " + callSign);
+                throw new Exception("Invalid call sign format.");
+                //Console.WriteLine("Invalid call sign format: " + callSign);
             }
 
             return HitList.AsEnumerable();
@@ -191,49 +199,27 @@ namespace W6OP.CallParser
                 callSign = callSign.Remove(callSign.Length - 1, 1);
             }
 
-            //List<(string, StringTypes)> stringTypes = AnalyzeComponent(callSign);
+            callAndprefix = TrimCallSign(callSign.Split('/').ToList());
 
-            List<string> components = callSign.Split('/').ToList();
-
-            switch (components.Count)
+            if (callAndprefix.callPrefix == "" || callAndprefix.baseCall == "")
             {
-                case 1:
-                    callAndprefix = (components[0], components[0]);
-                    CollectMatches(callAndprefix, callSign);
-                    break;
-                case 2:
-                    callAndprefix = TrimCallSign(components);
-                    CollectMatches(callAndprefix, callSign);
-                    break;
-                case 3: // DC3RJ/P/W3 - remove excess parts
-                    callAndprefix = TrimCallSign(components);
-                    CollectMatches(callAndprefix, callSign);
-                    break;
-                default:
-                    // should I do anything here?
-                    Console.WriteLine("Too many pieces: " + callSign);
-                    Debug.Assert(components.Count > 3);
-                    break;
+                return;
             }
+
+            CollectMatches(callAndprefix, callSign);
         }
 
         /// <summary>
-        /// If a call sign has 2 or more components look at each component
-        /// and see if some should be removed or modified
+        /// Look at each component of a call sign and see if some should be removed or modified.
         /// </summary>
         /// <param name="components"></param>
         /// <param name="callSign"></param>
         /// <returns>(string call, string callPrefix)</returns>
         private (string baseCall, string callPrefix) TrimCallSign(List<string> components)
         {
-            //string components0;
-            //string components1;
             List<string> tempComponents = new List<string>();
             (string baseCall, string callPrefix) callAndprefix = ("", "");
-            //string result;
-            // added "R" as a beacon for R/IK3OTW
-            // "U" for U/K2KRG
-
+           
             //////////////////////////////////////
             List<(string call, StringTypes sType)> stringTypes = (components.Select(item => (call: item, sType: GetComponentType(item)))).ToList();
 
@@ -245,25 +231,11 @@ namespace W6OP.CallParser
                     where component.Item2 != StringTypes.Invalid
                     select component.Item1);
 
-
-            // 3.2us
-            // strip off /MM /QRP etc. but not MM/ as it is a valid prifix for Scotland
-            //tempComponents.AddRange(stringTypes.Where(component => component.Item1 == components.First() || !RejectPrefixes.Contains(component.Item1))
-            //    .Where(component => component.Item2 != StringTypes.Invalid).Select(component => component.Item1));
-
-
-            // 3.3us
-            // strip off /MM /QRP etc. but not MM/ as it is a valid prifix for Scotland
-            //foreach ((string, StringTypes) component in stringTypes)
-            //{
-            //    if (component.Item1 == components.First() || !RejectPrefixes.Contains(component.Item1))
-            //    {
-            //        if (component.Item2 != StringTypes.Invalid)
-            //        {
-            //            tempComponents.Add(component.Item1);
-            //        }
-            //    }
-            //}
+            // "NX7F ES AK7ID/P"
+            if (!tempComponents.Distinct().Skip(1).Any())
+            {
+                return (baseCall: "", callPrefix: "");
+            }
             /////////////////////////////////////////
 
             // 3.2us
@@ -285,13 +257,17 @@ namespace W6OP.CallParser
                 }
                 else
                 {
-                    throw new Exception("Invalid call sign format.");
+                    // HA4
+                    return (baseCall: "", callPrefix: "");
+                    //throw new Exception("Invalid call sign format.");
                 }
             }
 
             if (tempComponents.Count > 2)
             {
-                throw new Exception("Call sign has too many components.");
+                //throw new Exception("Call sign has too many components.");
+                // EA5/SM/YBJ, IK1/DH2SAQIK1/DH2SAQ
+                return (baseCall: "", callPrefix: "");
             }
 
             callAndprefix = ProcessPrefix(tempComponents);
@@ -326,19 +302,25 @@ namespace W6OP.CallParser
                 {
                     case List<string> _ when component0.Length == 1 && int.TryParse(component0, out int _):
                         result = new String(component1.Where(x => Char.IsDigit(x)).ToArray());
-                        component1 = component1.Replace(result, component0);
-                        component0 = component1;
+                        if (result != "") //1/D
+                        {
+                            component1 = component1.Replace(result, component0);
+                            component0 = component1;
+                        }
                         break;
                     case List<string> _ when component1.Length == 1 && int.TryParse(component1, out int _):
                         result = new String(component0.Where(x => Char.IsDigit(x)).ToArray());
-                        component0 = component0.Replace(result, component1);
-                        component1 = component0;
+                        if (result != "") // SVFMF/4
+                        {
+                            component0 = component0.Replace(result, component1);
+                            component1 = component0;
+                        }
                         break;
                     default:
                         break;
                 }
             }
-            catch (Exception) // WAW/4
+            catch (Exception ex) // WAW/4
             {
                 throw;
             }
@@ -365,7 +347,7 @@ namespace W6OP.CallParser
                 case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.CallSign:
                     return (baseCall: component1, callPrefix: component0);
 
-                // C - C BU VU3 VU7
+                // C - C BU BY VU4 VU7
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.CallSign:
                     if (component0.First() == 'B')
                     {
@@ -506,14 +488,14 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="component"></param>
         /// <returns></returns>
-        private List<(string, StringTypes)> AnalyzeComponent(string callSign)
-        {
-            List<string> tempComponents = callSign.Split('/').ToList();
+        //private List<(string, StringTypes)> AnalyzeComponent(string callSign)
+        //{
+        //    List<string> tempComponents = callSign.Split('/').ToList();
 
-            // 
+        //    // 
 
-            return (tempComponents.Select(item => (item, GetComponentType(item)))).ToList();
-        }
+        //    return (tempComponents.Select(item => (item, GetComponentType(item)))).ToList();
+        //}
 
         /// <summary>
         /// Test for string only, int only, special chars. and other types
@@ -522,7 +504,6 @@ namespace W6OP.CallParser
         /// <returns></returns>
         private StringTypes GetComponentType(string item)
         {
-            
             // W6 OP
             if (item.Any(char.IsWhiteSpace))
             {
@@ -593,14 +574,18 @@ namespace W6OP.CallParser
             {
                 List<CallSignInfo> query = CallSignDictionary[searchTerm].ToList();
 
-                foreach (CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(searchTerm)))
+                //foreach (CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(searchTerm)))
+                //{
+                //    CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
+
+                foreach (var (callSignInfo, callSignInfoCopy) in from CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(searchTerm))
+                                                                 let callSignInfoCopy = callSignInfo.ShallowCopy()
+                                                                 select (callSignInfo, callSignInfoCopy))
                 {
-                    CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
                     callSignInfoCopy.CallSign = fullCall;
                     callSignInfoCopy.BaseCall = baseCall;
                     callSignInfoCopy.SearchPrefix = searchTerm;
                     HitList.Add(callSignInfoCopy);
-
                     // this should be refactored to get it out of his foreach loop - 
                     // is there ever more than one callSigninfo for the query?
                     if (callSignInfo.Kind != PrefixKind.DXCC)

@@ -270,7 +270,7 @@ namespace CallParserTestor
                             }
                         } else
                         {
-                            if (oItem.Kind == PrefixKind.DXCC)
+                            if (oItem.Kind == PrefixKind.DXCC || oItem.Kind == PrefixKind.InvalidPrefix)
                             {
                                 dt.Rows.Add(new object[] { oItem.CallSign, oItem.Kind, oItem.Country, oItem.Province ?? "", oItem.DXCC.ToString() });
                             }
