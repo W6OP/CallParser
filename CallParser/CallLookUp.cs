@@ -191,7 +191,7 @@ namespace W6OP.CallParser
                 callSign = callSign.Remove(callSign.Length - 1, 1);
             }
 
-            AnalyzeComponent(callSign);
+            //List<(string, StringTypes)> stringTypes = AnalyzeComponent(callSign);
 
             List<string> components = callSign.Split('/').ToList();
 
@@ -234,15 +234,47 @@ namespace W6OP.CallParser
             // added "R" as a beacon for R/IK3OTW
             // "U" for U/K2KRG
 
+            //////////////////////////////////////
+            List<(string call, StringTypes sType)> stringTypes = (components.Select(item => (call: item, sType: GetComponentType(item)))).ToList();
 
-            // strip off /MM /QRP etc.
-            foreach (string component in components)
-            {
-                if (!RejectPrefixes.Contains(component))
-                {
-                    tempComponents.Add(component);
-                }
-            }
+            // 2.8us
+            // strip off /MM /QRP etc. but not MM/ as it is a valid prifix for Scotland
+            tempComponents.AddRange(
+                    from (string, StringTypes) component in stringTypes
+                    where component.Item1 == components.First() || !RejectPrefixes.Contains(component.Item1)
+                    where component.Item2 != StringTypes.Invalid
+                    select component.Item1);
+
+
+            // 3.2us
+            // strip off /MM /QRP etc. but not MM/ as it is a valid prifix for Scotland
+            //tempComponents.AddRange(stringTypes.Where(component => component.Item1 == components.First() || !RejectPrefixes.Contains(component.Item1))
+            //    .Where(component => component.Item2 != StringTypes.Invalid).Select(component => component.Item1));
+
+
+            // 3.3us
+            // strip off /MM /QRP etc. but not MM/ as it is a valid prifix for Scotland
+            //foreach ((string, StringTypes) component in stringTypes)
+            //{
+            //    if (component.Item1 == components.First() || !RejectPrefixes.Contains(component.Item1))
+            //    {
+            //        if (component.Item2 != StringTypes.Invalid)
+            //        {
+            //            tempComponents.Add(component.Item1);
+            //        }
+            //    }
+            //}
+            /////////////////////////////////////////
+
+            // 3.2us
+            // strip off /MM /QRP etc. but not MM/ as it is a valid prifix for Scotland
+            //foreach (string component in components)
+            //{
+            //    if (component == components.First() || !RejectPrefixes.Contains(component))
+            //    {
+            //        tempComponents.Add(component);
+            //    }
+            //}
 
             // WAW/4 ==> 4
             if (tempComponents.Count == 1)
@@ -301,6 +333,8 @@ namespace W6OP.CallParser
                         result = new String(component0.Where(x => Char.IsDigit(x)).ToArray());
                         component0 = component0.Replace(result, component1);
                         component1 = component0;
+                        break;
+                    default:
                         break;
                 }
             }
@@ -467,27 +501,53 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// Look at a string and return the ComponentType it matches. Primarily
-        /// used to eliminate invalid parts of a portable call sign.
+        /// Look at a string and return the ComponentType it matches.
+        /// Used to eliminate invalid parts of a portable call sign.
         /// </summary>
         /// <param name="component"></param>
         /// <returns></returns>
-        private ComponentType AnalyzeComponent(string callSign)
+        private List<(string, StringTypes)> AnalyzeComponent(string callSign)
         {
             List<string> tempComponents = callSign.Split('/').ToList();
-            List<(string, ComponentType)> components = new List<(string, ComponentType)>();
 
-            foreach (string item in tempComponents)
+            // 
+
+            return (tempComponents.Select(item => (item, GetComponentType(item)))).ToList();
+        }
+
+        /// <summary>
+        /// Test for string only, int only, special chars. and other types
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        private StringTypes GetComponentType(string item)
+        {
+            
+            // W6 OP
+            if (item.Any(char.IsWhiteSpace))
             {
-                components.Append((item, ComponentType.Unknown));
+                return StringTypes.Invalid;
             }
 
+            // W#OP
+            if (item.Any(c => !char.IsLetterOrDigit(c)))
+            {
+                return StringTypes.Invalid;
+            }
 
+            // WAOP
+            if (item.All(char.IsLetter))
+            {
+                return StringTypes.Text;
+            }
 
+            //37747
+            if (item.All(char.IsDigit))
+            {
+                return StringTypes.Numeric;
+            }
 
-
-
-            return ComponentType.Unknown;
+            return StringTypes.Valid;
         }
 
         /// <summary>

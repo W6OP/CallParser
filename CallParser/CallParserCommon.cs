@@ -24,10 +24,15 @@ namespace W6OP.CallParser
         CallSign,
         CallOrPrefix,
         Prefix,
-        MM,
+        Unknown
+    }
+
+    public enum StringTypes
+    {
         Numeric,
         Text,
-        Unknown
+        Invalid,
+        Valid,
     }
 
     /// <summary>

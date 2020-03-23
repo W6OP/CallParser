@@ -351,19 +351,23 @@ namespace W6OP.CallParser
                 {
                     temp = expression.Substring(0, expression.IndexOf("["));
                     expression = expression.Remove(0, expression.IndexOf("["));
-                    foreach (char x in temp)
-                    {
-                        charsList.Add(new string[1] { x.ToString() });
-                    }
+                   // Linq is faster
+                    charsList.AddRange(temp.Select(x => new string[1] { x.ToString() }));
+                    //foreach (char x in temp)
+                    //{
+                    //    charsList.Add(new string[1] { x.ToString() });
+                    //}
                 }
                 else
                 {
                     temp = expression;
                     expression = expression.Remove(0, temp.Length);
-                    foreach (char x in temp)
-                    {
-                        charsList.Add(new string[1] { x.ToString() });
-                    }
+                    // Linq is faster
+                    charsList.AddRange(temp.Select(x => new string[1] { x.ToString() }));
+                    //foreach (char x in temp)
+                    //{
+                    //    charsList.Add(new string[1] { x.ToString() });
+                    //}
                 }
             }
 
@@ -386,6 +390,7 @@ namespace W6OP.CallParser
 
             string[] first = charsList.First();
 
+            // faster without Linq
             if (charsList.Count > 0)
             {
                 foreach (string prefix in primaryMaskList)
