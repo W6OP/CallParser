@@ -107,8 +107,8 @@ namespace W6OP.CallParser
 
             // parallel foreach almost twice as fast but requires blocking collection
             // comment out for debugging - need to use non parallel foreach for debugging
-             _ = Parallel.ForEach(callSigns, callSign =>
-            //foreach (string callSign in callSigns)
+            // _ = Parallel.ForEach(callSigns, callSign =>
+            foreach (string callSign in callSigns)
             {
                 //if (ValidateCallSign(callSign))
                 //{
@@ -132,7 +132,7 @@ namespace W6OP.CallParser
                 //   // Console.WriteLine("Invalid call sign format: " + callSign);
                 //}
             }
-            );
+           // );
 
             return HitList.AsEnumerable();
         }
@@ -231,9 +231,9 @@ namespace W6OP.CallParser
                     //"NX7F ES AK7ID/P"  "IZ3IJG /QRP" - spaces and a reject prefix
                     return (baseCall: "", callPrefix: "");
                 case 1:
-                    if (tempComponents[0].Length > 3)
+                    if (tempComponents[0].Length > 2)
                     {
-                        // ON3RX/P - CN2DA/QRP
+                        // ON3RX/P - CN2DA/QRP - B1Z
                         return (baseCall: tempComponents[0], callPrefix: tempComponents[0]);
                     }
                     else
@@ -549,11 +549,7 @@ namespace W6OP.CallParser
             {
                 List<CallSignInfo> query = CallSignDictionary[searchTerm].ToList();
 
-                //foreach (CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(searchTerm)))
-                //{
-                //    CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
-
-                foreach (var (callSignInfo, callSignInfoCopy) in from CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(searchTerm))
+                foreach (var (callSignInfo, callSignInfoCopy) in from CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(searchTerm) && x.Kind != PrefixKind.InvalidPrefix)
                                                                  let callSignInfoCopy = callSignInfo.ShallowCopy()
                                                                  select (callSignInfo, callSignInfoCopy))
                 {
@@ -592,14 +588,14 @@ namespace W6OP.CallParser
                     {
                         List<CallSignInfo> query = CallSignDictionary[searchTerm].ToList();
 
-                        foreach (CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(searchTerm)))
+                        foreach (var (callSignInfo, callSignInfoCopy) in from CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(searchTerm) && x.Kind != PrefixKind.InvalidPrefix)
+                                                                         let callSignInfoCopy = callSignInfo.ShallowCopy()
+                                                                         select (callSignInfo, callSignInfoCopy))
                         {
-                            CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
                             callSignInfoCopy.CallSign = fullCall;
                             callSignInfoCopy.BaseCall = baseCall;
                             callSignInfoCopy.SearchPrefix = searchTerm;
                             HitList.Add(callSignInfoCopy);
-
                             if (callSignInfo.Kind != PrefixKind.DXCC)
                             {
                                 CallSignInfo callSignInfoDxcc = Adifs[Convert.ToInt32(query[0].DXCC)];
@@ -610,50 +606,65 @@ namespace W6OP.CallParser
                                 HitList.Add(callSignInfoCopyDxcc);
                             }
                         }
-                    }
-                    // is it in the DXCC list
-                    //if (HitList.Count == 0)
-                    //{
-                    //    CheckAdditionalDXCCEntities(callAndprefix, fullCall);
-                    //}
 
+                        return; // ??? Added 3/24 because I think too many calls are going to  if (string.IsNullOrEmpty(searchTerm)) below
+                    }
+                   
                     searchTerm = searchTerm.Remove(searchTerm.Length - 1);
                 }
             }
 
+            // THIS NEEDS MORE TESTING
+            // THIS IS WAY TOO SLOW !!!
             // could this be a DXCC only prefix kind? - (B1Z, B7M)
-            if (HitList.Count == 0)
+            if (string.IsNullOrEmpty(searchTerm))
             {
-                CheckAdditionalDXCCEntities(callAndprefix, fullCall);
+               // CheckAdditionalDXCCEntities(callAndprefix, fullCall);
             }
         }
 
         /// <summary>
-        /// Some calls overlap different enities, specifically 4U1A (IARC) and 4U1N (ITU) and Austria
+        /// Some calls overlap different entities, specifically 4U1A (IARC) and 4U1N (ITU) and Austria
+        /// Others like B1Z and DL(6DH) only are in the Adifs list
         /// so I check the DXCC list (Adifs) to find them
         /// </summary>
         /// <param name="callAndprefix"></param>
         /// <param name="fullCall"></param>
         private void CheckAdditionalDXCCEntities((string baseCall, string callPrefix) callAndprefix, string fullCall)
         {
-            List<CallSignInfo> query = Adifs.Values.Where(q => q.PrefixKey.Contains(callAndprefix.callPrefix)).ToList();
+            List<CallSignInfo> query = Adifs.Values.Where(q => q.PrefixKey.Contains(callAndprefix.callPrefix) && q.Kind != PrefixKind.InvalidPrefix).ToList();
 
-            foreach (CallSignInfo callSignInfo in query)
+            //foreach (CallSignInfo callSignInfo in query)
+            //{
+            //    // trying to eliminate dupes - big performance hit, let user do it?
+            //    // I think this only happens with 4U1x calls
+            //    //if (HitList.Where(q => q.Country == callSignInfo.Country).ToList().Count == 0)
+            //    //{
+            //    CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
+            //    callSignInfoCopy.CallSign = fullCall;
+            //    callSignInfoCopy.BaseCall = callAndprefix.baseCall;
+            //    callSignInfoCopy.SearchPrefix = callAndprefix.callPrefix;
+            //    HitList.Add(callSignInfoCopy);
+            //    // }
+            //}
+
+            // trying to eliminate dupes - big performance hit, let user do it?
+            // I think this only happens with 4U1x calls
+            //if (HitList.Where(q => q.Country == callSignInfo.Country).ToList().Count == 0)
+            //{
+            foreach (CallSignInfo callSignInfoCopy in from CallSignInfo callSignInfo in query
+                                                      let callSignInfoCopy = callSignInfo.ShallowCopy()
+                                                      select callSignInfoCopy)
             {
-                // trying to eliminate dupes - big performance hit, let user do it?
-                // I think this only happens with 4U1x calls
-                //if (HitList.Where(q => q.Country == callSignInfo.Country).ToList().Count == 0)
-                //{
-                CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
                 callSignInfoCopy.CallSign = fullCall;
                 callSignInfoCopy.BaseCall = callAndprefix.baseCall;
                 callSignInfoCopy.SearchPrefix = callAndprefix.callPrefix;
                 HitList.Add(callSignInfoCopy);
-                // }
+                //Console.WriteLine(fullCall);
             }
 
             // recurse for calls like VP8PJ where only the VP8 portion is used
-            if (HitList.Count == 0)
+            if (query.Count == 0)
             {
                 callAndprefix.callPrefix = callAndprefix.callPrefix.Remove(callAndprefix.callPrefix.Length - 1);
                 if (callAndprefix.callPrefix.Length == 0) { return; }
