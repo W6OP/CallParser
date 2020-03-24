@@ -42,6 +42,35 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
+        /// Look up a single call sign. First make sure it is a valid call sign.
+        /// </summary>
+        /// <param name="callSign"></param>
+        /// <returns>IEnumerable<CallSignInfo></returns>
+        public IEnumerable<CallSignInfo> LookUpCall(string callSign)
+        {
+            HitList = new ConcurrentBag<CallSignInfo>();
+
+            //if (ValidateCallSign(callSign))
+            //{
+                try
+                {
+                    ProcessCallSign(callSign.ToUpper());
+                }
+                catch (Exception)
+                {
+                    throw new Exception("Invalid call sign format.");
+                }
+            //}
+            //else
+            //{
+            //    throw new Exception("Invalid call sign format.");
+            //    //Console.WriteLine("Invalid call sign format: " + callSign);
+            //}
+
+            return HitList.AsEnumerable();
+        }
+
+        /// <summary>
         /// Batch lookup of call signs. A List<string> of calls may be sent in
         /// and each processed in parallel. A limit of 1 million per batch is
         /// enforced as Windows cannot handle the memory requirements for larger
@@ -77,35 +106,31 @@ namespace W6OP.CallParser
             //}
 
             // parallel foreach almost twice as fast but requires blocking collection
-            // need to use non parallel foreach for debugging
+            // comment out for debugging - need to use non parallel foreach for debugging
              _ = Parallel.ForEach(callSigns, callSign =>
             //foreach (string callSign in callSigns)
             {
-                if (ValidateCallSign(callSign))
-                {
+                //if (ValidateCallSign(callSign))
+                //{
                     try
-                    {
-                        //if (callSign == "CM4FAR/R") //CM4FAR/R
-                        //{
-                        //    var a = 1;
-                        //}
-                        ProcessCallSign(callSign);
+                    { 
+                        ProcessCallSign(callSign.ToUpper());
                     }
                     //catch (ArgumentException aex) // "NX7F ES AK7ID/P"
                     //{
-                    //    var a = 1;
+                    //    bury exception
                     //}
                     catch (Exception ex)
                     {
                         // bury exception
                         //Console.WriteLine("Invalid call sign format: " + callSign);
                     }
-                }
-                else
-                {
-                    // don't throw, just ignore bad calls
-                   // Console.WriteLine("Invalid call sign format: " + callSign);
-                }
+                //}
+                //else
+                //{
+                //    // don't throw, just ignore bad calls
+                //   // Console.WriteLine("Invalid call sign format: " + callSign);
+                //}
             }
             );
 
@@ -113,36 +138,8 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// Look up a single call sign. First make sure it is a valid call sign.
-        /// </summary>
-        /// <param name="callSign"></param>
-        /// <returns>IEnumerable<CallSignInfo></returns>
-        public IEnumerable<CallSignInfo> LookUpCall(string callSign)
-        {
-            HitList = new ConcurrentBag<CallSignInfo>();
-
-            if (ValidateCallSign(callSign))
-            {
-                try
-                {
-                    ProcessCallSign(callSign);
-                }
-                catch (Exception)
-                {
-                    throw new Exception("Invalid call sign format.");
-                }
-            }
-            else
-            {
-                throw new Exception("Invalid call sign format.");
-                //Console.WriteLine("Invalid call sign format: " + callSign);
-            }
-
-            return HitList.AsEnumerable();
-        }
-
-
-        /// <summary>
+        /// THIS MAY NO LONGER BE NECESSARY
+        /// Do a preliminary test of call signs.
         /// Check for empty call.
         /// Check for no alpha only calls.
         /// A call must be made up of only alpha, numeric and can have one or more "/".
@@ -158,17 +155,14 @@ namespace W6OP.CallParser
             // calls must be at least 2 characters
             if (callSign.Length < 2) { return false; }
 
-            // check if first character is "/"
-            //if (callSign.IndexOf("/", 0, 1) == 0) { return false; }
-
             // check for a "-" ie: VE7CC-7, OH6BG-1, WZ7I-3 
             if (callSign.IndexOf("-") != -1) { return false; }
 
-            // can't be all numbers
-            if (callSign.All(char.IsDigit)) { return false; }
+            // can't be all numbers or all letters
+            if (callSign.All(char.IsDigit) || callSign.All(char.IsLetter)) { return false; }
 
             // look for at least one number character
-            if (!callSign.Any(char.IsDigit)) { return false; }
+            if (!callSign.Any(char.IsDigit)) { return true; }
 
             return true;
         }
@@ -212,7 +206,7 @@ namespace W6OP.CallParser
 
         /// <summary>
         /// Look at each component of a call sign and see if some should be removed or modified.
-        /// OZ/DL9ZX/P UA3LMR/3/QRPP return a Tuple with the best guess call sign and prefix. 
+        /// OZ/DL9ZX/P, UA3LMR/3/QRPP return a Tuple with the best guess call sign and prefix. 
         /// </summary>
         /// <param name="components"></param>
         /// <param name="callSign"></param>
@@ -220,7 +214,6 @@ namespace W6OP.CallParser
         private (string baseCall, string callPrefix) TrimCallSign(List<string> components)
         {
             List<string> tempComponents = new List<string>();
-            (string baseCall, string callPrefix) callAndprefix = ("", "");
            
             List<(string call, StringTypes sType)> stringTypes = (components.Select(item => (call: item, sType: GetComponentType(item)))).ToList();
 
@@ -235,28 +228,26 @@ namespace W6OP.CallParser
             switch (tempComponents.Count)
             {
                 case 0:
-                    //"NX7F ES AK7ID/P"
+                    //"NX7F ES AK7ID/P"  "IZ3IJG /QRP" - spaces and a reject prefix
                     return (baseCall: "", callPrefix: "");
                 case 1:
-                    // WAW/4 ==> 4
                     if (tempComponents[0].Length > 3)
                     {
+                        // ON3RX/P - CN2DA/QRP
                         return (baseCall: tempComponents[0], callPrefix: tempComponents[0]);
                     }
                     else
                     {
-                        // HA4
+                        // HA4/P - HB4/P - 41/R - UT3/QRP/QRP
                         return (baseCall: "", callPrefix: "");
                     }
                 case 2:
-                    callAndprefix = ProcessPrefix(tempComponents);
-                    break;
+                    // everything good HB9/OE6POD
+                    return ProcessPrefix(tempComponents);
                 default:
-                    // EA5/SM/YBJ, IK1/DH2SAQIK1/DH2SAQ
+                    // EA5/SM/YBJ, IK1/DH2SAQIK1/DH2SAQ, 9M6/LA/XK, WQ14YBNEQL1QX/MEQU1QX/MN
                     return (baseCall: "", callPrefix: "");
             }
-
-            return callAndprefix;
         }
 
 
@@ -286,7 +277,7 @@ namespace W6OP.CallParser
                 {
                     case List<string> _ when component0.Length == 1 && int.TryParse(component0, out int _):
                         result = new String(component1.Where(x => Char.IsDigit(x)).ToArray());
-                        if (result != "") //1/D
+                        if (result != "") // 1/D
                         {
                             component1 = component1.Replace(result, component0);
                             component0 = component1;

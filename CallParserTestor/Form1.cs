@@ -34,7 +34,7 @@ namespace CallParserTestor
         private List<string> _Records;
         private Stopwatch stopwatch = new Stopwatch();
 
-        private Dictionary<string, string> CompoundKeyValuePairs;
+        private Dictionary<string, string> DelphiCompoundKeyValuePairs;
 
         private List<string> CompoundCalls;
 
@@ -53,7 +53,8 @@ namespace CallParserTestor
         }
 
         /// <summary>
-        /// Parse the prefix file.
+        /// Parse the prefix file. Marshallllll to another thread so I don't
+        /// block the GUI.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -64,7 +65,8 @@ namespace CallParserTestor
         }
 
         /// <summary>
-        /// Read the file of call signs to test with.
+        /// Read the file of call signs to test with. If the checkbox is checked
+        /// load the compound call file instead of the Reverse Beacon Network (RBN) file.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -99,7 +101,8 @@ namespace CallParserTestor
                         csv.Configuration.MissingFieldFound = null;
                         _Records.Add(csv.GetField("dx").ToUpper()); //dx_pfx
 
-                        //// comment out to keep list to 1 million - most of the rest are dupes anyway
+                        // comment out to keep list to 1 million - most of the rest are dupes anyway
+                        // I should use a HashSet to eliminate dupes
                         //string temp = csv.GetField("callsign");
                         //// check for a "_" ie: VE7CC-7, OH6BG-1, WZ7I-3 - remove the characters "-x"
                         //if (temp.IndexOf("-") != -1)
@@ -119,14 +122,19 @@ namespace CallParserTestor
         }
 
         /// <summary>
-        /// Look up a single call
+        /// Look up a single call in the input text box.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void ButtonSingleCallLookup_Click(object sender, EventArgs e)
         {
-            IEnumerable<CallSignInfo> hitCollection = null;
+            IEnumerable<CallSignInfo> hitCollection;
             List<CallSignInfo> hitList;
+
+            // I3HG/SV7GUO
+            // RW3WR/W
+            // W/LE6
+            // JA/6
 
             if (_CallLookUp == null)
             {
@@ -157,13 +165,13 @@ namespace CallParserTestor
                             UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.DXCC.ToString());
                         }
 
-                        // save to a text file
-                        var thread = new Thread(() =>
-                    {
-                        Cursor.Current = Cursors.WaitCursor;
-                        SaveHitList(hitList);
-                    });
-                        thread.Start();
+                        // save to a text file - not necessary for a single call
+                        //var thread = new Thread(() =>
+                        //{
+                        //    Cursor.Current = Cursors.WaitCursor;
+                        //    SaveHitList(hitList);
+                        //});
+                        //    thread.Start();
                     }
                 }
             }
@@ -204,8 +212,6 @@ namespace CallParserTestor
                 return;
             }
 
-            //ListViewResults.Items.Clear();
-
             DataGridViewResults.DataSource = null;
 
             Cursor.Current = Cursors.WaitCursor;
@@ -213,27 +219,30 @@ namespace CallParserTestor
         }
 
         /// <summary>
-        /// 
+        /// Build the hit collection by passing in a List<string>of call signs.
         /// </summary>
         private void BatchCallSignLookup()
         {
             IEnumerable<CallSignInfo> hitCollection;
-            
+
             stopwatch = Stopwatch.StartNew();
 
             try
             {
                 hitCollection = _CallLookUp.LookUpCall(_Records);
+                
                 UpdateLabels(hitCollection.Count());
+                // fill the datagrid
                 UpdateDataGrid(hitCollection);
 
+                // superseded by SaveHitList(dt) in UpdateDataGrid(hitCollection)
                 // save to a text file
-                var thread = new Thread(() =>
-                {
-                    Cursor.Current = Cursors.WaitCursor;
-                    SaveHitList(hitCollection.ToList());
-                });
-                thread.Start();
+                //var thread = new Thread(() =>
+                //{
+                //    Cursor.Current = Cursors.WaitCursor;
+                //    SaveHitList(hitCollection.ToList());
+                //});
+                //thread.Start();
             }
             catch (Exception ex)
             {
@@ -241,6 +250,10 @@ namespace CallParserTestor
             }
         }
 
+        /// <summary>
+        /// Update the data grid back on the GUI thread.
+        /// </summary>
+        /// <param name="hitCollection"></param>
         private void UpdateDataGrid(IEnumerable<CallSignInfo> hitCollection)
         {
             DataTable dt = new DataTable();
@@ -258,17 +271,18 @@ namespace CallParserTestor
 
                     foreach (CallSignInfo oItem in hitCollection)
                     {
-                        if (CompoundKeyValuePairs != null)
+                        if (DelphiCompoundKeyValuePairs != null)
                         {
-                            if (CompoundKeyValuePairs.ContainsKey(oItem.CallSign))
+                            if (DelphiCompoundKeyValuePairs.ContainsKey(oItem.CallSign))
                             {
-                                string country = CompoundKeyValuePairs[oItem.CallSign];
-                                if (country != oItem.Country && oItem.Kind != PrefixKind.Province)
+                                string country = DelphiCompoundKeyValuePairs[oItem.CallSign];
+                                if (country != oItem.Country && oItem.Kind != PrefixKind.Province && oItem.Kind != PrefixKind.InvalidPrefix) //  != PrefixKind.InvalidPrefix
                                 {
                                     dt.Rows.Add(new object[] { oItem.CallSign, oItem.Kind, oItem.Country, "Delphi: " + country, "" });
                                 }
                             }
-                        } else
+                        }
+                        else
                         {
                             if (oItem.Kind == PrefixKind.DXCC || oItem.Kind == PrefixKind.InvalidPrefix)
                             {
@@ -276,12 +290,12 @@ namespace CallParserTestor
                             }
                             else
                             {
-                                dt.Rows.Add(new object[] { "", oItem.Kind, oItem.Country, oItem.Province ?? "", oItem.DXCC.ToString() });
+                                dt.Rows.Add(new object[] { "     ", oItem.Kind, oItem.Country, oItem.Province ?? "", oItem.DXCC.ToString() });
                             }
                         }
                     }
 
-                    SaveDiscrepancies(dt);
+                    SaveHitList(dt);
                 }
                 try
                 {
@@ -332,8 +346,6 @@ namespace CallParserTestor
 
         /// <summary>
         /// Prevent cross thread calls.
-        /// UpdateListViewResults(call, hit.Kind.ToString(), hit.Country, hit.Province, "new", "");
-        /// UpdateListViewResults(call, hit.Kind, hit.Country, hit.Province, "old", "");
         /// </summary>
         /// <param name="call"></param>
         /// <param name="clear"></param>
@@ -387,6 +399,9 @@ namespace CallParserTestor
             Task.Run(() => SemiBatchCallSignLookup());
         }
 
+        /// <summary>
+        /// Send in calls one at a time on anther thread.
+        /// </summary>
         private void SemiBatchCallSignLookup()
         {
             IEnumerable<CallSignInfo> hitCollection;
@@ -418,27 +433,14 @@ namespace CallParserTestor
         private void ParsePrefixFile(string filePath)
         {
             stopwatch = Stopwatch.StartNew();
+            
             _PrefixFileParser.ParsePrefixFile(TextBoxPrefixFilePath.Text);
+           
             Console.WriteLine("Load Time: " + stopwatch.ElapsedMilliseconds + "ms");
+           
             UpdateCursor();
-            //UseWaitCursor = false;
+           
             _CallLookUp = new CallLookUp(_PrefixFileParser);
-        }
-
-        /// <summary>
-        /// Batch lookup.
-        /// </summary>
-        /// <param name="callSigns"></param>
-        /// <returns></returns>
-        public IEnumerable<CallSignInfo> LookupCall(List<string> callSigns)
-        {
-            if (_CallLookUp == null)
-            {
-                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return null;
-            }
-
-            return _CallLookUp.LookUpCall(callSigns);
         }
 
         /// <summary>
@@ -490,7 +492,7 @@ namespace CallParserTestor
         }
 
         /// <summary>
-        /// 
+        /// Update the cursor on the GUI thread.
         /// </summary>
         private void UpdateCursor()
         {
@@ -507,7 +509,7 @@ namespace CallParserTestor
         }
 
         /// <summary>
-        /// 
+        /// Select the folder to load the prefix file from.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -523,7 +525,7 @@ namespace CallParserTestor
         }
 
         /// <summary>
-        /// Handle button click to build compound caall file.
+        /// Handle button click to build compound call file.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -550,7 +552,8 @@ namespace CallParserTestor
         }
 
         /// <summary>
-        /// Read and add to List all compound calls.
+        /// Read and add to another file all compound calls.
+        /// This was to test compound calls but has been superseded by using the PSKReporterCalls file.
         /// </summary>
         /// <param name="filePath"></param>
         private void BuildCompoundCallFile(string filePath)
@@ -577,9 +580,9 @@ namespace CallParserTestor
         /// </summary>
         private void LoadCompoundCompareFile()
         {
-            CompoundKeyValuePairs = new Dictionary<string, string>();
+            DelphiCompoundKeyValuePairs = new Dictionary<string, string>();
 
-            using (StreamReader reader = new StreamReader(@"C:\Users\pbourget\Documents\CallParserTest.csv"))
+            using (StreamReader reader = new StreamReader(@"C:\Users\pbourget\Documents\DelphiCallParserTest.txt"))
             using (var csv = new CsvReader(reader))
             {
                 csv.Read();
@@ -589,7 +592,7 @@ namespace CallParserTestor
                     csv.Configuration.MissingFieldFound = null;
                     string callSign = csv.GetField("callsign");
                     string country = csv.GetField("country");
-                    CompoundKeyValuePairs.Add(callSign,country.Trim());
+                    DelphiCompoundKeyValuePairs.Add(callSign, country.Trim());
                 }
             }
         }
@@ -624,42 +627,34 @@ namespace CallParserTestor
             }
 
             Console.WriteLine("Finished writing compound file");
-            // UpdateCursor();
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="table"></param>
-        private void SaveDiscrepancies(DataTable table)
+        private void SaveHitList(DataTable table)
         {
-                String folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                String file = Path.Combine(folderPath, "Discrepancies.txt");
+            String folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            String file = Path.Combine(folderPath, "CallParserList.txt");
 
-                using (TextWriter writer = new StreamWriter(file, false, System.Text.Encoding.UTF8))
+            using (TextWriter writer = new StreamWriter(file, false, System.Text.Encoding.UTF8))
+            {
+                var csv = new CsvWriter(writer);
+
+                foreach (DataRow row in table.Rows)
                 {
-                    var csv = new CsvWriter(writer);
+                    csv.WriteField(row["CallSign"]);
+                    csv.WriteField(row["Kind"]);
+                    csv.WriteField(row["Country"]);
+                    csv.WriteField(row["Province"]);
+                    csv.WriteField(row["DXCC"]);
+                    csv.NextRecord();
 
-                    foreach (DataRow row in table.Rows)
-                    {
-                        csv.WriteField(row["CallSign"]);
-                        csv.WriteField(row["Kind"]);
-                        csv.WriteField(row["Country"]);
-                        csv.WriteField(row["Province"]);
-                        csv.WriteField(row["DXCC"]);
-                        csv.NextRecord();
-
-                    }
                 }
+            }
 
-                Console.WriteLine("Finished writing discrepancies file");
-            // UpdateCursor();
-            //dt.Columns.Add("CallSign");
-            //dt.Columns.Add("Kind");
-            //dt.Columns.Add("Country");
-            //dt.Columns.Add("Province");
-            //dt.Columns.Add("DXCC");
-
+            Console.WriteLine("Finished writing hit file");
         }
     } // end class
 }
