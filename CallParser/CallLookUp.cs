@@ -78,8 +78,8 @@ namespace W6OP.CallParser
 
             // parallel foreach almost twice as fast but requires blocking collection
             // need to use non parallel foreach for debugging
-            // _ = Parallel.ForEach(callSigns, callSign =>
-            foreach (string callSign in callSigns)
+             _ = Parallel.ForEach(callSigns, callSign =>
+            //foreach (string callSign in callSigns)
             {
                 if (ValidateCallSign(callSign))
                 {
@@ -107,7 +107,7 @@ namespace W6OP.CallParser
                    // Console.WriteLine("Invalid call sign format: " + callSign);
                 }
             }
-            //);
+            );
 
             return HitList.AsEnumerable();
         }
@@ -175,7 +175,7 @@ namespace W6OP.CallParser
 
         /// <summary>
         /// Process a call sign into its component parts ie: W6OP/W4
-        /// Call signs in the international series are formed as indicated in Nos. 19.51to 19.71. 
+        /// Call signs in the international series are formed as indicated in Nos. 19.51 to 19.71. 
         /// The first two characters shall be two letters or a letter followed by a digit or a digit followed by a letter.
         /// The first two characters or in certain cases the first character of a call sign constitute the nationality identification.
         /// 
@@ -188,7 +188,7 @@ namespace W6OP.CallParser
         {
             (string baseCall, string callPrefix) callAndprefix;
 
-            // strip leading or trailing "/"
+            // strip leading or trailing "/"  /W6OP/
             if (callSign.First() == '/')
             {
                 callSign = callSign.Substring(1);
@@ -199,6 +199,7 @@ namespace W6OP.CallParser
                 callSign = callSign.Remove(callSign.Length - 1, 1);
             }
 
+            // trim the call sign of invalid of unnecessary parts
             callAndprefix = TrimCallSign(callSign.Split('/').ToList());
 
             if (callAndprefix.callPrefix == "" || callAndprefix.baseCall == "")
@@ -211,6 +212,7 @@ namespace W6OP.CallParser
 
         /// <summary>
         /// Look at each component of a call sign and see if some should be removed or modified.
+        /// OZ/DL9ZX/P UA3LMR/3/QRPP return a Tuple with the best guess call sign and prefix. 
         /// </summary>
         /// <param name="components"></param>
         /// <param name="callSign"></param>
@@ -220,57 +222,39 @@ namespace W6OP.CallParser
             List<string> tempComponents = new List<string>();
             (string baseCall, string callPrefix) callAndprefix = ("", "");
            
-            //////////////////////////////////////
             List<(string call, StringTypes sType)> stringTypes = (components.Select(item => (call: item, sType: GetComponentType(item)))).ToList();
 
-            // 2.8us
             // strip off /MM /QRP etc. but not MM/ as it is a valid prifix for Scotland
+            // eliminate invalid strings
             tempComponents.AddRange(
                     from (string, StringTypes) component in stringTypes
                     where component.Item1 == components.First() || !RejectPrefixes.Contains(component.Item1)
                     where component.Item2 != StringTypes.Invalid
                     select component.Item1);
 
-            // "NX7F ES AK7ID/P"
-            if (!tempComponents.Distinct().Skip(1).Any())
+            switch (tempComponents.Count)
             {
-                return (baseCall: "", callPrefix: "");
-            }
-            /////////////////////////////////////////
-
-            // 3.2us
-            // strip off /MM /QRP etc. but not MM/ as it is a valid prifix for Scotland
-            //foreach (string component in components)
-            //{
-            //    if (component == components.First() || !RejectPrefixes.Contains(component))
-            //    {
-            //        tempComponents.Add(component);
-            //    }
-            //}
-
-            // WAW/4 ==> 4
-            if (tempComponents.Count == 1)
-            {
-                if (tempComponents[0].Length > 3)
-                {
-                    return (baseCall: tempComponents[0], callPrefix: tempComponents[0]);
-                }
-                else
-                {
-                    // HA4
+                case 0:
+                    //"NX7F ES AK7ID/P"
                     return (baseCall: "", callPrefix: "");
-                    //throw new Exception("Invalid call sign format.");
-                }
+                case 1:
+                    // WAW/4 ==> 4
+                    if (tempComponents[0].Length > 3)
+                    {
+                        return (baseCall: tempComponents[0], callPrefix: tempComponents[0]);
+                    }
+                    else
+                    {
+                        // HA4
+                        return (baseCall: "", callPrefix: "");
+                    }
+                case 2:
+                    callAndprefix = ProcessPrefix(tempComponents);
+                    break;
+                default:
+                    // EA5/SM/YBJ, IK1/DH2SAQIK1/DH2SAQ
+                    return (baseCall: "", callPrefix: "");
             }
-
-            if (tempComponents.Count > 2)
-            {
-                //throw new Exception("Call sign has too many components.");
-                // EA5/SM/YBJ, IK1/DH2SAQIK1/DH2SAQ
-                return (baseCall: "", callPrefix: "");
-            }
-
-            callAndprefix = ProcessPrefix(tempComponents);
 
             return callAndprefix;
         }
