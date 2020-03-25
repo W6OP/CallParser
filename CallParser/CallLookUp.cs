@@ -22,7 +22,7 @@ namespace W6OP.CallParser
         private ConcurrentBag<CallSignInfo> HitList;
         private readonly Dictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
         private SortedDictionary<int, CallSignInfo> Adifs { get; set; }
-        private readonly Dictionary<string, int> PortablePrefixes;
+        private readonly Dictionary<string, List<int>> PortablePrefixes;
         //private readonly string[] _OneLetterSeries = { "B", "F", "G", "I", "K", "M", "N", "R", "W", "2" };
         private readonly string[] SingleCharPrefixes = { "F", "G", "I", "M", "R", "W" };
         // added "R" as a beacon for R/IK3OTW
@@ -317,9 +317,9 @@ namespace W6OP.CallParser
             }
 
             // is this a portable prefix?
-            // ensure second component is valid
             if (PortablePrefixes.ContainsKey(component0 + "/"))
             {
+                // ensure second component is valid
                 if (IsCallSignOrPrefix(component1) != ComponentType.Unknown)
                 {
                     return (baseCall: component1, prefix: component0 + "/");
@@ -347,6 +347,16 @@ namespace W6OP.CallParser
 
             component0Type = IsCallSignOrPrefix(component0);
             component1Type = IsCallSignOrPrefix(component1);
+
+            /*
+             //resolve ambiguities
+              FStructure := StringReplace(FStructure, 'UU', 'PC', [rfReplaceAll]);
+              FStructure := StringReplace(FStructure, 'CU', 'CP', [rfReplaceAll]);
+              FStructure := StringReplace(FStructure, 'UC', 'PC', [rfReplaceAll]);
+              FStructure := StringReplace(FStructure, 'UP', 'CP', [rfReplaceAll]);
+              FStructure := StringReplace(FStructure, 'PU', 'PC', [rfReplaceAll]);
+              FStructure := StringReplace(FStructure, 'U',   'C', [rfReplaceAll]); 
+             */
 
             switch (state)
             {
@@ -567,7 +577,7 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// First see if we can find a match for the full prefix. I don't use the call in the tuple
+        /// First see if we can find a match for the full prefix. I don't use the base call in the tuple
         /// but pass it in for future use. If there is not a match start removing characters from the 
         /// back until we can find a match.
         /// Once we have a match we will see if we can find a child that is a better match. Also get the
@@ -582,25 +592,20 @@ namespace W6OP.CallParser
             string baseCall = callStructure.baseCall;
 
             // check for portable prefixes
-            // this will catch G/, W/, W4/, VU@@/ VU4@@/
+            // this will catch G/, W/, W4/, VU@@/ VU4@@/ VK9/
             if (PortablePrefixes.ContainsKey(searchTerm))
             {
-                CallSignInfo callSignInfo = Adifs[PortablePrefixes[searchTerm]];
-                CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
-                callSignInfoCopy.CallSign = fullCall;
-                callSignInfoCopy.BaseCall = baseCall;
-                callSignInfoCopy.SearchPrefix = searchTerm; // this needs correction
-                HitList.Add(callSignInfoCopy);
-
-                if (callSignInfo.Kind != PrefixKind.DXCC)
+                List<int> entities = PortablePrefixes[searchTerm];
+                foreach (int entity in entities)
                 {
-                    callSignInfo = Adifs[callSignInfo.DXCC];
-                    CallSignInfo callSignInfoCopyDxcc = callSignInfo.ShallowCopy();
-                    callSignInfoCopyDxcc.CallSign = fullCall;
-                    callSignInfoCopyDxcc.BaseCall = baseCall;
-                    callSignInfoCopyDxcc.SearchPrefix = searchTerm; // this needs correction
-                    HitList.Add(callSignInfoCopyDxcc);
+                    CallSignInfo callSignInfo = Adifs[entity];
+                    CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
+                    callSignInfoCopy.CallSign = fullCall;
+                    callSignInfoCopy.BaseCall = baseCall;
+                    callSignInfoCopy.SearchPrefix = searchTerm; // this needs correction
+                    HitList.Add(callSignInfoCopy);
                 }
+  
                 return;
             }
 

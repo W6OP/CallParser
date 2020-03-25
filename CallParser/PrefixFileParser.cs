@@ -35,7 +35,7 @@ namespace W6OP.CallParser
         public Dictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
         public SortedDictionary<int, CallSignInfo> Adifs { get; set; }
         public List<Admin> Admins;
-        public Dictionary<string, int> PortablePrefixes;
+        public Dictionary<string, List<int>> PortablePrefixes;
 
         /// <summary>
         /// Private fields.
@@ -53,7 +53,7 @@ namespace W6OP.CallParser
             CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>();
             Adifs = new SortedDictionary<int, CallSignInfo>();
             Admins = new List<Admin>();
-            PortablePrefixes = new Dictionary<string, int>();
+            PortablePrefixes = new Dictionary<string, List<int>>();
     }
 
         /// <summary>
@@ -164,7 +164,13 @@ namespace W6OP.CallParser
                             // used in CallLookUp to identify portable prefixes
                             if (!PortablePrefixes.ContainsKey(mask)) 
                             {
-                                PortablePrefixes.Add(mask, callSignInfo.DXCC); 
+                                PortablePrefixes.Add(mask, new List<int> { callSignInfo.DXCC }); 
+                            }
+                            else
+                            {
+                                // VK9/ has multiple DXCC numbers - 35, 150...
+                                List<int> entry = PortablePrefixes[mask];
+                                entry.Add(callSignInfo.DXCC);
                             }
                         }
 
