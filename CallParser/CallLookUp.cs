@@ -242,6 +242,11 @@ namespace W6OP.CallParser
                     //"NX7F ES AK7ID/P"  "IZ3IJG /QRP" - spaces and a reject prefix
                     return (baseCall: "", prefix: "");
                 case 1:
+                    // 6/W7UIO - 8/P - 2/P
+                    if (tempComponents[0].Length == 1 && tempComponents[0].All(char.IsDigit))
+                    {
+                        return (baseCall: "", prefix: "");
+                    }
                     if (tempComponents[0].Length > 2 && stringTypes.First().sType == StringTypes.Valid)
                     {
                         // ON3RX(/P) - CN2DA(/QRP) - B1Z
@@ -254,8 +259,13 @@ namespace W6OP.CallParser
                         return (baseCall: "", prefix: "");
                     }
                 case 2:
-                    // everything good HB9/OE6POD
-                    return ProcessPrefix(tempComponents);
+                    // 1/D
+                    if (tempComponents[0].Length >= 3 || tempComponents[1].Length >= 3)
+                    {
+                        // everything good HB9/OE6POD
+                        return ProcessPrefix(tempComponents);
+                    }
+                    return (baseCall: "", prefix: "");
                 default:
                     // EA5/SM/YBJ, IK1/DH2SAQIK1/DH2SAQ, 9M6/LA/XK, WQ14YBNEQL1QX/MEQU1QX/MN
                     return (baseCall: "", prefix: "");
@@ -277,7 +287,6 @@ namespace W6OP.CallParser
             ComponentType state = ComponentType.Unknown;
             string component0;
             string component1;
-            string result;
             ComponentType component0Type;
             ComponentType component1Type;
 
@@ -287,34 +296,7 @@ namespace W6OP.CallParser
             // ValidStructures = ':C:C#:C#M:C#T:CM:CM#:CMM:CMP:CMT:CP:CPM:CT:PC:PCM:PCT:';
 
             // this will change W6OP/4 to W4OP and R44YETI/5 to R5YETI
-            try
-            {
-                switch (components)
-                {
-                    case List<string> _ when component0.Length == 1 && int.TryParse(component0, out int _):
-                        result = new String(component1.Where(x => Char.IsDigit(x)).ToArray());
-                        if (result != "") // 1/D
-                        {
-                            component1 = component1.Replace(result, component0);
-                            component0 = component1;
-                        }
-                        break;
-                    case List<string> _ when component1.Length == 1 && int.TryParse(component1, out int _):
-                        result = new String(component0.Where(x => Char.IsDigit(x)).ToArray());
-                        if (result != "") // SVFMF/4
-                        {
-                            component0 = component0.Replace(result, component1);
-                            component1 = component0;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-            catch (Exception ex) // WAW/4
-            {
-                throw;
-            }
+            _ = ReplacecallArea(components, ref component0, ref component1);
 
             // is this a portable prefix?
             if (PortablePrefixes.ContainsKey(component0 + "/"))
@@ -336,7 +318,8 @@ namespace W6OP.CallParser
                 if (IsCallSignOrPrefix(component0) != ComponentType.Unknown)
                 {
                     return (baseCall: component0, prefix: component1 + "/");
-                } else
+                }
+                else
                 {
                     return (baseCall: "", prefix: "");
                 }
@@ -440,6 +423,49 @@ namespace W6OP.CallParser
             }
 
             return (baseCall: component0, prefix: component1);
+        }
+
+        /// <summary>
+        /// Change W6OP/4 to W4OP and R44YETI/5 to R5YETI
+        /// </summary>
+        /// <param name="components"></param>
+        /// <param name="component0"></param>
+        /// <param name="component1"></param>
+        /// <returns></returns>
+        private static string ReplacecallArea(List<string> components, ref string component0, ref string component1)
+        {
+            string result = "";
+            try
+            {
+                switch (components)
+                {
+                    // THE FIRST CHARACTER SHOULD NEVER BE A SINGLE DIGIT
+                    //case List<string> _ when component0.Length == 1 && int.TryParse(component0, out int _):
+                    //    result = new String(component1.Where(x => Char.IsDigit(x)).ToArray());
+                    //    if (result != "") // 1/D
+                    //    {
+                    //        component1 = component1.Replace(result, component0);
+                    //        component0 = component1;
+                    //    }
+                    //    break;
+                    case List<string> _ when component1.Length == 1 && int.TryParse(component1, out int _):
+                        result = new String(component0.Where(x => Char.IsDigit(x)).ToArray());
+                        if (result != "") // SVFMF/4
+                        {
+                            component0 = component0.Replace(result, component1);
+                            component1 = component0;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex) // WAW/4
+            {
+                throw;
+            }
+
+            return result;
         }
 
         /// <summary>
