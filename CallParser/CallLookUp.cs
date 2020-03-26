@@ -664,7 +664,7 @@ namespace W6OP.CallParser
                 // for 4U1A and 4U1N
                 if (searchTerm.Length > 3 && searchTerm.Substring(0, 2) == "4U")
                 {
-                    CheckAdditionalDXCCEntities(callStructure, fullCall);
+                    CheckAdditionalDXCCEntities(callStructure, fullCall, searchTerm);
                 }
 
                 return;
@@ -705,12 +705,19 @@ namespace W6OP.CallParser
                 }
             }
 
+
+
             // THIS NEEDS MORE TESTING
             // THIS IS WAY TOO SLOW !!!
-            // could this be a DXCC only prefix kind? - (B1Z, B7M)
+            // could this be a DXCC only prefix kind? - (B1Z, B7M, DL6DH)
             if (string.IsNullOrEmpty(searchTerm))
             {
-                // CheckAdditionalDXCCEntities(callStructure, fullCall);
+                searchTerm = callStructure.prefix;
+                if (searchTerm.Length > 4)
+                {
+                    searchTerm = callStructure.prefix.Substring(0, 4);
+                }
+                CheckAdditionalDXCCEntities(callStructure, fullCall, searchTerm);
             }
         }
 
@@ -721,45 +728,33 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="callStructure"></param>
         /// <param name="fullCall"></param>
-        private void CheckAdditionalDXCCEntities((string baseCall, string prefix) callStructure, string fullCall)
+        private void CheckAdditionalDXCCEntities((string baseCall, string prefix) callStructure, string fullCall, string searchTerm)
         {
-            List<CallSignInfo> query = Adifs.Values.Where(q => q.PrefixKey.Contains(callStructure.prefix) && q.Kind != PrefixKind.InvalidPrefix).ToList();
+            List<CallSignInfo> query = Adifs.Values.Where(q => q.PrefixKey.Contains(searchTerm) && q.Kind != PrefixKind.InvalidPrefix).ToList(); // && q.Kind != PrefixKind.InvalidPrefix
 
-            //foreach (CallSignInfo callSignInfo in query)
-            //{
-            //    // trying to eliminate dupes - big performance hit, let user do it?
-            //    // I think this only happens with 4U1x calls
-            //    //if (HitList.Where(q => q.Country == callSignInfo.Country).ToList().Count == 0)
-            //    //{
-            //    CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
-            //    callSignInfoCopy.CallSign = fullCall;
-            //    callSignInfoCopy.BaseCall = callStructure.baseCall;
-            //    callSignInfoCopy.SearchPrefix = callStructure.prefix;
-            //    HitList.Add(callSignInfoCopy);
-            //    // }
-            //}
-
-            // trying to eliminate dupes - big performance hit, let user do it?
-            // I think this only happens with 4U1x calls
-            //if (HitList.Where(q => q.Country == callSignInfo.Country).ToList().Count == 0)
-            //{
-            foreach (CallSignInfo callSignInfoCopy in from CallSignInfo callSignInfo in query
-                                                      let callSignInfoCopy = callSignInfo.ShallowCopy()
-                                                      select callSignInfoCopy)
+            foreach (CallSignInfo callSignInfo in query)
             {
+                // trying to eliminate dupes - big performance hit, let user do it?
+                // I think this only happens with 4U1x calls
+                CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
                 callSignInfoCopy.CallSign = fullCall;
                 callSignInfoCopy.BaseCall = callStructure.baseCall;
                 callSignInfoCopy.SearchPrefix = callStructure.prefix;
                 HitList.Add(callSignInfoCopy);
-                //Console.WriteLine(fullCall);
+            }
+
+            if (query.Count > 0)
+            {
+                return;
             }
 
             // recurse for calls like VP8PJ where only the VP8 portion is used
             if (query.Count == 0)
             {
-                callStructure.prefix = callStructure.prefix.Remove(callStructure.prefix.Length - 1);
-                if (callStructure.prefix.Length == 0) { return; }
-                CheckAdditionalDXCCEntities(callStructure, fullCall);
+                searchTerm = searchTerm.Remove(searchTerm.Length - 1);
+                if (searchTerm.Length == 0) { return; }
+                CheckAdditionalDXCCEntities(callStructure, fullCall, searchTerm);
+                //Console.WriteLine(fullCall);
             }
         }
 
