@@ -108,7 +108,7 @@ namespace W6OP.CallParser
             // parallel foreach almost twice as fast but requires blocking collection
             // comment out for debugging - need to use non parallel foreach for debugging
             // _ = Parallel.ForEach(callSigns, callSign =>
-            foreach (string callSign in callSigns)
+            foreach (var callSign in callSigns)
             {
                 //if (ValidateCallSign(callSign))
                 //{
@@ -183,7 +183,7 @@ namespace W6OP.CallParser
             }
 
             // trim the call sign of invalid of unnecessary parts
-            callStructure = 
+            callStructure =
                 TrimCallSign(callSign.Split('/').ToList());
 
             if (callStructure.prefix == "" || callStructure.baseCall == "")
@@ -551,7 +551,7 @@ namespace W6OP.CallParser
             {
                 return StringTypes.Numeric;
             }
-           
+
             // N666
             if (HasExcessDigits(item))
             {
@@ -608,46 +608,40 @@ namespace W6OP.CallParser
 
             // check for portable prefixes
             // this will catch G/, W/, W4/, VU@@/ VU4@@/ VK9/
-            if (PortablePrefixes.ContainsKey(searchTerm))
+            if (PortablePrefixes.TryGetValue(searchTerm, out var entities))
             {
-                List<int> entities = PortablePrefixes[searchTerm];
-                foreach (int entity in entities)
+                foreach (var callSignInfoCopy in from int entity in entities
+                                                 let callSignInfo = Adifs[entity]
+                                                 let callSignInfoCopy = callSignInfo.ShallowCopy()
+                                                 select callSignInfoCopy)
                 {
-                    CallSignInfo callSignInfo = Adifs[entity];
-                    CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
                     callSignInfoCopy.CallSign = fullCall;
                     callSignInfoCopy.BaseCall = baseCall;
-                    callSignInfoCopy.SearchPrefix = searchTerm; // this needs correction
+                    callSignInfoCopy.SearchPrefix = searchTerm;// this needs correction
                     HitList.Add(callSignInfoCopy);
                 }
-  
+
                 return;
             }
 
-            // is the full call in the dictionary
-            if (CallSignDictionary.ContainsKey(searchTerm))
+            // is the full call in the dictionary, never will be more than one
+            if (CallSignDictionary.TryGetValue(searchTerm, out var lookup))
             {
-                List<CallSignInfo> query = CallSignDictionary[searchTerm].ToList();
-
-                foreach (var (callSignInfo, callSignInfoCopy) in from CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(searchTerm) && x.Kind != PrefixKind.InvalidPrefix)
-                                                                 let callSignInfoCopy = callSignInfo.ShallowCopy()
-                                                                 select (callSignInfo, callSignInfoCopy))
+                var callSignInfo = lookup.First();
+                var callSignInfoCopy = callSignInfo.ShallowCopy();
+                callSignInfoCopy.CallSign = fullCall;
+                callSignInfoCopy.BaseCall = baseCall;
+                callSignInfoCopy.SearchPrefix = searchTerm;
+                HitList.Add(callSignInfoCopy);
+               
+                if (callSignInfo.Kind != PrefixKind.DXCC)
                 {
-                    callSignInfoCopy.CallSign = fullCall;
-                    callSignInfoCopy.BaseCall = baseCall;
-                    callSignInfoCopy.SearchPrefix = searchTerm;
-                    HitList.Add(callSignInfoCopy);
-                    // this should be refactored to get it out of his foreach loop - 
-                    // is there ever more than one callSigninfo for the query?
-                    if (callSignInfo.Kind != PrefixKind.DXCC)
-                    {
-                        CallSignInfo callSignInfoDxcc = Adifs[Convert.ToInt32(query[0].DXCC)];
-                        CallSignInfo callSignInfoCopyDxcc = callSignInfoDxcc.ShallowCopy();
-                        callSignInfoCopyDxcc.CallSign = fullCall;
-                        callSignInfoCopyDxcc.BaseCall = baseCall;
-                        callSignInfoCopyDxcc.SearchPrefix = searchTerm; // this needs correction
-                        HitList.Add(callSignInfoCopyDxcc);
-                    }
+                    var callSignInfoDxcc = Adifs[Convert.ToInt32(callSignInfo.DXCC)];
+                    var callSignInfoCopyDxcc = callSignInfoDxcc.ShallowCopy();
+                    callSignInfoCopyDxcc.CallSign = fullCall;
+                    callSignInfoCopyDxcc.BaseCall = baseCall;
+                    callSignInfoCopyDxcc.SearchPrefix = searchTerm; // this needs correction ??
+                    HitList.Add(callSignInfoCopyDxcc);
                 }
 
                 // for 4U1A and 4U1N
@@ -662,24 +656,23 @@ namespace W6OP.CallParser
             if (searchTerm.Length > 1)
             {
                 searchTerm = searchTerm.Remove(searchTerm.Length - 1);
+
                 while (searchTerm != string.Empty)
                 {
-                    if (CallSignDictionary.ContainsKey(searchTerm))
+                    if (CallSignDictionary.TryGetValue(searchTerm, out var query))
                     {
-                        List<CallSignInfo> query = CallSignDictionary[searchTerm].ToList();
-
-                        foreach (var (callSignInfo, callSignInfoCopy) in from CallSignInfo callSignInfo in query.Where(x => x.PrefixKey.Contains(searchTerm) && x.Kind != PrefixKind.InvalidPrefix)
-                                                                         let callSignInfoCopy = callSignInfo.ShallowCopy()
-                                                                         select (callSignInfo, callSignInfoCopy))
+                        var callSignInfo = query.First();
+                        if (callSignInfo.Kind != PrefixKind.InvalidPrefix)
                         {
+                            var callSignInfoCopy = callSignInfo.ShallowCopy();
                             callSignInfoCopy.CallSign = fullCall;
                             callSignInfoCopy.BaseCall = baseCall;
                             callSignInfoCopy.SearchPrefix = searchTerm;
                             HitList.Add(callSignInfoCopy);
                             if (callSignInfo.Kind != PrefixKind.DXCC)
                             {
-                                CallSignInfo callSignInfoDxcc = Adifs[Convert.ToInt32(query[0].DXCC)];
-                                CallSignInfo callSignInfoCopyDxcc = callSignInfoDxcc.ShallowCopy();
+                                var callSignInfoDxcc = Adifs[Convert.ToInt32(callSignInfo.DXCC)];
+                                var callSignInfoCopyDxcc = callSignInfoDxcc.ShallowCopy();
                                 callSignInfoCopyDxcc.CallSign = fullCall;
                                 callSignInfoCopyDxcc.BaseCall = baseCall;
                                 callSignInfoCopyDxcc.SearchPrefix = searchTerm;
@@ -719,13 +712,14 @@ namespace W6OP.CallParser
         /// <param name="fullCall"></param>
         private void CheckAdditionalDXCCEntities((string baseCall, string prefix) callStructure, string fullCall, string searchTerm)
         {
+            // DoSomethingWith(dict.TryGetValue("key", out var x) ? x : defaultValue);
             List<CallSignInfo> query = Adifs.Values.Where(q => q.PrefixKey.Contains(searchTerm) && q.Kind != PrefixKind.InvalidPrefix).ToList(); // && q.Kind != PrefixKind.InvalidPrefix
 
             foreach (CallSignInfo callSignInfo in query)
             {
                 // trying to eliminate dupes - big performance hit, let user do it?
                 // I think this only happens with 4U1x calls
-                CallSignInfo callSignInfoCopy = callSignInfo.ShallowCopy();
+                var callSignInfoCopy = callSignInfo.ShallowCopy();
                 callSignInfoCopy.CallSign = fullCall;
                 callSignInfoCopy.BaseCall = callStructure.baseCall;
                 callSignInfoCopy.SearchPrefix = callStructure.prefix;
