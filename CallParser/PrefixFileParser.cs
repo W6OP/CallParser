@@ -162,15 +162,14 @@ namespace W6OP.CallParser
                         if (mask.EndsWith("/"))
                         {
                             // used in CallLookUp to identify portable prefixes
-                            if (!PortablePrefixes.ContainsKey(mask)) 
+                            if (PortablePrefixes.TryGetValue(mask, out var list))
                             {
-                                PortablePrefixes.Add(mask, new List<int> { callSignInfo.DXCC }); 
+                                // VK9/ has multiple DXCC numbers - 35, 150...
+                                list.Add(callSignInfo.DXCC);
                             }
                             else
                             {
-                                // VK9/ has multiple DXCC numbers - 35, 150...
-                                List<int> entry = PortablePrefixes[mask];
-                                entry.Add(callSignInfo.DXCC);
+                                PortablePrefixes.Add(mask, new List<int> { callSignInfo.DXCC });
                             }
                         }
 
@@ -185,7 +184,7 @@ namespace W6OP.CallParser
                             {
                                 if (CallSignDictionary[mask].First().DXCC != callSignInfo.DXCC)
                                 {
-                                    // this is to eliminate dupes 
+                                    // this is to eliminate dupes - only used one time
                                     CallSignDictionary[mask].UnionWith(callSignInfoSet);
                                 }
                             }

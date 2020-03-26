@@ -116,21 +116,10 @@ namespace W6OP.CallParser
                 {
                     ProcessCallSign(callSign.ToUpper());
                 }
-                //catch (ArgumentException aex) // "NX7F ES AK7ID/P"
-                //{
-                //    bury exception
-                //}
                 catch (Exception ex)
                 {
                     // bury exception
-                    //Console.WriteLine("Invalid call sign format: " + callSign);
                 }
-                //}
-                //else
-                //{
-                //    // don't throw, just ignore bad calls
-                //   // Console.WriteLine("Invalid call sign format: " + callSign);
-                //}
             }
             // );
 
