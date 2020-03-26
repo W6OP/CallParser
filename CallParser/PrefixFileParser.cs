@@ -156,7 +156,7 @@ namespace W6OP.CallParser
                     callSignInfoSet = new HashSet<CallSignInfo>();
                     foreach (string mask in primaryMaskList)
                     {
-                        callSignInfo.PrefixKey.Add(mask);
+                        callSignInfo.PrefixKey.Add(mask, new byte());
                         callSignInfoSet.Add(callSignInfo);
 
                         if (mask.EndsWith("/"))

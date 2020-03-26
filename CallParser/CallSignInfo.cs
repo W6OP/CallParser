@@ -9,7 +9,7 @@ namespace W6OP.CallParser
     {
         public CallSignInfo(System.Xml.Linq.XElement element)
         {
-            prefixKey = new HashSet<string>();
+            prefixKey = new Dictionary<string, byte>();
             BuildCallSignInfo(element);
         }
 
@@ -25,7 +25,7 @@ namespace W6OP.CallParser
         /// <summary>
         /// private fields
         /// </summary>
-        private HashSet<string> prefixKey; // key for making this object hashable for searches
+        private Dictionary<string, byte> prefixKey; // key for making this object hashable for searches
         private int dxcc;  //dxcc_entity
         private int wae;
         private string iota;
@@ -61,7 +61,7 @@ namespace W6OP.CallParser
         /// <summary>
         /// public properties
         /// </summary>
-        public HashSet<string> PrefixKey { get => prefixKey; set => prefixKey = value; }
+        public Dictionary<string, byte> PrefixKey { get => prefixKey; set => prefixKey = value; }
         public int DXCC => dxcc;
         public int WAE { get => wae; }
         public string Iota { get => iota; }

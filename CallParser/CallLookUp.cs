@@ -107,8 +107,8 @@ namespace W6OP.CallParser
 
             // parallel foreach almost twice as fast but requires blocking collection
             // comment out for debugging - need to use non parallel foreach for debugging
-            // _ = Parallel.ForEach(callSigns, callSign =>
-            foreach (var callSign in callSigns)
+             _ = Parallel.ForEach(callSigns, callSign =>
+            //foreach (var callSign in callSigns)
             {
                 //if (ValidateCallSign(callSign))
                 //{
@@ -121,7 +121,7 @@ namespace W6OP.CallParser
                     // bury exception
                 }
             }
-            // );
+             );
 
             return HitList.AsEnumerable();
         }
@@ -712,32 +712,45 @@ namespace W6OP.CallParser
         /// <param name="fullCall"></param>
         private void CheckAdditionalDXCCEntities((string baseCall, string prefix) callStructure, string fullCall, string searchTerm)
         {
-            // DoSomethingWith(dict.TryGetValue("key", out var x) ? x : defaultValue);
-            List<CallSignInfo> query = Adifs.Values.Where(q => q.PrefixKey.Contains(searchTerm) && q.Kind != PrefixKind.InvalidPrefix).ToList(); // && q.Kind != PrefixKind.InvalidPrefix
+            //var query = Adifs.Values.Where(q => q.PrefixKey.ContainsKey(searchTerm)).ToList();
 
-            foreach (CallSignInfo callSignInfo in query)
+            //foreach (CallSignInfo callSignInfo in query)
+            //{
+            //    var callSignInfoCopy = callSignInfo.ShallowCopy();
+            //    callSignInfoCopy.CallSign = fullCall;
+            //    callSignInfoCopy.BaseCall = callStructure.baseCall;
+            //    callSignInfoCopy.SearchPrefix = callStructure.prefix;
+            //    HitList.Add(callSignInfoCopy);
+            //}
+
+            // this is major performance enhancement, but is it accurate?
+            if (PortablePrefixes.TryGetValue(searchTerm + "/", out var entities))
             {
-                // trying to eliminate dupes - big performance hit, let user do it?
-                // I think this only happens with 4U1x calls
-                var callSignInfoCopy = callSignInfo.ShallowCopy();
-                callSignInfoCopy.CallSign = fullCall;
-                callSignInfoCopy.BaseCall = callStructure.baseCall;
-                callSignInfoCopy.SearchPrefix = callStructure.prefix;
-                HitList.Add(callSignInfoCopy);
+                foreach (var callSignInfoCopy in from int entity in entities
+                                                 let callSignInfo = Adifs[entity]
+                                                 let callSignInfoCopy = callSignInfo.ShallowCopy()
+                                                 select callSignInfoCopy)
+                {
+                    callSignInfoCopy.CallSign = fullCall;
+                    callSignInfoCopy.BaseCall = callStructure.baseCall;
+                    callSignInfoCopy.SearchPrefix = searchTerm;// this needs correction
+                    HitList.Add(callSignInfoCopy);
+                }
+
+                return;
             }
 
-            if (query.Count > 0)
+            if (entities != null && entities.Count > 0)
             {
                 return;
             }
 
             // recurse for calls like VP8PJ where only the VP8 portion is used
-            if (query.Count == 0)
+            if (entities == null)
             {
                 searchTerm = searchTerm.Remove(searchTerm.Length - 1);
                 if (searchTerm.Length == 0) { return; }
                 CheckAdditionalDXCCEntities(callStructure, fullCall, searchTerm);
-                //Console.WriteLine(fullCall);
             }
         }
 
