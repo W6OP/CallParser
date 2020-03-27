@@ -56,7 +56,7 @@ namespace W6OP.CallParser
             {
                 ProcessCallSign(callSign.ToUpper());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 throw new Exception("Invalid call sign format.");
             }
@@ -107,8 +107,8 @@ namespace W6OP.CallParser
 
             // parallel foreach almost twice as fast but requires blocking collection
             // comment out for debugging - need to use non parallel foreach for debugging
-             _ = Parallel.ForEach(callSigns, callSign =>
-            //foreach (var callSign in callSigns)
+            //_ = Parallel.ForEach(callSigns, callSign =>
+            foreach (var callSign in callSigns)
             {
                 //if (ValidateCallSign(callSign))
                 //{
@@ -121,7 +121,7 @@ namespace W6OP.CallParser
                     // bury exception
                 }
             }
-             );
+            //);
 
             return HitList.AsEnumerable();
         }
@@ -169,7 +169,7 @@ namespace W6OP.CallParser
         /// <param name="callSign"></param>
         private void ProcessCallSign(string callSign)
         {
-            (string baseCall, string prefix) callStructure;
+            (string baseCall, string prefix, CompositeType composite) callStructure;
 
             // strip leading or trailing "/"  /W6OP/
             if (callSign.First() == '/')
@@ -186,7 +186,7 @@ namespace W6OP.CallParser
             callStructure =
                 TrimCallSign(callSign.Split('/').ToList());
 
-            if (callStructure.prefix == "" || callStructure.baseCall == "")
+            if (callStructure.composite == CompositeType.Invalid)
             {
                 return;
             }
@@ -200,14 +200,14 @@ namespace W6OP.CallParser
         /// <param name="components"></param>
         /// <param name="callSign"></param>
         /// <returns>(string call, string prefix)</returns>
-        private (string baseCall, string prefix) TrimCallSign(List<string> components)
+        private (string baseCall, string prefix, CompositeType composite) TrimCallSign(List<string> components)
         {
             List<string> tempComponents = new List<string>();
 
             // call is way too long
             if (components.Count > 4)
             {
-                return (baseCall: "", prefix: "");
+                return (baseCall: components[0], prefix: components[1], CompositeType.Invalid);
             }
 
             List<(string call, StringTypes sType)> stringTypes =
@@ -216,7 +216,7 @@ namespace W6OP.CallParser
             // if any portions are obviously invalid don't bother processing it
             if (stringTypes.Where(t => t.sType == StringTypes.Invalid).ToList().Count > 0)
             {
-                return (baseCall: "", prefix: "");
+                return (baseCall: components[0], prefix: components[1], CompositeType.Invalid);
             }
 
             // strip off /MM /QRP etc. but not MM/ as it is a valid prifix for Scotland
@@ -229,23 +229,23 @@ namespace W6OP.CallParser
             {
                 case 0:
                     //"NX7F ES AK7ID/P"  "IZ3IJG /QRP" - spaces and a reject prefix
-                    return (baseCall: "", prefix: "");
+                    return (baseCall: "", prefix: "", CompositeType.Invalid);
                 case 1:
                     // 6/W7UIO - 8/P - 2/P
                     if (tempComponents[0].Length == 1 && tempComponents[0].All(char.IsDigit))
                     {
-                        return (baseCall: "", prefix: "");
+                        return (baseCall: "", prefix: "", CompositeType.Invalid);
                     }
                     if (tempComponents[0].Length > 2 && stringTypes.First().sType == StringTypes.Valid)
                     {
                         // ON3RX(/P) - CN2DA(/QRP) - B1Z
-                        return (baseCall: tempComponents[0], prefix: tempComponents[0]);
+                        return (baseCall: tempComponents[0], prefix: "", CompositeType.CallText); ;
 
                     }
                     else
                     {
                         // 7N(/QRP) - 41(/R) - 9A(/R)
-                        return (baseCall: "", prefix: "");
+                        return (baseCall: "", prefix: "", CompositeType.Invalid);
                     }
                 case 2:
                     // 1/D
@@ -254,10 +254,10 @@ namespace W6OP.CallParser
                         // everything good HB9/OE6POD
                         return ProcessPrefix(tempComponents);
                     }
-                    return (baseCall: "", prefix: "");
+                    return (baseCall: "", prefix: "", CompositeType.Invalid);
                 default:
                     // EA5/SM/YBJ, IK1/DH2SAQIK1/DH2SAQ, 9M6/LA/XK, WQ14YBNEQL1QX/MEQU1QX/MN
-                    return (baseCall: "", prefix: "");
+                    return (baseCall: "", prefix: "", CompositeType.Invalid);
             }
         }
 
@@ -271,7 +271,7 @@ namespace W6OP.CallParser
         /// <param name="callSign"></param>
         /// <param name="components"></param>
         /// <returns>(string call, string prefix)</returns>
-        private (string baseCall, string prefix) ProcessPrefix(List<string> components)
+        private (string baseCall, string prefix, CompositeType composite) ProcessPrefix(List<string> components)
         {
             ComponentType state = ComponentType.Unknown;
             string component0;
@@ -284,38 +284,9 @@ namespace W6OP.CallParser
 
             // ValidStructures = ':C:C#:C#M:C#T:CM:CM#:CMM:CMP:CMT:CP:CPM:CT:PC:PCM:PCT:';
 
-            // this will change W6OP/4 to W4OP and R44YETI/5 to R5YETI
-            _ = ReplacecallArea(components, ref component0, ref component1);
-
-            // is this a portable prefix?
-            if (PortablePrefixes.ContainsKey(component0 + "/"))
-            {
-                // ensure second component is valid
-                if (IsCallSignOrPrefix(component1) != ComponentType.Unknown)
-                {
-                    return (baseCall: component1, prefix: component0 + "/");
-                }
-                else
-                {
-                    return (baseCall: "", prefix: "");
-                }
-            }
-
-            // ensure first component is valid
-            if (PortablePrefixes.ContainsKey(component1 + "/"))
-            {
-                if (IsCallSignOrPrefix(component0) != ComponentType.Unknown)
-                {
-                    return (baseCall: component0, prefix: component1 + "/");
-                }
-                else
-                {
-                    return (baseCall: "", prefix: "");
-                }
-            }
 
             // valid single character prefix
-            if (component0.Length == 1 && SingleCharPrefixes.Contains(component0)) { return (baseCall: component1, prefix: component0); }
+            if (component0.Length == 1 && SingleCharPrefixes.Contains(component0)) { return (baseCall: component0, prefix: component1, CompositeType.CallPrefix); }
 
             component0Type = IsCallSignOrPrefix(component0);
             component1Type = IsCallSignOrPrefix(component1);
@@ -335,83 +306,86 @@ namespace W6OP.CallParser
                 // CallSign and Prefix
                 // C - P 
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Prefix:
-                    return (baseCall: component0, prefix: component1);
+                    return (baseCall: component0, prefix: component1, composite: CompositeType.CallPrefix);
 
                 // P - C 
                 case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.CallSign:
-                    return (baseCall: component1, prefix: component0);
+                    return (baseCall: component0, prefix: component1, composite: CompositeType.PrefixCall);
 
                 // C - C BU - BY - VU4 - VU7
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.CallSign:
                     if (component0.First() == 'B')
                     {
-                        return (baseCall: component1, prefix: component0);
+                        return (baseCall: component0, prefix: component1, composite: CompositeType.CallPrefix);
                     }
                     else if (component0.StartsWith("VU4") || component0.StartsWith("VU7"))
                     {
-                        return (baseCall: component1, prefix: component0);
+                        return (baseCall: component0, prefix: component1, composite: CompositeType.CallPrefix);
                     }
-                    break;
+                    else
+                    {
+                        return (baseCall: component0, prefix: component1, composite: CompositeType.CallCall);
+                    }
 
                 // Prefix and Prefix
                 // P - P
                 case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.Prefix:
-                    return (baseCall: component0, prefix: component1);
+                    return (baseCall: component0, prefix: component1, composite: CompositeType.PrefixPrefix);
 
                 // CallOrPrefix
                 // CorP - CorP
                 case ComponentType _ when component0Type == ComponentType.CallOrPrefix && component1Type == ComponentType.CallOrPrefix:
-                    return (baseCall: component0, prefix: component1);
+                    return (baseCall: component0, prefix: component1, composite: CompositeType.CallCall);
 
                 // C - CorP
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.CallOrPrefix:
-                    return (baseCall: component0, prefix: component1);
+                    return (baseCall: component0, prefix: component1, composite: CompositeType.CallCall);
 
                 // P - CorP
                 case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.CallOrPrefix:
-                    return (baseCall: component1, prefix: component0);
+                    return (baseCall: component1, prefix: component0, composite: CompositeType.CallPrefix);
 
                 // CorP - C
                 case ComponentType _ when component0Type == ComponentType.CallOrPrefix && component1Type == ComponentType.CallSign:
-                    return (baseCall: component1, prefix: component0);
+                    return (baseCall: component1, prefix: component0, composite: CompositeType.PrefixCall);
 
                 // CorP - P
-                case ComponentType _ when component0Type == ComponentType.CallOrPrefix && component1Type == ComponentType.Prefix:
-                    return (baseCall: component0, prefix: component1);
+                //case ComponentType _ when component0Type == ComponentType.CallOrPrefix && component1Type == ComponentType.Prefix:
+                //    return (baseCall: component0, prefix: component1);
 
-                // CallSign, Prefix, CallOrprefix and None
-                // 'CU', 'CP'
-                case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Unknown:
-                    return (baseCall: component0, prefix: component0);
+                
+                // 'CU'
+                case ComponentType _ when component0Type == ComponentType.Unknown || component1Type == ComponentType.Unknown:
+                    return (baseCall: component0, prefix: component1, composite: CompositeType.Invalid);
 
-                // 'PU', 'PC'
-                case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.Unknown:
-                    return (baseCall: component0, prefix: component1);
+                //// 'PU', 'PC'
+                //case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.Unknown:
+                //    return (baseCall: component0, prefix: component1);
 
-                case ComponentType _ when component0Type == ComponentType.CallOrPrefix && component1Type == ComponentType.Unknown:
-                    return (baseCall: component0, prefix: component0);
+                //case ComponentType _ when component0Type == ComponentType.CallOrPrefix && component1Type == ComponentType.Unknown:
+                //    return (baseCall: component0, prefix: component0);
 
-                // None and CallSign, Prefix, CallOrprefix
-                // 'UC'
-                case ComponentType _ when component0Type == ComponentType.Unknown && component1Type == ComponentType.CallSign:
-                    return (baseCall: "", prefix: "");
-                //return (baseCall: component1, prefix: component1);
+                //// None and CallSign, Prefix, CallOrprefix
+                //// 'UC'
+                //case ComponentType _ when component0Type == ComponentType.Unknown && component1Type == ComponentType.CallSign:
+                //    return (baseCall: "", prefix: "");
+                ////return (baseCall: component1, prefix: component1);
 
-                // 'UP', 'CP'
-                case ComponentType _ when component0Type == ComponentType.Unknown && component1Type == ComponentType.Prefix:
-                    return (baseCall: component1, prefix: component1);
+                //// 'UP', 'CP'
+                //case ComponentType _ when component0Type == ComponentType.Unknown && component1Type == ComponentType.Prefix:
+                //    return (baseCall: component1, prefix: component1);
 
-                case ComponentType _ when component0Type == ComponentType.Unknown && component1Type == ComponentType.CallOrPrefix:
-                    return (baseCall: component1, prefix: component1);
+                //case ComponentType _ when component0Type == ComponentType.Unknown && component1Type == ComponentType.CallOrPrefix:
+                //    return (baseCall: component1, prefix: component1);
 
-                // 'UU', 'PC'
-                case ComponentType _ when component0Type == ComponentType.Unknown && component1Type == ComponentType.Unknown:
-                    return (baseCall: component0, prefix: component1);
+                //// 'UU', 'PC'
+                //case ComponentType _ when component0Type == ComponentType.Unknown && component1Type == ComponentType.Unknown:
+                //   return (baseCall: component0, prefix: component1);
                 default:
                     break;
             }
 
-            return (baseCall: component0, prefix: component1);
+            return (baseCall: component0, prefix: component1, composite: CompositeType.Invalid);
         }
 
         /// <summary>
@@ -482,7 +456,23 @@ namespace W6OP.CallParser
                     return ComponentType.CallSign;
 
                 case ComponentType _ when (validPrefixes.Contains(pattern)):
-                    return ComponentType.Prefix;
+                    // is it really a prefix though
+                    return  VerifyIfPrefix(candidate);
+                   
+                case ComponentType _ when (candidate.All(char.IsLetter)):
+                    return ComponentType.Text;
+                case ComponentType _ when (candidate.All(char.IsDigit)):
+                    return ComponentType.Numeric;
+            }
+
+            return ComponentType.Unknown;
+        }
+
+        private ComponentType VerifyIfPrefix(string candidate)
+        {
+            if (PortablePrefixes.ContainsKey(candidate + "/"))
+            {
+                return ComponentType.Prefix;
             }
 
             return ComponentType.Unknown;
@@ -588,7 +578,7 @@ namespace W6OP.CallParser
             }
 
 
-            return false;
+            return false; // GT3UCQ/PGT3UCQ/P
         }
 
         /// <summary>
@@ -601,47 +591,75 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="callOrPrefix"></param>
         /// /// <param name="fullCall"></param>
-        private void CollectMatches((string baseCall, string prefix) callStructure, string fullCall)
+        private void CollectMatches((string baseCall, string prefix, CompositeType composite) callStructure, string fullCall)
         {
-            string searchTerm = callStructure.prefix;
+            string prefix = callStructure.prefix;
             string baseCall = callStructure.baseCall;
+            string searchTerm = "";
+            string persistSearchTerm = "";
+            int[] portableDXCC = { }; // to eliminate dupe dxcc entries
+            CompositeType composite = callStructure.composite;
 
-            // check for portable prefixes
-            // this will catch G/, W/, W4/, VU@@/ VU4@@/ VK9/
-            if (PortablePrefixes.TryGetValue(searchTerm, out var entities))
+            switch (composite) // GT3UCQ/P
             {
-                foreach (var callSignInfoCopy in from int entity in entities
-                                                 let callSignInfo = Adifs[entity]
-                                                 let callSignInfoCopy = callSignInfo.ShallowCopy()
-                                                 select callSignInfoCopy)
-                {
-                    callSignInfoCopy.CallSign = fullCall;
-                    callSignInfoCopy.BaseCall = baseCall;
-                    callSignInfoCopy.SearchPrefix = searchTerm;// this needs correction
-                    HitList.Add(callSignInfoCopy);
-                }
-
-                return;
+                case CompositeType.Call:
+                    searchTerm = baseCall;
+                    break;
+                case CompositeType.CallText:
+                    searchTerm = baseCall;
+                    break;
+                case CompositeType.CallCall:
+                    searchTerm = baseCall; // may be incorrect
+                    break;
+                case CompositeType.CallPrefix:
+                    portableDXCC = CheckForPortablePrefix(callStructure: callStructure, fullCall, prefix + "/");
+                    searchTerm = baseCall;
+                    break;
+                case CompositeType.PrefixCall:
+                    portableDXCC = CheckForPortablePrefix(callStructure: callStructure, fullCall, baseCall + "/");
+                    searchTerm = prefix;
+                    break;
+                case CompositeType.PrefixPrefix:
+                    searchTerm = baseCall; // probably invalid
+                    break;
+                case CompositeType.CallDigit:
+                    //_ = ReplacecallArea(components, ref component0, ref component1);
+                    string result = new String(baseCall.Where(x => Char.IsDigit(x)).ToArray());
+                    searchTerm = baseCall.Replace(result, prefix); ;
+                    break;
+                //case CompositeType.Portable1:
+                //    break;
+                //case CompositeType.Portable2:
+                //    break;
+                case CompositeType.Invalid:
+                    break;
+                default:
+                    return;
             }
+
+            persistSearchTerm = searchTerm;
 
             // is the full call in the dictionary, never will be more than one
             if (CallSignDictionary.TryGetValue(searchTerm, out var lookup))
             {
                 var callSignInfo = lookup.First();
-                var callSignInfoCopy = callSignInfo.ShallowCopy();
-                callSignInfoCopy.CallSign = fullCall;
-                callSignInfoCopy.BaseCall = baseCall;
-                callSignInfoCopy.SearchPrefix = searchTerm;
-                HitList.Add(callSignInfoCopy);
-               
-                if (callSignInfo.Kind != PrefixKind.DXCC)
+                if (callSignInfo.Kind != PrefixKind.InvalidPrefix && portableDXCC.Contains(callSignInfo.DXCC))
                 {
-                    var callSignInfoDxcc = Adifs[Convert.ToInt32(callSignInfo.DXCC)];
-                    var callSignInfoCopyDxcc = callSignInfoDxcc.ShallowCopy();
-                    callSignInfoCopyDxcc.CallSign = fullCall;
-                    callSignInfoCopyDxcc.BaseCall = baseCall;
-                    callSignInfoCopyDxcc.SearchPrefix = searchTerm; // this needs correction ??
-                    HitList.Add(callSignInfoCopyDxcc);
+                    var callSignInfoCopy = callSignInfo.ShallowCopy();
+                    callSignInfoCopy.CallSign = fullCall;
+                    callSignInfoCopy.BaseCall = baseCall;
+                    callSignInfoCopy.SearchPrefix = searchTerm;
+                    HitList.Add(callSignInfoCopy);
+
+                    if (callSignInfo.Kind != PrefixKind.DXCC)
+                    {
+                        var callSignInfoDxcc = Adifs[Convert.ToInt32(callSignInfo.DXCC)];
+                        var callSignInfoCopyDxcc = callSignInfoDxcc.ShallowCopy();
+                        callSignInfoCopyDxcc.CallSign = fullCall;
+                        callSignInfoCopyDxcc.BaseCall = baseCall;
+                        callSignInfoCopyDxcc.SearchPrefix = searchTerm; // this needs correction ??
+                        HitList.Add(callSignInfoCopyDxcc);
+                    }
                 }
 
                 // for 4U1A and 4U1N
@@ -662,14 +680,14 @@ namespace W6OP.CallParser
                     if (CallSignDictionary.TryGetValue(searchTerm, out var query))
                     {
                         var callSignInfo = query.First();
-                        if (callSignInfo.Kind != PrefixKind.InvalidPrefix)
+                        if (callSignInfo.Kind != PrefixKind.InvalidPrefix && portableDXCC.Contains(callSignInfo.DXCC))
                         {
                             var callSignInfoCopy = callSignInfo.ShallowCopy();
                             callSignInfoCopy.CallSign = fullCall;
                             callSignInfoCopy.BaseCall = baseCall;
                             callSignInfoCopy.SearchPrefix = searchTerm;
                             HitList.Add(callSignInfoCopy);
-                            if (callSignInfo.Kind != PrefixKind.DXCC)
+                            if (callSignInfo.Kind != PrefixKind.DXCC) 
                             {
                                 var callSignInfoDxcc = Adifs[Convert.ToInt32(callSignInfo.DXCC)];
                                 var callSignInfoCopyDxcc = callSignInfoDxcc.ShallowCopy();
@@ -694,13 +712,40 @@ namespace W6OP.CallParser
             // could this be a DXCC only prefix kind? - (B1Z, B7M, DL6DH)
             if (string.IsNullOrEmpty(searchTerm))
             {
-                searchTerm = callStructure.prefix;
-                if (searchTerm.Length > 4)
+                //searchTerm = callStructure.baseCall;
+                if (persistSearchTerm.Length > 4)
                 {
-                    searchTerm = callStructure.prefix.Substring(0, 4);
+                    persistSearchTerm = persistSearchTerm.Substring(0, 4);
                 }
-                CheckAdditionalDXCCEntities(callStructure, fullCall, searchTerm);
+                CheckAdditionalDXCCEntities(callStructure, fullCall, persistSearchTerm);
             }
+        }
+
+        private int[] CheckForPortablePrefix((string baseCall, string prefix, CompositeType composite) callStructure, string fullCall, string searchTerm)
+        {
+            string prefix = callStructure.prefix;
+            string baseCall = callStructure.baseCall;
+            int[] dxcc = { };
+
+            // check for portable prefixes
+            // this will catch G/, W/, W4/, VU@@/ VU4@@/ VK9/
+            if (PortablePrefixes.TryGetValue(searchTerm, out var entities))
+            {
+                List<int> dxccList = new List<int>();
+                foreach (var callSignInfoCopy in from int entity in entities
+                                                 let callSignInfo = Adifs[entity]
+                                                 let callSignInfoCopy = callSignInfo.ShallowCopy()
+                                                 select callSignInfoCopy)
+                {
+                    callSignInfoCopy.CallSign = fullCall;
+                    callSignInfoCopy.BaseCall = baseCall;
+                    callSignInfoCopy.SearchPrefix = searchTerm;// this needs correction
+                    HitList.Add(callSignInfoCopy);
+                    dxccList.Add(callSignInfoCopy.DXCC);
+                }
+                dxcc = dxccList.ToArray();
+            }
+            return dxcc.ToArray();
         }
 
         /// <summary>
@@ -710,47 +755,53 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="callStructure"></param>
         /// <param name="fullCall"></param>
-        private void CheckAdditionalDXCCEntities((string baseCall, string prefix) callStructure, string fullCall, string searchTerm)
+        private void CheckAdditionalDXCCEntities((string baseCall, string prefix, CompositeType composite) callStructure, string fullCall, string searchTerm)
         {
-            //var query = Adifs.Values.Where(q => q.PrefixKey.ContainsKey(searchTerm)).ToList();
+            var query = Adifs.Values.Where(q => q.PrefixKey.ContainsKey(searchTerm)).ToList();
 
-            //foreach (CallSignInfo callSignInfo in query)
-            //{
-            //    var callSignInfoCopy = callSignInfo.ShallowCopy();
-            //    callSignInfoCopy.CallSign = fullCall;
-            //    callSignInfoCopy.BaseCall = callStructure.baseCall;
-            //    callSignInfoCopy.SearchPrefix = callStructure.prefix;
-            //    HitList.Add(callSignInfoCopy);
-            //}
+            foreach (CallSignInfo callSignInfo in query)
+            {
+                var callSignInfoCopy = callSignInfo.ShallowCopy();
+                callSignInfoCopy.CallSign = fullCall;
+                callSignInfoCopy.BaseCall = callStructure.baseCall;
+                callSignInfoCopy.SearchPrefix = callStructure.prefix;
+                HitList.Add(callSignInfoCopy);
+            }
 
             // this is major performance enhancement, but is it accurate?
-            if (PortablePrefixes.TryGetValue(searchTerm + "/", out var entities))
-            {
-                foreach (var callSignInfoCopy in from int entity in entities
-                                                 let callSignInfo = Adifs[entity]
-                                                 let callSignInfoCopy = callSignInfo.ShallowCopy()
-                                                 select callSignInfoCopy)
-                {
-                    callSignInfoCopy.CallSign = fullCall;
-                    callSignInfoCopy.BaseCall = callStructure.baseCall;
-                    callSignInfoCopy.SearchPrefix = searchTerm;// this needs correction
-                    HitList.Add(callSignInfoCopy);
-                }
+            //if (PortablePrefixes.TryGetValue(searchTerm + "/", out var entities))
+            //{
+            //    foreach (var callSignInfoCopy in from int entity in entities
+            //                                     let callSignInfo = Adifs[entity]
+            //                                     let callSignInfoCopy = callSignInfo.ShallowCopy()
+            //                                     select callSignInfoCopy)
+            //    {
+            //        callSignInfoCopy.CallSign = fullCall;
+            //        callSignInfoCopy.BaseCall = callStructure.baseCall;
+            //        callSignInfoCopy.SearchPrefix = searchTerm;// this needs correction
+            //        HitList.Add(callSignInfoCopy);
+            //    }
 
-                return;
-            }
+            //    return;
+            //}
 
-            if (entities != null && entities.Count > 0)
-            {
-                return;
-            }
+            //if (entities != null && entities.Count > 0)
+            //{
+            //    return;
+            //}
 
             // recurse for calls like VP8PJ where only the VP8 portion is used
-            if (entities == null)
+            if (searchTerm.Length > 0)
             {
                 searchTerm = searchTerm.Remove(searchTerm.Length - 1);
                 if (searchTerm.Length == 0) { return; }
                 CheckAdditionalDXCCEntities(callStructure, fullCall, searchTerm);
+            }
+
+            // NEED TO FIND OUT IF I AM MISSING ANYTHING
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                Console.WriteLine(fullCall);
             }
         }
 

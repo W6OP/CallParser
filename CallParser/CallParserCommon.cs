@@ -24,7 +24,9 @@ namespace W6OP.CallParser
         CallSign,
         CallOrPrefix,
         Prefix,
-        Unknown
+        Text,
+        Numeric,
+        Unknown // ?
     }
 
     public enum StringTypes
@@ -33,6 +35,23 @@ namespace W6OP.CallParser
         Text,
         Invalid,
         Valid,
+    }
+
+    /// <summary>
+    /// ValidStructures = ':C:C#:C#M:C#T:CM:CM#:CMM:CMP:CMT:CP:CPM:CT:PC:PCM:PCT:';
+    /// </summary>
+    public enum CompositeType
+    {
+        Call,
+        CallCall,
+        CallPrefix,
+        PrefixCall,
+        PrefixPrefix,
+        CallDigit,
+        CallText,
+        Portable1,
+        Portable2,
+        Invalid
     }
 
     /// <summary>
