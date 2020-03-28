@@ -24,7 +24,7 @@ namespace W6OP.CallParser
         private SortedDictionary<int, CallSignInfo> Adifs { get; set; }
         private readonly Dictionary<string, List<int>> PortablePrefixes;
         //private readonly string[] _OneLetterSeries = { "B", "F", "G", "I", "K", "M", "N", "R", "W", "2" };
-        private readonly string[] SingleCharPrefixes = { "F", "G", "I", "M", "R", "W" };
+        private readonly string[] SingleCharPrefixes = { "F", "G", "I", "R", "W" }; // "M", M is not a single letter prefix
         // added "R" as a beacon for R/IK3OTW
         // "U" for U/K2KRG
         private readonly string[] RejectPrefixes = { "AG", "U", "R", "A", "B", "M", "P", "MM", "AM", "QR", "QRP", "QRPP", "LH", "LGT", "ANT", "WAP", "AAW", "FJL", "MOBILE" };
@@ -137,25 +137,25 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="callSign"></param>
         /// <returns></returns>
-        private bool ValidateCallSign(string callSign)
-        {
-            // check for empty or null string
-            if (string.IsNullOrEmpty(callSign)) { return false; }
+        //private bool ValidateCallSign(string callSign)
+        //{
+        //    // check for empty or null string
+        //    if (string.IsNullOrEmpty(callSign)) { return false; }
 
-            // calls must be at least 2 characters
-            if (callSign.Length < 2) { return false; }
+        //    // calls must be at least 2 characters
+        //    if (callSign.Length < 2) { return false; }
 
-            // check for a "-" ie: VE7CC-7, OH6BG-1, WZ7I-3 
-            if (callSign.IndexOf("-") != -1) { return false; }
+        //    // check for a "-" ie: VE7CC-7, OH6BG-1, WZ7I-3 
+        //    if (callSign.IndexOf("-") != -1) { return false; }
 
-            // can't be all numbers or all letters
-            if (callSign.All(char.IsDigit) || callSign.All(char.IsLetter)) { return false; }
+        //    // can't be all numbers or all letters
+        //    if (callSign.All(char.IsDigit) || callSign.All(char.IsLetter)) { return false; }
 
-            // look for at least one number character
-            if (!callSign.Any(char.IsDigit)) { return true; }
+        //    // look for at least one number character
+        //    if (!callSign.Any(char.IsDigit)) { return true; }
 
-            return true;
-        }
+        //    return true;
+        //}
 
         /// <summary>
         /// Process a call sign into its component parts ie: W6OP/W4
@@ -186,12 +186,10 @@ namespace W6OP.CallParser
             // trim the call sign of invalid of unnecessary parts
             callStructure = TrimCallSign(callSign.Split('/').ToList());
 
-            if (callStructure.composite == CompositeType.Invalid)
+            if (callStructure.composite != CompositeType.Invalid)
             {
-                return;
+                CollectMatches(callStructure, callSign);
             }
-
-            CollectMatches(callStructure, callSign);
         }
 
         /// <summary>
@@ -652,11 +650,11 @@ namespace W6OP.CallParser
         {
             string prefix = callStructure.prefix;
             string baseCall = callStructure.baseCall;
-            string searchTerm = "";
-            string persistSearchTerm = "";
-            int[] portableDXCC = { }; // to eliminate dupe dxcc entries
+            int[] portableDXCC = { }; 
             CompositeType composite = callStructure.composite;
 
+
+            string searchTerm;
             switch (composite) // GT3UCQ/P
             {
                 case CompositeType.Call:
@@ -669,38 +667,46 @@ namespace W6OP.CallParser
                     searchTerm = baseCall; // may be incorrect
                     break;
                 case CompositeType.CallPrefix:
-                    portableDXCC = CheckForPortablePrefix(callStructure: callStructure, fullCall, prefix + "/");
-                    searchTerm = baseCall;
-                    break;
-                case CompositeType.PrefixCall:
-                    portableDXCC = CheckForPortablePrefix(callStructure: callStructure, fullCall, baseCall + "/");
+                    portableDXCC = CheckForPortablePrefix(callStructure: callStructure, fullCall);
+                    // can this happen?
+                    if (portableDXCC.Length != 0)
+                    {
+                        return;
+                    }
                     searchTerm = prefix;
                     break;
+                case CompositeType.PrefixCall:
+                    portableDXCC = CheckForPortablePrefix(callStructure: callStructure, fullCall);
+                    // can this happen?
+                    if (portableDXCC.Length == 0)
+                    {
+                        var f = 1;
+                    }
+                    return;
+                //searchTerm = prefix;
+                //break;
                 case CompositeType.PrefixPrefix:
                     searchTerm = baseCall; // probably invalid
                     break;
-                case CompositeType.CallDigit:
-                    //_ = ReplacecallArea(components, ref component0, ref component1);
-                    string result = new String(baseCall.Where(x => Char.IsDigit(x)).ToArray());
-                    searchTerm = baseCall.Replace(result, prefix); ;
-                    break;
-                //case CompositeType.Portable1:
+                // taken care of earlier - which is better ??
+                //case CompositeType.CallDigit:
+                //    //_ = ReplacecallArea(components, ref component0, ref component1);
+                //    string result = new String(baseCall.Where(x => Char.IsDigit(x)).ToArray());
+                //    searchTerm = baseCall.Replace(result, prefix); ;
                 //    break;
-                //case CompositeType.Portable2:
-                //    break;
-                case CompositeType.Invalid:
-                    break;
+
                 default:
+                    var a = 1;
                     return;
             }
 
-            persistSearchTerm = searchTerm;
+            string persistSearchTerm = searchTerm;
 
             // is the full call in the dictionary, never will be more than one
             if (CallSignDictionary.TryGetValue(searchTerm, out var lookup))
             {
                 var callSignInfo = lookup.First();
-                if (callSignInfo.Kind != PrefixKind.InvalidPrefix && portableDXCC.Contains(callSignInfo.DXCC))
+                if (callSignInfo.Kind != PrefixKind.InvalidPrefix)
                 {
                     var callSignInfoCopy = callSignInfo.ShallowCopy();
                     callSignInfoCopy.CallSign = fullCall;
@@ -737,7 +743,7 @@ namespace W6OP.CallParser
                     if (CallSignDictionary.TryGetValue(searchTerm, out var query))
                     {
                         var callSignInfo = query.First();
-                        if (callSignInfo.Kind != PrefixKind.InvalidPrefix && portableDXCC.Contains(callSignInfo.DXCC))
+                        if (callSignInfo.Kind != PrefixKind.InvalidPrefix)
                         {
                             var callSignInfoCopy = callSignInfo.ShallowCopy();
                             callSignInfoCopy.CallSign = fullCall;
@@ -778,11 +784,28 @@ namespace W6OP.CallParser
             }
         }
 
-        private int[] CheckForPortablePrefix((string baseCall, string prefix, CompositeType composite) callStructure, string fullCall, string searchTerm)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="callStructure"></param>
+        /// <param name="fullCall"></param>
+        /// <param name="searchTerm"></param>
+        /// <returns></returns>
+        private int[] CheckForPortablePrefix((string baseCall, string prefix, CompositeType composite) callStructure, string fullCall)
         {
             string prefix = callStructure.prefix;
             string baseCall = callStructure.baseCall;
+            string searchTerm;
             int[] dxcc = { };
+
+            if (callStructure.composite == CompositeType.CallPrefix)
+            {
+                searchTerm = prefix + "/";
+            }
+            else
+            {
+                searchTerm = baseCall + "/";
+            }
 
             // check for portable prefixes
             // this will catch G/, W/, W4/, VU@@/ VU4@@/ VK9/
@@ -802,7 +825,7 @@ namespace W6OP.CallParser
                 }
                 dxcc = dxccList.ToArray();
             }
-            return dxcc.ToArray();
+            return dxcc;
         }
 
         /// <summary>
@@ -855,11 +878,11 @@ namespace W6OP.CallParser
                 CheckAdditionalDXCCEntities(callStructure, fullCall, searchTerm);
             }
 
-            // NEED TO FIND OUT IF I AM MISSING ANYTHING
-            if (string.IsNullOrEmpty(searchTerm))
-            {
-                Console.WriteLine(fullCall);
-            }
+            // NEED TO FIND OUT IF I AM MISSING ANYTHING - DEBUGGING ONLY
+            //if (string.IsNullOrEmpty(searchTerm))
+            //{
+            //    Console.WriteLine(fullCall);
+            //}
         }
 
         /// <summary>
