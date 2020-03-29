@@ -43,6 +43,7 @@ namespace W6OP.CallParser
         private string name;
         private string qth;
         private string comment;
+        private long callbookEntry;
         //public string CallbookEntry: Pointer; //todo: find out data sources
 
         private PrefixKind kind;     //kind
@@ -72,12 +73,16 @@ namespace W6OP.CallParser
         public string Latitude { get => latitude; }
         public string Longitude { get => longitude; }
         public CallSignFlag[] Flags { get => flags; }
-        public string Continent { get => continent; }
-        public string TimeZone { get => timeZone; }
-        public string Admin2 { get => admin2; }
-        public string Name { get => name; }
-        public string QTH { get => qth; }
-        public string Comment { get => comment; }
+
+        //from callbook -----------------------------
+        public string Continent { get => continent;  set => continent = value; }
+        public string TimeZone { get => timeZone; set => timeZone = value; }
+        public string Admin2 { get => admin2;  set => admin2 = value; }
+        public string Name { get => name; set => name = value; }
+        public string QTH { get => qth;  set => qth = value; }
+        public string Comment { get => comment;  set => comment = value; }
+        public long CallbookEntry { get => callbookEntry; set => callbookEntry = value; }
+        // ----------------------------------------
         public PrefixKind Kind { get => kind; }
         public string PortablePrefix { get => portablePrefix; set => portablePrefix = value; }
         public string SearchPrefix { get => searchPrefix; set => searchPrefix = value; }
@@ -88,6 +93,7 @@ namespace W6OP.CallParser
         public bool IsIota { get => isIota; }
         public string CallSign { get => fullCallSign; set => fullCallSign = value; }
         public string BaseCall { get => baseCall; set => baseCall = value; }
+       
 
         private void BuildCallSignInfo(XElement prefixXml)
         {
@@ -118,7 +124,7 @@ namespace W6OP.CallParser
                         break;
                     case "kind":
                         kind = EnumEx.GetValueFromDescription<PrefixKind>(currentValue);
-                        //initialize since DXCC kind does not have province 
+                        //initialize since DXCC.Kind does not have province field
                         //-prevent user having to check for null on a common field
                         if (kind == PrefixKind.DXCC)
                         {

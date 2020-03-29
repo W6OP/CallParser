@@ -34,7 +34,7 @@ namespace W6OP.CallParser
         /// </summary>
         public Dictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
         public SortedDictionary<int, CallSignInfo> Adifs { get; set; }
-        public List<Admin> Admins;
+        public SortedList<string, byte> Admins;
         public Dictionary<string, List<int>> PortablePrefixes;
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace W6OP.CallParser
             // preallocate space
             CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>();
             Adifs = new SortedDictionary<int, CallSignInfo>();
-            Admins = new List<Admin>();
+            Admins = new SortedList<string, byte>();
             PortablePrefixes = new Dictionary<string, List<int>>();
     }
 
@@ -68,7 +68,8 @@ namespace W6OP.CallParser
             // cleanup if running more than once
             CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>(1100000);
             Adifs = new SortedDictionary<int, CallSignInfo>();
-            Admins = new List<Admin>();
+            Admins = new SortedList<string, byte>();
+            PortablePrefixes = new Dictionary<string, List<int>>();
 
             Assembly assembly = Assembly.GetExecutingAssembly();
 
@@ -187,6 +188,14 @@ namespace W6OP.CallParser
                                     // this is to eliminate dupes - only used one time
                                     CallSignDictionary[mask].UnionWith(callSignInfoSet);
                                 }
+                            }
+                            if (callSignInfo.Kind == PrefixKind.Province)
+                            {
+                                if (!string.IsNullOrEmpty(callSignInfo.Admin1))
+                                {
+                                    Admins.Add(callSignInfo.Admin1, new byte());
+                                }
+
                             }
                         }
                     }
