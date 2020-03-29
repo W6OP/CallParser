@@ -858,6 +858,8 @@ namespace W6OP.CallParser
                 HitList.Add(callSignInfoCopy);
             }
 
+            // IF MULTIPLE HITS HERE NEED TO NARROW THEM DOWN - GB4BYR
+
             // this is major performance enhancement, but is it accurate?
             //if (PortablePrefixes.TryGetValue(searchTerm + "/", out var entities))
             //{

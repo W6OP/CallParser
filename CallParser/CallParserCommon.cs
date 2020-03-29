@@ -56,30 +56,32 @@ namespace W6OP.CallParser
     }
 
     /// <summary>
-    /// Valid kinds pf prefixes.
+    /// Valid kinds pf prefixes. These have int values as
+    /// I need to rank them at times to resolve conflicts.
     /// </summary>
     public enum PrefixKind
     {
         [Description("pfNone")]
-        None,
+        None = 0,
         [Description("pfDXCC")]
-        DXCC,
+        DXCC = 20,
         [Description("pfProvince")]
-        Province,
+        Province = 19,
         [Description("pfStation")]
-        Station,
-        [Description("pfDelDXCC")]
-        DelDXCC,
-        [Description("pfOldPrefix")]
-        OldPrefix,
-        [Description("pfNonDXCC")]
-        NonDXCC,
-        [Description("pfInvalidPrefix")]
-        InvalidPrefix,
-        [Description("pfDelProvince")]
-        DelProvince,
+        Station = 18,
         [Description("pfCity")]
-        City
+        City = 17,
+        [Description("pfDelDXCC")]
+        DelDXCC = 16,
+        [Description("pfOldPrefix")]
+        OldPrefix = 15,
+        [Description("pfNonDXCC")]
+        NonDXCC = 14,
+        [Description("pfInvalidPrefix")]
+        InvalidPrefix = 13,
+        [Description("pfDelProvince")]
+        DelProvince = 12
+        
     }
 
     /// <summary>
