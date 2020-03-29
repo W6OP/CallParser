@@ -108,8 +108,8 @@ namespace W6OP.CallParser
 
             // parallel foreach almost twice as fast but requires blocking collection
             // comment out for debugging - need to use non parallel foreach for debugging
-            //_ = Parallel.ForEach(callSigns, callSign =>
-            foreach (var callSign in callSigns)
+            _ = Parallel.ForEach(callSigns, callSign =>
+            //foreach (var callSign in callSigns)
             {
                 //if (ValidateCallSign(callSign))
                 //{
@@ -122,7 +122,7 @@ namespace W6OP.CallParser
                     // bury exception
                 }
             }
-            //);
+            );
 
             return HitList.AsEnumerable();
         }
@@ -254,7 +254,7 @@ namespace W6OP.CallParser
                     }
                     return (baseCall: "", prefix: "", CompositeType.Invalid);
                 default:
-                    Console.WriteLine(tempComponents[0] + " : " + tempComponents[1]);
+                    //Console.WriteLine(tempComponents[0] + " : " + tempComponents[1]);
                     // EA5/SM/YBJ, IK1/DH2SAQIK1/DH2SAQ, 9M6/LA/XK, WQ14YBNEQL1QX/MEQU1QX/MN
                     return (baseCall: "", prefix: "", CompositeType.Invalid);
             }
@@ -299,6 +299,10 @@ namespace W6OP.CallParser
 
             switch (state)
             {
+                // if either is invalid short cicuit all the checks and exit immediately
+                case ComponentType _ when component0Type == ComponentType.Invalid || component1Type == ComponentType.Invalid:
+                    return (baseCall: component0, prefix: component1, composite: CompositeType.Invalid);
+
                 // CP 
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Prefix:
                     return (baseCall: component0, prefix: component1, composite: CompositeType.CallPrefix);
@@ -328,7 +332,7 @@ namespace W6OP.CallParser
                     return (baseCall: component0, prefix: component1, composite: CompositeType.PrefixPrefix);
 
                 // CT
-                case ComponentType _ when component0Type == ComponentType.CallSign || component1Type == ComponentType.Text:
+                case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Text:
                     return (baseCall: component0, prefix: component1, composite: CompositeType.Call);
 
                 // C
@@ -339,19 +343,19 @@ namespace W6OP.CallParser
                     return (baseCall: component0, prefix: component1, composite: CompositeType.Call);
                 //--------- All the invalid ones could fall trough but I leave them here to debug with ------------------
                 // CU
-                case ComponentType _ when component0Type == ComponentType.Unknown || component1Type == ComponentType.Unknown:
+                case ComponentType _ when component0Type == ComponentType.Unknown && component1Type == ComponentType.Unknown:
                     return (baseCall: component0, prefix: component1, composite: CompositeType.Invalid);
                 
                 // TP
-                case ComponentType _ when component0Type == ComponentType.Text || component1Type == ComponentType.Prefix:
+                case ComponentType _ when component0Type == ComponentType.Text && component1Type == ComponentType.Prefix:
                     return (baseCall: component0, prefix: component1, composite: CompositeType.Invalid);
 
                 // TN
-                case ComponentType _ when component0Type == ComponentType.Text || component1Type == ComponentType.Numeric:
+                case ComponentType _ when component0Type == ComponentType.Text && component1Type == ComponentType.Numeric:
                     return (baseCall: component0, prefix: component1, composite: CompositeType.Invalid);
 
                 // NC
-                case ComponentType _ when component0Type == ComponentType.Numeric || component1Type == ComponentType.CallSign:
+                case ComponentType _ when component0Type == ComponentType.Numeric && component1Type == ComponentType.CallSign:
                     return (baseCall: component0, prefix: component1, composite: CompositeType.Invalid);
 
                 default:
@@ -427,7 +431,7 @@ namespace W6OP.CallParser
                     // now determine if prefix or call
                     if (VerifyIfPrefix(candidate) == ComponentType.Prefix)
                     {
-                       return  ComponentType.Prefix;
+                        return ComponentType.Prefix;
                     }
                     else
                     {
@@ -446,9 +450,18 @@ namespace W6OP.CallParser
 
                 case ComponentType _ when (candidate.All(char.IsDigit)):
                     return ComponentType.Numeric;
+                default:
+                    if (VerifyIfPrefix(candidate) == ComponentType.Prefix)
+                    {
+                        return ComponentType.Prefix;
+                    }
+                    else
+                    {
+                        return VerifyIfCallSign(candidate);
+                    }
             }
 
-            return ComponentType.Unknown;
+           // return ComponentType.Unknown;
         }
 
         /// <summary>
@@ -473,6 +486,7 @@ namespace W6OP.CallParser
 
         /// <summary>
         /// Strip the prefix and make sure there are numbers and letters left.
+        /// //one of "@","@@","#@","#@@" followed by 1-4 digits followed by 1-6 letters
         /// </summary>
         /// <param name="candidate"></param>
         /// <returns></returns>
@@ -502,26 +516,22 @@ namespace W6OP.CallParser
             }
 
             // count letters and  digits
-            while (count < candidate.Length)
+            while (candidate.Take(1).All(char.IsDigit))
             {
-                if (candidate[count] >= '0' && candidate[count] <= '9')
-                {
-                    digits++;
-                }
-
-                if (candidate[count] >= 'A' && candidate[count] <= 'Z')
-                {
-                    alphas++;
-                }
-                count++;
+                digits++;
+                candidate = candidate.Remove(0, 1);
+                if (candidate.Length == 0) { return ComponentType.Invalid; }
             }
 
-            if (alphas > 0 && alphas <= 6 && digits > 0 && digits <= 4)
+            if (digits > 0 && digits <= 4)
             {
-                return ComponentType.CallSign;
+                if (candidate.Length < 6 && candidate.All(char.IsLetter))
+                {
+                    return ComponentType.CallSign;
+                }
             }
 
-            return ComponentType.Unknown;
+            return ComponentType.Invalid;
         }
 
         /// <summary>
@@ -603,7 +613,7 @@ namespace W6OP.CallParser
             }
 
             // maybe can be longer ?
-            if (item.Length > 8)
+            if (item.Length > 13)
             {
                 return StringTypes.Invalid;
             }
@@ -879,10 +889,10 @@ namespace W6OP.CallParser
             }
 
             // NEED TO FIND OUT IF I AM MISSING ANYTHING - DEBUGGING ONLY
-            //if (string.IsNullOrEmpty(searchTerm))
-            //{
-            //    Console.WriteLine(fullCall);
-            //}
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                Console.WriteLine(fullCall);
+            }
         }
 
         /// <summary>

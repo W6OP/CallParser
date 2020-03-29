@@ -26,7 +26,8 @@ namespace W6OP.CallParser
         Prefix,
         Text,
         Numeric,
-        Unknown // ?
+        Unknown,
+        Invalid // ?
     }
 
     public enum StringTypes
