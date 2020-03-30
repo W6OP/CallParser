@@ -276,7 +276,7 @@ namespace CallParserTestor
                             if (DelphiCompoundKeyValuePairs.ContainsKey(oItem.CallSign))
                             {
                                 string country = DelphiCompoundKeyValuePairs[oItem.CallSign];
-                                if (country != oItem.Country && oItem.Kind != PrefixKind.Province) //   && oItem.Kind != PrefixKind.InvalidPrefix
+                                if (country != oItem.Country && oItem.Kind != PrefixKind.Province && string.IsNullOrEmpty(country)) //   && oItem.Kind != PrefixKind.InvalidPrefix
                                 {
                                     dt.Rows.Add(new object[] { oItem.CallSign, oItem.Kind, oItem.Country, "Delphi: " + country, "" });
                                 }

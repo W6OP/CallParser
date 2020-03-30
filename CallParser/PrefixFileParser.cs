@@ -34,7 +34,7 @@ namespace W6OP.CallParser
         /// </summary>
         public Dictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
         public SortedDictionary<int, CallSignInfo> Adifs { get; set; }
-        public SortedList<string, byte> Admins;
+        public SortedDictionary<string, List<CallSignInfo>> Admins; 
         public Dictionary<string, List<int>> PortablePrefixes;
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace W6OP.CallParser
             // preallocate space
             CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>();
             Adifs = new SortedDictionary<int, CallSignInfo>();
-            Admins = new SortedList<string, byte>();
+            Admins = new SortedDictionary<string, List<CallSignInfo>>();
             PortablePrefixes = new Dictionary<string, List<int>>();
     }
 
@@ -68,7 +68,7 @@ namespace W6OP.CallParser
             // cleanup if running more than once
             CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>(1100000);
             Adifs = new SortedDictionary<int, CallSignInfo>();
-            Admins = new SortedList<string, byte>();
+            Admins = new SortedDictionary<string, List<CallSignInfo>>();
             PortablePrefixes = new Dictionary<string, List<int>>();
 
             Assembly assembly = Assembly.GetExecutingAssembly();
@@ -189,13 +189,17 @@ namespace W6OP.CallParser
                                     CallSignDictionary[mask].UnionWith(callSignInfoSet);
                                 }
                             }
-                            if (callSignInfo.Kind == PrefixKind.Province)
-                            {
-                                if (!string.IsNullOrEmpty(callSignInfo.Admin1))
-                                {
-                                    Admins.Add(callSignInfo.Admin1, new byte());
-                                }
 
+                            if (callSignInfo.Kind == PrefixKind.Province && !string.IsNullOrEmpty(callSignInfo.Admin1))
+                            {
+                                if (Admins.TryGetValue(callSignInfo.Admin1, out var list))
+                                {
+                                    list.Add(callSignInfo);
+                                }
+                                else
+                                {
+                                    Admins.Add(callSignInfo.Admin1, new List<CallSignInfo> { callSignInfo });
+                                }
                             }
                         }
                     }

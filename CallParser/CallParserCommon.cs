@@ -81,12 +81,12 @@ namespace W6OP.CallParser
         InvalidPrefix = 13,
         [Description("pfDelProvince")]
         DelProvince = 12
-        
     }
 
     /// <summary>
     /// Flag to indicate the status of the call sign.
     /// </summary>
+    [Flags]
     public enum CallSignFlag
     {
         Invalid,
