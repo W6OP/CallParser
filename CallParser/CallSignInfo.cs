@@ -35,7 +35,7 @@ namespace W6OP.CallParser
         private string admin1;
         private string latitude;     //lat
         private string longitude;    //long
-        private CallSignFlag[] flags;
+        private CallSignFlag[] flags = new CallSignFlag[] { };
 
         private string continent;     //continent
         private string timeZone;     //time_zone
@@ -48,14 +48,14 @@ namespace W6OP.CallParser
 
         private PrefixKind kind;     //kind
         private string baseCall;
-        private string portablePrefix;   //what I determined the prefix to be - mostly for debugging
-        private string searchPrefix;
+        private string fullPrefix;
+        private string mainPrefix;
         private string country;       //country
         private string province;     //province 
 
         private string startDate;
         private string endDate;
-        private bool isIota;
+        private bool isIota = false;
 
         private string fullCallSign; // I put the call sign here only for pfDXCC types for reference/debugging
 
@@ -65,14 +65,14 @@ namespace W6OP.CallParser
         public Dictionary<string, byte> PrefixKey { get => prefixKey; set => prefixKey = value; }
         public int DXCC => dxcc;
         public int WAE { get => wae; }
-        public string Iota { get => iota; }
+        public string Iota { get => iota; set => iota = value; }
         public string WAP { get => wap; }
         public string Cq { get => cq; }
         public string Itu { get => itu; }
         public string Admin1 { get => admin1; }
         public string Latitude { get => latitude; }
         public string Longitude { get => longitude; }
-        public CallSignFlag[] Flags { get => flags; }
+        public CallSignFlag[] Flags { get => flags; set => flags = value; }
 
         //from callbook -----------------------------
         public string Continent { get => continent;  set => continent = value; }
@@ -84,20 +84,20 @@ namespace W6OP.CallParser
         public long CallbookEntry { get => callbookEntry; set => callbookEntry = value; }
         // ----------------------------------------
         public PrefixKind Kind { get => kind; }
-        public string PortablePrefix { get => portablePrefix; set => portablePrefix = value; }
-        public string SearchPrefix { get => searchPrefix; set => searchPrefix = value; }
         public string Country { get => country; }
         public string Province { get => province; }
         public string StartDate { get => startDate; }
         public string EndDate { get => endDate; }
-        public bool IsIota { get => isIota; }
+        public bool IsIota { get => isIota; set => isIota = value; }
         public string CallSign { get => fullCallSign; set => fullCallSign = value; }
         public string BaseCall { get => baseCall; set => baseCall = value; }
-       
+        public string FullPrefix { get => fullPrefix; set => fullPrefix = value; }
+        public string MainPrefix { get => mainPrefix; set => mainPrefix = value; }
 
         private void BuildCallSignInfo(XElement prefixXml)
         {
             string currentValue;
+           
 
             var points = prefixXml.Descendants("country");
             var point = points.FirstOrDefault();
@@ -111,15 +111,15 @@ namespace W6OP.CallParser
                     case "masks":
                     break;
                     case "label":
-                        portablePrefix = currentValue ?? "";
-                        if (currentValue.Contains("."))
+                        fullPrefix = currentValue ?? "";
+                        if (fullPrefix.Contains("."))
                         {
                             // get string after the "."
-                            searchPrefix = portablePrefix.Substring(portablePrefix.LastIndexOf('.') + 1);
+                            mainPrefix = fullPrefix.Substring(fullPrefix.LastIndexOf('.') + 1);
                         }
                         else
                         {
-                            searchPrefix = portablePrefix;
+                            mainPrefix = fullPrefix;
                         }
                         break;
                     case "kind":

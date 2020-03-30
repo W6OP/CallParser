@@ -146,6 +146,18 @@ namespace W6OP.CallParser
                 Adifs.Add(callSignInfo.WAE, callSignInfo);
             }
 
+            if (callSignInfo.Kind == PrefixKind.Province && !string.IsNullOrEmpty(callSignInfo.Admin1))
+            {
+                if (Admins.TryGetValue(callSignInfo.Admin1, out var list))
+                {
+                    list.Add(callSignInfo);
+                }
+                else
+                {
+                    Admins.Add(callSignInfo.Admin1, new List<CallSignInfo> { callSignInfo });
+                }
+            }
+
             foreach (XElement element in masks.Descendants())
             {
                 if (element.Value != "") // empty is usually a DXCC node
@@ -187,18 +199,6 @@ namespace W6OP.CallParser
                                 {
                                     // this is to eliminate dupes - only used one time
                                     CallSignDictionary[mask].UnionWith(callSignInfoSet);
-                                }
-                            }
-
-                            if (callSignInfo.Kind == PrefixKind.Province && !string.IsNullOrEmpty(callSignInfo.Admin1))
-                            {
-                                if (Admins.TryGetValue(callSignInfo.Admin1, out var list))
-                                {
-                                    list.Add(callSignInfo);
-                                }
-                                else
-                                {
-                                    Admins.Add(callSignInfo.Admin1, new List<CallSignInfo> { callSignInfo });
                                 }
                             }
                         }

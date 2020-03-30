@@ -209,6 +209,7 @@ namespace W6OP.CallParser
                 return (baseCall: components[0], prefix: components[1], CompositeType.Invalid);
             }
 
+            // eliminate the most obvious invalid call signs
             List<(string call, StringTypes sType)> stringTypes =
                 (components.Select(item => (call: item, sType: GetComponentType(item)))).ToList();
 
@@ -356,10 +357,7 @@ namespace W6OP.CallParser
 
                 // C
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Numeric:
-                    _ = ReplaceCallArea(components,
-                                        ref component0,
-                                        ref component1);
-                    return (baseCall: component0, prefix: component1, composite: CompositeType.Call);
+                    return (baseCall: component0, prefix: component1, composite: CompositeType.CallDigit);
                 //--------- All the invalid ones could fall trough but I leave them here to debug with ------------------
                 // CU
                 case ComponentType _ when component0Type == ComponentType.Unknown && component1Type == ComponentType.Unknown:
@@ -391,41 +389,41 @@ namespace W6OP.CallParser
         /// <param name="component0"></param>
         /// <param name="component1"></param>
         /// <returns></returns>
-        private static string ReplaceCallArea(List<string> components, ref string component0, ref string component1)
-        {
-            string result = "";
-            try
-            {
-                switch (components)
-                {
-                    // THE FIRST CHARACTER SHOULD NEVER BE A SINGLE DIGIT
-                    //case List<string> _ when component0.Length == 1 && int.TryParse(component0, out int _):
-                    //    result = new String(component1.Where(x => Char.IsDigit(x)).ToArray());
-                    //    if (result != "") // 1/D
-                    //    {
-                    //        component1 = component1.Replace(result, component0);
-                    //        component0 = component1;
-                    //    }
-                    //    break;
-                    case List<string> _ when component1.Length == 1 && int.TryParse(component1, out int _):
-                        result = new String(component0.Where(x => Char.IsDigit(x)).ToArray());
-                        if (result != "") // SVFMF/4
-                        {
-                            component0 = component0.Replace(result, component1);
-                            component1 = "";
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-            catch (Exception ex) // WAW/4
-            {
-                throw;
-            }
+        //private static string ReplaceCallArea(List<string> components, ref string component0, ref string component1)
+        //{
+        //    string result = "";
+        //    try
+        //    {
+        //        switch (components)
+        //        {
+        //            // THE FIRST CHARACTER SHOULD NEVER BE A SINGLE DIGIT
+        //            //case List<string> _ when component0.Length == 1 && int.TryParse(component0, out int _):
+        //            //    result = new String(component1.Where(x => Char.IsDigit(x)).ToArray());
+        //            //    if (result != "") // 1/D
+        //            //    {
+        //            //        component1 = component1.Replace(result, component0);
+        //            //        component0 = component1;
+        //            //    }
+        //            //    break;
+        //            case List<string> _ when component1.Length == 1 && int.TryParse(component1, out int _):
+        //                result = new String(component0.Where(x => Char.IsDigit(x)).ToArray());
+        //                if (result != "") // SVFMF/4
+        //                {
+        //                    component0 = component0.Replace(result, component1);
+        //                    component1 = "";
+        //                }
+        //                break;
+        //            default:
+        //                break;
+        //        }
+        //    }
+        //    catch (Exception ex) // WAW/4
+        //    {
+        //        throw;
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
         /// <summary>
         /// //one of "@","@@","#@","#@@" followed by 1-4 digits followed by 1-6 letters
@@ -596,7 +594,6 @@ namespace W6OP.CallParser
             return pattern;
         }
 
-
         /// <summary>
         /// Test for string only, int only, special chars. and other types. 
         /// Look at valid string types closely and determine if they really are valid (N666A)
@@ -631,7 +628,7 @@ namespace W6OP.CallParser
                     break;
 
                 // 37747
-                case string _ when item.All(char.IsDigit):
+                case string _ when item.Length > 1 && item.All(char.IsDigit):
                     return StringTypes.Invalid;
 
                 // N666
@@ -745,13 +742,25 @@ namespace W6OP.CallParser
             // is the full call in the dictionary, never will be more than one
             if (CallSignDictionary.TryGetValue(searchTerm, out var lookup))
             {
+                // now if it has a numeric suffix replace it and start again
+                if (composite == CompositeType.CallDigit)
+                {
+                    string result = new String(baseCall.Where(x => Char.IsDigit(x)).ToArray());
+                    searchTerm = baseCall.Replace(result, prefix);
+                    callStructure.composite = CompositeType.Call;
+                    callStructure.baseCall = searchTerm;
+                    callStructure.prefix = "";
+                    CollectMatches(callStructure, fullCall);
+                    return;
+                }
+
                 var callSignInfo = lookup.First();
                 if (callSignInfo.Kind != PrefixKind.InvalidPrefix)
                 {
                     var callSignInfoCopy = callSignInfo.ShallowCopy();
                     callSignInfoCopy.CallSign = fullCall;
                     callSignInfoCopy.BaseCall = baseCall;
-                    callSignInfoCopy.SearchPrefix = searchTerm;
+                    //callSignInfoCopy.SearchPrefix = searchTerm;
                     HitList.Add(callSignInfoCopy);
 
                     if (callSignInfo.Kind != PrefixKind.DXCC)
@@ -760,7 +769,7 @@ namespace W6OP.CallParser
                         var callSignInfoCopyDxcc = callSignInfoDxcc.ShallowCopy();
                         callSignInfoCopyDxcc.CallSign = fullCall;
                         callSignInfoCopyDxcc.BaseCall = baseCall;
-                        callSignInfoCopyDxcc.SearchPrefix = searchTerm; // this needs correction ??
+                        //callSignInfoCopyDxcc.SearchPrefix = searchTerm; // this needs correction ??
                         HitList.Add(callSignInfoCopyDxcc);
                     }
                 }
@@ -782,13 +791,24 @@ namespace W6OP.CallParser
                 {
                     if (CallSignDictionary.TryGetValue(searchTerm, out var query))
                     {
+                        // now if it has a numeric suffix replace it and start again
+                        if (composite == CompositeType.CallDigit)
+                        {
+                            string result = new String(baseCall.Where(x => Char.IsDigit(x)).ToArray());
+                            searchTerm = baseCall.Replace(result, prefix);
+                            callStructure.composite = CompositeType.Call;
+                            callStructure.baseCall = searchTerm;
+                            callStructure.prefix = "";
+                            CollectMatches(callStructure, fullCall);
+                            return;
+                        }
                         var callSignInfo = query.First();
                         if (callSignInfo.Kind != PrefixKind.InvalidPrefix)
                         {
                             var callSignInfoCopy = callSignInfo.ShallowCopy();
                             callSignInfoCopy.CallSign = fullCall;
                             callSignInfoCopy.BaseCall = baseCall;
-                            callSignInfoCopy.SearchPrefix = searchTerm;
+                            //callSignInfoCopy.SearchPrefix = searchTerm;
                             HitList.Add(callSignInfoCopy);
                             if (callSignInfo.Kind != PrefixKind.DXCC)
                             {
@@ -796,7 +816,7 @@ namespace W6OP.CallParser
                                 var callSignInfoCopyDxcc = callSignInfoDxcc.ShallowCopy();
                                 callSignInfoCopyDxcc.CallSign = fullCall;
                                 callSignInfoCopyDxcc.BaseCall = baseCall;
-                                callSignInfoCopyDxcc.SearchPrefix = searchTerm;
+                                //callSignInfoCopyDxcc.SearchPrefix = searchTerm;
                                 HitList.Add(callSignInfoCopyDxcc);
                             }
                         }
@@ -859,7 +879,7 @@ namespace W6OP.CallParser
                 {
                     callSignInfoCopy.CallSign = fullCall;
                     callSignInfoCopy.BaseCall = baseCall;
-                    callSignInfoCopy.SearchPrefix = searchTerm;// this needs correction
+                    //callSignInfoCopy.SearchPrefix = searchTerm;// this needs correction
                     HitList.Add(callSignInfoCopy);
                     dxccList.Add(callSignInfoCopy.DXCC);
                 }
@@ -884,7 +904,7 @@ namespace W6OP.CallParser
                 var callSignInfoCopy = callSignInfo.ShallowCopy();
                 callSignInfoCopy.CallSign = fullCall;
                 callSignInfoCopy.BaseCall = callStructure.baseCall;
-                callSignInfoCopy.SearchPrefix = callStructure.prefix;
+                //callSignInfoCopy.SearchPrefix = callStructure.prefix;
                 HitList.Add(callSignInfoCopy);
             }
 
@@ -900,6 +920,19 @@ namespace W6OP.CallParser
                 MergeHits(query);
                 return;
             }
+
+            // DO I NEED TO DO THIS HERE ??
+            // now if it has a numeric suffix replace it and start again
+            //if (composite == CompositeType.CallDigit)
+            //{
+            //    string result = new String(baseCall.Where(x => Char.IsDigit(x)).ToArray());
+            //    searchTerm = baseCall.Replace(result, prefix);
+            //    callStructure.composite = CompositeType.Call;
+            //    callStructure.baseCall = searchTerm;
+            //    callStructure.prefix = "";
+            //    CollectMatches(callStructure, fullCall);
+            //    return;
+            //}
 
 
 
