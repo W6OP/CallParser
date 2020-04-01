@@ -112,7 +112,7 @@ namespace W6OP.CallParser
     /// Flag to indicate the status of the call sign.
     /// </summary>
     [Flags]
-    public enum CallSignFlag
+    public enum CallSignFlags
     {
         Invalid,
         Maritime,

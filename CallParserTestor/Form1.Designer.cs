@@ -157,6 +157,7 @@
             this.ButtonSemiBatch.TabIndex = 11;
             this.ButtonSemiBatch.Text = "Semi Batch";
             this.ButtonSemiBatch.UseVisualStyleBackColor = true;
+            this.ButtonSemiBatch.Visible = false;
             this.ButtonSemiBatch.Click += new System.EventHandler(this.ButtonSemiBatch_Click);
             // 
             // ListViewResults
@@ -264,12 +265,13 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(507, 41);
+            this.button4.Location = new System.Drawing.Point(174, 90);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(75, 23);
+            this.button4.Size = new System.Drawing.Size(112, 27);
             this.button4.TabIndex = 18;
-            this.button4.Text = "button4";
+            this.button4.Text = "Load Delphi File";
             this.button4.UseVisualStyleBackColor = true;
+            this.button4.Visible = false;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // CheckBoxCompoundCalls

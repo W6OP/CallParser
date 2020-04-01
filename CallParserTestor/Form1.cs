@@ -131,11 +131,6 @@ namespace CallParserTestor
             IEnumerable<CallSignInfo> hitCollection;
             List<CallSignInfo> hitList;
 
-            // I3HG/SV7GUO
-            // RW3WR/W
-            // W/LE6
-            // JA/6
-
             if (_CallLookUp == null)
             {
                 MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -269,28 +264,29 @@ namespace CallParserTestor
                     dt.Columns.Add("Province");
                     dt.Columns.Add("DXCC");
 
-                    foreach (CallSignInfo oItem in hitCollection)
+                    foreach (CallSignInfo hit in hitCollection)
                     {
+                        // if the Delphi comparison file is loaded
                         if (DelphiCompoundKeyValuePairs != null)
                         {
-                            if (DelphiCompoundKeyValuePairs.ContainsKey(oItem.CallSign))
+                            if (DelphiCompoundKeyValuePairs.ContainsKey(hit.CallSign))
                             {
-                                string country = DelphiCompoundKeyValuePairs[oItem.CallSign];
-                                if (country != oItem.Country && oItem.Kind != PrefixKind.Province && string.IsNullOrEmpty(country)) //   && oItem.Kind != PrefixKind.InvalidPrefix
+                                string delphiCountry = DelphiCompoundKeyValuePairs[hit.CallSign];
+                                if (delphiCountry != hit.Country && hit.Kind != PrefixKind.Province) //  && hit.Kind != PrefixKind.Province && string.IsNullOrEmpty(delphiCountry)
                                 {
-                                    dt.Rows.Add(new object[] { oItem.CallSign, oItem.Kind, oItem.Country, "Delphi: " + country, "" });
+                                    dt.Rows.Add(new object[] { hit.CallSign, hit.Kind, hit.Country, "Delphi: " + delphiCountry, "" });
                                 }
                             }
                         }
                         else
                         {
-                            if (oItem.Kind == PrefixKind.DXCC ) // || oItem.Kind == PrefixKind.InvalidPrefix
+                            if (hit.Kind == PrefixKind.DXCC ) // || oItem.Kind == PrefixKind.InvalidPrefix
                             {
-                                dt.Rows.Add(new object[] { oItem.CallSign, oItem.Kind, oItem.Country, oItem.Province ?? "", oItem.DXCC.ToString() });
+                                dt.Rows.Add(new object[] { hit.CallSign, hit.Kind, hit.Country, hit.Province ?? "", hit.DXCC.ToString() });
                             }
                             else
                             {
-                                dt.Rows.Add(new object[] { "     ", oItem.Kind, oItem.Country, oItem.Province ?? "", oItem.DXCC.ToString() });
+                                dt.Rows.Add(new object[] { "     ", hit.Kind, hit.Country, hit.Province ?? "", hit.DXCC.ToString() });
                             }
                         }
                     }

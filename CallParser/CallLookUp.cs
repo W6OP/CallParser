@@ -247,7 +247,11 @@ namespace W6OP.CallParser
                         var callSignInfoCopyDxcc = callSignInfoDxcc.ShallowCopy();
                         callSignInfoCopyDxcc.CallSign = fullCall;
                         callSignInfoCopyDxcc.BaseCall = baseCall;
-                        //callSignInfoCopyDxcc.SearchPrefix = searchTerm; // this needs correction ??
+                        callSignInfoCopy.HitPrefix = searchTerm;
+                        //if(callStructure.CallStuctureType.ToString().Contains("Portable"))
+                        //{
+                        //    callSignInfoCopy.CallSignFlags.Add(CallSignFlags.Portable);
+                        //}
                         HitList.Add(callSignInfoCopyDxcc);
                     }
                 }
@@ -288,15 +292,21 @@ namespace W6OP.CallParser
                             callSignInfoCopy.CallSign = fullCall;
                             callSignInfoCopy.BaseCall = baseCall;
                             callSignInfoCopy.HitPrefix = searchTerm;
+                            //if (callStructure.CallStuctureType.ToString().Contains("Portable"))
+                            //{
+                            //    callSignInfoCopy.CallSignFlags.Add(CallSignFlags.Portable);
+                            //}
                             HitList.Add(callSignInfoCopy);
                             if (callSignInfo.Kind != PrefixKind.DXCC)
                             {
-                                var callSignInfoDxcc = Adifs[Convert.ToInt32(callSignInfo.DXCC)];
-                                var callSignInfoCopyDxcc = callSignInfoDxcc.ShallowCopy();
-                                callSignInfoCopyDxcc.CallSign = fullCall;
-                                callSignInfoCopyDxcc.BaseCall = baseCall;
-                                callSignInfoCopy.HitPrefix = searchTerm;
-                                HitList.Add(callSignInfoCopyDxcc);
+                                if (Adifs[Convert.ToInt32(callSignInfo.DXCC)].Kind != PrefixKind.InvalidPrefix)
+                                {
+                                    var callSignInfoCopyDxcc = Adifs[Convert.ToInt32(callSignInfo.DXCC)].ShallowCopy();
+                                    callSignInfoCopyDxcc.CallSign = fullCall;
+                                    callSignInfoCopyDxcc.BaseCall = baseCall;
+                                    callSignInfoCopy.HitPrefix = searchTerm;
+                                    HitList.Add(callSignInfoCopyDxcc);
+                                }
                             }
                         }
 
@@ -355,6 +365,10 @@ namespace W6OP.CallParser
                     callSignInfoCopy.CallSign = fullCall;
                     callSignInfoCopy.BaseCall = baseCall;
                     callSignInfoCopy.HitPrefix = searchTerm;
+                    //if (callStructure.CallStuctureType.ToString().Contains("Portable"))
+                    //{
+                    //    callSignInfoCopy.CallSignFlags.Add(CallSignFlags.Portable);
+                    //}
                     HitList.Add(callSignInfoCopy);
                     dxccList.Add(callSignInfoCopy.DXCC);
                 }
@@ -400,6 +414,10 @@ namespace W6OP.CallParser
                     callSignInfoCopy.CallSign = fullCall;
                     callSignInfoCopy.BaseCall = callStructure.BaseCall;
                     callSignInfoCopy.HitPrefix = searchTerm;
+                    //if (callStructure.CallStuctureType.ToString().Contains("Portable"))
+                    //{
+                    //    callSignInfoCopy.CallSignFlags.Add(CallSignFlags.Portable);
+                    //}
                     HitList.Add(callSignInfoCopy);
                 }
 

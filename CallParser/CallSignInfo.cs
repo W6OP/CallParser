@@ -35,7 +35,7 @@ namespace W6OP.CallParser
         private string admin1;
         private string latitude;     //lat
         private string longitude;    //long
-        private CallSignFlag[] flags = new CallSignFlag[] { };
+        private List<CallSignFlags> callSignFlags = new List<CallSignFlags>();
 
         private string continent;     //continent
         private string timeZone;     //time_zone
@@ -73,7 +73,7 @@ namespace W6OP.CallParser
         public string Admin1 { get => admin1; }
         public string Latitude { get => latitude; }
         public string Longitude { get => longitude; }
-        public CallSignFlag[] Flags { get => flags; set => flags = value; }
+        
 
         //from callbook -----------------------------
         public string Continent { get => continent;  set => continent = value; }
@@ -95,6 +95,7 @@ namespace W6OP.CallParser
         public string FullPrefix { get => fullPrefix; set => fullPrefix = value; }
         public string MainPrefix { get => mainPrefix; set => mainPrefix = value; }
         public string HitPrefix { get => hitPrefix; set => hitPrefix = value; }
+        public List<CallSignFlags> CallSignFlags { get => callSignFlags; set => callSignFlags = value; }
 
         private void BuildCallSignInfo(XElement prefixXml)
         {
