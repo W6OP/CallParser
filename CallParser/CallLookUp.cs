@@ -647,8 +647,9 @@ namespace W6OP.CallParser
             // is the full call in the dictionary, never will be more than one
             if (CallSignDictionary.TryGetValue(searchTerm, out var lookup))
             {
+                var callSignInfo = lookup.First();
                 // now if it has a numeric suffix replace it and start again
-                if (callStructureType == CallStructureType.CallDigit)
+                if (callStructureType == CallStructureType.CallDigit && callSignInfo.Kind != PrefixKind.InvalidPrefix)
                 {
                     string result = new String(baseCall.Where(x => Char.IsDigit(x)).ToArray());
                     searchTerm = baseCall.Replace(result, prefix);
@@ -659,7 +660,7 @@ namespace W6OP.CallParser
                     return;
                 }
 
-                var callSignInfo = lookup.First();
+                //var callSignInfo = lookup.First();
                 if (callSignInfo.Kind != PrefixKind.InvalidPrefix)
                 {
                     var callSignInfoCopy = callSignInfo.ShallowCopy();
@@ -696,8 +697,9 @@ namespace W6OP.CallParser
                 {
                     if (CallSignDictionary.TryGetValue(searchTerm, out var query))
                     {
+                        var callSignInfo = query.First();
                         // now if it has a numeric suffix replace it and start again
-                        if (callStructureType == CallStructureType.CallDigit)
+                        if (callStructureType == CallStructureType.CallDigit && callSignInfo.Kind != PrefixKind.InvalidPrefix)
                         {
                             string result = new String(baseCall.Where(x => Char.IsDigit(x)).ToArray());
                             searchTerm = baseCall.Replace(result, prefix);
@@ -707,7 +709,7 @@ namespace W6OP.CallParser
                             CollectMatches(callStructure, fullCall);
                             return;
                         }
-                        var callSignInfo = query.First();
+                        //var callSignInfo = query.First();
                         if (callSignInfo.Kind != PrefixKind.InvalidPrefix)
                         {
                             var callSignInfoCopy = callSignInfo.ShallowCopy();
@@ -820,25 +822,11 @@ namespace W6OP.CallParser
 
             // IF MULTIPLE HITS HERE NEED TO NARROW THEM DOWN - GB4BYR
             // this may not be necessary
-            if (query.Count > 1)
-            {
-                MergeHits(query);
-                return;
-            }
-
-            // DO I NEED TO DO THIS HERE ??
-            // now if it has a numeric suffix replace it and start again
-            //if (composite == CompositeType.CallDigit)
+            //if (query.Count > 1)
             //{
-            //    string result = new String(baseCall.Where(x => Char.IsDigit(x)).ToArray());
-            //    searchTerm = baseCall.Replace(result, prefix);
-            //    callStructure.composite = CompositeType.Call;
-            //    callStructure.baseCall = searchTerm;
-            //    callStructure.prefix = "";
-            //    CollectMatches(callStructure, fullCall);
+            //    MergeHits(query);
             //    return;
             //}
-
 
 
             // this is major performance enhancement, but is it accurate?
