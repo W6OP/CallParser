@@ -50,6 +50,7 @@ namespace W6OP.CallParser
         private string baseCall;
         private string fullPrefix;
         private string mainPrefix;
+        private string hitPrefix;   // the search term that got the hit - used for debugging
         private string country;       //country
         private string province;     //province 
 
@@ -93,6 +94,7 @@ namespace W6OP.CallParser
         public string BaseCall { get => baseCall; set => baseCall = value; }
         public string FullPrefix { get => fullPrefix; set => fullPrefix = value; }
         public string MainPrefix { get => mainPrefix; set => mainPrefix = value; }
+        public string HitPrefix { get => hitPrefix; set => hitPrefix = value; }
 
         private void BuildCallSignInfo(XElement prefixXml)
         {
