@@ -110,8 +110,8 @@ namespace W6OP.CallParser
 
             // parallel foreach almost twice as fast but requires blocking collection
             // comment out for debugging - need to use non parallel foreach for debugging
-            _ = Parallel.ForEach(callSigns, callSign =>
-            //foreach (var callSign in callSigns)
+           // _ = Parallel.ForEach(callSigns, callSign =>
+            foreach (var callSign in callSigns)
             {
                 try
                 {
@@ -123,7 +123,7 @@ namespace W6OP.CallParser
                     // bury exception
                 }
             }
-            );
+            //);
 
             return HitList.AsEnumerable();
         }
@@ -177,44 +177,46 @@ namespace W6OP.CallParser
         {
             string prefix = callStructure.Prefix;
             string baseCall = callStructure.BaseCall;
-            int[] portableDXCC = { };
+        
             CallStructureType callStructureType = callStructure.CallStuctureType;
 
-            string searchTerm;
+            string searchTerm = baseCall;
 
             // ValidStructures = ':C:C#:C#M:C#T:CM:CM#:CMM:CMP:CMT:CP:CPM:CT:PC:PCM:PCT:';
 
             switch (callStructureType) // GT3UCQ/P
             {
                 case CallStructureType.CallPrefix:
-                   portableDXCC = CheckForPortablePrefix(callStructure: callStructure, fullCall);
-                    return;
+                    if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
+                    break;
                 case CallStructureType.PrefixCall:
-                    portableDXCC = CheckForPortablePrefix(callStructure: callStructure, fullCall);
-                    return;
+                    if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
+                    break;
                 case CallStructureType.CallPortablePrefix:
-                    portableDXCC = CheckForPortablePrefix(callStructure: callStructure, fullCall);
-                    return;
+                    if(CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
+                    break;
                 case CallStructureType.CallPrefixPortable:
-                    portableDXCC = CheckForPortablePrefix(callStructure: callStructure, fullCall);
-                    return;
+                    if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
+                    break;
                 case CallStructureType.PrefixCallPortable:
-                    portableDXCC = CheckForPortablePrefix(callStructure: callStructure, fullCall);
-                    return;
+                    if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
+                    break;
                 case CallStructureType.PrefixCallText:
-                    portableDXCC = CheckForPortablePrefix(callStructure: callStructure, fullCall);
-                    return;
+                    if(CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
+                    break;
                 default:
                     searchTerm = baseCall;
                     break;
             }
 
-            // only use the first 4 characters - faster search you would think
-            // but truncating the string has some overhead
-            // this section isn't a bottleneck however
-           // searchTerm = searchTerm.Length > 3 ? searchTerm.Substring(0, 4) : searchTerm;
-
             string persistSearchTerm = searchTerm;
+
+            // check the DXCC list first
+            if (CheckDXCCList(searchTerm, baseCall, fullCall))
+            {
+                // WHAT DO I DO ABOUT "M/" ???
+                return;
+            }
 
             // is the full call in the dictionary, never will be more than one
             if (CallSignDictionary.TryGetValue(searchTerm, out var lookup))
@@ -332,31 +334,68 @@ namespace W6OP.CallParser
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="searchTerm"></param>
+        /// <param name="baseCall"></param>
+        /// <param name="fullCall"></param>
+        /// <returns></returns>
+        private bool CheckDXCCList(string searchTerm, string baseCall, string fullCall)
+        {
+            var queryDxcc = Adifs.Values.Where(q => q.PrefixKey.ContainsKey(searchTerm)).ToList();
+
+            if (queryDxcc.Count == 1)
+            {
+                foreach (CallSignInfo callSignInfo in queryDxcc)
+                {
+                    var callSignInfoCopy = callSignInfo.ShallowCopy();
+                    callSignInfoCopy.CallSign = fullCall;
+                    callSignInfoCopy.BaseCall = baseCall;
+                    callSignInfoCopy.HitPrefix = searchTerm;
+                    HitList.Add(callSignInfoCopy);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        //bool found = false;
+        //foreach (KeyValuePair<int, CallSignInfo> entry in Adifs)
+        //{
+        //    if (entry.Value.PrefixKey.ContainsKey(searchTerm))
+        //    {
+        //        found = true;
+        //        var callSignInfoCopy = entry.Value.ShallowCopy();
+        //        callSignInfoCopy.CallSign = fullCall;
+        //        callSignInfoCopy.BaseCall = callStructure.BaseCall;
+        //        callSignInfoCopy.HitPrefix = searchTerm;
+        //        HitList.Add(callSignInfoCopy);
+        //    }
+        //}
+
+        //if (found)
+        //{
+        //    return;
+        //}
+
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="callStructure"></param>
         /// <param name="fullCall"></param>
         /// <param name="searchTerm"></param>
         /// <returns></returns>
-        private int[] CheckForPortablePrefix(CallStructure  callStructure, string fullCall)
+        private bool CheckForPortablePrefix(CallStructure  callStructure, string fullCall)
         {
             string prefix = callStructure.Prefix;
             string baseCall = callStructure.BaseCall;
-            string searchTerm;
-            int[] dxcc = { };
+     
 
-            if (callStructure.CallStuctureType == CallStructureType.CallPrefix)
-            {
-                searchTerm = prefix + "/";
-            }
-            else
-            {
-                searchTerm = baseCall + "/";
-            }
-
+            prefix = prefix + "/";
+           
             // check for portable prefixes
             // this will catch G/, W/, W4/, VU@@/ VU4@@/ VK9/
-            if (PortablePrefixes.TryGetValue(searchTerm, out var entities))
+            if (PortablePrefixes.TryGetValue(prefix, out var entities))
             {
-                List<int> dxccList = new List<int>();
                 foreach (var callSignInfoCopy in from int entity in entities
                                                  let callSignInfo = Adifs[entity]
                                                  let callSignInfoCopy = callSignInfo.ShallowCopy()
@@ -364,17 +403,16 @@ namespace W6OP.CallParser
                 {
                     callSignInfoCopy.CallSign = fullCall;
                     callSignInfoCopy.BaseCall = baseCall;
-                    callSignInfoCopy.HitPrefix = searchTerm;
+                    callSignInfoCopy.HitPrefix = prefix;
                     //if (callStructure.CallStuctureType.ToString().Contains("Portable"))
                     //{
                     //    callSignInfoCopy.CallSignFlags.Add(CallSignFlags.Portable);
                     //}
                     HitList.Add(callSignInfoCopy);
-                    dxccList.Add(callSignInfoCopy.DXCC);
                 }
-                dxcc = dxccList.ToArray();
+                return true;
             }
-            return dxcc;
+            return false;
         }
 
         /// <summary>

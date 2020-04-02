@@ -50,10 +50,10 @@ namespace W6OP.CallParser
         public PrefixFileParser()
         {
             // preallocate space
-            CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>();
-            Adifs = new SortedDictionary<int, CallSignInfo>();
-            Admins = new SortedDictionary<string, List<CallSignInfo>>();
-            PortablePrefixes = new Dictionary<string, List<int>>();
+            //CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>(1500000);
+            //Adifs = new SortedDictionary<int, CallSignInfo>();
+            //Admins = new SortedDictionary<string, List<CallSignInfo>>();
+            //PortablePrefixes = new Dictionary<string, List<int>>(200000);
     }
 
         /// <summary>
@@ -66,10 +66,10 @@ namespace W6OP.CallParser
         public void ParsePrefixFile(string prefixFilePath)
         {
             // cleanup if running more than once
-            CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>(1100000);
+            CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>(1500000);
             Adifs = new SortedDictionary<int, CallSignInfo>();
             Admins = new SortedDictionary<string, List<CallSignInfo>>();
-            PortablePrefixes = new Dictionary<string, List<int>>();
+            PortablePrefixes = new Dictionary<string, List<int>>(200000);
 
             Assembly assembly = Assembly.GetExecutingAssembly();
 
@@ -121,6 +121,7 @@ namespace W6OP.CallParser
             }
         }
 
+        Dictionary<string, List<CallSignInfo>> Duplicates = new Dictionary<string, List<CallSignInfo>>(); 
         /// <summary>
         /// Loop through all of the prefix nodes and expand the masks for each prefix.
         /// </summary>
@@ -164,9 +165,10 @@ namespace W6OP.CallParser
                 {
                     // expand the mask if it exists
                     primaryMaskList = ExpandMask(element.Value);
-
+                   
                     // this must be "new()" not Clear() or it clears existing objects in the CallSignDictionary
                     callSignInfoSet = new HashSet<CallSignInfo>();
+
                     foreach (string mask in primaryMaskList)
                     {
                         callSignInfo.PrefixKey.Add(mask, new byte());
