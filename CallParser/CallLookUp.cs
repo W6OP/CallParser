@@ -20,7 +20,7 @@ namespace W6OP.CallParser
     public class CallLookUp
     {
         private ConcurrentBag<CallSignInfo> HitList;
-        private readonly Dictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
+        private readonly ConcurrentDictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
         private SortedDictionary<int, CallSignInfo> Adifs { get; set; }
         private readonly Dictionary<string, List<int>> PortablePrefixes;
         //private readonly string[] _OneLetterSeries = { "B", "F", "G", "I", "K", "M", "N", "R", "W", "2" };

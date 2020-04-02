@@ -11,6 +11,7 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -32,7 +33,7 @@ namespace W6OP.CallParser
         /// <summary>
         /// Public fields.
         /// </summary>
-        public Dictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
+        public ConcurrentDictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
         public SortedDictionary<int, CallSignInfo> Adifs { get; set; }
         public SortedDictionary<string, List<CallSignInfo>> Admins; 
         public Dictionary<string, List<int>> PortablePrefixes;
@@ -66,7 +67,7 @@ namespace W6OP.CallParser
         public void ParsePrefixFile(string prefixFilePath)
         {
             // cleanup if running more than once
-            CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>(1500000);
+            CallSignDictionary = new ConcurrentDictionary<string, HashSet<CallSignInfo>>();
             Adifs = new SortedDictionary<int, CallSignInfo>();
             Admins = new SortedDictionary<string, List<CallSignInfo>>();
             PortablePrefixes = new Dictionary<string, List<int>>(200000);
@@ -189,11 +190,11 @@ namespace W6OP.CallParser
                         }
 
                         //all DXCC kinds are in ADIFS
-                        if (callSignInfo.Kind != PrefixKind.DXCC)
+                        if(callSignInfo.Kind != PrefixKind.DXCC && !mask.EndsWith("/"))
                         {
                             if (!CallSignDictionary.ContainsKey(mask))
                             {
-                                CallSignDictionary.Add(mask, callSignInfoSet);
+                                CallSignDictionary.TryAdd(mask, callSignInfoSet);
                             }
                             else
                             {
