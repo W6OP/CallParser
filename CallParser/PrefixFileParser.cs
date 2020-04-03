@@ -120,6 +120,7 @@ namespace W6OP.CallParser
                     }
                 }
             }
+            var a = 1;
         }
 
         Dictionary<string, List<CallSignInfo>> Duplicates = new Dictionary<string, List<CallSignInfo>>(); 
@@ -129,7 +130,7 @@ namespace W6OP.CallParser
         /// <param name="prefix"></param>
         private void BuildCallSignInfo(XElement prefix, CallSignInfo callSignInfo)
         {
-            HashSet<CallSignInfo> callSignInfoSet = new HashSet<CallSignInfo>();
+            //HashSet<CallSignInfo> callSignInfoSet = new HashSet<CallSignInfo>();
             HashSet<string> primaryMaskList = new HashSet<string>();
             IEnumerable<XElement> masks = prefix.Elements().Where(x => x.Name == "masks");
 
@@ -168,12 +169,12 @@ namespace W6OP.CallParser
                     primaryMaskList = ExpandMask(element.Value);
                    
                     // this must be "new()" not Clear() or it clears existing objects in the CallSignDictionary
-                    callSignInfoSet = new HashSet<CallSignInfo>();
+                    //callSignInfoSet = new HashSet<CallSignInfo>();
 
                     foreach (string mask in primaryMaskList)
                     {
                         callSignInfo.PrefixKey.Add(mask, new byte());
-                        callSignInfoSet.Add(callSignInfo);
+                        //callSignInfoSet.Add(callSignInfo);
 
                         if (mask.EndsWith("/"))
                         {
@@ -192,18 +193,27 @@ namespace W6OP.CallParser
                         //all DXCC kinds are in ADIFS
                         if(callSignInfo.Kind != PrefixKind.DXCC && !mask.EndsWith("/"))
                         {
-                            if (!CallSignDictionary.ContainsKey(mask))
+                            if (CallSignDictionary.TryGetValue(mask, out var list))
                             {
-                                CallSignDictionary.TryAdd(mask, callSignInfoSet);
+                                // VK9/ has multiple DXCC numbers - 35, 150...
+                                list.Add(callSignInfo);
                             }
                             else
                             {
-                                if (CallSignDictionary[mask].First().DXCC != callSignInfo.DXCC)
-                                {
-                                    // this is to eliminate dupes - only used one time
-                                    CallSignDictionary[mask].UnionWith(callSignInfoSet);
-                                }
+                                CallSignDictionary.TryAdd(mask, new HashSet<CallSignInfo> { callSignInfo });
                             }
+                            //if (!CallSignDictionary.ContainsKey(mask))
+                            //{
+                            //    CallSignDictionary.TryAdd(mask, callSignInfoSet);
+                            //}
+                            //else
+                            //{
+                            //    if (CallSignDictionary[mask].First().DXCC != callSignInfo.DXCC)
+                            //    {
+                            //        // this is to eliminate dupes - only used one time
+                            //        CallSignDictionary[mask].UnionWith(callSignInfoSet);
+                            //    }
+                            //}
                         }
                     }
                 }
@@ -411,16 +421,30 @@ namespace W6OP.CallParser
 
             string[] first = charsList.First();
 
-            // faster without Linq
-            if (charsList.Count > 0)
+            if (primaryMaskList.Count == 0)
             {
-                foreach (string prefix in primaryMaskList)
+                var a = 1;
+            }
+
+            try
+            {
+                // faster without Linq
+                if (charsList.Count > 0)
                 {
-                    foreach (string nextItem in first)
+                   // _ = Parallel.ForEach(primaryMaskList, prefix =>
+                    foreach (string prefix in primaryMaskList)
                     {
-                        tempList.Add(prefix + nextItem);
+                        foreach (string nextItem in first)
+                        {
+                            tempList.Add(prefix + nextItem);
+                        }
                     }
+                    //);
                 }
+            }
+            catch (Exception ex)
+            {
+                var b = ex.Message;
             }
 
             // this statement must be here before the stack is unwound
