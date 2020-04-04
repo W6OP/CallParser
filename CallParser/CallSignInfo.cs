@@ -9,7 +9,7 @@ namespace W6OP.CallParser
     {
         public CallSignInfo(System.Xml.Linq.XElement element)
         {
-            prefixKey = new Dictionary<string, byte>();
+            //prefixKey = new Dictionary<string, byte>();
             BuildCallSignInfo(element);
         }
 
@@ -63,7 +63,7 @@ namespace W6OP.CallParser
         /// <summary>
         /// public properties
         /// </summary>
-        public Dictionary<string, byte> PrefixKey { get => prefixKey; set => prefixKey = value; }
+        //public Dictionary<string, byte> PrefixKey { get => prefixKey; set => prefixKey = value; }
         public int DXCC => dxcc;
         public int WAE { get => wae; }
         public string Iota { get => iota; set => iota = value; }

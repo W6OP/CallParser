@@ -151,7 +151,7 @@
             // 
             // ButtonSemiBatch
             // 
-            this.ButtonSemiBatch.Location = new System.Drawing.Point(300, 123);
+            this.ButtonSemiBatch.Location = new System.Drawing.Point(466, 9);
             this.ButtonSemiBatch.Name = "ButtonSemiBatch";
             this.ButtonSemiBatch.Size = new System.Drawing.Size(154, 27);
             this.ButtonSemiBatch.TabIndex = 11;
@@ -265,13 +265,12 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(174, 90);
+            this.button4.Location = new System.Drawing.Point(300, 123);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(112, 27);
+            this.button4.Size = new System.Drawing.Size(154, 27);
             this.button4.TabIndex = 18;
-            this.button4.Text = "Load Delphi File";
+            this.button4.Text = "Load Delphi Compare File";
             this.button4.UseVisualStyleBackColor = true;
-            this.button4.Visible = false;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // CheckBoxCompoundCalls

@@ -122,7 +122,7 @@ namespace W6OP.CallParser
                     }
                 }
             }
-            var a = 1;
+            GC.Collect();
         }
 
         /// <summary>
@@ -168,7 +168,7 @@ namespace W6OP.CallParser
                 {
                     // expand the mask if it exists
                     primaryMaskList = ExpandMask(element.Value);
-
+                   
                     foreach (string mask in primaryMaskList)
                     {
                         // need to find the DXCC for this and add 
