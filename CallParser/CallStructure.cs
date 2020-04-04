@@ -19,7 +19,7 @@ namespace W6OP.CallParser
         public string Suffix1 { get; set; }
         public string Suffix2 { get; set; }
         //public ComponentType ComponentType { get; set; } = ComponentType.Invalid;
-        public CallStructureType CallStuctureType { get; set; } = CallStructureType.Invalid;
+        public CallStructureType CallStructureType { get; set; } = CallStructureType.Invalid;
         private readonly Dictionary<string, List<int>> PortablePrefixes;
 
         public CallStructure(string callSign, Dictionary<string, List<int>> portablePrefixes)
@@ -31,7 +31,7 @@ namespace W6OP.CallParser
 
         public CallStructure()
         {
-            CallStuctureType = CallStructureType.Invalid;
+            CallStructureType = CallStructureType.Invalid;
         }
 
         private void SplitCallSign(string callSign)
@@ -71,11 +71,11 @@ namespace W6OP.CallParser
                     if (VerifyIfCallSign(components[0]) == ComponentType.CallSign)
                     {
                         BaseCall = components[0];
-                        CallStuctureType = CallStructureType.Call;
+                        CallStructureType = CallStructureType.Call;
                     }
                     else
                     {
-                        CallStuctureType = CallStructureType.Invalid;
+                        CallStructureType = CallStructureType.Invalid;
                     }
                     break;
                 case 2:
@@ -113,24 +113,26 @@ namespace W6OP.CallParser
 
                 // CP 
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Prefix:
-                    CallStuctureType = CallStructureType.CallPrefix;
+                    CallStructureType = CallStructureType.CallPrefix;
                     return;
 
                 // PC 
                 case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.CallSign:
-                    CallStuctureType = CallStructureType.PrefixCall;
+                    CallStructureType = CallStructureType.PrefixCall;
+                    BaseCall = component1;
+                    Prefix = component0;
                     return;
 
                 // CC  ==> CP - check BU - BY - VU4 - VU7
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.CallSign:
                     if (component1.First() == 'B')
                     {
-                        CallStuctureType = CallStructureType.CallPrefix;
+                        CallStructureType = CallStructureType.CallPrefix;
                         return;
                     }
                     else if (component0.StartsWith("VU4") || component0.StartsWith("VU7"))
                     {
-                        CallStuctureType = CallStructureType.CallPrefix;
+                        CallStructureType = CallStructureType.CallPrefix;
                         return;
                     }
                     else
@@ -140,17 +142,17 @@ namespace W6OP.CallParser
 
                 // CT
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Text:
-                    CallStuctureType = CallStructureType.CallText;
+                    CallStructureType = CallStructureType.CallText;
                     return;
 
                 // C#
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Numeric:
-                    CallStuctureType = CallStructureType.CallDigit;
+                    CallStructureType = CallStructureType.CallDigit;
                     return;
 
                 // CM
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Portable:
-                    CallStuctureType = CallStructureType.CallPortable;
+                    CallStructureType = CallStructureType.CallPortable;
                     return;
 
                 default:
@@ -190,42 +192,48 @@ namespace W6OP.CallParser
 
                 // C#M 
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Numeric && component2Type == ComponentType.Portable:
-                    CallStuctureType = CallStructureType.CallDigitPortable;
+                    CallStructureType = CallStructureType.CallDigitPortable;
                     return;
 
                 // C#T 
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Numeric && component2Type == ComponentType.Text:
-                    CallStuctureType = CallStructureType.CallDigitText;
+                    CallStructureType = CallStructureType.CallDigitText;
                     return;
 
                 // CMM 
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Portable && component2Type == ComponentType.Portable:
-                    CallStuctureType = CallStructureType.CallPortablePortable;
+                    CallStructureType = CallStructureType.CallPortablePortable;
                         return;
                    
                 // CMP
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Portable && component2Type == ComponentType.Prefix:
-                    CallStuctureType = CallStructureType.CallPortablePrefix;
+                    BaseCall = component0;
+                    Prefix = component2;
+                    Suffix1 = component1;
+                    CallStructureType = CallStructureType.CallPortablePrefix;
                     return;
 
                 // CMT
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Portable && component2Type == ComponentType.Text:
-                    CallStuctureType = CallStructureType.CallPortableText;
+                    CallStructureType = CallStructureType.CallPortableText;
                     return;
 
                 // CPM
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Prefix && component2Type == ComponentType.Portable:
-                    CallStuctureType = CallStructureType.CallPrefixPortable;
+                    CallStructureType = CallStructureType.CallPrefixPortable;
                     return;
 
                 // PCM
                 case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.CallSign && component2Type == ComponentType.Portable:
-                    CallStuctureType = CallStructureType.CallPortable;
+                    BaseCall = component1;
+                    Prefix = component0;
+                    Suffix1 = component2;
+                    CallStructureType = CallStructureType.PrefixCallPortable;
                     return;
 
                 // PCT
                 case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.CallSign && component2Type == ComponentType.Text:
-                    CallStuctureType = CallStructureType.PrefixCallText;
+                    CallStructureType = CallStructureType.PrefixCallText;
                     return;
 
                 default:

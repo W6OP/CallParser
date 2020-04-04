@@ -33,9 +33,10 @@ namespace W6OP.CallParser
         /// <summary>
         /// Public fields.
         /// </summary>
-        public ConcurrentDictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
+        public Dictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
+        public Dictionary<string, List<int>> DXCCOnlyCallSignDictionary;
         public SortedDictionary<int, CallSignInfo> Adifs { get; set; }
-        public SortedDictionary<string, List<CallSignInfo>> Admins; 
+        public SortedDictionary<string, List<CallSignInfo>> Admins;
         public Dictionary<string, List<int>> PortablePrefixes;
 
         /// <summary>
@@ -55,7 +56,7 @@ namespace W6OP.CallParser
             //Adifs = new SortedDictionary<int, CallSignInfo>();
             //Admins = new SortedDictionary<string, List<CallSignInfo>>();
             //PortablePrefixes = new Dictionary<string, List<int>>(200000);
-    }
+        }
 
         /// <summary>
         /// Read the prefix fle. If a file path is passed in then read that file.
@@ -67,7 +68,8 @@ namespace W6OP.CallParser
         public void ParsePrefixFile(string prefixFilePath)
         {
             // cleanup if running more than once
-            CallSignDictionary = new ConcurrentDictionary<string, HashSet<CallSignInfo>>();
+            CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>(1000000);
+            DXCCOnlyCallSignDictionary = new Dictionary<string, List<int>>(10000000);
             Adifs = new SortedDictionary<int, CallSignInfo>();
             Admins = new SortedDictionary<string, List<CallSignInfo>>();
             PortablePrefixes = new Dictionary<string, List<int>>(200000);
@@ -123,7 +125,6 @@ namespace W6OP.CallParser
             var a = 1;
         }
 
-        Dictionary<string, List<CallSignInfo>> Duplicates = new Dictionary<string, List<CallSignInfo>>(); 
         /// <summary>
         /// Loop through all of the prefix nodes and expand the masks for each prefix.
         /// </summary>
@@ -167,15 +168,23 @@ namespace W6OP.CallParser
                 {
                     // expand the mask if it exists
                     primaryMaskList = ExpandMask(element.Value);
-                   
-                    // this must be "new()" not Clear() or it clears existing objects in the CallSignDictionary
-                    //callSignInfoSet = new HashSet<CallSignInfo>();
 
                     foreach (string mask in primaryMaskList)
                     {
-                        callSignInfo.PrefixKey.Add(mask, new byte());
-                        //callSignInfoSet.Add(callSignInfo);
+                        // need to find the DXCC for this and add 
+                        //if (callSignInfo.Kind == PrefixKind.DXCC)
+                        //{
+                        //    callSignInfo.PrefixKey.Add(mask, new byte());
+                        //}
+                        //else
+                        //{
+                        //    if (!Adifs[callSignInfo.DXCC].PrefixKey.ContainsKey(mask))
+                        //    {
+                        //        Adifs[callSignInfo.DXCC].PrefixKey.Add(mask, new byte());
+                        //    }
+                        //}
 
+                        // this is a portable prefix
                         if (mask.EndsWith("/"))
                         {
                             // used in CallLookUp to identify portable prefixes
@@ -191,7 +200,7 @@ namespace W6OP.CallParser
                         }
 
                         //all DXCC kinds are in ADIFS
-                        if(callSignInfo.Kind != PrefixKind.DXCC && !mask.EndsWith("/"))
+                        if (callSignInfo.Kind != PrefixKind.DXCC && !mask.EndsWith("/"))
                         {
                             if (CallSignDictionary.TryGetValue(mask, out var list))
                             {
@@ -200,20 +209,20 @@ namespace W6OP.CallParser
                             }
                             else
                             {
-                                CallSignDictionary.TryAdd(mask, new HashSet<CallSignInfo> { callSignInfo });
+                                CallSignDictionary.Add(mask, new HashSet<CallSignInfo> { callSignInfo });
                             }
-                            //if (!CallSignDictionary.ContainsKey(mask))
-                            //{
-                            //    CallSignDictionary.TryAdd(mask, callSignInfoSet);
-                            //}
-                            //else
-                            //{
-                            //    if (CallSignDictionary[mask].First().DXCC != callSignInfo.DXCC)
-                            //    {
-                            //        // this is to eliminate dupes - only used one time
-                            //        CallSignDictionary[mask].UnionWith(callSignInfoSet);
-                            //    }
-                            //}
+                        }
+                        else
+                        {
+                            if (DXCCOnlyCallSignDictionary.TryGetValue(mask, out var list))
+                            {
+                                // VK9/ has multiple DXCC numbers - 35, 150...
+                                list.Add(callSignInfo.DXCC);
+                            }
+                            else
+                            {
+                              DXCCOnlyCallSignDictionary.Add(mask, new List<int> { callSignInfo.DXCC });  
+                            }
                         }
                     }
                 }
@@ -382,7 +391,7 @@ namespace W6OP.CallParser
                 {
                     temp = expression.Substring(0, expression.IndexOf("["));
                     expression = expression.Remove(0, expression.IndexOf("["));
-                   // Linq is faster
+                    // Linq is faster
                     charsList.AddRange(temp.Select(x => new string[1] { x.ToString() }));
                     //foreach (char x in temp)
                     //{
@@ -431,7 +440,7 @@ namespace W6OP.CallParser
                 // faster without Linq
                 if (charsList.Count > 0)
                 {
-                   // _ = Parallel.ForEach(primaryMaskList, prefix =>
+                    // _ = Parallel.ForEach(primaryMaskList, prefix =>
                     foreach (string prefix in primaryMaskList)
                     {
                         foreach (string nextItem in first)
