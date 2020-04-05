@@ -225,7 +225,7 @@ namespace CallParserTestor
             try
             {
                 hitCollection = _CallLookUp.LookUpCall(_Records);
-                
+
                 UpdateLabels(hitCollection.Count());
                 // fill the datagrid
                 UpdateDataGrid(hitCollection);
@@ -280,7 +280,7 @@ namespace CallParserTestor
                         }
                         else
                         {
-                            if (hit.Kind == PrefixKind.DXCC ) // || oItem.Kind == PrefixKind.InvalidPrefix
+                            if (hit.Kind == PrefixKind.DXCC) // || oItem.Kind == PrefixKind.InvalidPrefix
                             {
                                 dt.Rows.Add(new object[] { hit.CallSign, hit.Kind, hit.Country, hit.Province ?? "", hit.DXCC.ToString() });
                             }
@@ -312,6 +312,49 @@ namespace CallParserTestor
                 return;
             }
         }
+
+        private void UpdateDataGrid(List<string> hitList)
+        {
+            DataTable dt = new DataTable();
+            Cursor.Current = Cursors.WaitCursor;
+
+            if (!InvokeRequired)
+            {
+                using (dt = new DataTable())
+                {
+                    dt.Columns.Add("CallSign");
+                    dt.Columns.Add("Kind");
+                    dt.Columns.Add("Country");
+                    dt.Columns.Add("Province");
+                    dt.Columns.Add("DXCC");
+
+                    foreach (string hit in hitList)
+                    {
+                        dt.Rows.Add(new object[] { hit, "", "", "", "" });
+                    }
+
+                    SaveHitList(dt);
+                }
+                try
+                {
+                    DataGridViewResults.DataSource = dt;
+                }
+                catch (Exception ex)
+                {
+                    string a = ex.Message;
+                }
+                finally
+                {
+                    UpdateCursor();
+                }
+            }
+            else
+            {
+                this.BeginInvoke(new Action<List<string>>(this.UpdateDataGrid), hitList);
+                return;
+            }
+        }
+
 
         /// <summary>
         /// Marshall to the GUI thread if necessary.
@@ -390,7 +433,8 @@ namespace CallParserTestor
             }
 
             ListViewResults.Items.Clear();
-            stopwatch = Stopwatch.StartNew();
+            DataGridViewResults.DataSource = null;
+
             Cursor.Current = Cursors.WaitCursor;
             Task.Run(() => SemiBatchCallSignLookup());
         }
@@ -402,7 +446,7 @@ namespace CallParserTestor
         {
             IEnumerable<CallSignInfo> hitCollection;
             // need to preallocate space in collection
-            List<CallSignInfo> hitList = new List<CallSignInfo>(5000000);
+            List<string> hitList = new List<string>();
             int total = 0;
 
             stopwatch = Stopwatch.StartNew();
@@ -410,16 +454,27 @@ namespace CallParserTestor
             foreach (string call in _Records)
             {
                 total += 1;
-
+                if (total > 100000) { break; }
                 hitCollection = _CallLookUp.LookUpCall(call);
 
                 if (hitCollection != null)
                 {
-                    hitList.AddRange(hitCollection);
+                    if (hitCollection.Count() == 0)
+                    {
+                        hitList.Add(call);
+
+                        //UpdateListViewResults(call, PrefixKind.None, "", "", "");
+                    }
                 }
             }
 
-            UpdateLabels(hitList.Count());
+            if (hitList.Count > 0)
+            {
+                UpdateDataGrid(hitList);
+            }
+            
+
+            //UpdateLabels(hitList.Count());
         }
 
         /// <summary>
@@ -429,13 +484,13 @@ namespace CallParserTestor
         private void ParsePrefixFile(string filePath)
         {
             stopwatch = Stopwatch.StartNew();
-            
+
             _PrefixFileParser.ParsePrefixFile(TextBoxPrefixFilePath.Text);
-           
+
             Console.WriteLine("Load Time: " + stopwatch.ElapsedMilliseconds + "ms");
-           
+
             UpdateCursor();
-           
+
             _CallLookUp = new CallLookUp(_PrefixFileParser);
         }
 

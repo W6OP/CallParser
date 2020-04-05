@@ -160,17 +160,21 @@ namespace W6OP.CallParser
             {
                 if (element.Value != "") // empty is usually a DXCC node
                 {
-                  
+                    // eliminate invalid masks
+                    if (element.Value.Last() == '#')
+                    {
+                        break;
+                    }
+
                     // expand the mask if it exists
                     primaryMaskList = ExpandMask(element.Value);
-                   
+
                     foreach (string mask in primaryMaskList)
                     {
-                        if (mask.Length > 5)
-                        {
-                            //mask = mask.Take(5);
-                        }
-
+                        //if (mask.Contains("RA4S"))
+                        //{
+                        //    var e = 3;
+                        //}
                         // need to find the DXCC for this and add 
                         //if (callSignInfo.Kind == PrefixKind.DXCC)
                         //{

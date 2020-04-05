@@ -15284,8 +15284,8 @@
 			<mask>R@1Q</mask>
 			<mask>[RU]1Q@.</mask>
 			<mask>[RU]1Q@@.</mask>
-		</masks>
-		<label>UA[EU].UA1.UA1Q</label>
+		</masks>R@4S
+    <label>UA[EU].UA1.UA1Q</label>
 		<kind>pfProvince</kind>
 		<country>Russia (Eu)</country>
 		<province>Vologodskaya oblast</province>

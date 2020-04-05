@@ -157,7 +157,6 @@
             this.ButtonSemiBatch.TabIndex = 11;
             this.ButtonSemiBatch.Text = "Semi Batch";
             this.ButtonSemiBatch.UseVisualStyleBackColor = true;
-            this.ButtonSemiBatch.Visible = false;
             this.ButtonSemiBatch.Click += new System.EventHandler(this.ButtonSemiBatch_Click);
             // 
             // ListViewResults
