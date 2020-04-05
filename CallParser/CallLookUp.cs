@@ -19,8 +19,9 @@ namespace W6OP.CallParser
 {
     public class CallLookUp
     {
+        // writing to List<T> are faster than writing to Hashset<T>
         private ConcurrentBag<CallSignInfo> HitList;
-        private readonly Dictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
+        private readonly Dictionary<string, List<CallSignInfo>> CallSignDictionary;
         public Dictionary<string, List<int>> DXCCOnlyCallSignDictionary;
         private SortedDictionary<int, CallSignInfo> Adifs { get; set; }
         private readonly Dictionary<string, List<int>> PortablePrefixes;

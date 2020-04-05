@@ -27,13 +27,14 @@ namespace W6OP.CallParser
     /// <summary>
     /// Load and parse the prefix file to create prefix
     /// patterns. 
+    /// // writing to List<T> are faster than writing to HashSet<T>
     /// </summary>
     public class PrefixFileParser
     {
         /// <summary>
         /// Public fields.
         /// </summary>
-        public Dictionary<string, HashSet<CallSignInfo>> CallSignDictionary;
+        public Dictionary<string, List<CallSignInfo>> CallSignDictionary;
         public Dictionary<string, List<int>> DXCCOnlyCallSignDictionary;
         public SortedDictionary<int, CallSignInfo> Adifs { get; set; }
         public SortedDictionary<string, List<CallSignInfo>> Admins;
@@ -51,11 +52,6 @@ namespace W6OP.CallParser
         /// </summary>
         public PrefixFileParser()
         {
-            // preallocate space
-            //CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>(1500000);
-            //Adifs = new SortedDictionary<int, CallSignInfo>();
-            //Admins = new SortedDictionary<string, List<CallSignInfo>>();
-            //PortablePrefixes = new Dictionary<string, List<int>>(200000);
         }
 
         /// <summary>
@@ -68,11 +64,11 @@ namespace W6OP.CallParser
         public void ParsePrefixFile(string prefixFilePath)
         {
             // cleanup if running more than once
-            CallSignDictionary = new Dictionary<string, HashSet<CallSignInfo>>(1000000);
-            DXCCOnlyCallSignDictionary = new Dictionary<string, List<int>>(10000000);
+            CallSignDictionary = new Dictionary<string, List<CallSignInfo>>(); //1000000
+            DXCCOnlyCallSignDictionary = new Dictionary<string, List<int>>(); //10000000
             Adifs = new SortedDictionary<int, CallSignInfo>();
             Admins = new SortedDictionary<string, List<CallSignInfo>>();
-            PortablePrefixes = new Dictionary<string, List<int>>(200000);
+            PortablePrefixes = new Dictionary<string, List<int>>(); //200000
 
             Assembly assembly = Assembly.GetExecutingAssembly();
 
@@ -122,7 +118,6 @@ namespace W6OP.CallParser
                     }
                 }
             }
-            GC.Collect();
         }
 
         /// <summary>
@@ -131,8 +126,7 @@ namespace W6OP.CallParser
         /// <param name="prefix"></param>
         private void BuildCallSignInfo(XElement prefix, CallSignInfo callSignInfo)
         {
-            //HashSet<CallSignInfo> callSignInfoSet = new HashSet<CallSignInfo>();
-            HashSet<string> primaryMaskList = new HashSet<string>();
+            List<string> primaryMaskList = new List<string>();
             IEnumerable<XElement> masks = prefix.Elements().Where(x => x.Name == "masks");
 
             if (callSignInfo.Kind == PrefixKind.DXCC)
@@ -166,11 +160,17 @@ namespace W6OP.CallParser
             {
                 if (element.Value != "") // empty is usually a DXCC node
                 {
+                  
                     // expand the mask if it exists
                     primaryMaskList = ExpandMask(element.Value);
                    
                     foreach (string mask in primaryMaskList)
                     {
+                        if (mask.Length > 5)
+                        {
+                            //mask = mask.Take(5);
+                        }
+
                         // need to find the DXCC for this and add 
                         //if (callSignInfo.Kind == PrefixKind.DXCC)
                         //{
@@ -209,7 +209,7 @@ namespace W6OP.CallParser
                             }
                             else
                             {
-                                CallSignDictionary.Add(mask, new HashSet<CallSignInfo> { callSignInfo });
+                                CallSignDictionary.Add(mask, new List<CallSignInfo> { callSignInfo });
                             }
                         }
                         else
@@ -234,7 +234,7 @@ namespace W6OP.CallParser
         /// Break up the mask into sections and expand all of the meta characters.
         /// </summary>
         /// <param name="mask"></param>
-        internal HashSet<string> ExpandMask(string mask)
+        internal List<string> ExpandMask(string mask)
         {
             string maskPart;
             int counter = 0;
@@ -310,10 +310,10 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
-        private HashSet<string> CombineComponents(string expression)
+        private List<string> CombineComponents(string expression)
         {
-            HashSet<string> primaryMaskList = new HashSet<string>(5000);
-            List<string[]> charsList = new List<string[]>(1000);
+            List<string> tempMaskList = new List<string>();
+            List<string[]> charsList = new List<string[]>();
             StringBuilder builder;
 
             charsList = BuildCharArray(charsList, expression);
@@ -322,8 +322,8 @@ namespace W6OP.CallParser
             // for each caracter in the first list append each character of the second list
             if (charsList.Count == 1)
             {
-                primaryMaskList.Add(charsList.First().ToString());
-                return primaryMaskList;
+                tempMaskList.Add(charsList.First().ToString());
+                return tempMaskList;
             }
 
             string[] first = charsList.First();
@@ -337,7 +337,7 @@ namespace W6OP.CallParser
                 {
                     // slightly faster than concatenation
                     builder = new StringBuilder().Append(firstItem).Append(nextItem);
-                    primaryMaskList.Add(builder.ToString());
+                    tempMaskList.Add(builder.ToString());
                 }
             }
             );
@@ -347,10 +347,10 @@ namespace W6OP.CallParser
             {
                 charsList.Remove(first);
                 charsList.Remove(next);
-                primaryMaskList = CombineRemainder(charsList, primaryMaskList);
+                tempMaskList = CombineRemainder(charsList, tempMaskList);
             }
 
-            return primaryMaskList;
+            return tempMaskList;
         }
 
 
@@ -393,10 +393,6 @@ namespace W6OP.CallParser
                     expression = expression.Remove(0, expression.IndexOf("["));
                     // Linq is faster
                     charsList.AddRange(temp.Select(x => new string[1] { x.ToString() }));
-                    //foreach (char x in temp)
-                    //{
-                    //    charsList.Add(new string[1] { x.ToString() });
-                    //}
                 }
                 else
                 {
@@ -404,10 +400,6 @@ namespace W6OP.CallParser
                     expression = expression.Remove(0, temp.Length);
                     // Linq is faster
                     charsList.AddRange(temp.Select(x => new string[1] { x.ToString() }));
-                    //foreach (char x in temp)
-                    //{
-                    //    charsList.Add(new string[1] { x.ToString() });
-                    //}
                 }
             }
 
@@ -424,48 +416,35 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="charsList"></param>
         /// <param name="expressionList"></param>
-        private HashSet<string> CombineRemainder(List<string[]> charsList, HashSet<string> primaryMaskList)
+        private List<string> CombineRemainder(List<string[]> charsList, List<string> tempMaskList)
         {
-            HashSet<string> tempList = new HashSet<string>(1000);
-
+            List<string> tempList = new List<string>(); //1000
             string[] first = charsList.First();
-
-            if (primaryMaskList.Count == 0)
-            {
-                var a = 1;
-            }
-
-            try
-            {
-                // faster without Linq
-                if (charsList.Count > 0)
+           
+            // faster without Linq
+            if (charsList.Count > 0)
                 {
-                    // _ = Parallel.ForEach(primaryMaskList, prefix =>
-                    foreach (string prefix in primaryMaskList)
+                // _ = Parallel.ForEach(tempMaskList, prefix =>
+                foreach (string prefix in tempMaskList)
                     {
                         foreach (string nextItem in first)
                         {
                             tempList.Add(prefix + nextItem);
-                        }
+                    }
                     }
                     //);
                 }
-            }
-            catch (Exception ex)
-            {
-                var b = ex.Message;
-            }
 
             // this statement must be here before the stack is unwound
-            primaryMaskList = tempList;
+            tempMaskList = tempList;
 
             if (charsList.Count > 1)
             {
                 charsList.Remove(first);
-                primaryMaskList = CombineRemainder(charsList, primaryMaskList);
+                tempMaskList = CombineRemainder(charsList, tempMaskList);
             }
 
-            return primaryMaskList;
+            return tempMaskList;
         }
 
         /// <summary>
