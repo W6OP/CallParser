@@ -160,12 +160,6 @@ namespace W6OP.CallParser
             {
                 if (element.Value != "") // empty is usually a DXCC node
                 {
-                    // eliminate invalid masks
-                    if (element.Value.Last() == '#')
-                    {
-                        break;
-                    }
-
                     // expand the mask if it exists
                     primaryMaskList = ExpandMask(element.Value);
 

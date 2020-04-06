@@ -239,15 +239,18 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// 
+        /// Search the CallSignDictionary for a hit with the full call. If it doesn't 
+        /// hit remove characters from the end until hit or there are no letters fleft. 
+        /// Return the CallSignInfo as an out parameter for the ReplaceCallArea() function.
         /// </summary>
         /// <param name="searchTerm"></param>
         /// <param name="baseCall"></param>
         /// <param name="fullCall"></param>
+        /// <param name="saveHit"></param>
+        /// <param name="callSignInfo"></param>
         /// <returns></returns>
         private bool SearchMainDictionary(string searchTerm, string baseCall, string fullCall, bool saveHit, out CallSignInfo callSignInfo)
         {
-            
             while (searchTerm != string.Empty)
             {
                 if (CallSignDictionary.TryGetValue(searchTerm, out var query))
@@ -278,35 +281,28 @@ namespace W6OP.CallParser
                         }
                     }
 
-                    //dxcc = callSignInfo.DXCC;
                     return true;
                 }
 
                 searchTerm = searchTerm.Remove(searchTerm.Length - 1);
             }
 
-            //dxcc = 0;
             callSignInfo = new CallSignInfo();
             return false;
         }
 
         /// <summary>
         /// Check if the call area needs to be replaced and do so if necessary.
+        /// If the original call gets a hit, find the MainPrefix and replace
+        /// the call area with the new call area. Then do a search with that.
         /// </summary>
         /// <param name="callStructure"></param>
         /// <param name="fullCall"></param>
         private bool CheckReplaceCallArea(CallStructure callStructure, string fullCall)
         {
-            CallSignInfo callSignInfo;
-            string prefix = callStructure.Prefix;
-            string baseCall = callStructure.BaseCall;
-            string searchTerm = baseCall;
-            //int dxcc = 0;
-
-            if (SearchMainDictionary(searchTerm, baseCall, fullCall, false, out callSignInfo))
+            if (SearchMainDictionary(searchTerm: callStructure.BaseCall, baseCall: callStructure.BaseCall, fullCall, false, out CallSignInfo callSignInfo))
             {
-                //CallSignInfo callSignInfo = Adifs[dxcc];
-                callStructure.BaseCall = ReplaceCallArea(callSignInfo.MainPrefix, prefix);
+                callStructure.BaseCall = ReplaceCallArea(callSignInfo.MainPrefix, callStructure.Prefix);
                 callStructure.CallStructureType = CallStructureType.Call;
                 CollectMatches(callStructure, fullCall);
                 return true;

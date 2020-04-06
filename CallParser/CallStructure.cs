@@ -236,6 +236,13 @@ namespace W6OP.CallParser
                     CallStructureType = CallStructureType.PrefixCallText;
                     return;
 
+                case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Portable && component2Type == ComponentType.Numeric:
+                    BaseCall = component0;
+                    Prefix = component2;
+                    Suffix1 = component1;
+                    CallStructureType = CallStructureType.CallDigitPortable;
+                    return;
+
                 default:
                     return;
             }
@@ -328,7 +335,7 @@ namespace W6OP.CallParser
                 case ComponentType _ when (validPrefixes.Contains(pattern) && VerifyIfPrefix(candidate, position) == ComponentType.Prefix):
                     return ComponentType.Prefix;
 
-                case ComponentType _ when (validCallStructures.Contains(pattern) && VerifyIfCallSign(candidate) == ComponentType.CallSign):
+                case ComponentType _ when (VerifyIfCallSign(candidate) == ComponentType.CallSign): //validCallStructures.Contains(pattern) && 
                     return ComponentType.CallSign;
  
                 default:
