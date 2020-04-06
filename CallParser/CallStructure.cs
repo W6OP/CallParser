@@ -123,6 +123,10 @@ namespace W6OP.CallParser
                     Prefix = component0;
                     return;
 
+                case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.Portable:
+                    CallStructureType = CallStructureType.CallPortable;
+                    return;
+
                 // CC  ==> CP - check BU - BY - VU4 - VU7
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.CallSign:
                     if (component1.First() == 'B')
@@ -233,6 +237,9 @@ namespace W6OP.CallParser
 
                 // PCT
                 case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.CallSign && component2Type == ComponentType.Text:
+                    BaseCall = component1;
+                    Prefix = component0;
+                    Suffix1 = component2;
                     CallStructureType = CallStructureType.PrefixCallText;
                     return;
 
@@ -296,7 +303,7 @@ namespace W6OP.CallParser
             switch (state)
             {
                 case ComponentType _ when position == 1 && candidate == "MM":
-                    return ComponentType.Portable;
+                    return ComponentType.Prefix;
 
                 case ComponentType _ when position == 1 && candidate.Length == 1:
                     return VerifyIfPrefix(candidate, position);
@@ -325,6 +332,10 @@ namespace W6OP.CallParser
                     // now determine if prefix or call
                     if (VerifyIfPrefix(candidate, position) == ComponentType.Prefix)
                     {
+                        if (VerifyIfCallSign(candidate) == ComponentType.CallSign)
+                        {
+                            return ComponentType.CallSign;
+                        }
                         return ComponentType.Prefix;
                     }
                     else
@@ -445,7 +456,7 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// 
+        /// one of "@","@@","#@","#@@" followed by 1-4 digits followed by 1-6 letters
         /// </summary>
         /// <param name="candidate"></param>
         /// <returns></returns>
@@ -497,7 +508,7 @@ namespace W6OP.CallParser
 
             if (digits > 0 && digits <= 4)
             {
-                if (candidate.Length < 6 && candidate.All(char.IsLetter))
+                if (candidate.Length <= 6 && candidate.All(char.IsLetter))
                 {
                     return ComponentType.CallSign; // MAKE THIS COMPOSITE TYPE
                 }

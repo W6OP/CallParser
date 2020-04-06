@@ -447,14 +447,14 @@ namespace CallParserTestor
             IEnumerable<CallSignInfo> hitCollection;
             // need to preallocate space in collection
             List<string> hitList = new List<string>();
-            int total = 0;
+            //int total = 0;
 
             stopwatch = Stopwatch.StartNew();
 
             foreach (string call in _Records)
             {
-                total += 1;
-                if (total > 100000) { break; }
+                //total += 1;
+                //if (total > 100000) { break; }
                 hitCollection = _CallLookUp.LookUpCall(call);
 
                 if (hitCollection != null)

@@ -300,17 +300,66 @@ namespace W6OP.CallParser
         /// <param name="fullCall"></param>
         private bool CheckReplaceCallArea(CallStructure callStructure, string fullCall)
         {
-            if (SearchMainDictionary(searchTerm: callStructure.BaseCall, baseCall: callStructure.BaseCall, fullCall, false, out CallSignInfo callSignInfo))
+            // UY0KM/0
+            if (callStructure.Prefix != callStructure.BaseCall.FirstOrDefault(c => char.IsDigit(c)).ToString())
             {
-                callStructure.BaseCall = ReplaceCallArea(callSignInfo.MainPrefix, callStructure.Prefix);
-                callStructure.CallStructureType = CallStructureType.Call;
-                CollectMatches(callStructure, fullCall);
-                return true;
+                if (SearchMainDictionary(searchTerm: callStructure.BaseCall, baseCall: callStructure.BaseCall, fullCall, false, out CallSignInfo callSignInfo))
+                {
+                    callStructure.Prefix = ReplaceCallArea(callSignInfo.MainPrefix, callStructure.Prefix);
+                    callStructure.CallStructureType = CallStructureType.PrefixCall;
+                    CollectMatches(callStructure, fullCall);
+                    return true;
+                }
             }
            
             return false;
         }
 
+        private void test(string mainPrefix, string callArea)
+        {
+            string[] OneCharPrefs = new string[] { "I", "K", "N", "W", "R", "U" };
+            string[] XNUM_SET = new string[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "#", "[" };
+
+            int p = 0;
+
+            switch (mainPrefix.Length)
+            {
+                case 1:
+                    if (OneCharPrefs.Contains(mainPrefix.First().ToString()))
+                    {
+                        p = 2;
+                    }
+                    break;
+                case 2:
+                    if (OneCharPrefs.Contains(mainPrefix.First().ToString()) && XNUM_SET.Contains(mainPrefix.Skip(1).First().ToString()))
+                    {
+                        p = 2;
+                    }
+                    else
+                    {
+                        p = 3;
+                    }
+                    break;
+                default:
+                    if (OneCharPrefs.Contains(mainPrefix.First().ToString()) && XNUM_SET.Contains(mainPrefix.Skip(1).Take(1).First().ToString()))
+                    {
+                        p = 2;
+                    } else
+                    {
+                        if (XNUM_SET.Contains(mainPrefix.Skip(2).Take(1).First().ToString()))
+                        {
+                            p = 3;
+                        } else
+                        {
+                            p = 4;
+                        }
+                    }
+                    break;
+            }
+
+            string temp = mainPrefix.Substring(0, p - 1) + callArea;
+        }
+  
         /// <summary>
         /// Replace the call area with the prefix digit.
         /// </summary>
@@ -319,15 +368,49 @@ namespace W6OP.CallParser
         /// <returns></returns>
         private string ReplaceCallArea(string mainPrefix, string callArea)
         {
-            string result = new String(mainPrefix.Where(x => Char.IsDigit(x)).ToArray());
-            if (!string.IsNullOrEmpty(result))
+            char[] OneCharPrefs = new char[] { 'I', 'K', 'N', 'W', 'R', 'U' };
+            char[] XNUM_SET = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '#', '[' };
+
+            int p = 0;
+
+            switch (mainPrefix.Length)
             {
-                return mainPrefix.Replace(result, callArea);
+                case 1:
+                    if (OneCharPrefs.Contains(mainPrefix.First()))
+                    {
+                        p = 2;
+                    }
+                    break;
+                case 2:
+                    if (OneCharPrefs.Contains(mainPrefix.First()) && XNUM_SET.Contains(mainPrefix.Skip(1).First()))
+                    {
+                        p = 2;
+                    }
+                    else
+                    {
+                        p = 3;
+                    }
+                    break;
+                default:
+                    if (OneCharPrefs.Contains(mainPrefix.First()) && XNUM_SET.Contains(mainPrefix.Skip(1).Take(1).First()))
+                    {
+                        p = 2;
+                    }
+                    else
+                    {
+                        if (XNUM_SET.Contains(mainPrefix.Skip(2).Take(1).First()))
+                        {
+                            p = 3;
+                        }
+                        else
+                        {
+                            p = 4;
+                        }
+                    }
+                    break;
             }
-            else
-            {
-                return mainPrefix = mainPrefix + callArea;
-            }
+
+            return $"{mainPrefix.Substring(0, p - 1)}{callArea}/";
         }
 
         /// <summary>
