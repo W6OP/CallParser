@@ -24,7 +24,7 @@ namespace W6OP.CallParser
 
         public CallStructure(string callSign, Dictionary<string, List<int>> portablePrefixes)
         {
-            
+
             PortablePrefixes = portablePrefixes;
             SplitCallSign(callSign);
         }
@@ -94,18 +94,23 @@ namespace W6OP.CallParser
         /// <param name="component1"></param>
         private void ProcessComponents(string component0, string component1)
         {
-            ComponentType state = ComponentType.Invalid;
+            ComponentType componentType = ComponentType.Invalid;
             ComponentType component0Type;
             ComponentType component1Type;
 
             component0Type = GetComponentType(component0, 1);
             component1Type = GetComponentType(component1, 2);
 
+            if (component0Type == ComponentType.Unknown || component1Type == ComponentType.Unknown)
+            {
+                ResolveAmbiguities(component0Type, component1Type, out component0Type, out component1Type);
+            }
+
             BaseCall = component0;
             Prefix = component1;
 
             // ValidStructures = 'C#:CM:CP:CT:PC:';
-            switch (state)
+            switch (componentType)
             {
                 // if either is invalid short cicuit all the checks and exit immediately
                 case ComponentType _ when component0Type == ComponentType.Invalid || component1Type == ComponentType.Invalid:
@@ -159,12 +164,83 @@ namespace W6OP.CallParser
                     CallStructureType = CallStructureType.CallPortable;
                     return;
 
+                // PU
+                case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.Unknown:
+                    CallStructureType = CallStructureType.PrefixCall;
+                    BaseCall = component1;
+                    Prefix = component0;
+                    return;
+
                 default:
                     return;
             }
         }
 
-       
+        /// <summary> 
+        ///resolve ambiguities
+        ///FStructure:= StringReplace(FStructure, 'UU', 'PC', [rfReplaceAll]);
+        ///FStructure:= StringReplace(FStructure, 'CU', 'CP', [rfReplaceAll]);
+        ///FStructure:= StringReplace(FStructure, 'UC', 'PC', [rfReplaceAll]);
+        ///FStructure:= StringReplace(FStructure, 'UP', 'CP', [rfReplaceAll]);
+        ///FStructure:= StringReplace(FStructure, 'PU', 'PC', [rfReplaceAll]);
+        ///FStructure:= StringReplace(FStructure, 'U', 'C', [rfReplaceAll]);
+        /// </summary>
+        /// <param name="component0Type"></param>
+        /// <param name="component1Type"></param>
+        private void ResolveAmbiguities(ComponentType componentType0, ComponentType componentType1, out ComponentType component0Type, out ComponentType component1Type)
+        {
+            ComponentType componentType = ComponentType.Invalid;
+
+            switch (componentType)
+            {
+                // UU --> PC
+                case ComponentType _ when componentType0 == ComponentType.Unknown && componentType1 == ComponentType.Unknown:
+                    component0Type = ComponentType.Prefix;
+                    component1Type = ComponentType.CallSign;
+                    return;
+
+                    // CU --> CP
+                case ComponentType _ when componentType0 == ComponentType.CallSign && componentType1 == ComponentType.Unknown:
+                    component0Type = ComponentType.CallSign;
+                    component1Type = ComponentType.Prefix;
+                    return;
+
+                // UC --> PC
+                case ComponentType _ when componentType0 == ComponentType.Unknown && componentType1 == ComponentType.CallSign:
+                    component0Type = ComponentType.Prefix;
+                    component1Type = ComponentType.CallSign;
+                    return;
+
+                // UP --> CP
+                case ComponentType _ when componentType0 == ComponentType.Unknown && componentType1 == ComponentType.Prefix:
+                    component0Type = ComponentType.CallSign;
+                    component1Type = ComponentType.Prefix;
+                    return;
+
+                // PU --> PC
+                case ComponentType _ when componentType0 == ComponentType.Prefix && componentType1 == ComponentType.Unknown:
+                    component0Type = ComponentType.Prefix;
+                    component1Type = ComponentType.CallSign;
+                    return;
+
+                // U --> C
+                case ComponentType _ when componentType0 == ComponentType.Unknown:
+                    component0Type = ComponentType.CallSign;
+                    component1Type = componentType1;
+                    return;
+
+                // U --> C
+                case ComponentType _ when componentType1 == ComponentType.Unknown:
+                    component1Type = ComponentType.CallSign;
+                    component0Type = componentType0;
+                    return;
+            }
+
+            component0Type = ComponentType.Unknown;
+            component1Type = ComponentType.Unknown;
+        }
+
+
         /// <summary>
         /// Analyze each component and build a pattern of each type.
         /// Compare the final pattern to the CallStructureTypes allowed.
@@ -207,8 +283,8 @@ namespace W6OP.CallParser
                 // CMM 
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Portable && component2Type == ComponentType.Portable:
                     CallStructureType = CallStructureType.CallPortablePortable;
-                        return;
-                   
+                    return;
+
                 // CMP
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Portable && component2Type == ComponentType.Prefix:
                     BaseCall = component0;
@@ -296,11 +372,11 @@ namespace W6OP.CallParser
             string[] validCallStructures = { "@#@@", "@#@@@", "@##@", "@##@@", "@##@@@", "@@#@", "@@#@@", "@@#@@@", "#@#@", "#@#@@", "#@#@@@", "#@@#@", "#@@#@@" }; // KH6Z
             string[] validPrefixes = { "@", "@@", "@@#", "@@#@", "@#", "@#@", "@##", "#@", "#@@", "#@#", "#@@#" };
             string[] validPrefixOrCall = { "@@#@", "@#@" };
-            ComponentType state = ComponentType.Unknown;
+            ComponentType componentType = ComponentType.Unknown;
 
             string pattern = BuildPattern(candidate);
 
-            switch (state)
+            switch (componentType)
             {
                 case ComponentType _ when position == 1 && candidate == "MM":
                     return ComponentType.Prefix;
@@ -312,12 +388,13 @@ namespace W6OP.CallParser
                     return ComponentType.Portable;
 
                 case ComponentType _ when candidate.Length == 1:
-                    if (candidate.All(char.IsDigit)) 
+                    if (candidate.All(char.IsDigit))
                     { return ComponentType.Numeric; }
                     else { return ComponentType.Text; }
 
                 case ComponentType _ when IsText(candidate):
-                    if (candidate.Length > 2) {
+                    if (candidate.Length > 2)
+                    {
                         return ComponentType.Text;
                     }
 
@@ -328,27 +405,33 @@ namespace W6OP.CallParser
                     return ComponentType.Text;
 
                 // this first case is somewhat redundant 
-                case ComponentType _ when (validPrefixOrCall.Contains(pattern)):
-                    // now determine if prefix or call
-                    if (VerifyIfPrefix(candidate, position) == ComponentType.Prefix)
+                case ComponentType _ when validPrefixOrCall.Contains(pattern):
+                    // now check if its a prefix, if not its a Call
+                    if (VerifyIfPrefix(candidate, position) != ComponentType.Prefix)
                     {
-                        if (VerifyIfCallSign(candidate) == ComponentType.CallSign)
-                        {
-                            return ComponentType.CallSign;
-                        }
-                        return ComponentType.Prefix;
+                        componentType = ComponentType.CallSign;
                     }
                     else
                     {
-                        return VerifyIfCallSign(candidate);
-                    }
+                        if (VerifyIfCallSign(candidate) == ComponentType.CallSign)
+                        {
+                            componentType = ComponentType.Unknown;
+                        }
 
+                        else
+                        {
+                            componentType = ComponentType.Prefix;
+                        }
+                        
+                    }
+                    return componentType;
+               
                 case ComponentType _ when (validPrefixes.Contains(pattern) && VerifyIfPrefix(candidate, position) == ComponentType.Prefix):
                     return ComponentType.Prefix;
 
                 case ComponentType _ when (VerifyIfCallSign(candidate) == ComponentType.CallSign): //validCallStructures.Contains(pattern) && 
                     return ComponentType.CallSign;
- 
+
                 default:
                     if (!IsText(candidate))
                     {
@@ -429,6 +512,10 @@ namespace W6OP.CallParser
         /// <returns></returns>
         private ComponentType VerifyIfPrefix(string candidate, int position)
         {
+            string[] validPrefixes = { "@", "@@", "@@#", "@@#@", "@#", "@#@", "@##", "#@", "#@@", "#@#", "#@@#" };
+
+            string pattern = BuildPattern(candidate);
+
             if (candidate.Length == 1)
             {
                 switch (position)
@@ -447,9 +534,16 @@ namespace W6OP.CallParser
                 }
             }
 
-            if (PortablePrefixes.ContainsKey(candidate + "/"))
+            if (validPrefixes.Contains(pattern))
             {
-                return ComponentType.Prefix;
+                if (PortablePrefixes.ContainsKey(candidate + "/"))
+                {
+                    return ComponentType.Prefix;
+                }
+                else
+                {
+
+                }
             }
 
             return ComponentType.Text;
@@ -463,7 +557,7 @@ namespace W6OP.CallParser
         internal ComponentType VerifyIfCallSign(string candidate)
         {
             int digits = 0;
-            
+
             // strip prefix
             switch (candidate)
             {

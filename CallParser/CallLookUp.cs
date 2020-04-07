@@ -180,7 +180,6 @@ namespace W6OP.CallParser
         {
             string prefix = callStructure.Prefix;
             string baseCall = callStructure.BaseCall;
-            CallSignInfo callSignInfo;
             CallStructureType callStructureType = callStructure.CallStructureType;
 
             string searchTerm = baseCall;
@@ -225,7 +224,7 @@ namespace W6OP.CallParser
 
             // masks are from 2 - 8 characters in the CallSignDictionary
             // remove characters from end of call until hit
-            if (SearchMainDictionary(searchTerm, baseCall, fullCall, true, out callSignInfo)) 
+            if (SearchMainDictionary(searchTerm, baseCall, fullCall, true, out _)) 
             {
                 return;
             }

@@ -160,6 +160,10 @@ namespace W6OP.CallParser
             {
                 if (element.Value != "") // empty is usually a DXCC node
                 {
+                    if (element.Value == "KC4A[.B-Z]")
+                    {
+                        var a = 1;
+                    }
                     // expand the mask if it exists
                     primaryMaskList = ExpandMask(element.Value);
 

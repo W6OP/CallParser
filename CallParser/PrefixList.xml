@@ -10539,7 +10539,7 @@
 			<mask>AX0</mask>
 			<mask>V[H-NZ]0</mask>
 			<mask>VK0/</mask>
-			
+      <mask>VK0M/</mask>
 		</masks>
 		<label>VK0[M]</label>
 		<kind>pfDXCC</kind>
