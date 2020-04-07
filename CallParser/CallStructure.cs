@@ -127,7 +127,8 @@ namespace W6OP.CallParser
                     BaseCall = component1;
                     Prefix = component0;
                     return;
-
+                
+                    // PPortable
                 case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.Portable:
                     CallStructureType = CallStructureType.CallPortable;
                     return;
@@ -259,6 +260,11 @@ namespace W6OP.CallParser
             component1Type = GetComponentType(component1, 2);
             component2Type = GetComponentType(component2, 3);
 
+            if (component0Type == ComponentType.Unknown || component1Type == ComponentType.Unknown)
+            {
+                ResolveAmbiguities(component0Type, component1Type, out component0Type, out component1Type);
+            }
+
             BaseCall = component0;
             Prefix = component1;
             Suffix1 = component2;
@@ -352,8 +358,8 @@ namespace W6OP.CallParser
                     return StringTypes.Invalid;
 
                 // call is too long
-                case string _ when item.Length > 13:
-                    return StringTypes.Invalid;
+                //case string _ when item.Length > 13:
+                //    return StringTypes.Invalid;
 
                 default:
                     return StringTypes.Valid;
