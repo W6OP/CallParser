@@ -223,7 +223,7 @@ namespace W6OP.CallParser
                             }
                             else
                             {
-                              DXCCOnlyCallSignDictionary.Add(mask, new List<int> { callSignInfo.DXCC });  
+                                DXCCOnlyCallSignDictionary.Add(mask, new List<int> { callSignInfo.DXCC });
                             }
                         }
                     }
@@ -243,13 +243,19 @@ namespace W6OP.CallParser
             int index;
             string expression = "";
             string item;
-            // TEMPORARY: get rid of "." - need to work on this
-            mask = mask.Replace(".", "");
+
             // sometimes "-" has spaces around it [1 - 8]
             mask = String.Concat(mask.Where(c => !Char.IsWhiteSpace(c)));
+
+            // I can get rid of the trailing "." because of the way I process the mask
+            if (mask.Last().ToString() == ".")
+            {
+                mask = mask.Substring(0, mask.Length - 1).ToString();
+            }
+
             int length = mask.Length;
 
-            string[] stringArray = { "@", "#", "?", "-" };
+            string[] stringArray = { "@", "#", "?", "-", "." };
 
             while (counter < length)
             {
@@ -422,20 +428,27 @@ namespace W6OP.CallParser
         {
             List<string> tempList = new List<string>(); //1000
             string[] first = charsList.First();
-           
+
             // faster without Linq
             if (charsList.Count > 0)
-                {
+            {
                 // _ = Parallel.ForEach(tempMaskList, prefix =>
                 foreach (string prefix in tempMaskList)
+                {
+                    foreach (string nextItem in first)
                     {
-                        foreach (string nextItem in first)
+                        if (nextItem == ".")
+                        {
+                            tempList.Add(prefix);
+                        }
+                        else
                         {
                             tempList.Add(prefix + nextItem);
+                        }
                     }
-                    }
-                    //);
                 }
+                //);
+            }
 
             // this statement must be here before the stack is unwound
             tempMaskList = tempList;
