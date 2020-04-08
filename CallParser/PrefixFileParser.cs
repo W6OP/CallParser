@@ -27,22 +27,31 @@ namespace W6OP.CallParser
     /// <summary>
     /// Load and parse the prefix file to create prefix
     /// patterns. 
-    /// // writing to List<T> are faster than writing to HashSet<T>
+    /// writing to List<T> are faster than writing to HashSet<T>
     /// </summary>
     public class PrefixFileParser
     {
         /// <summary>
         /// Public fields.
         /// </summary>
+        /// 
+        // the main dictionary of possible call signs built from the <mask> - excludes DXCC
         public Dictionary<string, List<CallSignInfo>> CallSignDictionary;
+        // all the DXCC only nodes, ie: no children. These are split out to reduce memory usage
+        // just the dxcc number is stored as we can get the CallSignInfo object from the adif collection
         public Dictionary<string, List<int>> DXCCOnlyCallSignDictionary;
-        public SortedDictionary<int, CallSignInfo> Adifs { get; set; }
+        // dxcc number with corresponding CallSignInfo object.
+        public SortedDictionary<int, CallSignInfo> Adifs;
+        // Admin list
         public SortedDictionary<string, List<CallSignInfo>> Admins;
+        // all the portable prefix entries (ends with "/") with dxcc number
         public Dictionary<string, List<int>> PortablePrefixes;
 
         /// <summary>
         /// Private fields.
         /// </summary>
+        /// 
+        // well known structures to be indexed into
         private readonly string[] Alphabet = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
         private readonly string[] Numbers = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
         private readonly string[] AlphaNumerics = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
@@ -64,11 +73,11 @@ namespace W6OP.CallParser
         public void ParsePrefixFile(string prefixFilePath)
         {
             // cleanup if running more than once
-            CallSignDictionary = new Dictionary<string, List<CallSignInfo>>(); //1000000
-            DXCCOnlyCallSignDictionary = new Dictionary<string, List<int>>(); //10000000
+            CallSignDictionary = new Dictionary<string, List<CallSignInfo>>(1000000); //1000000
+            DXCCOnlyCallSignDictionary = new Dictionary<string, List<int>>(20000000); //10000000
             Adifs = new SortedDictionary<int, CallSignInfo>();
             Admins = new SortedDictionary<string, List<CallSignInfo>>();
-            PortablePrefixes = new Dictionary<string, List<int>>(); //200000
+            PortablePrefixes = new Dictionary<string, List<int>>(200000); //200000
 
             Assembly assembly = Assembly.GetExecutingAssembly();
 
@@ -118,6 +127,7 @@ namespace W6OP.CallParser
                     }
                 }
             }
+            var a = 1;
         }
 
         /// <summary>
@@ -126,17 +136,27 @@ namespace W6OP.CallParser
         /// <param name="prefix"></param>
         private void BuildCallSignInfo(XElement prefix, CallSignInfo callSignInfo)
         {
-            List<string> primaryMaskList = new List<string>();
+            var primaryMaskList = new List<string>();
             IEnumerable<XElement> masks = prefix.Elements().Where(x => x.Name == "masks");
 
-            if (callSignInfo.Kind == PrefixKind.DXCC)
+            switch (callSignInfo)
             {
-                Adifs.Add(Convert.ToInt32(callSignInfo.DXCC), callSignInfo);
-            }
-
-            if (callSignInfo.Kind == PrefixKind.InvalidPrefix)
-            {
-                Adifs.Add(0, callSignInfo);
+                case CallSignInfo _ when callSignInfo.Kind == PrefixKind.DXCC:
+                    Adifs.Add(Convert.ToInt32(callSignInfo.DXCC), callSignInfo);
+                    break;
+                case CallSignInfo _ when callSignInfo.Kind == PrefixKind.InvalidPrefix:
+                    Adifs.Add(0, callSignInfo);
+                    break;
+                case CallSignInfo _ when callSignInfo.Kind == PrefixKind.Province && !string.IsNullOrEmpty(callSignInfo.Admin1):
+                    if (Admins.TryGetValue(callSignInfo.Admin1, out var list))
+                    {
+                        list.Add(callSignInfo);
+                    }
+                    else
+                    {
+                        Admins.Add(callSignInfo.Admin1, new List<CallSignInfo> { callSignInfo });
+                    }
+                    break;
             }
 
             if (callSignInfo.WAE != 0)
@@ -144,87 +164,51 @@ namespace W6OP.CallParser
                 Adifs.Add(callSignInfo.WAE, callSignInfo);
             }
 
-            if (callSignInfo.Kind == PrefixKind.Province && !string.IsNullOrEmpty(callSignInfo.Admin1))
-            {
-                if (Admins.TryGetValue(callSignInfo.Admin1, out var list))
-                {
-                    list.Add(callSignInfo);
-                }
-                else
-                {
-                    Admins.Add(callSignInfo.Admin1, new List<CallSignInfo> { callSignInfo });
-                }
-            }
-
-            foreach (XElement element in masks.Descendants())
+            foreach (var element in masks.Descendants())
             {
                 if (element.Value != "") // empty is usually a DXCC node
                 {
-                    if (element.Value == "KC4A[.B-Z]")
-                    {
-                        var a = 1;
-                    }
                     // expand the mask if it exists
                     primaryMaskList = ExpandMask(element.Value);
 
-                    foreach (string mask in primaryMaskList)
+                    foreach (var mask in primaryMaskList)
                     {
-                        //if (mask.Contains("RA4S"))
-                        //{
-                        //    var e = 3;
-                        //}
-                        // need to find the DXCC for this and add 
-                        //if (callSignInfo.Kind == PrefixKind.DXCC)
-                        //{
-                        //    callSignInfo.PrefixKey.Add(mask, new byte());
-                        //}
-                        //else
-                        //{
-                        //    if (!Adifs[callSignInfo.DXCC].PrefixKey.ContainsKey(mask))
-                        //    {
-                        //        Adifs[callSignInfo.DXCC].PrefixKey.Add(mask, new byte());
-                        //    }
-                        //}
+                        switch (mask)
+                        {
+                            case string _ when mask.EndsWith("/"):
+                                if (PortablePrefixes.TryGetValue(mask, out var list))
+                                {
+                                    // VK9/ has multiple DXCC numbers - 35, 150...
+                                    list.Add(callSignInfo.DXCC);
+                                }
+                                else
+                                {
+                                    PortablePrefixes.Add(mask, new List<int> { callSignInfo.DXCC });
+                                }
+                                break;
+                            case string _ when callSignInfo.Kind != PrefixKind.DXCC:
+                                if (CallSignDictionary.TryGetValue(mask, out var list2))
+                                {
+                                    // VK9/ has multiple DXCC numbers - 35, 150...
+                                    list2.Add(callSignInfo);
+                                }
+                                else
+                                {
+                                    CallSignDictionary.Add(mask, new List<CallSignInfo> { callSignInfo });
+                                }
+                                break;
+                            default:
+                                if (DXCCOnlyCallSignDictionary.TryGetValue(mask, out var list3))
+                                {
+                                    // VK9/ has multiple DXCC numbers - 35, 150...
+                                    list3.Add(callSignInfo.DXCC);
+                                }
+                                else
+                                {
+                                    DXCCOnlyCallSignDictionary.Add(mask, new List<int> { callSignInfo.DXCC });
+                                }
+                                break;
 
-                        // this is a portable prefix
-                        if (mask.EndsWith("/"))
-                        {
-                            // used in CallLookUp to identify portable prefixes
-                            if (PortablePrefixes.TryGetValue(mask, out var list))
-                            {
-                                // VK9/ has multiple DXCC numbers - 35, 150...
-                                list.Add(callSignInfo.DXCC);
-                            }
-                            else
-                            {
-                                PortablePrefixes.Add(mask, new List<int> { callSignInfo.DXCC });
-                            }
-                        }
-
-                        //all DXCC kinds are in ADIFS
-                        if (callSignInfo.Kind != PrefixKind.DXCC && !mask.EndsWith("/"))
-                        {
-                            if (CallSignDictionary.TryGetValue(mask, out var list))
-                            {
-                                // VK9/ has multiple DXCC numbers - 35, 150...
-                                list.Add(callSignInfo);
-                            }
-                            else
-                            {
-                                CallSignDictionary.Add(mask, new List<CallSignInfo> { callSignInfo });
-                            }
-                        }
-                        else
-                        {
-                            if (DXCCOnlyCallSignDictionary.TryGetValue(mask, out var list))
-                            {
-                                // VK9/ has multiple DXCC numbers - 35, 150...
-                                list.Add(callSignInfo.DXCC);
-                            }
-                            else
-                            {
-                                DXCCOnlyCallSignDictionary.Add(mask, new List<int> { callSignInfo.DXCC });
-                            }
                         }
                     }
                 }
@@ -241,11 +225,12 @@ namespace W6OP.CallParser
             string maskPart;
             int counter = 0;
             int index;
-            string expression = "";
-            string item;
+            string expandedMask = "";
+            string maskCharacter;
+            string[] metaCharacters = { "@", "#", "?", "-", "." };
 
             // sometimes "-" has spaces around it [1 - 8]
-            mask = String.Concat(mask.Where(c => !Char.IsWhiteSpace(c)));
+            mask = string.Concat(mask.Where(c => !char.IsWhiteSpace(c)));
 
             // I can get rid of the trailing "." because of the way I process the mask
             if (mask.Last().ToString() == ".")
@@ -255,12 +240,10 @@ namespace W6OP.CallParser
 
             int length = mask.Length;
 
-            string[] stringArray = { "@", "#", "?", "-", "." };
-
             while (counter < length)
             {
-                item = mask.Substring(0, 1);
-                switch (item)
+                maskCharacter = mask.Substring(0, 1);
+                switch (maskCharacter)
                 {
                     case "[": // range
                         index = mask.IndexOf("]");
@@ -268,15 +251,15 @@ namespace W6OP.CallParser
                         counter += maskPart.Length;
                         mask = mask.Substring(maskPart.Length);
                         // look for expando in the set
-                        if (stringArray.Any(maskPart.Contains))
+                        if (metaCharacters.Any(maskPart.Contains))
                         {
-                            maskPart = string.Join("", GetMetaMaskSetEx(maskPart));
+                            maskPart = string.Join("", GetMetaMaskSet(maskPart));
                         }
-                        expression += maskPart;
+                        expandedMask += maskPart;
                         break;
                     case "@": // alpha
                         // use constant for performance
-                        expression += "[@]";
+                        expandedMask += "[@]";
                         counter += 1;
                         if (counter < length)
                         {
@@ -284,7 +267,7 @@ namespace W6OP.CallParser
                         }
                         break;
                     case "#": // numeric
-                        expression += "[#]";
+                        expandedMask += "[#]";
                         counter += 1;
                         if (counter < length)
                         {
@@ -292,7 +275,7 @@ namespace W6OP.CallParser
                         }
                         break;
                     case "?": // alphanumeric
-                        expression += "[?]";
+                        expandedMask += "[?]";
                         counter += 1;
                         if (counter < length)
                         {
@@ -300,7 +283,7 @@ namespace W6OP.CallParser
                         }
                         break;
                     default: // single character
-                        expression += item.ToString();
+                        expandedMask += maskCharacter.ToString();
                         counter += 1;
                         if (counter < length)
                         {
@@ -310,73 +293,70 @@ namespace W6OP.CallParser
                 }
             }
 
-            return CombineComponents(expression);
+            return CombineComponents(expandedMask);
         }
 
         /// <summary>
-        /// 
+        /// Combine the components of the mask into a full call sign or prefix.
         /// </summary>
-        /// <param name="expression"></param>
+        /// <param name="expandedMask"></param>
         /// <returns></returns>
-        private List<string> CombineComponents(string expression)
+        private List<string> CombineComponents(string expandedMask)
         {
-            List<string> tempMaskList = new List<string>();
-            List<string[]> charsList = new List<string[]>();
+            var maskList = new List<string>();
+            var charsList = new List<string[]>();
             StringBuilder builder;
 
-            charsList = BuildCharArray(charsList, expression);
+            charsList = BuildCharArray(charsList, expandedMask);
 
             // have list of arrays
             // for each caracter in the first list append each character of the second list
-            if (charsList.Count == 1)
+            if (charsList.Count != 1)
             {
-                tempMaskList.Add(charsList.First().ToString());
-                return tempMaskList;
-            }
+                string[] first = charsList.First();
+                string[] next = charsList.Skip(1).First();
 
-            string[] first = charsList.First();
-            string[] next = charsList.Skip(1).First();
-
-            // saves about 1/2 second overall
-            _ = Parallel.ForEach(first, firstItem =>
-            //foreach (string firstItem in first)
-            {
-                foreach (string nextItem in next)
+                foreach (var (firstItem, nextItem) in from string firstItem in first
+                                                      from string nextItem in next
+                                                      select (firstItem, nextItem))
                 {
-                    // slightly faster than concatenation
+                    // slightly faster than concatenation in this instance
                     builder = new StringBuilder().Append(firstItem).Append(nextItem);
-                    tempMaskList.Add(builder.ToString());
+                    maskList.Add(builder.ToString());
                 }
-            }
-            );
 
-            // are there more?
-            if (charsList.Count > 2)
-            {
-                charsList.Remove(first);
-                charsList.Remove(next);
-                tempMaskList = CombineRemainder(charsList, tempMaskList);
+                // are there more?
+                if (charsList.Count > 2)
+                {
+                    charsList.Remove(first);
+                    charsList.Remove(next);
+                    maskList = CombineRemainder(charsList, maskList);
+                }
+
+                return maskList;
             }
 
-            return tempMaskList;
+            maskList.Add(charsList.First().ToString());
+            return maskList;
         }
 
 
         /// <summary>
-        /// 
+        /// Build a list of arrays to be combined into all possible call sign possibilities.
         /// </summary>
         /// <param name="charsList"></param>
-        /// <param name="expression"></param>
+        /// <param name="expandedMask"></param>
         /// <returns></returns>
-        private List<string[]> BuildCharArray(List<string[]> charsList, string expression)
+        private List<string[]> BuildCharArray(List<string[]> charsList, string expandedMask)
         {
-            string temp;
+            string maskBuffer;
 
             // first get everything in blocks separated by []
-            if (expression.IndexOf("[") != -1 && expression.IndexOf("[") == 0)
+            if (expandedMask.IndexOf("[") != -1 && expandedMask.IndexOf("[") == 0)
             {
-                temp = expression.Substring(1, expression.IndexOf("]") - 1);
-                switch (temp)
+                maskBuffer = expandedMask.Substring(1, expandedMask.IndexOf("]") - 1);
+
+                switch (maskBuffer)
                 {
                     case "@":
                         charsList.Add(Alphabet);
@@ -388,82 +368,79 @@ namespace W6OP.CallParser
                         charsList.Add(AlphaNumerics);
                         break;
                     default:
-                        charsList.Add(temp.Select(c => c.ToString()).ToArray());
+                        charsList.Add(maskBuffer.Select(c => c.ToString()).ToArray());
                         break;
                 }
-                expression = expression.Remove(0, expression.IndexOf("]") + 1);
+                expandedMask = expandedMask.Remove(0, expandedMask.IndexOf("]") + 1);
             }
             else
             {
-                if (expression.IndexOf("[") != -1)
+                if (expandedMask.IndexOf("[") != -1)
                 {
-                    temp = expression.Substring(0, expression.IndexOf("["));
-                    expression = expression.Remove(0, expression.IndexOf("["));
-                    // Linq is faster
-                    charsList.AddRange(temp.Select(x => new string[1] { x.ToString() }));
+                    maskBuffer = expandedMask.Substring(0, expandedMask.IndexOf("["));
+                    expandedMask = expandedMask.Remove(0, expandedMask.IndexOf("["));
+                    // Linq is faster in this instance
+                    charsList.AddRange(maskBuffer.Select(x => new string[1] { x.ToString() }));
                 }
                 else
                 {
-                    temp = expression;
-                    expression = expression.Remove(0, temp.Length);
-                    // Linq is faster
-                    charsList.AddRange(temp.Select(x => new string[1] { x.ToString() }));
+                    maskBuffer = expandedMask;
+                    expandedMask = expandedMask.Remove(0, maskBuffer.Length);
+                    // Linq is faster in this instance
+                    charsList.AddRange(maskBuffer.Select(x => new string[1] { x.ToString() }));
                 }
             }
 
-            if (expression.Length > 0)
+            if (expandedMask.Length > 0)
             {
-                charsList = BuildCharArray(charsList, expression);
+                charsList = BuildCharArray(charsList, expandedMask);
             }
 
             return charsList;
         }
 
         /// <summary>
-        /// 
+        /// Recursively build the lists of masks/call signs
         /// </summary>
         /// <param name="charsList"></param>
         /// <param name="expressionList"></param>
-        private List<string> CombineRemainder(List<string[]> charsList, List<string> tempMaskList)
+        private List<string> CombineRemainder(List<string[]> charsList, List<string> maskList)
         {
-            List<string> tempList = new List<string>(); //1000
+            var maskBuffer = new List<string>();
             string[] first = charsList.First();
 
-            // faster without Linq
             if (charsList.Count > 0)
             {
-                // _ = Parallel.ForEach(tempMaskList, prefix =>
-                foreach (string prefix in tempMaskList)
+                foreach (var (prefix, nextItem) in from string prefix in maskList
+                                                   from string nextItem in first
+                                                   select (prefix, nextItem))
                 {
-                    foreach (string nextItem in first)
+                    switch (nextItem)
                     {
-                        if (nextItem == ".")
-                        {
-                            tempList.Add(prefix);
-                        }
-                        else
-                        {
-                            tempList.Add(prefix + nextItem);
-                        }
+                        case ".":
+                            maskBuffer.Add(prefix);
+                            break;
+                        default:
+                            maskBuffer.Add(prefix + nextItem);
+                            break;
                     }
                 }
-                //);
             }
 
             // this statement must be here before the stack is unwound
-            tempMaskList = tempList;
+            maskList = maskBuffer;
 
             if (charsList.Count > 1)
             {
                 charsList.Remove(first);
-                tempMaskList = CombineRemainder(charsList, tempMaskList);
+                maskList = CombineRemainder(charsList, maskList);
             }
 
-            return tempMaskList;
+            return maskList;
         }
 
         /// <summary>
-        /// 
+        /// Build the range of characters for [A-FGHI] constructs.
         /// </summary>
         /// <param name="currentCharacter"></param>
         /// <param name="nextCharacter"></param>
@@ -471,49 +448,59 @@ namespace W6OP.CallParser
         private string BuildRange(string currentCharacter, string nextCharacter)
         {
             string expandedMask = "";
+            int start;
+            int end;
 
-            // both numeric
-            if (IsNumeric(currentCharacter) && IsNumeric(nextCharacter))
+            switch (expandedMask)
             {
-                if (Convert.ToInt32(currentCharacter) < Convert.ToInt32(nextCharacter))
-                {
-                    int start = GetNumberIndex(currentCharacter);
-                    int end = GetNumberIndex(nextCharacter);
+                // both numeric
+                case string _ when IsNumeric(currentCharacter)
+                                   && IsNumeric(nextCharacter):
 
-                    for (int index = start; index <= end; index++)
+                    if (Convert.ToInt32(currentCharacter) < Convert.ToInt32(nextCharacter))
                     {
-                        expandedMask += Numbers[index];
+                        start = GetNumberIndex(currentCharacter);
+                        end = GetNumberIndex(nextCharacter);
+
+                        for (var index = start; index <= end; index++)
+                        {
+                            expandedMask += Numbers[index];
+                        }
                     }
-                }
-            }
+                    return expandedMask;
 
-            // both alpha
-            if (!IsNumeric(currentCharacter) && !IsNumeric(nextCharacter))
-            {
-                int start = GetCharacterIndex(currentCharacter);
-                int end = GetCharacterIndex(nextCharacter);
+                // both alpha
+                case string _ when !IsNumeric(currentCharacter)
+                                   && !IsNumeric(nextCharacter):
 
-                for (int index = start; index <= end; index++)
-                {
-                    expandedMask += Alphabet[index];
-                }
-            }
+                    start = GetCharacterIndex(currentCharacter);
+                    end = GetCharacterIndex(nextCharacter);
 
-            // numeric --> alpha
-            if (IsNumeric(currentCharacter) && !IsNumeric(nextCharacter))
-            {
-                int start = GetCharacterIndex(nextCharacter);
-                int end = GetCharacterIndex("Z");
+                    for (var index = start; index <= end; index++)
+                    {
+                        expandedMask += Alphabet[index];
+                    }
+                    return expandedMask;
 
-                for (int index = start; index <= end; index++)
-                {
-                    expandedMask += Alphabet[index];
-                }
-            }
+                // numeric --> alpha
+                case string _ when IsNumeric(currentCharacter)
+                                   && !IsNumeric(nextCharacter):
 
-            if (!IsNumeric(currentCharacter) && IsNumeric(nextCharacter))
-            {
-                Debug.Assert(!IsNumeric(currentCharacter) && IsNumeric(nextCharacter));
+                    start = GetCharacterIndex(nextCharacter);
+                    end = GetCharacterIndex("Z");
+
+                    for (var index = start; index <= end; index++)
+                    {
+                        expandedMask += Alphabet[index];
+                    }
+                    return expandedMask;
+
+                // alpha-- > numeric - shouldn't happen
+                case string _ when !IsNumeric(currentCharacter)
+                                   && IsNumeric(nextCharacter):
+
+                    Debug.Assert(!IsNumeric(currentCharacter) && IsNumeric(nextCharacter));
+                    return expandedMask;
             }
 
             return expandedMask;
@@ -530,33 +517,33 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// 
+        /// Replace the meta characters with their string equivalent.
         /// </summary>
         /// <param name="expando"></param>
         /// <returns></returns>
-        private string GetMetaMaskSetEx(string expando = "")
+        private string GetMetaMaskSet(string expando = "")
         {
-            if (expando.IndexOf("#") != -1)
+            if (expando.Contains("#"))
             {
                 expando = expando.Replace("#", "0123456789");
             }
 
-            if (expando.IndexOf("@") != -1)
+            if (expando.Contains("@"))
             {
                 expando = expando.Replace("@", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
             }
 
-            if (expando.IndexOf("?") != -1)
+            if (expando.Contains("?"))
             {
                 expando = expando.Replace("?", "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
             }
 
-            while (expando.IndexOf("-") != -1)
+            while (expando.Contains("-"))
             {
-                string expandedMask = expando.Substring(0, expando.IndexOf("-") - 1);
-                string post = expando.Substring(expando.IndexOf("-") + 2);
-                string currentCharacter = expando.Substring(expando.IndexOf("-") - 1, 1);
-                string nextCharacter = expando.Substring(expando.IndexOf("-") + 1, 1);
+                var expandedMask = expando.Substring(0, expando.IndexOf("-") - 1);
+                var post = expando.Substring(expando.IndexOf("-") + 2);
+                var currentCharacter = expando.Substring(expando.IndexOf("-") - 1, 1);
+                var nextCharacter = expando.Substring(expando.IndexOf("-") + 1, 1);
                 expandedMask += BuildRange(currentCharacter, nextCharacter);
                 expandedMask += post;
                 expando = expandedMask;

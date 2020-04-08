@@ -230,18 +230,15 @@ namespace CallParserTestor
                 // fill the datagrid
                 UpdateDataGrid(hitCollection);
 
-                // superseded by SaveHitList(dt) in UpdateDataGrid(hitCollection)
-                // save to a text file
-                //var thread = new Thread(() =>
-                //{
-                //    Cursor.Current = Cursors.WaitCursor;
-                //    SaveHitList(hitCollection.ToList());
-                //});
-                //thread.Start();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                // reduce memory use
+                hitCollection = null; 
             }
         }
 
