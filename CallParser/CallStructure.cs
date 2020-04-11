@@ -20,9 +20,9 @@ namespace W6OP.CallParser
         public string Suffix2 { get; set; }
         //public ComponentType ComponentType { get; set; } = ComponentType.Invalid;
         public CallStructureType CallStructureType { get; set; } = CallStructureType.Invalid;
-        private readonly Dictionary<string, List<int>> PortablePrefixes;
+        private readonly SortedDictionary<string, List<CallSignInfo>> PortablePrefixes;
 
-        public CallStructure(string callSign, Dictionary<string, List<int>> portablePrefixes)
+        public CallStructure(string callSign, SortedDictionary<string, List<CallSignInfo>> portablePrefixes)
         {
 
             PortablePrefixes = portablePrefixes;

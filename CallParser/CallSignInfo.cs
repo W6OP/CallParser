@@ -24,6 +24,12 @@ namespace W6OP.CallParser
         /// <summary>
         /// public properties
         /// </summary>
+        /// 
+        private List<List<string[]>> primaryMaskList = new List<List<string[]>>();
+        public Dictionary<string, byte> IndexKeys = new Dictionary<string, byte>();
+        public int Rank;
+
+        // --------------------------------------
         public int DXCC { get; set; }
         public int WAE { get; set; }
         public string Iota { get; set; }
@@ -56,10 +62,43 @@ namespace W6OP.CallParser
         public string HitPrefix { get; set; }
         public List<CallSignFlags> CallSignFlags { get; set; }
 
+        /// <summary>
+        /// Return the lists where the length of the list matches the count.
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public List<List<string[]>> GetPrimaryMaskList(int count)
+        {
+            var temp = primaryMaskList.Where(x => x.Count == count);
+            return temp.ToList(); 
+        }
+
+        public List<List<string[]>> GetPrimaryMaskList(int count, string letter)
+        {
+            var temp = primaryMaskList.Where(x => x.Count == count && x.First().Contains(""));
+            return temp.ToList(); 
+        }
+      
+
+        public void SetPrimaryMaskList(List<string[]> value)
+        {
+            primaryMaskList.Add(value);
+
+            foreach (var first in value[0])
+            {
+                if (!IndexKeys.ContainsKey(first))
+                {
+                     IndexKeys.Add(first, new byte() { });
+                }
+            }
+        }
+
+        
+
         private void InitializeCallSignInfo(XElement prefixXml)
         {
             string currentValue;
-           
+
             foreach (XElement element in prefixXml.Elements())
             {
                 currentValue = element.Value;
@@ -67,7 +106,7 @@ namespace W6OP.CallParser
                 switch (element.Name.ToString())
                 {
                     case "masks":
-                    break;
+                        break;
                     case "label":
                         FullPrefix = currentValue ?? "";
                         if (FullPrefix.Contains("."))
