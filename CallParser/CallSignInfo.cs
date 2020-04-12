@@ -25,8 +25,8 @@ namespace W6OP.CallParser
         /// public properties
         /// </summary>
         /// 
-        private List<List<string[]>> primaryMaskList = new List<List<string[]>>();
-        public Dictionary<string, byte> IndexKeys = new Dictionary<string, byte>();
+        private HashSet<List<string[]>> primaryMaskList = new HashSet<List<string[]>>();
+        public Dictionary<string, byte> IndexKey = new Dictionary<string, byte>();
         public int Rank;
 
         // --------------------------------------
@@ -73,12 +73,33 @@ namespace W6OP.CallParser
             return temp.ToList(); 
         }
 
-        public List<List<string[]>> GetPrimaryMaskList(string letter)
+        public List<List<string[]>> GetPrimaryMaskList(string first, string second)
         {
-            var temp = primaryMaskList.Where(x => x.First().Contains(letter));
-            return temp.ToList(); 
+            var temp = new List<List<string[]>>();
+            foreach (var item in primaryMaskList)
+            {
+                if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1)
+                {
+                    temp.Add(item);
+                }
+            }
+
+            return temp; 
         }
-      
+
+        public bool GetPrimaryMaskList(string first, string second, int dummy)
+        {
+            foreach (var item in primaryMaskList)
+            {
+                if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// The index key is a character that can be the first letter of a call.
         /// This way I can search faster.
@@ -90,9 +111,9 @@ namespace W6OP.CallParser
 
             foreach (var first in value[0])
             {
-                if (!IndexKeys.ContainsKey(first))
+                if (!IndexKey.ContainsKey(first))
                 {
-                     IndexKeys.Add(first, new byte() { });
+                    IndexKey.Add(first, new byte() { });
                 }
             }
         }
