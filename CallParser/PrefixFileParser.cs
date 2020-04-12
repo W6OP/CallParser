@@ -252,7 +252,7 @@ namespace W6OP.CallParser
             {
                 if (element.Value != "") // empty is usually a DXCC node
                 {
-                    if (element.Value == "EK" || element.Value == "EK/")
+                    if (element.Value == "H[AG]5")
                     {
                         var s = 1;
                     }
@@ -290,7 +290,7 @@ namespace W6OP.CallParser
                                     // PortablePrefixes.Add(pattern, new List<int> { callSignInfo.DXCC });
                                 }
                                 break;
-                            case string _ when callSignInfo.Kind != PrefixKind.DXCC:
+                            case string _ when callSignInfo.Kind != PrefixKind.InvalidPrefix:
                                 if (CallSignDictionary.TryGetValue(pattern, out var list2))
                                 {
                                     // VK9/ has multiple DXCC numbers - 35, 150...
@@ -301,27 +301,27 @@ namespace W6OP.CallParser
                                     CallSignDictionary.Add(pattern, new List<CallSignInfo> { callSignInfo });
                                 }
                                 break;
-                            case string _ when callSignInfo.Kind == PrefixKind.DXCC:
-                                try
-                                {
-                                    var patternTrimmed = pattern.Substring(0, 2);
-                                    if (DXCCOnlyCallSignDictionary.TryGetValue(patternTrimmed, out var list3))
-                                    {
-                                        // VK9/ has multiple DXCC numbers - 35, 150...
-                                        //list3.Add(callSignInfo.DXCC);
-                                        list3.Add(callSignInfo);
-                                    }
-                                    else
-                                    {
-                                        DXCCOnlyCallSignDictionary.Add(patternTrimmed, new List<CallSignInfo> { callSignInfo });
-                                        //DXCCOnlyCallSignDictionary.Add(pattern.Substring(0, 2), new List<int> { callSignInfo.DXCC });
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    var e = 3;
-                                }
-                                break;
+                            //case string _ when callSignInfo.Kind == PrefixKind.DXCC:
+                            //    try
+                            //    {
+                            //        var patternTrimmed = pattern.Substring(0, 2);
+                            //        if (DXCCOnlyCallSignDictionary.TryGetValue(patternTrimmed, out var list3))
+                            //        {
+                            //            // VK9/ has multiple DXCC numbers - 35, 150...
+                            //            //list3.Add(callSignInfo.DXCC);
+                            //            list3.Add(callSignInfo);
+                            //        }
+                            //        else
+                            //        {
+                            //            DXCCOnlyCallSignDictionary.Add(patternTrimmed, new List<CallSignInfo> { callSignInfo });
+                            //            //DXCCOnlyCallSignDictionary.Add(pattern.Substring(0, 2), new List<int> { callSignInfo.DXCC });
+                            //        }
+                            //    }
+                            //    catch (Exception ex)
+                            //    {
+                            //        var e = 3;
+                            //    }
+                            //    break;
                             default:
                                 break;
                         }
@@ -407,9 +407,6 @@ namespace W6OP.CallParser
 
             return patternList;
         }
-
-
-
 
         /// <summary>
         /// Break up the mask into sections and expand all of the meta characters.

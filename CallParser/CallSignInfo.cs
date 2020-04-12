@@ -73,13 +73,17 @@ namespace W6OP.CallParser
             return temp.ToList(); 
         }
 
-        public List<List<string[]>> GetPrimaryMaskList(int count, string letter)
+        public List<List<string[]>> GetPrimaryMaskList(string letter)
         {
-            var temp = primaryMaskList.Where(x => x.Count == count && x.First().Contains(""));
+            var temp = primaryMaskList.Where(x => x.First().Contains(letter));
             return temp.ToList(); 
         }
       
-
+        /// <summary>
+        /// The index key is a character that can be the first letter of a call.
+        /// This way I can search faster.
+        /// </summary>
+        /// <param name="value"></param>
         public void SetPrimaryMaskList(List<string[]> value)
         {
             primaryMaskList.Add(value);
@@ -93,8 +97,10 @@ namespace W6OP.CallParser
             }
         }
 
-        
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="prefixXml"></param>
         private void InitializeCallSignInfo(XElement prefixXml)
         {
             string currentValue;

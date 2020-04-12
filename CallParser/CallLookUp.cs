@@ -106,12 +106,7 @@ namespace W6OP.CallParser
             {
                 throw new Exception("The call sign list must contain at least one entry.");
             }
-            // Console.WriteLine("Callsigns: " + callSigns.Count.ToString());
-
-            //if (!Environment.Is64BitProcess && callSigns.Count > 1500000)
-            //{
-            //    throw new Exception("To many entries. Please reduce the number of entries to 1.5 million or less.");
-            //}
+            
 
             // parallel foreach almost twice as fast but requires blocking collection
             // comment out for debugging - need to use non parallel foreach for debugging
@@ -295,7 +290,7 @@ namespace W6OP.CallParser
 
             // some calls like DL6DH can't be found until you search for DL
             searchTerm = persistSearchTerm;
-            CheckAdditionalDXCCEntities(callStructure, fullCall, searchTerm);
+            //CheckAdditionalDXCCEntities(callStructure, fullCall, searchTerm);
 
             return;
         }
@@ -336,6 +331,7 @@ namespace W6OP.CallParser
         private bool SearchMainDictionaryEx(string searchTerm, string baseCall, string fullCall, bool saveHit, out string mainPrefix)
         {
             var firstLetter = baseCall.First().ToString();
+            var nextLetter = searchTerm.Skip(1).First().ToString();
             var list = new List<CallSignInfo>();
             var rank = new CallSignInfo();
             var foundItems = new HashSet<CallSignInfo>();
@@ -351,13 +347,11 @@ namespace W6OP.CallParser
                 {
                     // get a list of callSignInfo where the first letter in the primarymasklist == the first letter in the call
                     var temp = query.Where(x => x.IndexKeys.ContainsKey(firstLetter)).ToList();
-                   
-                    
 
                     if (temp.Count != 0)
                     {
                         list.AddRange(temp);
-                        break;
+                        //break;
                     }
                 }
                 pattern = pattern.Remove(pattern.Length - 1);
@@ -374,41 +368,38 @@ namespace W6OP.CallParser
             {
                 foreach (CallSignInfo info in list)
                 {
-                    var nextLetter = searchTerm.Skip(1).First().ToString();
-                    var primaryMaskList = info.GetPrimaryMaskList(searchTerm.Length).Where(x => x.First().Contains(firstLetter) && x.Skip(1).First().Contains(nextLetter));
-                   // var primaryMaskList = info.GetPrimaryMaskList(searchTerm.Length, firstLetter);
+                    nextLetter = searchTerm.Skip(1).First().ToString();
+                    var primaryMaskList = info.GetPrimaryMaskList(firstLetter).Where(x => x.Skip(1).First().Contains(nextLetter)).ToList();
 
-                    foreach (List<string[]> maskList in primaryMaskList.ToList()) // ToList uneccessary here
+                    foreach (List<string[]> maskList in primaryMaskList) // ToList uneccessary here
                     {
-                        var position = 1;
+                        var position = 2;
                         var previous = true;
 
-                        //Console.WriteLine(info.Country);
-                        // get smallest
-                        //var length = baseCall.Length < maskList.Count ? baseCall.Length : maskList.Count;
-                        if (maskList[0].Contains(firstLetter))
+                        // get smaller length
+                        var length = searchTerm.Length < maskList.Count ? searchTerm.Length : maskList.Count;
+
+                        for (var i = 2; i < length; i++)
                         {
-                            for (var i = 1; i < searchTerm.Length; i++)
-                            {
-                                //var 
-                                nextLetter = searchTerm.Skip(i).First().ToString();
+                            nextLetter = searchTerm.Skip(i).First().ToString();
 
-                                if (maskList[position].Contains(nextLetter) && previous)
-                                {
-                                    info.Rank = position + 1;
-                                }
-                                else
-                                {
-                                    previous = false;
-                                    break;
-                                }
-                                position += 1;
-                            }
-
-                            if (info.Rank == searchTerm.Length)
+                            if (maskList[position].Contains(nextLetter) && previous)
                             {
-                                foundItems.Add(info);
+                                info.Rank = position + 1;
                             }
+                            else
+                            {
+                                previous = false;
+                                break;
+                            }
+                            position += 1;
+                        }
+
+                        // if found with 2 chars
+                        if (info.Rank == length || maskList.Count == 2)
+                        {
+                            info.Rank = 0; // probably should do something else here - need to clear rank, however
+                            foundItems.Add(info);
                         }
                     }
                 }
@@ -442,6 +433,12 @@ namespace W6OP.CallParser
             return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="callStructure"></param>
+        /// <param name="fullCall"></param>
+        /// <returns></returns>
         private bool CheckForPortablePrefix(CallStructure callStructure, string fullCall)
         {
             string prefix = callStructure.Prefix + "/";
