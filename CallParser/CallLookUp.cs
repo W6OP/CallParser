@@ -166,11 +166,10 @@ namespace W6OP.CallParser
         
         private void CollectMatches(CallStructure callStructure, string fullCall)
         {
-            string baseCall = callStructure.BaseCall;
             CallStructureType callStructureType = callStructure.CallStructureType;
 
             // ValidStructures = ':C:C#:C#M:C#T:CM:CM#:CMM:CMP:CMT:CP:CPM:CT:PC:PCM:PCT:';
-
+            try { 
             switch (callStructureType) // GT3UCQ/P
             {
                 case CallStructureType.CallPrefix:
@@ -197,10 +196,22 @@ namespace W6OP.CallParser
                 default:
                     break;
             }
-
-            if (SearchMainDictionary(callStructure, fullCall, true, out _))
+            }
+            catch (Exception ex)
             {
-                return;
+                var e = ex.Message;
+            }
+
+            try
+            {
+                if (SearchMainDictionary(callStructure, fullCall, true, out _))
+                {
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                var e = ex.Message;
             }
 
             return;
@@ -499,7 +510,16 @@ namespace W6OP.CallParser
                 if (SearchMainDictionary(callStructure, fullCall, false, out string mainPrefix))
                 {
                     callStructure.Prefix = ReplaceCallArea(mainPrefix, callStructure.Prefix);
-                    callStructure.CallStructureType = CallStructureType.PrefixCall;
+                    if (mainPrefix != "")
+                    {
+                        callStructure.CallStructureType = CallStructureType.PrefixCall;
+                    }
+                    else
+                    {
+                        // M0CCA/6 - main prefix is "G"
+                        callStructure.CallStructureType = CallStructureType.Call;
+                    }
+                    
                     CollectMatches(callStructure, fullCall);
                     return true;
                 }
@@ -527,6 +547,10 @@ namespace W6OP.CallParser
                     if (OneCharPrefs.Contains(mainPrefix.First()))
                     {
                         p = 2;
+                    }
+                    else if (mainPrefix.All(char.IsLetter))
+                    {
+                        return "";
                     }
                     break;
                 case 2:

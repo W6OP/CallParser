@@ -128,9 +128,9 @@ namespace W6OP.CallParser
                     Prefix = component0;
                     return;
                 
-                    // PPortable
+                    // PP - PrefixPortable
                 case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.Portable:
-                    CallStructureType = CallStructureType.CallPortable;
+                    CallStructureType = CallStructureType.Invalid;
                     return;
 
                 // CC  ==> CP - check BU - BY - VU4 - VU7
