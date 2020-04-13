@@ -73,24 +73,42 @@ namespace W6OP.CallParser
             return temp.ToList(); 
         }
 
-        public List<List<string[]>> GetPrimaryMaskList(string first, string second)
+        public List<List<string[]>> GetPrimaryMaskList(string first, string second, bool stopFound)
         {
             var temp = new List<List<string[]>>();
             foreach (var item in primaryMaskList)
             {
-                if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1)
+                if (stopFound)
                 {
-                    temp.Add(item);
+                    if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[item.Count - 1], ".") != -1)
+                    {
+                        temp.Add(item);
+                    }
+                }
+                else
+                {
+                    if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[item.Count - 1], ".") == -1)
+                    {
+                        temp.Add(item);
+                    }
                 }
             }
 
             return temp; 
         }
 
-        public bool GetPrimaryMaskList(string first, string second, int dummy)
+        public bool MaskListExists(string first, string second, bool stopFound)
         {
             foreach (var item in primaryMaskList)
             {
+                if (stopFound)
+                {
+                    if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[item.Count - 1], ".") != -1)
+                    {
+                        return true;
+                    }
+                }
+
                 if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1)
                 {
                     return true;

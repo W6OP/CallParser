@@ -23,7 +23,6 @@ namespace W6OP.CallParser
         // writing to List<T> are faster than writing to Hashset<T>
         private ConcurrentBag<CallSignInfo> HitList;
         private readonly SortedDictionary<string, List<CallSignInfo>> CallSignDictionary;
-        public SortedDictionary<string, List<CallSignInfo>> DXCCOnlyCallSignDictionary;
         private SortedDictionary<int, CallSignInfo> Adifs { get; set; }
         private readonly SortedDictionary<string, List<CallSignInfo>> PortablePrefixes;
         //private readonly Dictionary<string, List<int>> PortablePrefixes;
@@ -44,7 +43,6 @@ namespace W6OP.CallParser
         {
             //this._PrefixesDictionary = prefixFileParser.PrefixesDictionary;
             this.CallSignDictionary = prefixFileParser.CallSignDictionary;
-            this.DXCCOnlyCallSignDictionary = prefixFileParser.DXCCOnlyCallSignDictionary;
             Adifs = prefixFileParser.Adifs;
             PortablePrefixes = prefixFileParser.PortablePrefixes;
         }
@@ -58,8 +56,6 @@ namespace W6OP.CallParser
         {
             HitList = new ConcurrentBag<CallSignInfo>();
 
-            //if (ValidateCallSign(callSign))
-            //{
             try
             {
                 ProcessCallSign(callSign.ToUpper());
@@ -68,13 +64,7 @@ namespace W6OP.CallParser
             {
                 throw new Exception("Invalid call sign format.");
             }
-            //}
-            //else
-            //{
-            //    throw new Exception("Invalid call sign format.");
-            //    //Console.WriteLine("Invalid call sign format: " + callSign);
-            //}
-
+           
             return HitList.AsEnumerable();
         }
 
@@ -159,7 +149,7 @@ namespace W6OP.CallParser
 
             if (callStructure.CallStructureType != CallStructureType.Invalid)
             {
-                CollectMatchesEx(callStructure, callSign);
+                CollectMatches(callStructure, callSign);
             }
         }
 
@@ -173,13 +163,11 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="callOrPrefix"></param>
         /// /// <param name="fullCall"></param>
+        
         private void CollectMatches(CallStructure callStructure, string fullCall)
         {
-            //string prefix = callStructure.Prefix;
             string baseCall = callStructure.BaseCall;
             CallStructureType callStructureType = callStructure.CallStructureType;
-
-            string searchTerm = baseCall;
 
             // ValidStructures = ':C:C#:C#M:C#T:CM:CM#:CMM:CMP:CMT:CP:CPM:CT:PC:PCM:PCT:';
 
@@ -207,90 +195,13 @@ namespace W6OP.CallParser
                     if (CheckReplaceCallArea(callStructure: callStructure, fullCall)) { return; }
                     break;
                 default:
-                    searchTerm = baseCall;
                     break;
             }
 
-            string persistSearchTerm = searchTerm;
-
-            // check the DXCC list first with the full search term or we will get incorrect results
-            //if (CheckDXCCList(searchTerm, baseCall, fullCall))
-            //{
-            //    return;
-            //}
-
-            // masks are from 2 - 8 characters in the CallSignDictionary
-            // remove characters from end of call until hit
-            if (SearchMainDictionaryEx(searchTerm, baseCall, fullCall, true, out _))
+            if (SearchMainDictionary(callStructure, fullCall, true, out _))
             {
                 return;
             }
-
-
-            // some calls like DL6DH can't be found until you search for DL
-            //searchTerm = persistSearchTerm;
-            //CheckAdditionalDXCCEntities(callStructure, fullCall, searchTerm);
-
-            return;
-        }
-
-        private void CollectMatchesEx(CallStructure callStructure, string fullCall)
-        {
-            //string prefix = callStructure.Prefix;
-            string baseCall = callStructure.BaseCall;
-            CallStructureType callStructureType = callStructure.CallStructureType;
-
-            string searchTerm = baseCall;
-
-            // ValidStructures = ':C:C#:C#M:C#T:CM:CM#:CMM:CMP:CMT:CP:CPM:CT:PC:PCM:PCT:';
-
-            switch (callStructureType) // GT3UCQ/P
-            {
-                case CallStructureType.CallPrefix:
-                    if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
-                    break;
-                case CallStructureType.PrefixCall:
-                    if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
-                    break;
-                case CallStructureType.CallPortablePrefix:
-                    if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
-                    break;
-                case CallStructureType.CallPrefixPortable:
-                    if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
-                    break;
-                case CallStructureType.PrefixCallPortable:
-                    if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
-                    break;
-                case CallStructureType.PrefixCallText:
-                    if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
-                    break;
-                case CallStructureType.CallDigit:
-                    if (CheckReplaceCallArea(callStructure: callStructure, fullCall)) { return; }
-                    break;
-                default:
-                    searchTerm = baseCall;
-                    break;
-            }
-
-            string persistSearchTerm = searchTerm;
-
-            // check the DXCC list first with the full search term or we will get incorrect results
-            //if (CheckDXCCList(searchTerm, baseCall, fullCall))
-            //{
-            //    return;
-            //}
-
-            // masks are from 2 - 8 characters in the CallSignDictionary
-            // remove characters from end of call until hit
-            if (SearchMainDictionaryEx(searchTerm, baseCall, fullCall, true, out _))
-            {
-                return;
-            }
-
-
-            // some calls like DL6DH can't be found until you search for DL
-            searchTerm = persistSearchTerm;
-            //CheckAdditionalDXCCEntities(callStructure, fullCall, searchTerm);
 
             return;
         }
@@ -329,8 +240,10 @@ namespace W6OP.CallParser
             return pattern;
         }
 
-        int Total = 0;
         /// <summary>
+        /// Search the CallSignDictionary for a hit with the full call. If it doesn't 
+        /// hit remove characters from the end until hit or there are no letters fleft. 
+        /// Return the CallSignInfo as an out parameter for the ReplaceCallArea() function. 
         /// string[] validCallStructures = { "@#@@", "@#@@@", "@##@", "@##@@", "@##@@@", "@@#@", "@@#@@", "@@#@@@", "#@#@", "#@#@@", "#@#@@@", "#@@#@", "#@@#@@" };
         /// </summary>
         /// <param name="searchTerm"></param>
@@ -339,21 +252,23 @@ namespace W6OP.CallParser
         /// <param name="saveHit"></param>
         /// <param name="mainPrefix"></param>
         /// <returns></returns>
-        private bool SearchMainDictionaryEx(string searchTerm, string baseCall, string fullCall, bool saveHit, out string mainPrefix)
+        private bool SearchMainDictionary(CallStructure callStructure, string fullCall, bool saveHit, out string mainPrefix)
         {
+            var baseCall = callStructure.BaseCall;
             var firstLetter = baseCall.Substring(0, 1);
-            var nextLetter = searchTerm.Substring(1, 1);
+            var nextLetter = baseCall.Substring(1, 1);
             var list = new List<CallSignInfo>();
             var foundItems = new HashSet<CallSignInfo>();
-            var pattern = BuildPattern(searchTerm);
+            var pattern = BuildPattern(callStructure.BaseCall);
             var temp = new List<CallSignInfo>();
-            var persist = searchTerm;
+            int stopPosition;
+            bool stopFound = false;
 
-            Total = 0;
+            // first we look in all the "." patterns for calls like KG4AA vs KG4AAA
+            pattern += ".";
 
             while (pattern.Length > 1)
             {
-                //Total += 1;
                 if (CallSignDictionary.TryGetValue(pattern, out var query))
                 {
                     temp.Clear();
@@ -362,10 +277,22 @@ namespace W6OP.CallParser
                     {
                         if (callSignInfo.IndexKey.ContainsKey(firstLetter))
                         {
-                            if (callSignInfo.GetPrimaryMaskList(firstLetter, nextLetter, 0) == true)
+                            if (pattern.Last() == '.')
                             {
-                                temp.Add(callSignInfo);
-                                //break;
+                                stopFound = true;
+                                if (callSignInfo.MaskListExists(firstLetter, nextLetter, stopFound) == true)
+                                {
+                                    temp.Add(callSignInfo);
+                                    //break;
+                                }
+                            }
+                            else
+                            {
+                                stopFound = false;
+                                if (callSignInfo.MaskListExists(firstLetter, nextLetter, stopFound) == true)
+                                {
+                                    temp.Add(callSignInfo);
+                                }
                             }
                         }
                     }
@@ -373,40 +300,38 @@ namespace W6OP.CallParser
 
                     if (temp.Count != 0)
                     {
+                        if (pattern.Last() == '.')
+                        {
+                            stopPosition = pattern.Length - 1;
+                            list.AddRange(temp);
+                            break;
+                        }
                         list.AddRange(temp);
                     }
                 }
                 pattern = pattern.Remove(pattern.Length - 1);
-                //searchTerm = searchTerm.Remove(searchTerm.Length - 1);
             }
-           // Console.WriteLine("Total: " + Total.ToString());
-            //if (searchTerm == "")
-            //{
-            //    searchTerm = persist;
-            //}
 
             // now we have a list of posibilities // HG5ACZ/P 
             if (list.Count > 0)
             {
+                
                 foreach (CallSignInfo info in list)
                 {
-                    //Total += 1;
-                    //Console.WriteLine("Total: " + Total.ToString());
-                    //nextLetter = searchTerm.Substring(1, 1); //.Skip(1).First().ToString();
-
-                    var primaryMaskList = info.GetPrimaryMaskList(firstLetter, nextLetter);
+                    var previous = true;
+                    var primaryMaskList = info.GetPrimaryMaskList(firstLetter, nextLetter, stopFound);
 
                     foreach (List<string[]> maskList in primaryMaskList) // ToList uneccessary here
                     {
                         var position = 2;
-                        var previous = true;
+                        previous = true;
 
                         // get smaller length
-                        var length = searchTerm.Length < maskList.Count ? searchTerm.Length : maskList.Count;
+                        var length = baseCall.Length < maskList.Count ? baseCall.Length : maskList.Count;
 
                         for (var i = 2; i < length; i++)
                         {
-                            var anotherLetter = searchTerm.Substring(i, 1); //.Skip(i).First().ToString();
+                            var anotherLetter = baseCall.Substring(i, 1); //.Skip(i).First().ToString();
 
                             if (maskList[position].Contains(anotherLetter) && previous)
                             {
@@ -433,7 +358,7 @@ namespace W6OP.CallParser
                 {
                     if (saveHit)
                     {
-                        BuildHit(foundItems, baseCall, searchTerm, fullCall);
+                        BuildHit(foundItems, callStructure.BaseCall, baseCall, fullCall);
                         mainPrefix = "";
                         return true;
                     }
@@ -451,7 +376,7 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// 
+        /// Portable prefixes are prefixes that end with "/"
         /// </summary>
         /// <param name="callStructure"></param>
         /// <param name="fullCall"></param>
@@ -481,7 +406,7 @@ namespace W6OP.CallParser
                 foreach (CallSignInfo info in list)
                 {
                     var nextLetter = prefix.Skip(1).First().ToString();
-                    var primaryMaskList = info.GetPrimaryMaskList(firstLetter, nextLetter);
+                    var primaryMaskList = info.GetPrimaryMaskList(firstLetter, nextLetter, false);
 
                     foreach (List<string[]> maskList in primaryMaskList)
                     {
@@ -525,113 +450,6 @@ namespace W6OP.CallParser
             return false;
         }
 
-        /// <summary>
-        /// Some calls overlap different entities, specifically 4U1A (IARC) and 4U1N (ITU) and Austria
-        /// Others like B1Z and DL(6DH) only are in the Adifs list
-        /// so I check the DXCC list (Adifs) to find them
-        /// </summary>
-        /// <param name="callStructure"></param>
-        /// <param name="fullCall"></param>
-        private void CheckAdditionalDXCCEntities(CallStructure callStructure, string fullCall, string searchTerm)
-        {
-            var baseCall = callStructure.BaseCall;
-            var firstLetter = baseCall.First().ToString();
-            var list = new List<CallSignInfo>();
-            var foundItems = new HashSet<CallSignInfo>();
-            var pattern = BuildPattern(searchTerm);
-
-            var persist = searchTerm;
-          
-            while (searchTerm != "")
-            {
-                if (DXCCOnlyCallSignDictionary.TryGetValue(pattern, out var query))
-                {
-                    var temp = new List<CallSignInfo>();
-                    foreach (var callSignInfo in query)
-                    {
-                        if (callSignInfo.IndexKey.ContainsKey(firstLetter))
-                        {
-                            temp.Add(callSignInfo);
-                        }
-                    }
-
-                    if (temp.Count != 0)
-                    {
-                        list.AddRange(temp);
-                    }
-                }
-                pattern = pattern.Remove(pattern.Length - 1);
-                searchTerm = searchTerm.Remove(searchTerm.Length - 1);
-            }
-
-            if (searchTerm == "")
-            {
-                searchTerm = persist;
-            }
-
-            // now we have a list of posibilities // HG5ACZ/P 
-            if (list.Count > 0)
-            {
-                foreach (CallSignInfo info in list)
-                {
-                    var nextLetter = searchTerm.Skip(1).First().ToString();
-
-                    //var primaryMaskList = info.GetPrimaryMaskList(firstLetter).Where(x => x.Skip(1).First().Contains(nextLetter)).ToList();
-                    var primaryMaskList = info.GetPrimaryMaskList(firstLetter, nextLetter);
-
-                    foreach (List<string[]> maskList in primaryMaskList) // ToList uneccessary here
-                    {
-                        var position = 2;
-                        var previous = true;
-
-                        // get smaller length
-                        var length = searchTerm.Length < maskList.Count ? searchTerm.Length : maskList.Count;
-
-                        for (var i = 2; i < length; i++)
-                        {
-                            nextLetter = searchTerm.Skip(i).First().ToString();
-
-                            if (maskList[position].Contains(nextLetter) && previous)
-                            {
-                                info.Rank = position + 1;
-                            }
-                            else
-                            {
-                                previous = false;
-                                break;
-                            }
-                            position += 1;
-                        }
-
-                        // if found with 2 chars
-                        if (info.Rank == length || maskList.Count == 2)
-                        {
-                            info.Rank = 0; // probably should do something else here - need to clear rank, however
-                            foundItems.Add(info);
-                        }
-                    }
-                }
-
-                if (foundItems.Count > 0)
-                {
-
-                    //if (saveHit)
-                    //{
-                    BuildHit(foundItems, baseCall, searchTerm, fullCall);
-                    //}
-                    //else
-                    //{
-                    //    mainPrefix = foundItems.First().MainPrefix; // NEED TO ACOUNT FOR MORE THAN ONE
-                    //    return true;
-                    //}
-
-                }
-            }
-
-            //mainPrefix = "";
-
-            //return false;
-        }
 
         /// <summary>
         /// Build the hit and add it to the hitlist.
@@ -667,59 +485,6 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// Search the CallSignDictionary for a hit with the full call. If it doesn't 
-        /// hit remove characters from the end until hit or there are no letters fleft. 
-        /// Return the CallSignInfo as an out parameter for the ReplaceCallArea() function.
-        /// </summary>
-        /// <param name="searchTerm"></param>
-        /// <param name="baseCall"></param>
-        /// <param name="fullCall"></param>
-        /// <param name="saveHit"></param>
-        /// <param name="callSignInfo"></param>
-        /// <returns></returns>
-        private bool SearchMainDictionary(string searchTerm, string baseCall, string fullCall, bool saveHit, out CallSignInfo callSignInfo)
-        {
-            while (searchTerm != string.Empty)
-            {
-                if (CallSignDictionary.TryGetValue(searchTerm, out var query))
-                {
-                    callSignInfo = query.First();
-
-                    if (callSignInfo.Kind != PrefixKind.InvalidPrefix)
-                    {
-                        var callSignInfoCopy = callSignInfo.ShallowCopy();
-                        callSignInfoCopy.CallSign = fullCall;
-                        callSignInfoCopy.BaseCall = baseCall;
-                        callSignInfoCopy.HitPrefix = searchTerm;
-                        if (saveHit)
-                        {
-                            HitList.Add(callSignInfoCopy);
-
-                            if (callSignInfo.Kind != PrefixKind.DXCC)
-                            {
-                                if (Adifs[Convert.ToInt32(callSignInfo.DXCC)].Kind != PrefixKind.InvalidPrefix)
-                                {
-                                    var callSignInfoCopyDxcc = Adifs[Convert.ToInt32(callSignInfo.DXCC)].ShallowCopy();
-                                    callSignInfoCopyDxcc.CallSign = fullCall;
-                                    callSignInfoCopyDxcc.BaseCall = baseCall;
-                                    callSignInfoCopy.HitPrefix = searchTerm;
-                                    HitList.Add(callSignInfoCopyDxcc);
-                                }
-                            }
-                        }
-                    }
-
-                    return true;
-                }
-
-                searchTerm = searchTerm.Remove(searchTerm.Length - 1);
-            }
-
-            callSignInfo = new CallSignInfo();
-            return false;
-        }
-
-        /// <summary>
         /// Check if the call area needs to be replaced and do so if necessary.
         /// If the original call gets a hit, find the MainPrefix and replace
         /// the call area with the new call area. Then do a search with that.
@@ -731,11 +496,11 @@ namespace W6OP.CallParser
             // UY0KM/0
             if (callStructure.Prefix != callStructure.BaseCall.FirstOrDefault(c => char.IsDigit(c)).ToString())
             {
-                if (SearchMainDictionaryEx(searchTerm: callStructure.BaseCall, baseCall: callStructure.BaseCall, fullCall, false, out string mainPrefix))
+                if (SearchMainDictionary(callStructure, fullCall, false, out string mainPrefix))
                 {
                     callStructure.Prefix = ReplaceCallArea(mainPrefix, callStructure.Prefix);
                     callStructure.CallStructureType = CallStructureType.PrefixCall;
-                    CollectMatchesEx(callStructure, fullCall);
+                    CollectMatches(callStructure, fullCall);
                     return true;
                 }
             }
@@ -794,101 +559,6 @@ namespace W6OP.CallParser
             }
 
             return $"{mainPrefix.Substring(0, p - 1)}{callArea}/";
-        }
-
-        /// <summary>
-        /// Look through the list of valid prefixes for each DXCC entry
-        /// until a match is found - or not.
-        /// </summary>
-        /// <param name="searchTerm"></param>
-        /// <param name="baseCall"></param>
-        /// <param name="fullCall"></param>
-        /// <returns></returns>
-        private bool CheckDXCCList(string searchTerm, string baseCall, string fullCall)
-        {
-            //if (DXCCOnlyCallSignDictionary.TryGetValue(searchTerm, out var query))
-            //{
-            //    var dxccList = query.ToList();
-
-            //    foreach (int dxcc in dxccList)
-            //    {
-            //        if (Adifs[dxcc].Kind != PrefixKind.InvalidPrefix)
-            //        {
-            //            var callSignInfoCopyDxcc = Adifs[dxcc].ShallowCopy();
-            //            callSignInfoCopyDxcc.CallSign = fullCall;
-            //            callSignInfoCopyDxcc.BaseCall = baseCall;
-            //            callSignInfoCopyDxcc.HitPrefix = searchTerm;
-            //            HitList.Add(callSignInfoCopyDxcc);
-            //        }
-            //    }
-            //    return true;
-            //}
-
-            return false;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="callStructure"></param>
-        /// <param name="fullCall"></param>
-        /// <param name="searchTerm"></param>
-        /// <returns></returns>
-        private bool CheckForPortablePrefix_Old(CallStructure callStructure, string fullCall)
-        {
-            string prefix = callStructure.Prefix;
-            string baseCall = callStructure.BaseCall;
-
-
-            prefix = prefix + "/";
-
-            // check for portable prefixes
-            // this will catch G/, W/, W4/, VU@@/ VU4@@/ VK9/
-            if (PortablePrefixes.TryGetValue(prefix, out var entities))
-            {
-                foreach (var callSignInfoCopy in from int entity in entities
-                                                 let callSignInfo = Adifs[entity]
-                                                 let callSignInfoCopy = callSignInfo.ShallowCopy()
-                                                 select callSignInfoCopy)
-                {
-                    callSignInfoCopy.CallSign = fullCall;
-                    callSignInfoCopy.BaseCall = baseCall;
-                    callSignInfoCopy.HitPrefix = prefix;
-                    //if (callStructure.CallStuctureType.ToString().Contains("Portable"))
-                    //{
-                    //    callSignInfoCopy.CallSignFlags.Add(CallSignFlags.Portable);
-                    //}
-                    HitList.Add(callSignInfoCopy);
-                }
-                return true;
-            }
-            return false;
-        }
-
-        private void CheckAdditionalDXCCEntities_Old(CallStructure callStructure, string fullCall, string searchTerm)
-        {
-            while (searchTerm != string.Empty)
-            {
-                //if (DXCCOnlyCallSignDictionary.TryGetValue(searchTerm, out var query))
-                //{
-                //    var dxccList = query.ToList();
-
-                //    foreach (int dxcc in dxccList)
-                //    {
-                //        if (Adifs[dxcc].Kind != PrefixKind.InvalidPrefix)
-                //        {
-                //            var callSignInfoCopyDxcc = Adifs[dxcc].ShallowCopy();
-                //            callSignInfoCopyDxcc.CallSign = fullCall;
-                //            callSignInfoCopyDxcc.BaseCall = callStructure.BaseCall;
-                //            callSignInfoCopyDxcc.HitPrefix = searchTerm;
-                //            HitList.Add(callSignInfoCopyDxcc);
-                //        }
-                //    }
-                //    return;
-                //}
-
-                searchTerm = searchTerm.Remove(searchTerm.Length - 1);
-            }
         }
 
         /// <summary>
