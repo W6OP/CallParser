@@ -542,7 +542,7 @@ namespace W6OP.CallParser
 
             if (validPrefixes.Contains(pattern))
             {
-                if (PortablePrefixes.ContainsKey(candidate + "/"))
+                if (PortablePrefixes.ContainsKey(pattern + "/"))
                 {
                     return ComponentType.Prefix;
                 }

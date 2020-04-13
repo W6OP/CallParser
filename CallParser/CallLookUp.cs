@@ -558,7 +558,7 @@ namespace W6OP.CallParser
                     break;
             }
 
-            return $"{mainPrefix.Substring(0, p - 1)}{callArea}/";
+            return $"{mainPrefix.Substring(0, p - 1)}{callArea}";
         }
 
         /// <summary>
