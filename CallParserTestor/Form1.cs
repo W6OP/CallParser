@@ -61,6 +61,7 @@ namespace CallParserTestor
         private void ButtonLoadPrefixFile_Click(object sender, EventArgs e)
         {
             UseWaitCursor = true;
+            CheckBoxMergeHits.Enabled = true;
             Task.Run(() => ParsePrefixFile(TextBoxPrefixFilePath.Text));
         }
 
@@ -157,7 +158,7 @@ namespace CallParserTestor
 
                         foreach (CallSignInfo hit in hitList)
                         {
-                            UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.DXCC.ToString());
+                            UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.GetDXCC().ToString());
                         }
 
                         // save to a text file - not necessary for a single call
@@ -273,17 +274,21 @@ namespace CallParserTestor
                                 {
                                     dt.Rows.Add(new object[] { hit.CallSign, hit.Kind, hit.Country, "Delphi: " + delphiCountry, "" });
                                 }
+                                else
+                                {
+                                    //dt.Rows.Add(new object[] { hit.CallSign, hit.Kind, hit.Country, "Delphi: " + "MISSING", "" });
+                                }
                             }
                         }
                         else
                         {
                             if (hit.Kind == PrefixKind.DXCC) // || oItem.Kind == PrefixKind.InvalidPrefix
                             {
-                                dt.Rows.Add(new object[] { hit.CallSign, hit.Kind, hit.Country, hit.Province ?? "", hit.DXCC.ToString() });
+                                dt.Rows.Add(new object[] { hit.CallSign, hit.Kind, hit.Country, hit.Province ?? "", hit.GetDXCC().ToString() });
                             }
                             else
                             {
-                                dt.Rows.Add(new object[] { "     ", hit.Kind, hit.Country, hit.Province ?? "", hit.DXCC.ToString() });
+                                dt.Rows.Add(new object[] { "     ", hit.Kind, hit.Country, hit.Province ?? "", hit.GetDXCC().ToString() });
                             }
                         }
                     }
@@ -489,6 +494,7 @@ namespace CallParserTestor
             UpdateCursor();
 
             _CallLookUp = new CallLookUp(_PrefixFileParser);
+            _CallLookUp.MergeHits = CheckBoxMergeHits.Checked;
         }
 
         /// <summary>
@@ -703,6 +709,11 @@ namespace CallParserTestor
             }
 
             Console.WriteLine("Finished writing hit file");
+        }
+
+        private void CheckBoxMergeHits_CheckedChanged(object sender, EventArgs e)
+        {
+            _CallLookUp.MergeHits = CheckBoxMergeHits.Checked;
         }
     } // end class
 }

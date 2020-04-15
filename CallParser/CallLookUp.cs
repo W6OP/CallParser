@@ -108,8 +108,8 @@ namespace W6OP.CallParser
 
             // parallel foreach almost twice as fast but requires blocking collection
             // comment out for debugging - need to use non parallel foreach for debugging
-            _ = Parallel.ForEach(callSigns, callSign =>
-            // foreach (var callSign in callSigns)
+           // _ = Parallel.ForEach(callSigns, callSign =>
+             foreach (var callSign in callSigns)
             {
                 try
                 {
@@ -121,7 +121,7 @@ namespace W6OP.CallParser
                     // bury exception
                 }
             }
-           );
+           //);
 
             return HitList.AsEnumerable();
         }
@@ -285,7 +285,6 @@ namespace W6OP.CallParser
 
             // first we look in all the "." patterns for calls like KG4AA vs KG4AAA
             pattern += ".";
-
             while (pattern.Length > 1)
             {
                 if (CallSignDictionary.TryGetValue(pattern, out var query))
@@ -334,9 +333,13 @@ namespace W6OP.CallParser
             // now we have a list of posibilities // HG5ACZ/P 
             if (list.Count > 0)
             {
-                
+                if (fullCall == "WP6RZS/R")
+                {
+                    var a = 2;
+                }
                 foreach (CallSignInfo info in list)
                 {
+                    var rank = 0;
                     var previous = true;
                     var primaryMaskList = info.GetPrimaryMaskList(firstLetter, nextLetter, stopFound);
 
@@ -354,7 +357,7 @@ namespace W6OP.CallParser
 
                             if (maskList[position].Contains(anotherLetter) && previous)
                             {
-                                info.Rank = position + 1;
+                                rank = position + 1;
                             }
                             else
                             {
@@ -365,9 +368,9 @@ namespace W6OP.CallParser
                         }
 
                         // if found with 2 chars
-                        if (info.Rank == length || maskList.Count == 2)
+                        if (rank == length || maskList.Count == 2)
                         {
-                            info.Rank = 0; // probably should do something else here - need to clear rank, however
+                           info.Rank = rank; // probably should do something else here - need to clear rank, however
                             foundItems.Add(info);
                         }
                     }
@@ -375,15 +378,24 @@ namespace W6OP.CallParser
 
                 if (foundItems.Count > 0)
                 {
-                    if (saveHit)
+                    if (!saveHit)
                     {
-                        BuildHit(foundItems, callStructure.BaseCall, baseCall, fullCall);
-                        mainPrefix = "";
+                        mainPrefix = foundItems.First().MainPrefix;
                         return true;
                     }
                     else
                     {
-                        mainPrefix = foundItems.First().MainPrefix; // NEED TO ACOUNT FOR MORE THAN ONE
+                        if (!MergeHits || foundItems.Count == 1)
+                        {
+                            BuildHit(foundItems, callStructure.BaseCall, baseCall, fullCall);
+                            mainPrefix = "";
+                        }
+                        else
+                        {
+                            MergeMultipleHits(foundItems, callStructure.BaseCall, baseCall, fullCall);
+                            mainPrefix = "";
+                        }
+
                         return true;
                     }
                 }
@@ -479,8 +491,7 @@ namespace W6OP.CallParser
         /// <param name="fullCall"></param>
         private void BuildHit(HashSet<CallSignInfo> foundItems, string baseCall, string prefix, string fullCall)
         {
-            int highestRank = foundItems.OrderByDescending(item => item.Rank).First().Rank;
-            var HighestRankList = foundItems.Where(item => item.Rank == highestRank).ToList();
+            var HighestRankList = foundItems.OrderByDescending(item => item.Rank).ToList();
 
             foreach (CallSignInfo callSignInfo in HighestRankList)
             {
@@ -491,9 +502,9 @@ namespace W6OP.CallParser
                 HitList.Add(callSignInfoCopy);
                 if (callSignInfo.Kind != PrefixKind.DXCC)
                 {
-                    if (Adifs[Convert.ToInt32(callSignInfo.DXCC)].Kind != PrefixKind.InvalidPrefix)
+                    if (Adifs[Convert.ToInt32(callSignInfo.GetDXCC())].Kind != PrefixKind.InvalidPrefix)
                     {
-                        var callSignInfoCopyDxcc = Adifs[Convert.ToInt32(callSignInfo.DXCC)].ShallowCopy();
+                        var callSignInfoCopyDxcc = Adifs[Convert.ToInt32(callSignInfo.GetDXCC())].ShallowCopy();
                         callSignInfoCopyDxcc.CallSign = fullCall;
                         callSignInfoCopyDxcc.BaseCall = baseCall;
                         callSignInfoCopy.HitPrefix = prefix;
@@ -501,6 +512,56 @@ namespace W6OP.CallParser
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// If multiple hits are found for a call sign, merge them into a single hit.
+        /// Build one hit and add all the dxcc numbers to the dxcc list. Also merge the
+        /// CQ, ITU, Admin1 and Admin2 fields.
+        /// </summary>
+        /// <param name="foundItems"></param>
+        /// <param name="baseCall"></param>
+        /// <param name="prefix"></param>
+        /// <param name="fullCall"></param>
+        private void MergeMultipleHits(HashSet<CallSignInfo> foundItems, string baseCall, string prefix, string fullCall)
+        {
+            var HighestRankList = foundItems.OrderByDescending(item => item.Rank).ToList();
+            var dxcc = new List<int>();
+
+            var callSignInfoCopy = HighestRankList[0].ShallowCopy();
+            callSignInfoCopy.CallSign = fullCall;
+            callSignInfoCopy.BaseCall = baseCall;
+            callSignInfoCopy.HitPrefix = prefix;
+            callSignInfoCopy.MergedHit = true;
+
+            foreach (CallSignInfo callSignInfo in HighestRankList.Skip(1))
+            {
+                callSignInfoCopy.DXCCMerged.Add(callSignInfo.GetDXCC());
+                callSignInfoCopy.ITU.UnionWith(callSignInfo.ITU);
+                callSignInfoCopy.CQ.UnionWith(callSignInfo.CQ);
+                if (callSignInfoCopy.Admin1 != callSignInfo.Admin1)
+                {
+                    callSignInfoCopy.Admin1 = "";
+                }
+
+                if (callSignInfoCopy.Admin2 != callSignInfo.Admin2)
+                {
+                    callSignInfoCopy.Admin2 = "";
+                }
+                if (callSignInfo.Kind != PrefixKind.DXCC)
+                {
+                    if (Adifs[Convert.ToInt32(callSignInfo.GetDXCC())].Kind != PrefixKind.InvalidPrefix)
+                    {
+                        var callSignInfoCopyDxcc = Adifs[Convert.ToInt32(callSignInfo.GetDXCC())].ShallowCopy();
+                        callSignInfoCopyDxcc.CallSign = fullCall;
+                        callSignInfoCopyDxcc.BaseCall = baseCall;
+                        callSignInfoCopy.HitPrefix = prefix;
+                        HitList.Add(callSignInfoCopyDxcc);
+                    }
+                }
+            }
+
+            HitList.Add(callSignInfoCopy);
         }
 
         /// <summary>

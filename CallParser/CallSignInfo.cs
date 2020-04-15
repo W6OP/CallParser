@@ -27,6 +27,7 @@ namespace W6OP.CallParser
         /// 
         private HashSet<List<string[]>> primaryMaskList = new HashSet<List<string[]>>();
         internal Dictionary<string, byte> IndexKey = new Dictionary<string, byte>();
+        private HashSet<int> dxccMerged;
         /// <summary>
         /// The rank of the result over other results - used internally.
         /// </summary>
@@ -36,13 +37,27 @@ namespace W6OP.CallParser
         /// </summary>
         public bool MergedHit { get; set; }
 
-        // --------------------------------------
-        public int DXCC { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        private int dXCC;
+        public int GetDXCC()
+        {
+            return dXCC;
+        }
+
+        public void SetDXCC(int value)
+        {
+            dXCC = value;
+            DXCCMerged = new HashSet<int>(value);
+        }
+
+        public HashSet<int> DXCCMerged { get => dxccMerged; set => dxccMerged = value; }
         public int WAE { get; set; }
         public string Iota { get; set; }
         public string WAP { get; set; }
-        public string CQ { get; set; }
-        public string ITU { get; set; }
+        public HashSet<int> CQ { get; set; }
+        public HashSet<int> ITU { get; set; }
         public string Admin1 { get; set; }
         public string Latitude { get; set; }
         public string Longitude { get; set; }
@@ -67,8 +82,8 @@ namespace W6OP.CallParser
         public string FullPrefix { get; set; }
         public string MainPrefix { get; set; }
         public string HitPrefix { get; set; }
-        public List<CallSignFlags> CallSignFlags { get; set; }
-       
+        public HashSet<CallSignFlags> CallSignFlags { get; set; }
+
 
         /// <summary>
         /// Return the lists where the length of the list matches the count.
@@ -78,7 +93,7 @@ namespace W6OP.CallParser
         internal List<List<string[]>> GetPrimaryMaskList(int count)
         {
             var temp = primaryMaskList.Where(x => x.Count == count);
-            return temp.ToList(); 
+            return temp.ToList();
         }
 
         internal List<List<string[]>> GetPrimaryMaskList(string first, string second, bool stopFound)
@@ -102,7 +117,7 @@ namespace W6OP.CallParser
                 }
             }
 
-            return temp; 
+            return temp;
         }
 
         internal bool MaskListExists(string first, string second, bool stopFound)
@@ -188,13 +203,13 @@ namespace W6OP.CallParser
                         Province = currentValue ?? "";
                         break;
                     case "dxcc_entity":
-                        DXCC = Convert.ToInt32(currentValue);
+                        SetDXCC(Convert.ToInt32(currentValue));
                         break;
                     case "cq_zone":
-                        CQ = currentValue ?? "";
+                        CQ = BuildZoneList(currentValue);
                         break;
                     case "itu_zone":
-                        ITU = currentValue ?? "";
+                        ITU = BuildZoneList(currentValue);
                         break;
                     case "continent":
                         Continent = currentValue ?? "";
@@ -231,6 +246,20 @@ namespace W6OP.CallParser
                         break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Build a list of CQ or ITU Zones.
+        /// </summary>
+        /// <param name="currentValue"></param>
+        /// <returns></returns>
+        private HashSet<int> BuildZoneList(string currentValue)
+        {
+            var zones = new List<int>();
+
+            zones = currentValue.Split(',').Select(Int32.Parse).ToList();
+
+            return zones.ToHashSet();
         }
     } // end class
 }

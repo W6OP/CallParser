@@ -9,9 +9,7 @@
  Description: Contains common elements of the program.
  */
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 
 namespace W6OP.CallParser
 {
@@ -19,7 +17,7 @@ namespace W6OP.CallParser
     /// State a Component may be.
     /// 
     /// </summary>
-    public enum ComponentType : byte // Byte for reduced memory use.
+    internal enum ComponentType : byte // Byte for reduced memory use.
     {
         CallSign,
         CallOrPrefix,
@@ -27,13 +25,12 @@ namespace W6OP.CallParser
         Text,
         Numeric,
         Portable,
-        //PortablePrefix, // indicates a portable prefix for a quicker lookup
         Unknown,
         Invalid,
         Valid
     }
 
-    public enum StringTypes
+    internal enum StringTypes
     {
         Numeric,
         Text,
@@ -44,7 +41,7 @@ namespace W6OP.CallParser
     /// <summary>
     /// ValidStructures = ':C:C#:C#M:C#T:CM:CM#:CMM:CMP:CMT:CP:CPM:CT:PC:PCM:PCT:';
     /// </summary>
-    public enum CallStructureType
+    internal enum CallStructureType
     {
         [Description("C")]
         Call,
@@ -110,25 +107,39 @@ namespace W6OP.CallParser
 
     /// <summary>
     /// Flag to indicate the status of the call sign.
+    ///  cfMaritime = VE3NEA/MM (no dxcc or iota)
+    ///  cfPortable = P5/VE3NEA, VE3NEA/7, VE3NEA/P, VE3NEA/M
+    ///  cfSpecial = SQ2010NATO, M4A (special event or contest)
+    ///  TCallsignFlag = (cfInvalid, cfMaritime, cfPortable, cfSpecial, cfClub,
+    ///  cfBeacon, cfLotw, cfAmbigPrefix, cfQrp);
     /// </summary>
     [Flags]
     public enum CallSignFlags
     {
+        [Description("cfInvalid")]
         Invalid,
+        [Description("cfMaritime")]
         Maritime,
+        [Description("cfPortable")]
         Portable,
+        [Description("cfSpecial")]
         Special,
+        [Description("cfClub")]
         Club,
+        [Description("cfBeacon")]
         Beacon,
+        [Description("cfLotw")]
         Lotw,
+        [Description("cfAmbigPrefix")]
         AmbigPrefix,
+        [Description("cfQrp")]
         Qrp
     }
 
     /// <summary>
     /// Identify the type of character.
     /// </summary>
-    enum CharacterType
+    internal enum CharacterType
     {
         [Description("")]
         empty,

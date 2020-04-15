@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.button1 = new System.Windows.Forms.Button();
             this.TextBoxCall = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
@@ -56,6 +56,7 @@
             this.button4 = new System.Windows.Forms.Button();
             this.CheckBoxCompoundCalls = new System.Windows.Forms.CheckBox();
             this.callLookUpBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.CheckBoxMergeHits = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewResults)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.callLookUpBindingSource)).BeginInit();
@@ -237,8 +238,8 @@
             // 
             this.DataGridViewResults.AllowUserToAddRows = false;
             this.DataGridViewResults.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.MidnightBlue;
-            this.DataGridViewResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.MidnightBlue;
+            this.DataGridViewResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle3;
             this.DataGridViewResults.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.DataGridViewResults.BackgroundColor = System.Drawing.Color.Honeydew;
             this.DataGridViewResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -286,12 +287,25 @@
             // 
             this.callLookUpBindingSource.DataSource = typeof(W6OP.CallParser.CallLookUp);
             // 
+            // CheckBoxMergeHits
+            // 
+            this.CheckBoxMergeHits.AutoSize = true;
+            this.CheckBoxMergeHits.Enabled = false;
+            this.CheckBoxMergeHits.Location = new System.Drawing.Point(174, 95);
+            this.CheckBoxMergeHits.Name = "CheckBoxMergeHits";
+            this.CheckBoxMergeHits.Size = new System.Drawing.Size(84, 19);
+            this.CheckBoxMergeHits.TabIndex = 20;
+            this.CheckBoxMergeHits.Text = "Merge Hits";
+            this.CheckBoxMergeHits.UseVisualStyleBackColor = true;
+            this.CheckBoxMergeHits.CheckedChanged += new System.EventHandler(this.CheckBoxMergeHits_CheckedChanged);
+            // 
             // Form1
             // 
             this.AcceptButton = this.button1;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(631, 765);
+            this.Controls.Add(this.CheckBoxMergeHits);
             this.Controls.Add(this.CheckBoxCompoundCalls);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.panel1);
@@ -348,6 +362,7 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.CheckBox CheckBoxCompoundCalls;
+        private System.Windows.Forms.CheckBox CheckBoxMergeHits;
     }
 }
 
