@@ -7,7 +7,7 @@ namespace W6OP.CallParser
 {
     public class CallSignInfo
     {
-        public CallSignInfo(System.Xml.Linq.XElement element)
+        internal CallSignInfo(System.Xml.Linq.XElement element)
         {
             InitializeCallSignInfo(element);
         }
@@ -16,7 +16,7 @@ namespace W6OP.CallParser
         {
         }
 
-        public CallSignInfo ShallowCopy()
+        internal CallSignInfo ShallowCopy()
         {
             return (CallSignInfo)this.MemberwiseClone();
         }
@@ -26,8 +26,15 @@ namespace W6OP.CallParser
         /// </summary>
         /// 
         private HashSet<List<string[]>> primaryMaskList = new HashSet<List<string[]>>();
-        public Dictionary<string, byte> IndexKey = new Dictionary<string, byte>();
-        public int Rank;
+        internal Dictionary<string, byte> IndexKey = new Dictionary<string, byte>();
+        /// <summary>
+        /// The rank of the result over other results - used internally.
+        /// </summary>
+        internal int Rank { get; set; }
+        /// <summary>
+        /// True indicates this hit is the result of multiple hits being merged into one.
+        /// </summary>
+        public bool MergedHit { get; set; }
 
         // --------------------------------------
         public int DXCC { get; set; }
@@ -61,19 +68,20 @@ namespace W6OP.CallParser
         public string MainPrefix { get; set; }
         public string HitPrefix { get; set; }
         public List<CallSignFlags> CallSignFlags { get; set; }
+       
 
         /// <summary>
         /// Return the lists where the length of the list matches the count.
         /// </summary>
         /// <param name="count"></param>
         /// <returns></returns>
-        public List<List<string[]>> GetPrimaryMaskList(int count)
+        internal List<List<string[]>> GetPrimaryMaskList(int count)
         {
             var temp = primaryMaskList.Where(x => x.Count == count);
             return temp.ToList(); 
         }
 
-        public List<List<string[]>> GetPrimaryMaskList(string first, string second, bool stopFound)
+        internal List<List<string[]>> GetPrimaryMaskList(string first, string second, bool stopFound)
         {
             var temp = new List<List<string[]>>();
             foreach (var item in primaryMaskList)
@@ -97,7 +105,7 @@ namespace W6OP.CallParser
             return temp; 
         }
 
-        public bool MaskListExists(string first, string second, bool stopFound)
+        internal bool MaskListExists(string first, string second, bool stopFound)
         {
             foreach (var item in primaryMaskList)
             {
@@ -123,7 +131,7 @@ namespace W6OP.CallParser
         /// This way I can search faster.
         /// </summary>
         /// <param name="value"></param>
-        public void SetPrimaryMaskList(List<string[]> value)
+        internal void SetPrimaryMaskList(List<string[]> value)
         {
             primaryMaskList.Add(value);
 

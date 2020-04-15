@@ -9,27 +9,27 @@ namespace W6OP.CallParser
     /// <summary>
     /// 
     /// </summary>
-    public class CallStructure
+    internal class CallStructure
     {
         private readonly string[] SingleCharPrefixes = { "F", "G", "M", "I", "R", "W" };
         private readonly string[] RejectPrefixes = { "AG", "U", "R", "A", "B", "M", "P", "MM", "AM", "QR", "QRP", "QRPP", "LH", "LGT", "ANT", "WAP", "AAW", "FJL", "MOBILE" };
 
-        public string Prefix { get; set; }
-        public string BaseCall { get; set; }
-        public string Suffix1 { get; set; }
-        public string Suffix2 { get; set; }
+        internal string Prefix { get; set; }
+        internal string BaseCall { get; set; }
+        internal string Suffix1 { get; set; }
+        internal string Suffix2 { get; set; }
         //public ComponentType ComponentType { get; set; } = ComponentType.Invalid;
         public CallStructureType CallStructureType { get; set; } = CallStructureType.Invalid;
         private readonly SortedDictionary<string, List<CallSignInfo>> PortablePrefixes;
 
-        public CallStructure(string callSign, SortedDictionary<string, List<CallSignInfo>> portablePrefixes)
+        internal CallStructure(string callSign, SortedDictionary<string, List<CallSignInfo>> portablePrefixes)
         {
 
             PortablePrefixes = portablePrefixes;
             SplitCallSign(callSign);
         }
 
-        public CallStructure()
+        internal CallStructure()
         {
             CallStructureType = CallStructureType.Invalid;
         }

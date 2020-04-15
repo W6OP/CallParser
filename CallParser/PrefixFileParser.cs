@@ -37,17 +37,17 @@ namespace W6OP.CallParser
         /// </summary>
         /// 
         // the main dictionary of possible call signs built from the <mask> - excludes DXCC
-        public SortedDictionary<string, List<CallSignInfo>> CallSignDictionary;
+        internal SortedDictionary<string, List<CallSignInfo>> CallSignDictionary;
         // all the DXCC only nodes, ie: no children. These are split out to reduce memory usage
         // just the dxcc number is stored as we can get the CallSignInfo object from the adif collection
-        public SortedDictionary<string, List<CallSignInfo>> DXCCOnlyCallSignDictionary;
+        internal SortedDictionary<string, List<CallSignInfo>> DXCCOnlyCallSignDictionary;
         // dxcc number with corresponding CallSignInfo object.
-        public SortedDictionary<int, CallSignInfo> Adifs;
+        internal SortedDictionary<int, CallSignInfo> Adifs;
         // Admin list
-        public SortedDictionary<string, List<CallSignInfo>> Admins;
+        internal SortedDictionary<string, List<CallSignInfo>> Admins;
         // all the portable prefix entries (ends with "/") with dxcc number
         //public Dictionary<string, List<int>> PortablePrefixes;
-        public SortedDictionary<string, List<CallSignInfo>> PortablePrefixes;
+        internal SortedDictionary<string, List<CallSignInfo>> PortablePrefixes;
 
         /// <summary>
         /// Private fields.

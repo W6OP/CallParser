@@ -630,7 +630,7 @@ namespace CallParserTestor
         {
             DelphiCompoundKeyValuePairs = new Dictionary<string, string>();
 
-            using (StreamReader reader = new StreamReader(@"C:\Users\pbourget\Documents\DelphiCallParserTest.txt"))
+            using (StreamReader reader = new StreamReader(@"C:\Users\pbourget\Documents\DelphiCallParserTestCompare.csv"))
             using (var csv = new CsvReader(reader))
             {
                 csv.Read();
@@ -638,8 +638,8 @@ namespace CallParserTestor
                 while (csv.Read())
                 {
                     csv.Configuration.MissingFieldFound = null;
-                    string callSign = csv.GetField("callsign");
-                    string country = csv.GetField("country");
+                    string callSign = csv.GetField(0);
+                    string country = csv.GetField(1);
                     DelphiCompoundKeyValuePairs.Add(callSign, country.Trim());
                 }
             }

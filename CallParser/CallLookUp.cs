@@ -20,10 +20,18 @@ namespace W6OP.CallParser
 {
     public class CallLookUp
     {
+        /// <summary>
+        /// True requests multiple hits are merged into one.
+        /// </summary>
+        private bool mergeHits;
+        public bool MergeHits { get => mergeHits; set => mergeHits = value; }
+
         // writing to List<T> are faster than writing to Hashset<T>
         private ConcurrentBag<CallSignInfo> HitList;
         private readonly SortedDictionary<string, List<CallSignInfo>> CallSignDictionary;
         private SortedDictionary<int, CallSignInfo> Adifs { get; set; }
+       
+
         private readonly SortedDictionary<string, List<CallSignInfo>> PortablePrefixes;
         //private readonly Dictionary<string, List<int>> PortablePrefixes;
         //private readonly string[] _OneLetterSeries = { "B", "F", "G", "I", "K", "M", "N", "R", "W", "2" };
