@@ -17,9 +17,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -37,17 +34,15 @@ namespace W6OP.CallParser
         /// </summary>
         /// 
         // the main dictionary of possible call signs built from the <mask> - excludes DXCC
-        internal SortedDictionary<string, List<CallSignInfo>> CallSignDictionary;
-        // all the DXCC only nodes, ie: no children. These are split out to reduce memory usage
-        // just the dxcc number is stored as we can get the CallSignInfo object from the adif collection
-        internal SortedDictionary<string, List<CallSignInfo>> DXCCOnlyCallSignDictionary;
+        internal ConcurrentDictionary<string, List<CallSignInfo>> CallSignDictionary;
+     
         // dxcc number with corresponding CallSignInfo object.
         internal SortedDictionary<int, CallSignInfo> Adifs;
         // Admin list
         internal SortedDictionary<string, List<CallSignInfo>> Admins;
         // all the portable prefix entries (ends with "/") with dxcc number
         //public Dictionary<string, List<int>> PortablePrefixes;
-        internal SortedDictionary<string, List<CallSignInfo>> PortablePrefixes;
+        internal ConcurrentDictionary<string, List<CallSignInfo>> PortablePrefixes;
 
         /// <summary>
         /// Private fields.
@@ -75,11 +70,10 @@ namespace W6OP.CallParser
         public void ParsePrefixFile(string prefixFilePath)
         {
             // cleanup if running more than once
-            CallSignDictionary = new SortedDictionary<string, List<CallSignInfo>>(); //1000000
-            DXCCOnlyCallSignDictionary = new SortedDictionary<string, List<CallSignInfo>>(); //20000000
+            CallSignDictionary = new ConcurrentDictionary<string, List<CallSignInfo>>(); //1000000
             Adifs = new SortedDictionary<int, CallSignInfo>();
             Admins = new SortedDictionary<string, List<CallSignInfo>>();
-            PortablePrefixes = new SortedDictionary<string, List<CallSignInfo>>(); //200000
+            PortablePrefixes = new ConcurrentDictionary<string, List<CallSignInfo>>(); //200000
 
             Assembly assembly = Assembly.GetExecutingAssembly();
 
@@ -196,7 +190,7 @@ namespace W6OP.CallParser
                                 }
                                 else
                                 {
-                                    PortablePrefixes.Add(pattern, new List<CallSignInfo> { callSignInfo });
+                                    PortablePrefixes.TryAdd(pattern, new List<CallSignInfo> { callSignInfo });
                                     // PortablePrefixes.Add(pattern, new List<int> { callSignInfo.DXCC });
                                 }
                                 break;
@@ -208,7 +202,7 @@ namespace W6OP.CallParser
                                 }
                                 else
                                 {
-                                    CallSignDictionary.Add(pattern, new List<CallSignInfo> { callSignInfo });
+                                    CallSignDictionary.TryAdd(pattern, new List<CallSignInfo> { callSignInfo });
                                 }
                                 break;
                             case string _ when callSignInfo.Kind == PrefixKind.DXCC && callSignInfo.Kind != PrefixKind.InvalidPrefix:

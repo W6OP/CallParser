@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,17 +13,17 @@ namespace W6OP.CallParser
     internal class CallStructure
     {
         private readonly string[] SingleCharPrefixes = { "F", "G", "M", "I", "R", "W" };
-        private readonly string[] RejectPrefixes = { "AG", "U", "R", "A", "B", "M", "P", "MM", "AM", "QR", "QRP", "QRPP", "LH", "LGT", "ANT", "WAP", "AAW", "FJL", "MOBILE" };
+        //private readonly string[] RejectPrefixes = { "AG", "U", "R", "A", "B", "M", "P", "MM", "AM", "QR", "QRP", "QRPP", "LH", "LGT", "ANT", "WAP", "AAW", "FJL", "MOBILE" };
 
         internal string Prefix { get; set; }
         internal string BaseCall { get; set; }
         internal string Suffix1 { get; set; }
         internal string Suffix2 { get; set; }
-        //public ComponentType ComponentType { get; set; } = ComponentType.Invalid;
+ 
         public CallStructureType CallStructureType { get; set; } = CallStructureType.Invalid;
-        private readonly SortedDictionary<string, List<CallSignInfo>> PortablePrefixes;
+        private readonly ConcurrentDictionary<string, List<CallSignInfo>> PortablePrefixes;
 
-        internal CallStructure(string callSign, SortedDictionary<string, List<CallSignInfo>> portablePrefixes)
+        internal CallStructure(string callSign, ConcurrentDictionary<string, List<CallSignInfo>> portablePrefixes)
         {
 
             PortablePrefixes = portablePrefixes;
