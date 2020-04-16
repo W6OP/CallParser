@@ -172,10 +172,6 @@ namespace W6OP.CallParser
             {
                 if (element.Value != "") // empty is usually a DXCC node
                 {
-                    if (element.Value == "H[AG]5")
-                    {
-                        var s = 1;
-                    }
                     // NEED TO TEST FOR DXCC 180 - Mt. Athos - has @@../@ pattern
                     // ALSO [xxx][.xxx]
                     // expand the mask if it exists
@@ -187,11 +183,6 @@ namespace W6OP.CallParser
 
                     foreach (var pattern in patternList)
                     {
-                        if (patternList.Count > 2)
-                        {
-                            var a = 2;
-                        }
-
                         // add for future lookups
                         callSignInfo.SetPrimaryMaskList(primaryMaskList);
 

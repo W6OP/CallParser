@@ -141,6 +141,111 @@ namespace W6OP.CallParser
             return false;
         }
 
+        internal bool MaskListExists(string first, string second, string third)
+        {
+            foreach (var item in primaryMaskList)
+            {
+                if (item.Count == 2)
+                {
+                    if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1)
+                    {
+                        return true;
+                    }
+                }
+
+                if (item.Count == 3)
+                {
+                    if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1)
+                    {
+                        return true;
+                    }
+                }
+
+            }
+
+            return false;
+        }
+
+        internal bool MaskListExists(string call, int length)
+        {
+            call = call.Substring(0, length);
+            var first = call.Substring(0, 1);
+            var second = call.Substring(1, 1);
+            var third = "";
+            var fourth = "";
+            var fifth = "";
+            var sixth = "";
+            var seventh = "";
+
+           
+
+            foreach (var item in primaryMaskList)
+            {
+                var searchlength = call.Length < item.Count ? call.Length : item.Count;
+
+                switch (searchlength)
+                {
+                    case 2:
+                        if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1)
+                        {
+                            return true;
+                        }
+                        break;
+                    case 3:
+                        third = call.Substring(2, 1);
+                        if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1)
+                        {
+                            return true;
+                        }
+                        break;
+                    case 4:
+                        third = call.Substring(2, 1);
+                        fourth = call.Substring(3, 1);
+                        if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
+                            && Array.IndexOf(item[3], fourth) != -1)
+                        {
+                            return true;
+                        }
+                        break;
+                    case 5:
+                        third = call.Substring(2, 1);
+                        fourth = call.Substring(3, 1);
+                        fifth = call.Substring(4, 1);
+                        if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
+                            && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1)
+                        {
+                            return true;
+                        }
+                        break;
+                    case 6:
+                        third = call.Substring(2, 1);
+                        fourth = call.Substring(3, 1);
+                        fifth = call.Substring(4, 1);
+                        sixth = call.Substring(5, 1);
+                        if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
+                           && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1 && Array.IndexOf(item[5], sixth) != -1)
+                        {
+                            return true;
+                        }
+                        break;
+                    case 7:
+                        third = call.Substring(2, 1);
+                        fourth = call.Substring(3, 1);
+                        fifth = call.Substring(4, 1);
+                        seventh = call.Substring(6, 1);
+                        if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
+                           && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1 && Array.IndexOf(item[5], sixth) != -1
+                           && Array.IndexOf(item[6], seventh) != -1)
+                        {
+                            return true;
+                        }
+                        break;
+                }
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// The index key is a character that can be the first letter of a call.
         /// This way I can search faster.

@@ -30,7 +30,7 @@ namespace W6OP.CallParser
         private ConcurrentBag<CallSignInfo> HitList;
         private readonly SortedDictionary<string, List<CallSignInfo>> CallSignDictionary;
         private SortedDictionary<int, CallSignInfo> Adifs { get; set; }
-       
+
 
         private readonly SortedDictionary<string, List<CallSignInfo>> PortablePrefixes;
         //private readonly Dictionary<string, List<int>> PortablePrefixes;
@@ -72,7 +72,7 @@ namespace W6OP.CallParser
             {
                 throw new Exception("Invalid call sign format.");
             }
-           
+
             return HitList.AsEnumerable();
         }
 
@@ -108,8 +108,8 @@ namespace W6OP.CallParser
 
             // parallel foreach almost twice as fast but requires blocking collection
             // comment out for debugging - need to use non parallel foreach for debugging
-           // _ = Parallel.ForEach(callSigns, callSign =>
-             foreach (var callSign in callSigns)
+            _ = Parallel.ForEach(callSigns, callSign =>
+            // foreach (var callSign in callSigns)
             {
                 try
                 {
@@ -121,7 +121,7 @@ namespace W6OP.CallParser
                     // bury exception
                 }
             }
-           //);
+           );
 
             return HitList.AsEnumerable();
         }
@@ -171,39 +171,40 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="callOrPrefix"></param>
         /// /// <param name="fullCall"></param>
-        
+
         private void CollectMatches(CallStructure callStructure, string fullCall)
         {
             CallStructureType callStructureType = callStructure.CallStructureType;
 
             // ValidStructures = ':C:C#:C#M:C#T:CM:CM#:CMM:CMP:CMT:CP:CPM:CT:PC:PCM:PCT:';
-            try { 
-            switch (callStructureType) // GT3UCQ/P
+            try
             {
-                case CallStructureType.CallPrefix:
-                    if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
-                    break;
-                case CallStructureType.PrefixCall:
-                    if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
-                    break;
-                case CallStructureType.CallPortablePrefix:
-                    if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
-                    break;
-                case CallStructureType.CallPrefixPortable:
-                    if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
-                    break;
-                case CallStructureType.PrefixCallPortable:
-                    if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
-                    break;
-                case CallStructureType.PrefixCallText:
-                    if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
-                    break;
-                case CallStructureType.CallDigit:
-                    if (CheckReplaceCallArea(callStructure: callStructure, fullCall)) { return; }
-                    break;
-                default:
-                    break;
-            }
+                switch (callStructureType) // GT3UCQ/P
+                {
+                    case CallStructureType.CallPrefix:
+                        if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
+                        break;
+                    case CallStructureType.PrefixCall:
+                        if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
+                        break;
+                    case CallStructureType.CallPortablePrefix:
+                        if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
+                        break;
+                    case CallStructureType.CallPrefixPortable:
+                        if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
+                        break;
+                    case CallStructureType.PrefixCallPortable:
+                        if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
+                        break;
+                    case CallStructureType.PrefixCallText:
+                        if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
+                        break;
+                    case CallStructureType.CallDigit:
+                        if (CheckReplaceCallArea(callStructure: callStructure, fullCall)) { return; }
+                        break;
+                    default:
+                        break;
+                }
             }
             catch (Exception ex)
             {
@@ -279,8 +280,9 @@ namespace W6OP.CallParser
             var list = new List<CallSignInfo>();
             var foundItems = new HashSet<CallSignInfo>();
             var pattern = BuildPattern(callStructure.BaseCall);
-            var temp = new List<CallSignInfo>();
-            int stopPosition;
+            var temp = new HashSet<CallSignInfo>();
+            //var temp2 = new HashSet<CallSignInfo>();
+            //int stopPosition;
             bool stopFound = false;
 
             // first we look in all the "." patterns for calls like KG4AA vs KG4AAA
@@ -290,37 +292,32 @@ namespace W6OP.CallParser
                 if (CallSignDictionary.TryGetValue(pattern, out var query))
                 {
                     temp.Clear();
-                    //_ = Parallel.ForEach(query, callSignInfo =>
                     foreach (var callSignInfo in query)
                     {
                         if (callSignInfo.IndexKey.ContainsKey(firstLetter))
                         {
                             if (pattern.Last() == '.')
                             {
-                                stopFound = true;
-                                if (callSignInfo.MaskListExists(firstLetter, nextLetter, stopFound) == true)
+                                if (callSignInfo.MaskListExists(baseCall, pattern.Length - 1))
                                 {
                                     temp.Add(callSignInfo);
-                                    //break;
+                                    break;
                                 }
                             }
                             else
                             {
-                                stopFound = false;
-                                if (callSignInfo.MaskListExists(firstLetter, nextLetter, stopFound) == true)
+                                if (callSignInfo.MaskListExists(baseCall, pattern.Length))
                                 {
                                     temp.Add(callSignInfo);
                                 }
                             }
                         }
                     }
-                    //);
 
                     if (temp.Count != 0)
                     {
                         if (pattern.Last() == '.')
                         {
-                            stopPosition = pattern.Length - 1;
                             list.AddRange(temp);
                             break;
                         }
@@ -333,45 +330,50 @@ namespace W6OP.CallParser
             // now we have a list of posibilities // HG5ACZ/P 
             if (list.Count > 0)
             {
-                if (fullCall == "WP6RZS/R")
+                if (list.Count == 1)
                 {
-                    var a = 2;
+                    // only one found
+                    foundItems.Add(list[0]);
                 }
-                foreach (CallSignInfo info in list)
+                else
                 {
-                    var rank = 0;
-                    var previous = true;
-                    var primaryMaskList = info.GetPrimaryMaskList(firstLetter, nextLetter, stopFound);
-
-                    foreach (List<string[]> maskList in primaryMaskList) // ToList uneccessary here
+                    foreach (CallSignInfo info in list)
                     {
-                        var position = 2;
-                        previous = true;
+                        var rank = 0;
+                        var previous = true;
+                        var primaryMaskList = info.GetPrimaryMaskList(firstLetter, nextLetter, stopFound);
+                        //var lookup = cost.ToLookup(r => new { r.year, r.period, form = r.ryp });
 
-                        // get smaller length
-                        var length = baseCall.Length < maskList.Count ? baseCall.Length : maskList.Count;
-
-                        for (var i = 2; i < length; i++)
+                        foreach (List<string[]> maskList in primaryMaskList) // ToList uneccessary here
                         {
-                            var anotherLetter = baseCall.Substring(i, 1); //.Skip(i).First().ToString();
+                            var position = 2;
+                            previous = true;
 
-                            if (maskList[position].Contains(anotherLetter) && previous)
-                            {
-                                rank = position + 1;
-                            }
-                            else
-                            {
-                                previous = false;
-                                break;
-                            }
-                            position += 1;
-                        }
+                            // get smaller length
+                            var length = baseCall.Length < maskList.Count ? baseCall.Length : maskList.Count;
 
-                        // if found with 2 chars
-                        if (rank == length || maskList.Count == 2)
-                        {
-                           info.Rank = rank; // probably should do something else here - need to clear rank, however
-                            foundItems.Add(info);
+                            for (var i = 2; i < length; i++)
+                            {
+                                var anotherLetter = baseCall.Substring(i, 1); //.Skip(i).First().ToString();
+
+                                if (maskList[position].Contains(anotherLetter) && previous)
+                                {
+                                    rank = position + 1;
+                                }
+                                else
+                                {
+                                    previous = false;
+                                    break;
+                                }
+                                position += 1;
+                            }
+
+                            // if found with 2 chars
+                            if (rank == length || maskList.Count == 2)
+                            {
+                                info.Rank = rank; // probably should do something else here - need to clear rank, however
+                                foundItems.Add(info);
+                            }
                         }
                     }
                 }
@@ -402,7 +404,6 @@ namespace W6OP.CallParser
             }
 
             mainPrefix = "";
-
             return false;
         }
 
@@ -417,66 +418,131 @@ namespace W6OP.CallParser
             string prefix = callStructure.Prefix + "/";
             string baseCall = callStructure.BaseCall;
             var list = new List<CallSignInfo>();
+            var temp = new List<CallSignInfo>();
             var foundItems = new HashSet<CallSignInfo>();
-            var firstLetter = prefix.First().ToString();
+            var firstLetter = prefix.Substring(0, 1);
+            var nextLetter = prefix.Substring(1, 1);
+            var thirdLetter = "";
             var pattern = BuildPattern(prefix);
-
-            if (PortablePrefixes.TryGetValue(pattern, out var query))
+            try
             {
-                // get a list of callSignInfo where the first letter in the primarymasklist == the first letter in the call
-                var temp = query.Where(x => x.IndexKey.ContainsKey(firstLetter)).ToList();
-
-                if (temp.Count != 0)
+                if (PortablePrefixes.TryGetValue(pattern, out var query))
                 {
-                    list.AddRange(temp);
+                    foreach (var callSignInfo in query)
+                    {
+                        try
+                        {
+                            temp.Clear();
+                            if (callSignInfo.IndexKey.ContainsKey(firstLetter))
+                            {
+                                if (pattern.Length == 2)
+                                {
+                                    if (callSignInfo.MaskListExists(firstLetter, nextLetter, false) == true)
+                                    {
+                                        temp.Add(callSignInfo);
+                                    }
+                                }
+                                else
+                                {
+                                    if (pattern.Length > 2)
+                                    {
+                                        thirdLetter = prefix.Substring(2, 1);
+                                    }
+
+                                    if (callSignInfo.MaskListExists(firstLetter, nextLetter, thirdLetter) == true)
+                                    {
+                                        temp.Add(callSignInfo);
+                                    }
+                                }
+
+                            }
+                            if (temp.Count != 0)
+                            {
+                                list.AddRange(temp);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            var n = ex.Message;
+                        }
+                    }
+
+
+
+                    // get a list of callSignInfo where the first letter in the primarymasklist == the first letter in the call
+                    //var temp = query.Where(x => x.IndexKey.ContainsKey(firstLetter)).ToList();
+
+                    //if (temp.Count != 0)
+                    //{
+                    //    list.AddRange(temp);
+                    //}
                 }
             }
-
-            if (list.Count > 0)
+            catch (Exception ex)
             {
-                foreach (CallSignInfo info in list)
-                {
-                    var nextLetter = prefix.Skip(1).First().ToString();
-                    var primaryMaskList = info.GetPrimaryMaskList(firstLetter, nextLetter, false);
+                var n = ex.Message;
+            }
 
-                    foreach (List<string[]> maskList in primaryMaskList)
+            if (list.Count == 1)
+            {
+                foundItems.Add(list[0]);
+                BuildHit(foundItems, baseCall, prefix, fullCall);
+                return true;
+            }
+
+            try
+            {
+                if (list.Count > 1)
+                {
+                    foreach (CallSignInfo info in list)
                     {
-                        var position = 2;
-                        var previous = true;
+                        var rank = 0;
+                        // var nextLetter = prefix.Skip(1).First().ToString();
+                        var primaryMaskList = info.GetPrimaryMaskList(firstLetter, nextLetter, false);
 
-                        // get smaller length
-                        var length = prefix.Length < maskList.Count ? prefix.Length : maskList.Count;
-
-
-                        for (var i = 2; i < length; i++)
+                        foreach (List<string[]> maskList in primaryMaskList)
                         {
-                            nextLetter = prefix.Skip(i).First().ToString();
+                            var position = 2;
+                            var previous = true;
 
-                            if (maskList[position].Contains(nextLetter) && previous)
+                            // get smaller length
+                            var length = prefix.Length < maskList.Count ? prefix.Length : maskList.Count;
+
+
+                            for (var i = 2; i < length; i++)
                             {
-                                info.Rank = position + 1;
+                                nextLetter = prefix.Skip(i).First().ToString();
+
+                                if (maskList[position].Contains(nextLetter) && previous)
+                                {
+                                    rank = position + 1;
+                                }
+                                else
+                                {
+                                    previous = false;
+                                    break;
+                                }
+                                position += 1;
                             }
-                            else
+
+                            if (rank == length)
                             {
-                                previous = false;
-                                break;
+                                foundItems.Add(info);
                             }
-                            position += 1;
-                        }
 
-                        if (info.Rank == length)
-                        {
-                            foundItems.Add(info);
                         }
-
                     }
-                }
-                if (foundItems.Count > 0)
-                {
-                    BuildHit(foundItems, baseCall, prefix, fullCall);
-                    return true;
-                }
+                    if (foundItems.Count > 0)
+                    {
+                        BuildHit(foundItems, baseCall, prefix, fullCall);
+                        return true;
+                    }
 
+                }
+            }
+            catch (Exception ex)
+            {
+                var n = ex.Message;
             }
             return false;
         }
@@ -579,16 +645,16 @@ namespace W6OP.CallParser
                 if (SearchMainDictionary(callStructure, fullCall, false, out string mainPrefix))
                 {
                     callStructure.Prefix = ReplaceCallArea(mainPrefix, callStructure.Prefix);
-                    if (mainPrefix != "")
+                    if (callStructure.Prefix == "")
                     {
-                        callStructure.CallStructureType = CallStructureType.PrefixCall;
+                        // M0CCA/6 - main prefix is "G", F8ATS/9 - Should I replace the digit?
+                        callStructure.CallStructureType = CallStructureType.Call;
                     }
                     else
                     {
-                        // M0CCA/6 - main prefix is "G"
-                        callStructure.CallStructureType = CallStructureType.Call;
+                        callStructure.CallStructureType = CallStructureType.PrefixCall;
                     }
-                    
+
                     CollectMatches(callStructure, fullCall);
                     return true;
                 }
@@ -650,6 +716,8 @@ namespace W6OP.CallParser
                     }
                     break;
             }
+
+
 
             return $"{mainPrefix.Substring(0, p - 1)}{callArea}";
         }

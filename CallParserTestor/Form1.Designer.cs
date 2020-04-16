@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.button1 = new System.Windows.Forms.Button();
             this.TextBoxCall = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
@@ -55,8 +55,8 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.button4 = new System.Windows.Forms.Button();
             this.CheckBoxCompoundCalls = new System.Windows.Forms.CheckBox();
-            this.callLookUpBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.CheckBoxMergeHits = new System.Windows.Forms.CheckBox();
+            this.callLookUpBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewResults)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.callLookUpBindingSource)).BeginInit();
@@ -79,7 +79,7 @@
             this.TextBoxCall.Name = "TextBoxCall";
             this.TextBoxCall.Size = new System.Drawing.Size(116, 23);
             this.TextBoxCall.TabIndex = 1;
-            this.TextBoxCall.Text = "FO4LFP";
+            this.TextBoxCall.Text = "KI6VC";
             // 
             // button2
             // 
@@ -158,6 +158,7 @@
             this.ButtonSemiBatch.TabIndex = 11;
             this.ButtonSemiBatch.Text = "Semi Batch";
             this.ButtonSemiBatch.UseVisualStyleBackColor = true;
+            this.ButtonSemiBatch.Visible = false;
             this.ButtonSemiBatch.Click += new System.EventHandler(this.ButtonSemiBatch_Click);
             // 
             // ListViewResults
@@ -238,8 +239,8 @@
             // 
             this.DataGridViewResults.AllowUserToAddRows = false;
             this.DataGridViewResults.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.MidnightBlue;
-            this.DataGridViewResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.MidnightBlue;
+            this.DataGridViewResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.DataGridViewResults.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.DataGridViewResults.BackgroundColor = System.Drawing.Color.Honeydew;
             this.DataGridViewResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -271,6 +272,7 @@
             this.button4.TabIndex = 18;
             this.button4.Text = "Load Delphi Compare File";
             this.button4.UseVisualStyleBackColor = true;
+            this.button4.Visible = false;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // CheckBoxCompoundCalls
@@ -283,10 +285,6 @@
             this.CheckBoxCompoundCalls.Text = "Compound Calls";
             this.CheckBoxCompoundCalls.UseVisualStyleBackColor = true;
             // 
-            // callLookUpBindingSource
-            // 
-            this.callLookUpBindingSource.DataSource = typeof(W6OP.CallParser.CallLookUp);
-            // 
             // CheckBoxMergeHits
             // 
             this.CheckBoxMergeHits.AutoSize = true;
@@ -298,6 +296,10 @@
             this.CheckBoxMergeHits.Text = "Merge Hits";
             this.CheckBoxMergeHits.UseVisualStyleBackColor = true;
             this.CheckBoxMergeHits.CheckedChanged += new System.EventHandler(this.CheckBoxMergeHits_CheckedChanged);
+            // 
+            // callLookUpBindingSource
+            // 
+            this.callLookUpBindingSource.DataSource = typeof(W6OP.CallParser.CallLookUp);
             // 
             // Form1
             // 
