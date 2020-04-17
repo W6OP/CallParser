@@ -108,8 +108,8 @@ namespace W6OP.CallParser
 
             // parallel foreach almost twice as fast but requires blocking collection
             // comment out for debugging - need to use non parallel foreach for debugging
-            //_ = Parallel.ForEach(callSigns, callSign =>
-             foreach (var callSign in callSigns)
+            _ = Parallel.ForEach(callSigns, callSign =>
+            // foreach (var callSign in callSigns)
             {
                 try
                 {
@@ -121,7 +121,7 @@ namespace W6OP.CallParser
                     // bury exception
                 }
             }
-          // );
+          );
 
             return HitList.AsEnumerable();
         }
@@ -322,9 +322,10 @@ namespace W6OP.CallParser
                             break;
                         }
                         list.UnionWith(temp);
-                        //break; // ADDED - Needs testing
+                        break;
                     }
                 }
+
                 pattern = pattern.Remove(pattern.Length - 1);
             }
 
@@ -336,7 +337,7 @@ namespace W6OP.CallParser
                     // only one found
                     foundItems = list;
                 }
-                else
+                else // refine the hits
                 {
                     if (list.Count > 2)
                     {
@@ -375,7 +376,7 @@ namespace W6OP.CallParser
                             // if found with 2 chars
                             if (rank == length || maskList.Count == 2)
                             {
-                                info.Rank = rank; // probably should do something else here - need to clear rank, however
+                                info.Rank = rank; 
                                 foundItems.Add(info);
                             }
                         }
@@ -603,15 +604,19 @@ namespace W6OP.CallParser
             {
                 if (SearchMainDictionary(callStructure, fullCall, false, out string mainPrefix))
                 {
-                    callStructure.Prefix = ReplaceCallArea(mainPrefix, callStructure.Prefix);
-                    if (callStructure.Prefix == "")
+                    var oldDigit = callStructure.Prefix;
+                    callStructure.Prefix = ReplaceCallArea(mainPrefix, callStructure.Prefix, out int position);
+                    switch (callStructure.Prefix)
                     {
-                        // M0CCA/6 - main prefix is "G", F8ATS/9 - Should I replace the digit?
-                        callStructure.CallStructureType = CallStructureType.Call;
-                    }
-                    else
-                    {
-                        callStructure.CallStructureType = CallStructureType.PrefixCall;
+                        case "":
+                            // M0CCA/6 - main prefix is "G", F8ATS/9 - Should I replace the digit?
+                            callStructure.CallStructureType = CallStructureType.Call;
+                            break;
+                        default:
+                            // replace the digit in case we don't find it by it's main prefix
+                            callStructure.BaseCall = callStructure.BaseCall.Remove(position-1, 1).Insert(position -1, oldDigit);
+                            callStructure.CallStructureType = CallStructureType.PrefixCall;
+                            break;
                     }
 
                     CollectMatches(callStructure, fullCall);
@@ -628,7 +633,7 @@ namespace W6OP.CallParser
         /// <param name="mainPrefix"></param>
         /// <param name="callArea"></param>
         /// <returns></returns>
-        private string ReplaceCallArea(string mainPrefix, string callArea)
+        private string ReplaceCallArea(string mainPrefix, string callArea, out int position)
         {
             char[] OneCharPrefs = new char[] { 'I', 'K', 'N', 'W', 'R', 'U' };
             char[] XNUM_SET = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '#', '[' };
@@ -644,6 +649,7 @@ namespace W6OP.CallParser
                     }
                     else if (mainPrefix.All(char.IsLetter))
                     {
+                        position = 99;
                         return "";
                     }
                     break;
@@ -676,7 +682,7 @@ namespace W6OP.CallParser
                     break;
             }
 
-
+            position = p;
 
             return $"{mainPrefix.Substring(0, p - 1)}{callArea}";
         }
