@@ -116,6 +116,8 @@ namespace W6OP.CallParser
     [Flags]
     public enum CallSignFlags
     {
+        [Description("cfNone")]
+        None,
         [Description("cfInvalid")]
         Invalid,
         [Description("cfMaritime")]

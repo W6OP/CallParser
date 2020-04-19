@@ -79,7 +79,7 @@
             this.TextBoxCall.Name = "TextBoxCall";
             this.TextBoxCall.Size = new System.Drawing.Size(116, 23);
             this.TextBoxCall.TabIndex = 1;
-            this.TextBoxCall.Text = "KI6VC";
+            this.TextBoxCall.Text = "TX4YKP/R";
             // 
             // button2
             // 
@@ -201,6 +201,7 @@
             // columnHeader5
             // 
             this.columnHeader5.Text = "Dxcc";
+            this.columnHeader5.Width = 119;
             // 
             // label1
             // 
@@ -242,6 +243,7 @@
             dataGridViewCellStyle1.ForeColor = System.Drawing.Color.MidnightBlue;
             this.DataGridViewResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.DataGridViewResults.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            this.DataGridViewResults.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
             this.DataGridViewResults.BackgroundColor = System.Drawing.Color.Honeydew;
             this.DataGridViewResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.DataGridViewResults.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -250,6 +252,7 @@
             this.DataGridViewResults.ReadOnly = true;
             this.DataGridViewResults.Size = new System.Drawing.Size(633, 431);
             this.DataGridViewResults.TabIndex = 16;
+            this.DataGridViewResults.DataBindingComplete += new System.Windows.Forms.DataGridViewBindingCompleteEventHandler(this.DataGridViewResults_DataBindingComplete);
             // 
             // panel1
             // 

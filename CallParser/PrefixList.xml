@@ -13250,7 +13250,7 @@
 			<mask>C[QR][04-7]</mask>
 			<mask>CS[012567]</mask>
 			<mask>CT/</mask>
-			<mask>C[ST][178]/</mask>
+			<!--<mask>C[ST][178]/</mask> Removed per Alex -->
 			<mask>CT[0124-7]</mask>
 		</masks>
 		<label>CT</label>

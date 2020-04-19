@@ -1,19 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace W6OP.CallParser
 {
+    [Serializable]
     public class CallSignInfo
     {
         internal CallSignInfo(System.Xml.Linq.XElement element)
         {
             InitializeCallSignInfo(element);
+            CallSignFlags = new HashSet<CallSignFlags>();
         }
 
         public CallSignInfo()
         {
+            CallSignFlags = new HashSet<CallSignFlags>();
         }
 
         internal CallSignInfo ShallowCopy()
@@ -21,11 +28,23 @@ namespace W6OP.CallParser
             return (CallSignInfo)this.MemberwiseClone();
         }
 
+        public void DeepCopy<T>(ref T object2Copy, ref T objectCopy)
+        {
+            using (var stream = new MemoryStream())
+            {
+                var serializer = new XmlSerializer(typeof(T));
+
+                serializer.Serialize(stream, object2Copy);
+                stream.Position = 0;
+                objectCopy = (T)serializer.Deserialize(stream);
+            }
+        }
+
         /// <summary>
         /// public properties
         /// </summary>
         /// 
-        private HashSet<List<string[]>> primaryMaskList = new HashSet<List<string[]>>();
+        private HashSet<List<string[]>> maskList = new HashSet<List<string[]>>();
         internal Dictionary<string, byte> IndexKey = new Dictionary<string, byte>();
         private HashSet<int> dxccMerged;
         /// <summary>
@@ -35,7 +54,7 @@ namespace W6OP.CallParser
         /// <summary>
         /// True indicates this hit is the result of multiple hits being merged into one.
         /// </summary>
-        public bool MergedHit { get; set; }
+        public bool IsMergedHit { get; set; }
 
         /// <summary>
         /// 
@@ -84,22 +103,17 @@ namespace W6OP.CallParser
         public string HitPrefix { get; set; }
         public HashSet<CallSignFlags> CallSignFlags { get; set; }
 
-
         /// <summary>
-        /// Return the lists where the length of the list matches the count.
+        /// 
         /// </summary>
-        /// <param name="count"></param>
+        /// <param name="first"></param>
+        /// <param name="second"></param>
+        /// <param name="stopFound"></param>
         /// <returns></returns>
-        internal List<List<string[]>> GetPrimaryMaskList(int count)
-        {
-            var temp = primaryMaskList.Where(x => x.Count == count);
-            return temp.ToList();
-        }
-
-        internal List<List<string[]>> GetPrimaryMaskList(string first, string second, bool stopFound)
+        internal List<List<string[]>> GetyMaskList(string first, string second, bool stopFound)
         {
             var temp = new List<List<string[]>>();
-            foreach (var item in primaryMaskList)
+            foreach (var item in maskList)
             {
                 if (stopFound)
                 {
@@ -120,53 +134,13 @@ namespace W6OP.CallParser
             return temp;
         }
 
-        internal bool MaskListExists(string first, string second, bool stopFound)
-        {
-            foreach (var item in primaryMaskList)
-            {
-                if (stopFound)
-                {
-                    if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[item.Count - 1], ".") != -1)
-                    {
-                        return true;
-                    }
-                }
-
-                if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        internal bool MaskListExists(string first, string second, string third)
-        {
-            foreach (var item in primaryMaskList)
-            {
-                if (item.Count == 2)
-                {
-                    if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1)
-                    {
-                        return true;
-                    }
-                }
-
-                if (item.Count == 3)
-                {
-                    if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1)
-                    {
-                        return true;
-                    }
-                }
-
-            }
-
-            return false;
-        }
-
-        internal bool MaskListExists(string call, int length)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="call"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        internal bool MaskExists(string call, int length)
         {
             call = call.Substring(0, length);
             string first = call.Substring(0, 1);
@@ -177,73 +151,156 @@ namespace W6OP.CallParser
             string sixth;
             string seventh;
 
-            foreach (var item in primaryMaskList)
+            foreach (var item in maskList)
             {
                 var searchlength = call.Length < item.Count ? call.Length : item.Count;
-                
-                switch (searchlength)
+
+                try
                 {
-                    case 2:
-                        if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1)
-                        {
-                            return true;
-                        }
-                        break;
-                    case 3:
-                        third = call.Substring(2, 1);
-                        if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1)
-                        {
-                            return true;
-                        }
-                        break;
-                    case 4:
-                        third = call.Substring(2, 1);
-                        fourth = call.Substring(3, 1);
-                        if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
-                            && Array.IndexOf(item[3], fourth) != -1)
-                        {
-                            return true;
-                        }
-                        break;
-                    case 5:
-                        third = call.Substring(2, 1);
-                        fourth = call.Substring(3, 1);
-                        fifth = call.Substring(4, 1);
-                        if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
-                            && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1)
-                        {
-                            return true;
-                        }
-                        break;
-                    case 6:
-                        third = call.Substring(2, 1);
-                        fourth = call.Substring(3, 1);
-                        fifth = call.Substring(4, 1);
-                        sixth = call.Substring(5, 1);
-                        if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
-                           && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1 && Array.IndexOf(item[5], sixth) != -1)
-                        {
-                            return true;
-                        }
-                        break;
-                    case 7:
-                        third = call.Substring(2, 1);
-                        fourth = call.Substring(3, 1);
-                        fifth = call.Substring(4, 1);
-                        sixth = call.Substring(5, 1);
-                        seventh = call.Substring(6, 1);
-                        if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
-                           && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1 && Array.IndexOf(item[5], sixth) != -1
-                           && Array.IndexOf(item[6], seventh) != -1)
-                        {
-                            return true;
-                        }
-                        break;
+                    switch (searchlength)
+                    {
+                        case 2:
+                            if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1)
+                            {
+                                return true;
+                            }
+                            break;
+                        case 3:
+                            third = call.Substring(2, 1);
+                            if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1)
+                            {
+                                return true;
+                            }
+                            break;
+                        case 4:
+                            third = call.Substring(2, 1);
+                            fourth = call.Substring(3, 1);
+                            if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
+                                && Array.IndexOf(item[3], fourth) != -1)
+                            {
+                                return true;
+                            }
+                            break;
+                        case 5:
+                            third = call.Substring(2, 1);
+                            fourth = call.Substring(3, 1);
+                            fifth = call.Substring(4, 1);
+                            if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
+                                && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1)
+                            {
+                                return true;
+                            }
+                            break;
+                        case 6:
+                            third = call.Substring(2, 1);
+                            fourth = call.Substring(3, 1);
+                            fifth = call.Substring(4, 1);
+                            sixth = call.Substring(5, 1);
+                            if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
+                               && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1 && Array.IndexOf(item[5], sixth) != -1)
+                            {
+                                return true;
+                            }
+                            break;
+                        case 7:
+                            third = call.Substring(2, 1);
+                            fourth = call.Substring(3, 1);
+                            fifth = call.Substring(4, 1);
+                            sixth = call.Substring(5, 1);
+                            seventh = call.Substring(6, 1);
+                            if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
+                               && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1 && Array.IndexOf(item[5], sixth) != -1
+                               && Array.IndexOf(item[6], seventh) != -1)
+                            {
+                                return true;
+                            }
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var a = 1;
                 }
             }
 
             return false;
         }
+
+        /// <summary>
+        /// Check if a portable mask exists.
+        /// </summary>
+        /// <param name="call"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        internal bool PortableMaskExists(string call)
+        {
+            string first = call.Substring(0, 1);
+            string second = call.Substring(1, 1);
+            string third;
+            string fourth;
+            string fifth;
+            string sixth;
+
+            try
+            {
+                foreach (var item in maskList.Where(x => x.Count == call.Length))
+                {
+                    switch (call.Length)
+                    {
+                        case 2:
+                            if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1)
+                            {
+                                return true;
+                            }
+                            break;
+                        case 3:
+                            third = call.Substring(2, 1);
+                            if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1)
+                            {
+                                return true;
+                            }
+                            break;
+                        case 4:
+                            third = call.Substring(2, 1);
+                            fourth = call.Substring(3, 1);
+                            if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
+                                && Array.IndexOf(item[3], fourth) != -1)
+                            {
+                                return true;
+                            }
+                            break;
+                        case 5:
+                            third = call.Substring(2, 1);
+                            fourth = call.Substring(3, 1);
+                            fifth = call.Substring(4, 1);
+                            if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
+                                && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1)
+                            {
+                                return true;
+                            }
+                            break;
+                        case 6:
+                            third = call.Substring(2, 1);
+                            fourth = call.Substring(3, 1);
+                            fifth = call.Substring(4, 1);
+                            sixth = call.Substring(5, 1);
+                            if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
+                               && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1 && Array.IndexOf(item[5], sixth) != -1)
+                            {
+                                return true;
+                            }
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var a = 1;
+            }
+
+            return false;
+        }
+
 
         /// <summary>
         /// The index key is a character that can be the first letter of a call.
@@ -252,7 +309,7 @@ namespace W6OP.CallParser
         /// <param name="value"></param>
         internal void SetPrimaryMaskList(List<string[]> value)
         {
-            primaryMaskList.Add(value);
+            maskList.Add(value);
 
             foreach (var first in value[0])
             {
@@ -365,6 +422,7 @@ namespace W6OP.CallParser
 
             return zones.ToHashSet();
         }
+
     } // end class
 }
 

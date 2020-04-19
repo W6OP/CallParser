@@ -81,7 +81,6 @@ namespace CallParserTestor
 
             if (CheckBoxCompoundCalls.Checked)
             {
-                // using (StreamReader reader = new StreamReader("compound.txt"))
                 using (StreamReader reader = new StreamReader("PSKReporterCalls.txt"))
                 {
                     while (!reader.EndOfStream)
@@ -158,7 +157,15 @@ namespace CallParserTestor
 
                         foreach (CallSignInfo hit in hitList)
                         {
-                            UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.GetDXCC().ToString());
+                            if (!hit.IsMergedHit)
+                            {
+                                UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.GetDXCC().ToString());
+                            }
+                            else
+                            {
+                                var merged = MergeDXCCList(hit.DXCCMerged);
+                                UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.GetDXCC().ToString() + "," + merged);
+                            }
                         }
 
                         // save to a text file - not necessary for a single call
@@ -261,6 +268,7 @@ namespace CallParserTestor
                     dt.Columns.Add("Country");
                     dt.Columns.Add("Province");
                     dt.Columns.Add("DXCC");
+                    dt.Columns.Add("Flags");
 
                     foreach (CallSignInfo hit in hitCollection)
                     {
@@ -284,11 +292,27 @@ namespace CallParserTestor
                         {
                             if (hit.Kind == PrefixKind.DXCC) // || oItem.Kind == PrefixKind.InvalidPrefix
                             {
-                                dt.Rows.Add(new object[] { hit.CallSign, hit.Kind, hit.Country, hit.Province ?? "", hit.GetDXCC().ToString() });
+                                if (!hit.IsMergedHit)
+                                {
+                                    dt.Rows.Add(new object[] { hit.CallSign, hit.Kind, hit.Country, hit.Province ?? "", hit.GetDXCC().ToString(), GetFlags(hit.CallSignFlags) });
+                                }
+                                else
+                                {
+                                    var merged = MergeDXCCList(hit.DXCCMerged);
+                                    dt.Rows.Add(new object[] { hit.CallSign, hit.Kind, hit.Country, hit.Province ?? "", hit.GetDXCC().ToString() + "," + merged, GetFlags(hit.CallSignFlags) });
+                                }
                             }
                             else
                             {
-                                dt.Rows.Add(new object[] { "     ", hit.Kind, hit.Country, hit.Province ?? "", hit.GetDXCC().ToString() });
+                                if (!hit.IsMergedHit)
+                                {
+                                    dt.Rows.Add(new object[] { "     ", hit.Kind, hit.Country, hit.Province ?? "", hit.GetDXCC().ToString(), GetFlags(hit.CallSignFlags) });
+                                }
+                                else
+                                {
+                                    var merged = MergeDXCCList(hit.DXCCMerged);
+                                    dt.Rows.Add(new object[] { "     ", hit.Kind, hit.Country, hit.Province ?? "", hit.GetDXCC().ToString() + "," + merged, GetFlags(hit.CallSignFlags) });
+                                }
                             }
                         }
                     }
@@ -313,6 +337,48 @@ namespace CallParserTestor
                 this.BeginInvoke(new Action<IEnumerable<CallSignInfo>>(this.UpdateDataGrid), hitCollection);
                 return;
             }
+        }
+
+        private string GetFlags(HashSet<CallSignFlags> callSignFlags)
+        {
+            string flags = "";
+
+            if (callSignFlags.Count == 0)
+            {
+                return flags;
+            }
+
+            foreach (var flag in callSignFlags)
+            {
+                if (flag != CallSignFlags.None)
+                {
+                    flags += flag.ToString() + ",";
+                }
+            }
+
+            return flags.Substring(0, flags.Length - 1);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mergedDXCC"></param>
+        /// <returns></returns>
+        private string MergeDXCCList(HashSet<int> mergedDXCC)
+        {
+            string merged = "";
+
+            if (mergedDXCC.Count == 0)
+            {
+                return merged;
+            }
+
+            foreach(var dxcc in mergedDXCC)
+            {
+                merged += dxcc.ToString() + ",";
+            }
+
+            return merged.Substring(0,merged.Length - 1);
         }
 
         private void UpdateDataGrid(List<string> hitList)
@@ -589,20 +655,20 @@ namespace CallParserTestor
             return;
 
             // 20110205.csv 20140406.csv 20140409.csv 20160207.csv 20200105.csv
-            BuildCompoundCallFile(Path.Combine(@"C:\Users\pbourget\Downloads\Reverse beacon", "20110205.csv"));
-            BuildCompoundCallFile(Path.Combine(@"C:\Users\pbourget\Downloads\Reverse beacon", "20140406.csv"));
-            BuildCompoundCallFile(Path.Combine(@"C:\Users\pbourget\Downloads\Reverse beacon", "20140409.csv"));
-            BuildCompoundCallFile(Path.Combine(@"C:\Users\pbourget\Downloads\Reverse beacon", "20160207.csv"));
-            BuildCompoundCallFile(Path.Combine(@"C:\Users\pbourget\Downloads\Reverse beacon", "20200105.csv"));
+            //BuildCompoundCallFile(Path.Combine(@"C:\Users\pbourget\Downloads\Reverse beacon", "20110205.csv"));
+            //BuildCompoundCallFile(Path.Combine(@"C:\Users\pbourget\Downloads\Reverse beacon", "20140406.csv"));
+            //BuildCompoundCallFile(Path.Combine(@"C:\Users\pbourget\Downloads\Reverse beacon", "20140409.csv"));
+            //BuildCompoundCallFile(Path.Combine(@"C:\Users\pbourget\Downloads\Reverse beacon", "20160207.csv"));
+            //BuildCompoundCallFile(Path.Combine(@"C:\Users\pbourget\Downloads\Reverse beacon", "20200105.csv"));
 
-            //int a = 1;
-            // save to a text file
-            var thread = new Thread(() =>
-            {
-                Cursor.Current = Cursors.WaitCursor;
-                SaveHitList(CompoundCalls);
-            });
-            thread.Start();
+            ////int a = 1;
+            //// save to a text file
+            //var thread = new Thread(() =>
+            //{
+            //    Cursor.Current = Cursors.WaitCursor;
+            //    SaveHitList(CompoundCalls);
+            //});
+            //thread.Start();
         }
 
         /// <summary>
@@ -714,6 +780,15 @@ namespace CallParserTestor
         private void CheckBoxMergeHits_CheckedChanged(object sender, EventArgs e)
         {
             _CallLookUp.MergeHits = CheckBoxMergeHits.Checked;
+        }
+
+        private void DataGridViewResults_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            DataGridViewResults.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            DataGridViewResults.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            DataGridViewResults.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            DataGridViewResults.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            DataGridViewResults.Columns[4].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
         }
     } // end class
 }
