@@ -364,6 +364,9 @@ namespace W6OP.CallParser
                 case "R":
                     CallSignFlags.Add(CallParser.CallSignFlags.Beacon);
                     break;
+                case "B":
+                    CallSignFlags.Add(CallParser.CallSignFlags.Beacon);
+                    break;
                 case string _ when component1 == "P" && component2 == "QRP":
                     CallSignFlags.Add(CallParser.CallSignFlags.Portable);
                     CallSignFlags.Add(CallParser.CallSignFlags.Qrp);

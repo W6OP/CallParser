@@ -12,9 +12,12 @@ namespace W6OP.CallParser
     [Serializable]
     public class CallSignInfo
     {
-        internal CallSignInfo(System.Xml.Linq.XElement element)
+        internal XElement PrefixXml;
+
+        internal CallSignInfo(XElement element)
         {
-            InitializeCallSignInfo(element);
+            PrefixXml = element;
+            InitializeCallSignInfo();
             CallSignFlags = new HashSet<CallSignFlags>();
         }
 
@@ -119,7 +122,7 @@ namespace W6OP.CallParser
         /// <param name="second"></param>
         /// <param name="stopFound"></param>
         /// <returns></returns>
-        internal List<List<string[]>> GetyMaskList(string first, string second, bool stopFound)
+        internal List<List<string[]>> GetMaskList(string first, string second, bool stopFound)
         {
             var temp = new List<List<string[]>>();
             foreach (var item in maskList)
@@ -351,11 +354,11 @@ namespace W6OP.CallParser
         /// 
         /// </summary>
         /// <param name="prefixXml"></param>
-        private void InitializeCallSignInfo(XElement prefixXml)
+        private void InitializeCallSignInfo()
         {
             string currentValue;
 
-            foreach (XElement element in prefixXml.Elements())
+            foreach (XElement element in PrefixXml.Elements())
             {
                 currentValue = element.Value;
 

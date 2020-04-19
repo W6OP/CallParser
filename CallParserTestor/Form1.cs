@@ -248,7 +248,6 @@ namespace CallParserTestor
             finally
             {
                 // reduce memory use
-                hitCollection = null; 
             }
         }
 
@@ -308,12 +307,12 @@ namespace CallParserTestor
                             {
                                 if (!hit.IsMergedHit)
                                 {
-                                    dt.Rows.Add(new object[] { "     ", hit.Kind, hit.Country, hit.Province ?? "", hit.DXCC.ToString(), GetFlags(hit.CallSignFlags) });
+                                    dt.Rows.Add(new object[] { " - " + hit.CallSign, hit.Kind, hit.Country, hit.Province ?? "", hit.DXCC.ToString(), GetFlags(hit.CallSignFlags) });
                                 }
                                 else
                                 {
                                     var merged = MergeDXCCList(hit.DXCCMerged);
-                                    dt.Rows.Add(new object[] { "     ", hit.Kind, hit.Country, hit.Province ?? "", hit.DXCC.ToString() + "," + merged, GetFlags(hit.CallSignFlags) });
+                                    dt.Rows.Add(new object[] { " - " + hit.CallSign, hit.Kind, hit.Country, hit.Province ?? "", hit.DXCC.ToString() + "," + merged, GetFlags(hit.CallSignFlags) });
                                 }
                             }
                         }

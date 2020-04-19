@@ -388,7 +388,7 @@ namespace W6OP.CallParser
                     {
                         var rank = 0;
                         var previous = true;
-                        var primaryMaskList = info.GetyMaskList(firstLetter, nextLetter, stopFound);
+                        var primaryMaskList = info.GetMaskList(firstLetter, nextLetter, stopFound);
 
                         foreach (List<string[]> maskList in primaryMaskList) // ToList uneccessary here
                         {
@@ -462,7 +462,6 @@ namespace W6OP.CallParser
         private bool CheckForPortablePrefix(CallStructure callStructure, string fullCall)
         {
             string prefix = callStructure.Prefix + "/";
-            //string baseCall = callStructure.BaseCall;
             var list = new HashSet<CallSignInfo>();
             var temp = new HashSet<CallSignInfo>();
             var firstLetter = prefix.Substring(0, 1);
@@ -512,11 +511,11 @@ namespace W6OP.CallParser
             List<CallSignInfo> HighestRankList = foundItems.OrderByDescending(x => x.Rank).ThenByDescending(x => x.Kind).ToList();
             Dictionary<int, int> dxccEntries = new Dictionary<int, int>();
 
-            CallSignInfo currentObject;
+           // CallSignInfo currentObject;
 
             foreach (CallSignInfo callSignInfo in HighestRankList)
             {
-                currentObject = callSignInfo;
+                //currentObject = callSignInfo;
                 //callSignInfo.DeepCopy(ref currentObject, ref callSignInfoCopy);
                 callSignInfoCopy = callSignInfo.ShallowCopy();
                 callSignInfo.CallSignFlags = new HashSet<CallSignFlags>();

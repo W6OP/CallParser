@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.button1 = new System.Windows.Forms.Button();
             this.TextBoxCall = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
@@ -47,6 +47,7 @@
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.label1 = new System.Windows.Forms.Label();
             this.ButtonSelectFolder = new System.Windows.Forms.Button();
             this.OpenPrefixFileDialog = new System.Windows.Forms.OpenFileDialog();
@@ -57,7 +58,6 @@
             this.CheckBoxCompoundCalls = new System.Windows.Forms.CheckBox();
             this.CheckBoxMergeHits = new System.Windows.Forms.CheckBox();
             this.callLookUpBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewResults)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.callLookUpBindingSource)).BeginInit();
@@ -176,7 +176,7 @@
             this.ListViewResults.HideSelection = false;
             this.ListViewResults.Location = new System.Drawing.Point(0, 0);
             this.ListViewResults.Name = "ListViewResults";
-            this.ListViewResults.Size = new System.Drawing.Size(633, 130);
+            this.ListViewResults.Size = new System.Drawing.Size(727, 149);
             this.ListViewResults.TabIndex = 12;
             this.ListViewResults.UseCompatibleStateImageBehavior = false;
             this.ListViewResults.View = System.Windows.Forms.View.Details;
@@ -204,6 +204,11 @@
             // 
             this.columnHeader5.Text = "Dxcc";
             this.columnHeader5.Width = 119;
+            // 
+            // columnHeader6
+            // 
+            this.columnHeader6.Text = "Call Sign Flags";
+            this.columnHeader6.Width = 150;
             // 
             // label1
             // 
@@ -242,31 +247,30 @@
             // 
             this.DataGridViewResults.AllowUserToAddRows = false;
             this.DataGridViewResults.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.MidnightBlue;
-            this.DataGridViewResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.MidnightBlue;
+            this.DataGridViewResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.DataGridViewResults.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.DataGridViewResults.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
             this.DataGridViewResults.BackgroundColor = System.Drawing.Color.Honeydew;
             this.DataGridViewResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.DataGridViewResults.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.DataGridViewResults.Location = new System.Drawing.Point(0, 130);
+            this.DataGridViewResults.Location = new System.Drawing.Point(0, 149);
             this.DataGridViewResults.Name = "DataGridViewResults";
             this.DataGridViewResults.ReadOnly = true;
-            this.DataGridViewResults.Size = new System.Drawing.Size(633, 431);
+            this.DataGridViewResults.Size = new System.Drawing.Size(727, 412);
             this.DataGridViewResults.TabIndex = 16;
             this.DataGridViewResults.DataBindingComplete += new System.Windows.Forms.DataGridViewBindingCompleteEventHandler(this.DataGridViewResults_DataBindingComplete);
             // 
             // panel1
             // 
-            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
             this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.panel1.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.panel1.Controls.Add(this.DataGridViewResults);
             this.panel1.Controls.Add(this.ListViewResults);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel1.Location = new System.Drawing.Point(0, 204);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(633, 561);
+            this.panel1.Size = new System.Drawing.Size(727, 561);
             this.panel1.TabIndex = 17;
             // 
             // button4
@@ -305,17 +309,12 @@
             // 
             this.callLookUpBindingSource.DataSource = typeof(W6OP.CallParser.CallLookUp);
             // 
-            // columnHeader6
-            // 
-            this.columnHeader6.Text = "Call Sign Flags";
-            this.columnHeader6.Width = 150;
-            // 
             // Form1
             // 
             this.AcceptButton = this.button1;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(631, 765);
+            this.ClientSize = new System.Drawing.Size(727, 765);
             this.Controls.Add(this.CheckBoxMergeHits);
             this.Controls.Add(this.CheckBoxCompoundCalls);
             this.Controls.Add(this.button4);
