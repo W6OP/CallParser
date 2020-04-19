@@ -28,6 +28,15 @@ namespace W6OP.CallParser
             return (CallSignInfo)this.MemberwiseClone();
         }
 
+        /// <summary>
+        /// Deep clone of this object.
+        /// The first time trough it will throw a file not found exception.
+        /// This is a known problem Microsoft won't fix. The XmlSerializer
+        /// constuctor handles this error.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="object2Copy"></param>
+        /// <param name="objectCopy"></param>
         public void DeepCopy<T>(ref T object2Copy, ref T objectCopy)
         {
             using (var stream = new MemoryStream())
@@ -59,15 +68,15 @@ namespace W6OP.CallParser
         /// <summary>
         /// 
         /// </summary>
-        private int dXCC;
-        public int GetDXCC()
-        {
-            return dXCC;
-        }
+        public int DXCC;
+        //public int GetDXCC()
+        //{
+        //    return DXCC;
+        //}
 
         public void SetDXCC(int value)
         {
-            dXCC = value;
+            DXCC = value;
             DXCCMerged = new HashSet<int>(value);
         }
 
@@ -162,14 +171,20 @@ namespace W6OP.CallParser
                         case 2:
                             if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1)
                             {
-                                return true;
+                                if (item.Last()[0] != "/")
+                                {
+                                    return true;
+                                }
                             }
                             break;
                         case 3:
                             third = call.Substring(2, 1);
                             if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1)
                             {
-                                return true;
+                                if (item.Last()[0] != "/")
+                                {
+                                    return true;
+                                }
                             }
                             break;
                         case 4:
@@ -178,7 +193,10 @@ namespace W6OP.CallParser
                             if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
                                 && Array.IndexOf(item[3], fourth) != -1)
                             {
-                                return true;
+                                if (item.Last()[0] != "/")
+                                {
+                                    return true;
+                                }
                             }
                             break;
                         case 5:
@@ -188,7 +206,10 @@ namespace W6OP.CallParser
                             if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
                                 && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1)
                             {
-                                return true;
+                                if (item.Last()[0] != "/")
+                                {
+                                    return true;
+                                }
                             }
                             break;
                         case 6:
@@ -199,7 +220,10 @@ namespace W6OP.CallParser
                             if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
                                && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1 && Array.IndexOf(item[5], sixth) != -1)
                             {
-                                return true;
+                                if (item.Last()[0] != "/")
+                                {
+                                    return true;
+                                }
                             }
                             break;
                         case 7:
@@ -212,7 +236,10 @@ namespace W6OP.CallParser
                                && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1 && Array.IndexOf(item[5], sixth) != -1
                                && Array.IndexOf(item[6], seventh) != -1)
                             {
-                                return true;
+                                if (item.Last()[0] != "/")
+                                {
+                                    return true;
+                                }
                             }
                             break;
                     }

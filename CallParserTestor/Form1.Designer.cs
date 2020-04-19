@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.button1 = new System.Windows.Forms.Button();
             this.TextBoxCall = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
@@ -57,6 +57,7 @@
             this.CheckBoxCompoundCalls = new System.Windows.Forms.CheckBox();
             this.CheckBoxMergeHits = new System.Windows.Forms.CheckBox();
             this.callLookUpBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewResults)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.callLookUpBindingSource)).BeginInit();
@@ -169,7 +170,8 @@
             this.columnHeader2,
             this.columnHeader3,
             this.columnHeader4,
-            this.columnHeader5});
+            this.columnHeader5,
+            this.columnHeader6});
             this.ListViewResults.Dock = System.Windows.Forms.DockStyle.Top;
             this.ListViewResults.HideSelection = false;
             this.ListViewResults.Location = new System.Drawing.Point(0, 0);
@@ -182,7 +184,7 @@
             // columnHeader1
             // 
             this.columnHeader1.Text = "Call";
-            this.columnHeader1.Width = 150;
+            this.columnHeader1.Width = 100;
             // 
             // columnHeader2
             // 
@@ -191,12 +193,12 @@
             // columnHeader3
             // 
             this.columnHeader3.Text = "Country";
-            this.columnHeader3.Width = 150;
+            this.columnHeader3.Width = 100;
             // 
             // columnHeader4
             // 
             this.columnHeader4.Text = "Province";
-            this.columnHeader4.Width = 150;
+            this.columnHeader4.Width = 100;
             // 
             // columnHeader5
             // 
@@ -240,8 +242,8 @@
             // 
             this.DataGridViewResults.AllowUserToAddRows = false;
             this.DataGridViewResults.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.MidnightBlue;
-            this.DataGridViewResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.MidnightBlue;
+            this.DataGridViewResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle2;
             this.DataGridViewResults.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.DataGridViewResults.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
             this.DataGridViewResults.BackgroundColor = System.Drawing.Color.Honeydew;
@@ -302,6 +304,11 @@
             // callLookUpBindingSource
             // 
             this.callLookUpBindingSource.DataSource = typeof(W6OP.CallParser.CallLookUp);
+            // 
+            // columnHeader6
+            // 
+            this.columnHeader6.Text = "Call Sign Flags";
+            this.columnHeader6.Width = 150;
             // 
             // Form1
             // 
@@ -367,6 +374,7 @@
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.CheckBox CheckBoxCompoundCalls;
         private System.Windows.Forms.CheckBox CheckBoxMergeHits;
+        private System.Windows.Forms.ColumnHeader columnHeader6;
     }
 }
 

@@ -140,7 +140,7 @@ namespace W6OP.CallParser
             switch (callSignInfo)
             {
                 case CallSignInfo _ when callSignInfo.Kind == PrefixKind.DXCC:
-                    Adifs.Add(Convert.ToInt32(callSignInfo.GetDXCC()), callSignInfo);
+                    Adifs.Add(Convert.ToInt32(callSignInfo.DXCC), callSignInfo);
                     break;
                 case CallSignInfo _ when callSignInfo.Kind == PrefixKind.InvalidPrefix:
                     Adifs.Add(0, callSignInfo);

@@ -1794,7 +1794,7 @@
 		</masks>
 		<label>EU</label>
 		<kind>pfDXCC</kind>
-		<country>Belarus</country>
+		<country>Belarus</country> <!-- EU3DMB/R -->
 		<dxcc_entity>027</dxcc_entity>
 		<cq_zone>16</cq_zone>
 		<itu_zone>29</itu_zone>

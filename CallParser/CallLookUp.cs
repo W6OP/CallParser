@@ -462,13 +462,10 @@ namespace W6OP.CallParser
         private bool CheckForPortablePrefix(CallStructure callStructure, string fullCall)
         {
             string prefix = callStructure.Prefix + "/";
-            string baseCall = callStructure.BaseCall;
+            //string baseCall = callStructure.BaseCall;
             var list = new HashSet<CallSignInfo>();
             var temp = new HashSet<CallSignInfo>();
-            //var foundItems = new HashSet<CallSignInfo>();
             var firstLetter = prefix.Substring(0, 1);
-            //var nextLetter = prefix.Substring(1, 1);
-            //var thirdLetter = "";
             var pattern = BuildPattern(prefix);
 
             if (PortablePrefixes.TryGetValue(pattern, out var query))
@@ -489,16 +486,11 @@ namespace W6OP.CallParser
                         list.UnionWith(temp);
                         break;
                     }
-                    //if (temp.Count != 0)
-                    //{
-                    //    list.AddRange(temp);
-                    //}
                 }
             }
 
             if (list.Count > 0)
             {
-                //foundItems = list;
                 BuildHit(list, callStructure, prefix, fullCall);
                 return true;
             }
@@ -516,36 +508,23 @@ namespace W6OP.CallParser
         /// <param name="fullCall"></param>
         private void BuildHit(HashSet<CallSignInfo> foundItems, CallStructure callStructure, string prefix, string fullCall)
         {
+            CallSignInfo callSignInfoCopy = new CallSignInfo();
             List<CallSignInfo> HighestRankList = foundItems.OrderByDescending(x => x.Rank).ThenByDescending(x => x.Kind).ToList();
             Dictionary<int, int> dxccEntries = new Dictionary<int, int>();
 
+            CallSignInfo currentObject;
+
             foreach (CallSignInfo callSignInfo in HighestRankList)
             {
-                var callSignInfoCopy = callSignInfo.ShallowCopy();
+                currentObject = callSignInfo;
+                //callSignInfo.DeepCopy(ref currentObject, ref callSignInfoCopy);
+                callSignInfoCopy = callSignInfo.ShallowCopy();
+                callSignInfo.CallSignFlags = new HashSet<CallSignFlags>();
                 callSignInfoCopy.CallSign = fullCall;
                 callSignInfoCopy.BaseCall = callStructure.BaseCall;
                 callSignInfoCopy.HitPrefix = prefix;
                 callSignInfoCopy.CallSignFlags.UnionWith(callStructure.CallSignFlags);
                 HitList.Add(callSignInfoCopy);
-                if (callSignInfo.Kind == PrefixKind.DXCC && !dxccEntries.ContainsKey(callSignInfo.GetDXCC()))
-                {
-                    dxccEntries.Add(callSignInfo.GetDXCC(), 0);
-                }
-                if (callSignInfo.Kind != PrefixKind.DXCC)
-                {
-                    if (!dxccEntries.ContainsKey(callSignInfo.GetDXCC()))
-                    {
-                        if (Adifs[Convert.ToInt32(callSignInfo.GetDXCC())].Kind != PrefixKind.InvalidPrefix)
-                        {
-                            var callSignInfoCopyDxcc = Adifs[Convert.ToInt32(callSignInfo.GetDXCC())].ShallowCopy();
-                            callSignInfoCopyDxcc.CallSign = fullCall;
-                            callSignInfoCopyDxcc.BaseCall = callStructure.BaseCall;
-                            callSignInfoCopy.HitPrefix = prefix;
-                            callSignInfoCopy.CallSignFlags.UnionWith(callStructure.CallSignFlags);
-                            HitList.Add(callSignInfoCopyDxcc);
-                        }
-                    }
-                }
             }
         }
 
@@ -562,15 +541,12 @@ namespace W6OP.CallParser
         {
             CallSignInfo callSignInfoCopy = new CallSignInfo();
             List<CallSignInfo> HighestRankList = new List<CallSignInfo>();
-            Dictionary<int, int> dxccEntries = new Dictionary<int, int>();
-
+            //int count = 1;
             HighestRankList = foundItems.OrderByDescending(x => x.Rank).ThenByDescending(x => x.Kind).ToList();
-            CallSignInfo info = HighestRankList[0];
+            var highestRanked = HighestRankList[0];
 
-           
-                info.DeepCopy(ref info, ref callSignInfoCopy);
-            
-
+           // need to deep clone to modify properties
+            highestRanked.DeepCopy(ref highestRanked, ref callSignInfoCopy);
             //callSignInfoCopy = HighestRankList[0].ShallowCopy();
             callSignInfoCopy.CallSign = fullCall;
             callSignInfoCopy.BaseCall = callStructure.BaseCall;
@@ -580,9 +556,11 @@ namespace W6OP.CallParser
 
             foreach (CallSignInfo callSignInfo in HighestRankList.Skip(1))
             {
-                if (callSignInfo.GetDXCC() != callSignInfoCopy.GetDXCC())
+                //count ++;
+                
+                if (callSignInfo.DXCC != callSignInfoCopy.DXCC)
                 {
-                    callSignInfoCopy.DXCCMerged.Add(callSignInfo.GetDXCC());
+                    callSignInfoCopy.DXCCMerged.Add(callSignInfo.DXCC);
                 }
                 callSignInfoCopy.ITU.UnionWith(callSignInfo.ITU);
                 callSignInfoCopy.CQ.UnionWith(callSignInfo.CQ);
@@ -596,24 +574,6 @@ namespace W6OP.CallParser
                 if (callSignInfoCopy.Admin2 != callSignInfo.Admin2)
                 {
                     callSignInfoCopy.Admin2 = "";
-                }
-
-                if (callSignInfo.Kind != PrefixKind.DXCC)
-                {
-                    if (Adifs[Convert.ToInt32(callSignInfo.GetDXCC())].Kind != PrefixKind.InvalidPrefix)
-                    {
-                        var callSignInfoCopyDxcc = Adifs[Convert.ToInt32(callSignInfo.GetDXCC())].ShallowCopy();
-                        callSignInfoCopyDxcc.CallSign = fullCall;
-                        callSignInfoCopyDxcc.BaseCall = callStructure.BaseCall;
-                        callSignInfoCopy.HitPrefix = prefix;
-
-
-                        // THIS NEEDS CHECKING - does it really merge everything.
-                        callSignInfoCopy.CallSignFlags.UnionWith(callStructure.CallSignFlags);
-
-
-                        HitList.Add(callSignInfoCopyDxcc); // IS THIS CORRECT ??
-                    }
                 }
             }
 

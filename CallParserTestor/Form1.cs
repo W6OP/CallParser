@@ -157,14 +157,16 @@ namespace CallParserTestor
 
                         foreach (CallSignInfo hit in hitList)
                         {
+                            var flags = string.Join(",", hit.CallSignFlags);
+
                             if (!hit.IsMergedHit)
                             {
-                                UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.GetDXCC().ToString());
+                                UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.DXCC.ToString(), flags);
                             }
                             else
                             {
                                 var merged = MergeDXCCList(hit.DXCCMerged);
-                                UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.GetDXCC().ToString() + "," + merged);
+                                UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.DXCC.ToString() + "," + merged, flags);
                             }
                         }
 
@@ -294,24 +296,24 @@ namespace CallParserTestor
                             {
                                 if (!hit.IsMergedHit)
                                 {
-                                    dt.Rows.Add(new object[] { hit.CallSign, hit.Kind, hit.Country, hit.Province ?? "", hit.GetDXCC().ToString(), GetFlags(hit.CallSignFlags) });
+                                    dt.Rows.Add(new object[] { hit.CallSign, hit.Kind, hit.Country, hit.Province ?? "", hit.DXCC.ToString(), GetFlags(hit.CallSignFlags) });
                                 }
                                 else
                                 {
                                     var merged = MergeDXCCList(hit.DXCCMerged);
-                                    dt.Rows.Add(new object[] { hit.CallSign, hit.Kind, hit.Country, hit.Province ?? "", hit.GetDXCC().ToString() + "," + merged, GetFlags(hit.CallSignFlags) });
+                                    dt.Rows.Add(new object[] { hit.CallSign, hit.Kind, hit.Country, hit.Province ?? "", hit.DXCC.ToString() + "," + merged, GetFlags(hit.CallSignFlags) });
                                 }
                             }
                             else
                             {
                                 if (!hit.IsMergedHit)
                                 {
-                                    dt.Rows.Add(new object[] { "     ", hit.Kind, hit.Country, hit.Province ?? "", hit.GetDXCC().ToString(), GetFlags(hit.CallSignFlags) });
+                                    dt.Rows.Add(new object[] { "     ", hit.Kind, hit.Country, hit.Province ?? "", hit.DXCC.ToString(), GetFlags(hit.CallSignFlags) });
                                 }
                                 else
                                 {
                                     var merged = MergeDXCCList(hit.DXCCMerged);
-                                    dt.Rows.Add(new object[] { "     ", hit.Kind, hit.Country, hit.Province ?? "", hit.GetDXCC().ToString() + "," + merged, GetFlags(hit.CallSignFlags) });
+                                    dt.Rows.Add(new object[] { "     ", hit.Kind, hit.Country, hit.Province ?? "", hit.DXCC.ToString() + "," + merged, GetFlags(hit.CallSignFlags) });
                                 }
                             }
                         }
@@ -456,7 +458,7 @@ namespace CallParserTestor
         /// </summary>
         /// <param name="call"></param>
         /// <param name="clear"></param>
-        private void UpdateListViewResults(string call, PrefixKind kind, string country, string province, string dxcc)
+        private void UpdateListViewResults(string call, PrefixKind kind, string country, string province, string dxcc, string flags)
         {
             if (!InvokeRequired)
             {
@@ -477,12 +479,13 @@ namespace CallParserTestor
                 item.SubItems.Add(country);
                 item.SubItems.Add(province ?? "");
                 item.SubItems.Add(dxcc);
+                item.SubItems.Add(flags);
                 ListViewResults.Items.Add(item);
                 Application.DoEvents();
             }
             else
             {
-                this.BeginInvoke(new Action<string, PrefixKind, string, string, string>(this.UpdateListViewResults), call, kind, country, province, dxcc);
+                this.BeginInvoke(new Action<string, PrefixKind, string, string, string, string>(this.UpdateListViewResults), call, kind, country, province, dxcc, flags);
                 return;
             }
         }
