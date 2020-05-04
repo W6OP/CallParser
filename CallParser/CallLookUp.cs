@@ -77,7 +77,7 @@ namespace W6OP.CallParser
             {
                 ProcessCallSign(callSign.ToUpper());
             }
-            catch ()
+            catch (Exception)
             {
                 throw new Exception("Invalid call sign format.");
             }
