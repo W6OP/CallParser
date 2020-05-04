@@ -259,7 +259,9 @@
             this.DataGridViewResults.ReadOnly = true;
             this.DataGridViewResults.Size = new System.Drawing.Size(727, 412);
             this.DataGridViewResults.TabIndex = 16;
+            this.DataGridViewResults.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.DataGridViewResults_CellFormatting);
             this.DataGridViewResults.DataBindingComplete += new System.Windows.Forms.DataGridViewBindingCompleteEventHandler(this.DataGridViewResults_DataBindingComplete);
+            this.DataGridViewResults.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.DataGridViewResults_RowsAdded);
             // 
             // panel1
             // 

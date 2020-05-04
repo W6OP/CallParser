@@ -35,7 +35,7 @@ namespace W6OP.CallParser
         /// Deep clone of this object.
         /// The first time trough it will throw a file not found exception.
         /// This is a known problem Microsoft won't fix. The XmlSerializer
-        /// constuctor handles this error.
+        /// constructor handles this error.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="object2Copy"></param>

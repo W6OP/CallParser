@@ -792,5 +792,29 @@ namespace CallParserTestor
             DataGridViewResults.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             DataGridViewResults.Columns[4].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
         }
+
+        private void DataGridViewResults_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        {
+        }
+
+        private void DataGridViewResults_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.ColumnIndex == 1 && e.Value != null)
+            {
+                //Fetch the value of the second column
+                string kind = e.Value.ToString();
+
+                //Apply Background color based on value.
+                if (kind == "DXCC")
+                {
+                    e.CellStyle.BackColor = Color.Honeydew;
+                }
+
+                if (kind == "Province")
+                {
+                    e.CellStyle.BackColor = Color.LavenderBlush;
+                }
+            }
+        }
     } // end class
 }

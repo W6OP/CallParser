@@ -32,6 +32,14 @@ namespace W6OP.CallParser
         private readonly ConcurrentDictionary<string, List<CallSignInfo>> CallSignDictionary;
         private SortedDictionary<int, CallSignInfo> Adifs { get; set; }
 
+        private ConcurrentDictionary<string, CallSignInfo> HitCache;
+
+        // cache hits for faster lookup when set
+        //private bool cacheHits;
+        //public bool CacheHits { set => cacheHits = value; }
+
+        // diasble caching when not doing batch lookups
+        private bool IsBatchLookup = false;
 
         private readonly ConcurrentDictionary<string, List<CallSignInfo>> PortablePrefixes;
        
@@ -50,8 +58,7 @@ namespace W6OP.CallParser
         /// <param name="prefixFileParser"></param>
         public CallLookUp(PrefixFileParser prefixFileParser)
         {
-            //this._PrefixesDictionary = prefixFileParser.PrefixesDictionary;
-            this.CallSignDictionary = prefixFileParser.CallSignDictionary;
+            CallSignDictionary = prefixFileParser.CallSignDictionary;
             Adifs = prefixFileParser.Adifs;
             PortablePrefixes = prefixFileParser.PortablePrefixes;
         }
@@ -64,12 +71,13 @@ namespace W6OP.CallParser
         public IEnumerable<CallSignInfo> LookUpCall(string callSign)
         {
             HitList = new ConcurrentBag<CallSignInfo>();
+            IsBatchLookup = false;
 
             try
             {
                 ProcessCallSign(callSign.ToUpper());
             }
-            catch (Exception ex)
+            catch ()
             {
                 throw new Exception("Invalid call sign format.");
             }
@@ -100,6 +108,9 @@ namespace W6OP.CallParser
         public IEnumerable<CallSignInfo> LookUpCall(List<string> callSigns)
         {
             HitList = new ConcurrentBag<CallSignInfo>();
+            HitCache = new ConcurrentDictionary<string, CallSignInfo>();
+            
+            IsBatchLookup = true;
 
             if (callSigns == null)
             {
@@ -140,7 +151,6 @@ namespace W6OP.CallParser
         /// <param name="callSign"></param>
         private void ProcessCallSign(string callSign)
         {
-            //(string baseCall, string prefix, string suffix, CompositeType composite) callStructure;
             CallStructure callStructure;
 
             callSign = callSign.Trim();
@@ -154,6 +164,16 @@ namespace W6OP.CallParser
             if (callSign.Last() == '/')
             {
                 callSign = callSign.Remove(callSign.Length - 1, 1);
+            }
+
+            // look in the cache first
+            if (IsBatchLookup)
+            {
+                if (HitCache.ContainsKey(callSign))
+                {
+                    HitList.Add(HitCache[callSign]);
+                    return;
+                }
             }
 
             callStructure = new CallStructure(callSign, PortablePrefixes);
@@ -511,12 +531,8 @@ namespace W6OP.CallParser
             List<CallSignInfo> HighestRankList = foundItems.OrderByDescending(x => x.Rank).ThenByDescending(x => x.Kind).ToList();
             Dictionary<int, int> dxccEntries = new Dictionary<int, int>();
 
-           // CallSignInfo currentObject;
-
             foreach (CallSignInfo callSignInfo in HighestRankList)
             {
-                //currentObject = callSignInfo;
-                //callSignInfo.DeepCopy(ref currentObject, ref callSignInfoCopy);
                 callSignInfoCopy = callSignInfo.ShallowCopy();
                 callSignInfo.CallSignFlags = new HashSet<CallSignFlags>();
                 callSignInfoCopy.CallSign = fullCall;
@@ -524,6 +540,16 @@ namespace W6OP.CallParser
                 callSignInfoCopy.HitPrefix = prefix;
                 callSignInfoCopy.CallSignFlags.UnionWith(callStructure.CallSignFlags);
                 HitList.Add(callSignInfoCopy);
+               
+                // add calls to the cache - if the call exists we won't have to redo all the 
+                // processing earlier the next time it comes in
+                if (IsBatchLookup)
+                {
+                    if (!HitCache.ContainsKey(callSignInfoCopy.CallSign))
+                    {
+                        HitCache.TryAdd(callSignInfoCopy.CallSign, callSignInfoCopy);
+                    }
+                }
             }
         }
 
@@ -546,7 +572,6 @@ namespace W6OP.CallParser
 
            // need to deep clone to modify properties
             highestRanked.DeepCopy(ref highestRanked, ref callSignInfoCopy);
-            //callSignInfoCopy = HighestRankList[0].ShallowCopy();
             callSignInfoCopy.CallSign = fullCall;
             callSignInfoCopy.BaseCall = callStructure.BaseCall;
             callSignInfoCopy.HitPrefix = prefix;
@@ -555,8 +580,6 @@ namespace W6OP.CallParser
 
             foreach (CallSignInfo callSignInfo in HighestRankList.Skip(1))
             {
-                //count ++;
-                
                 if (callSignInfo.DXCC != callSignInfoCopy.DXCC)
                 {
                     callSignInfoCopy.DXCCMerged.Add(callSignInfo.DXCC);
@@ -579,6 +602,16 @@ namespace W6OP.CallParser
             callSignInfoCopy.DXCCMerged = callSignInfoCopy.DXCCMerged.OrderBy(item => item).ToHashSet();
 
             HitList.Add(callSignInfoCopy);
+
+            // add calls to the cache - if the call exists we won't have to redo all the 
+            // processing earlier the next time it comes in
+            if (IsBatchLookup)
+            {
+                if (!HitCache.ContainsKey(callSignInfoCopy.CallSign))
+                {
+                    HitCache.TryAdd(callSignInfoCopy.CallSign, callSignInfoCopy);
+                }
+            }
         }
 
         /// <summary>
