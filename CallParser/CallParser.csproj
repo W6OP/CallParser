@@ -76,6 +76,7 @@
     <Compile Include="CallStructure.cs" />
     <Compile Include="PrefixFileParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QRZLookup.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="PrefixList.xml">

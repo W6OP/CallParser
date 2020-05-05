@@ -16,30 +16,35 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace W6OP.CallParser
 {
     public class CallLookUp
     {
         /// <summary>
-        /// True requests multiple hits are merged into one.
+        /// True indicates multiple hits are merged into one.
         /// </summary>
         private bool mergeHits;
         public bool MergeHits { get => mergeHits; set => mergeHits = value; }
+        
 
-        // writing to List<T> are faster than writing to Hashset<T>
         private ConcurrentBag<CallSignInfo> HitList;
+        //
         private readonly ConcurrentDictionary<string, List<CallSignInfo>> CallSignDictionary;
+        //
         private SortedDictionary<int, CallSignInfo> Adifs { get; set; }
-
+        // 
         private ConcurrentDictionary<string, CallSignInfo> HitCache;
 
-        // cache hits for faster lookup when set
-        //private bool cacheHits;
-        //public bool CacheHits { set => cacheHits = value; }
+       
+        private QRZLookup QRZLookup = new QRZLookup();
 
-        // diasble caching when not doing batch lookups
+        // disable caching when not doing batch lookups
         private bool IsBatchLookup = false;
+        private string QRZUserId;
+        private string QRZPassword;
+        private bool UseQRZLookup;
 
         private readonly ConcurrentDictionary<string, List<CallSignInfo>> PortablePrefixes;
        
@@ -72,6 +77,32 @@ namespace W6OP.CallParser
         {
             HitList = new ConcurrentBag<CallSignInfo>();
             IsBatchLookup = false;
+
+            try
+            {
+                ProcessCallSign(callSign.ToUpper());
+            }
+            catch (Exception)
+            {
+                throw new Exception("Invalid call sign format.");
+            }
+
+            return HitList.AsEnumerable();
+        }
+
+        /// <summary>
+        /// Look up a single call sign. First make sure it is a valid call sign.
+        /// </summary>
+        /// <param name="callSign"></param>
+        /// <returns>IEnumerable<CallSignInfo></returns>
+        public IEnumerable<CallSignInfo> LookUpCall(string callSign, string userId, string password)
+        {
+            HitList = new ConcurrentBag<CallSignInfo>();
+            IsBatchLookup = false;
+            UseQRZLookup = true;
+
+            QRZUserId = userId;
+            QRZPassword = password;
 
             try
             {
@@ -549,6 +580,17 @@ namespace W6OP.CallParser
                     {
                         HitCache.TryAdd(callSignInfoCopy.CallSign, callSignInfoCopy);
                     }
+                }
+
+                if (UseQRZLookup)
+                {
+                    if (QRZLookup.QRZLogon(QRZUserId, QRZPassword))
+                    {
+                        XDocument xDocument = QRZLookup.QRZRequest(callStructure.BaseCall);
+                        CallSignInfo callSignInfoQRZ = new CallSignInfo(xDocument);
+                        HitList.Add(callSignInfoQRZ);
+                    }
+                    
                 }
             }
         }

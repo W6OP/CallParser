@@ -38,6 +38,8 @@ namespace CallParserTestor
 
         private List<string> CompoundCalls;
 
+        #region Initialization
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -51,6 +53,26 @@ namespace CallParserTestor
 
             CompoundCalls = new List<string>(500000);
         }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            if (TextBoxQRZuserId.Text == "")
+            {
+                TextBoxQRZuserId.Text = "QRZ User Id";
+                TextBoxQRZuserId.ForeColor = Color.Gray;
+            }
+
+            if (TextBoxQRZPassword.Text == "")
+            {
+                TextBoxQRZPassword.PasswordChar = '\0';
+                TextBoxQRZPassword.Text = "QRZ Password";
+                TextBoxQRZPassword.ForeColor = Color.Gray;
+            }
+        }
+
+        #endregion
+
+        #region Button Actions
 
         /// <summary>
         /// Parse the prefix file. Marshallllll to another thread so I don't
@@ -140,17 +162,31 @@ namespace CallParserTestor
             ListViewResults.Items.Clear();
             LabelCallsLoaded.Text = "";
 
+            if (CheckBoxQRZ.CheckState == CheckState.Checked)
+            {
+                if (TextBoxQRZuserId.Text == "QRZ User Id" || TextBoxQRZPassword.Text == "QRZ Password")
+                {
+                    MessageBox.Show("The QRZ User Id and Password are required", "Missing Credentials", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
+            }
+
             try
             {
                 if (!String.IsNullOrEmpty(TextBoxCall.Text))
                 {
-                    stopwatch = Stopwatch.StartNew();
-
-                    hitCollection = _CallLookUp.LookUpCall(TextBoxCall.Text);
+                    if (CheckBoxQRZ.CheckState == CheckState.Checked)
+                    {
+                        hitCollection = _CallLookUp.LookUpCall(TextBoxCall.Text, TextBoxQRZuserId.Text, TextBoxQRZPassword.Text);
+                    }
+                    else
+                    {
+                        hitCollection = _CallLookUp.LookUpCall(TextBoxCall.Text);
+                    }
 
                     if (hitCollection != null)
                     {
-                        hitList = hitCollection.ToList();   //.OrderByDescending(o => o.DXCC).ThenByDescending(x => x.Kind).ToList();
+                        hitList = hitCollection.ToList();
 
                         Console.WriteLine(hitList.Count.ToString() + " hits returned");
                         LabelHitCount.Text = "Finished - hitcount = " + hitList.Count.ToString();
@@ -169,14 +205,6 @@ namespace CallParserTestor
                                 UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.DXCC.ToString() + "," + merged, flags);
                             }
                         }
-
-                        // save to a text file - not necessary for a single call
-                        //var thread = new Thread(() =>
-                        //{
-                        //    Cursor.Current = Cursors.WaitCursor;
-                        //    SaveHitList(hitList);
-                        //});
-                        //    thread.Start();
                     }
                 }
             }
@@ -189,6 +217,25 @@ namespace CallParserTestor
             Console.WriteLine("Finished");
         }
 
+        /// <summary>
+        /// Read entire call sign list but send in calls one at a time.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ButtonSemiBatch_Click(object sender, EventArgs e)
+        {
+            if (_CallLookUp == null)
+            {
+                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+            ListViewResults.Items.Clear();
+            DataGridViewResults.DataSource = null;
+
+            Cursor.Current = Cursors.WaitCursor;
+            Task.Run(() => SemiBatchCallSignLookup());
+        }
 
         /// <summary>
         /// Batch lookup.
@@ -223,6 +270,10 @@ namespace CallParserTestor
             Task.Run(() => BatchCallSignLookup());
         }
 
+        #endregion
+
+        #region Button Implementation
+
         /// <summary>
         /// Build the hit collection by passing in a List<string>of call signs.
         /// </summary>
@@ -250,6 +301,57 @@ namespace CallParserTestor
                 // reduce memory use
             }
         }
+
+        #endregion
+
+        #region DataGrid
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hitList"></param>
+        private void UpdateDataGrid(List<string> hitList)
+        {
+            DataTable dt = new DataTable();
+            Cursor.Current = Cursors.WaitCursor;
+
+            if (!InvokeRequired)
+            {
+                using (dt = new DataTable())
+                {
+                    dt.Columns.Add("CallSign");
+                    dt.Columns.Add("Kind");
+                    dt.Columns.Add("Country");
+                    dt.Columns.Add("Province");
+                    dt.Columns.Add("DXCC");
+
+                    foreach (string hit in hitList)
+                    {
+                        dt.Rows.Add(new object[] { hit, "", "", "", "" });
+                    }
+
+                    SaveHitList(dt);
+                }
+                try
+                {
+                    DataGridViewResults.DataSource = dt;
+                }
+                catch (Exception ex)
+                {
+                    string a = ex.Message;
+                }
+                finally
+                {
+                    UpdateCursor();
+                }
+            }
+            else
+            {
+                this.BeginInvoke(new Action<List<string>>(this.UpdateDataGrid), hitList);
+                return;
+            }
+        }
+
 
         /// <summary>
         /// Update the data grid back on the GUI thread.
@@ -340,6 +442,8 @@ namespace CallParserTestor
             }
         }
 
+        #endregion
+
         private string GetFlags(HashSet<CallSignFlags> callSignFlags)
         {
             string flags = "";
@@ -374,55 +478,14 @@ namespace CallParserTestor
                 return merged;
             }
 
-            foreach(var dxcc in mergedDXCC)
+            foreach (var dxcc in mergedDXCC)
             {
                 merged += dxcc.ToString() + ",";
             }
 
-            return merged.Substring(0,merged.Length - 1);
+            return merged.Substring(0, merged.Length - 1);
         }
 
-        private void UpdateDataGrid(List<string> hitList)
-        {
-            DataTable dt = new DataTable();
-            Cursor.Current = Cursors.WaitCursor;
-
-            if (!InvokeRequired)
-            {
-                using (dt = new DataTable())
-                {
-                    dt.Columns.Add("CallSign");
-                    dt.Columns.Add("Kind");
-                    dt.Columns.Add("Country");
-                    dt.Columns.Add("Province");
-                    dt.Columns.Add("DXCC");
-
-                    foreach (string hit in hitList)
-                    {
-                        dt.Rows.Add(new object[] { hit, "", "", "", "" });
-                    }
-
-                    SaveHitList(dt);
-                }
-                try
-                {
-                    DataGridViewResults.DataSource = dt;
-                }
-                catch (Exception ex)
-                {
-                    string a = ex.Message;
-                }
-                finally
-                {
-                    UpdateCursor();
-                }
-            }
-            else
-            {
-                this.BeginInvoke(new Action<List<string>>(this.UpdateDataGrid), hitList);
-                return;
-            }
-        }
 
 
         /// <summary>
@@ -489,25 +552,7 @@ namespace CallParserTestor
             }
         }
 
-        /// <summary>
-        /// Read entire call sign list but send in calls one at a time.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ButtonSemiBatch_Click(object sender, EventArgs e)
-        {
-            if (_CallLookUp == null)
-            {
-                MessageBox.Show("Please load the prefix file before doing a lookup.", "Missng Prefix file", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return;
-            }
 
-            ListViewResults.Items.Clear();
-            DataGridViewResults.DataSource = null;
-
-            Cursor.Current = Cursors.WaitCursor;
-            Task.Run(() => SemiBatchCallSignLookup());
-        }
 
         /// <summary>
         /// Send in calls one at a time on anther thread.
@@ -542,7 +587,7 @@ namespace CallParserTestor
             {
                 UpdateDataGrid(hitList);
             }
-            
+
 
             //UpdateLabels(hitList.Count());
         }
@@ -816,5 +861,60 @@ namespace CallParserTestor
                 }
             }
         }
+
+        private void TextBoxQRZuserId_Enter(object sender, EventArgs e)
+        {
+            if (TextBoxQRZuserId.Text == "")
+            {
+                TextBoxQRZuserId.Text = "QRZ User Id";
+                TextBoxQRZuserId.ForeColor = Color.Gray;
+            }
+            else
+            {
+                TextBoxQRZuserId.Text = "";
+                TextBoxQRZuserId.ForeColor = Color.Black;
+            }
+        }
+
+        #region QRZ
+
+        private void TextBoxQRZPassword_Enter(object sender, EventArgs e)
+        {
+
+            if (TextBoxQRZPassword.Text == "")
+            {
+                TextBoxQRZPassword.PasswordChar = '\0';
+                TextBoxQRZPassword.Text = "QRZ Password";
+                TextBoxQRZPassword.ForeColor = Color.Gray;
+            }
+            else
+            {
+                TextBoxQRZPassword.PasswordChar = '*';
+                TextBoxQRZPassword.Text = "";
+                TextBoxQRZPassword.ForeColor = Color.Black;
+            }
+        }
+
+        private void TextBoxQRZuserId_Leave(object sender, EventArgs e)
+        {
+            if (TextBoxQRZuserId.Text == "")
+            {
+                TextBoxQRZuserId.Text = "QRZ User Id";
+                TextBoxQRZuserId.ForeColor = Color.Gray;
+            }
+        }
+
+        private void TextBoxQRZPassword_Leave(object sender, EventArgs e)
+        {
+            if (TextBoxQRZPassword.Text == "")
+            {
+                TextBoxQRZPassword.PasswordChar = '\0';
+                TextBoxQRZPassword.Text = "QRZ Password";
+                TextBoxQRZPassword.ForeColor = Color.Gray;
+            }
+        }
+
+        #endregion
+
     } // end class
 }

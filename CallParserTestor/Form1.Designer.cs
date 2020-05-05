@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
             this.button1 = new System.Windows.Forms.Button();
             this.TextBoxCall = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
@@ -57,6 +57,9 @@
             this.button4 = new System.Windows.Forms.Button();
             this.CheckBoxCompoundCalls = new System.Windows.Forms.CheckBox();
             this.CheckBoxMergeHits = new System.Windows.Forms.CheckBox();
+            this.CheckBoxQRZ = new System.Windows.Forms.CheckBox();
+            this.TextBoxQRZuserId = new System.Windows.Forms.TextBox();
+            this.TextBoxQRZPassword = new System.Windows.Forms.TextBox();
             this.callLookUpBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewResults)).BeginInit();
             this.panel1.SuspendLayout();
@@ -65,7 +68,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(300, 90);
+            this.button1.Location = new System.Drawing.Point(300, 104);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(154, 27);
             this.button1.TabIndex = 0;
@@ -76,15 +79,15 @@
             // TextBoxCall
             // 
             this.TextBoxCall.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.TextBoxCall.Location = new System.Drawing.Point(466, 93);
+            this.TextBoxCall.Location = new System.Drawing.Point(466, 107);
             this.TextBoxCall.Name = "TextBoxCall";
-            this.TextBoxCall.Size = new System.Drawing.Size(116, 23);
+            this.TextBoxCall.Size = new System.Drawing.Size(94, 23);
             this.TextBoxCall.TabIndex = 1;
             this.TextBoxCall.Text = "TX4YKP/R";
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(14, 123);
+            this.button2.Location = new System.Drawing.Point(14, 137);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(154, 27);
             this.button2.TabIndex = 2;
@@ -94,7 +97,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(300, 156);
+            this.button3.Location = new System.Drawing.Point(300, 170);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(154, 27);
             this.button3.TabIndex = 3;
@@ -105,7 +108,7 @@
             // LabelElapsedTime
             // 
             this.LabelElapsedTime.AutoSize = true;
-            this.LabelElapsedTime.Location = new System.Drawing.Point(463, 185);
+            this.LabelElapsedTime.Location = new System.Drawing.Point(463, 199);
             this.LabelElapsedTime.Name = "LabelElapsedTime";
             this.LabelElapsedTime.Size = new System.Drawing.Size(0, 15);
             this.LabelElapsedTime.TabIndex = 4;
@@ -113,7 +116,7 @@
             // LabelHitCount
             // 
             this.LabelHitCount.AutoSize = true;
-            this.LabelHitCount.Location = new System.Drawing.Point(463, 128);
+            this.LabelHitCount.Location = new System.Drawing.Point(463, 142);
             this.LabelHitCount.Name = "LabelHitCount";
             this.LabelHitCount.Size = new System.Drawing.Size(0, 15);
             this.LabelHitCount.TabIndex = 5;
@@ -121,21 +124,21 @@
             // LabelPerCallTime
             // 
             this.LabelPerCallTime.AutoSize = true;
-            this.LabelPerCallTime.Location = new System.Drawing.Point(463, 162);
+            this.LabelPerCallTime.Location = new System.Drawing.Point(463, 176);
             this.LabelPerCallTime.Name = "LabelPerCallTime";
             this.LabelPerCallTime.Size = new System.Drawing.Size(0, 15);
             this.LabelPerCallTime.TabIndex = 6;
             // 
             // TextBoxPrefixFilePath
             // 
-            this.TextBoxPrefixFilePath.Location = new System.Drawing.Point(14, 42);
+            this.TextBoxPrefixFilePath.Location = new System.Drawing.Point(16, 43);
             this.TextBoxPrefixFilePath.Name = "TextBoxPrefixFilePath";
             this.TextBoxPrefixFilePath.Size = new System.Drawing.Size(440, 23);
             this.TextBoxPrefixFilePath.TabIndex = 7;
             // 
             // ButtonLoadPrefixFile
             // 
-            this.ButtonLoadPrefixFile.Location = new System.Drawing.Point(14, 90);
+            this.ButtonLoadPrefixFile.Location = new System.Drawing.Point(14, 104);
             this.ButtonLoadPrefixFile.Name = "ButtonLoadPrefixFile";
             this.ButtonLoadPrefixFile.Size = new System.Drawing.Size(153, 27);
             this.ButtonLoadPrefixFile.TabIndex = 9;
@@ -146,7 +149,7 @@
             // LabelCallsLoaded
             // 
             this.LabelCallsLoaded.AutoSize = true;
-            this.LabelCallsLoaded.Location = new System.Drawing.Point(12, 165);
+            this.LabelCallsLoaded.Location = new System.Drawing.Point(12, 179);
             this.LabelCallsLoaded.Name = "LabelCallsLoaded";
             this.LabelCallsLoaded.Size = new System.Drawing.Size(0, 15);
             this.LabelCallsLoaded.TabIndex = 10;
@@ -238,7 +241,7 @@
             // LabelCallsLoadedDistinct
             // 
             this.LabelCallsLoadedDistinct.AutoSize = true;
-            this.LabelCallsLoadedDistinct.Location = new System.Drawing.Point(13, 184);
+            this.LabelCallsLoadedDistinct.Location = new System.Drawing.Point(13, 198);
             this.LabelCallsLoadedDistinct.Name = "LabelCallsLoadedDistinct";
             this.LabelCallsLoadedDistinct.Size = new System.Drawing.Size(0, 15);
             this.LabelCallsLoadedDistinct.TabIndex = 15;
@@ -247,8 +250,8 @@
             // 
             this.DataGridViewResults.AllowUserToAddRows = false;
             this.DataGridViewResults.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.MidnightBlue;
-            this.DataGridViewResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle9.ForeColor = System.Drawing.Color.MidnightBlue;
+            this.DataGridViewResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle9;
             this.DataGridViewResults.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.DataGridViewResults.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
             this.DataGridViewResults.BackgroundColor = System.Drawing.Color.Honeydew;
@@ -270,14 +273,14 @@
             this.panel1.Controls.Add(this.DataGridViewResults);
             this.panel1.Controls.Add(this.ListViewResults);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 204);
+            this.panel1.Location = new System.Drawing.Point(0, 233);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(727, 561);
             this.panel1.TabIndex = 17;
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(300, 123);
+            this.button4.Location = new System.Drawing.Point(300, 137);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(154, 27);
             this.button4.TabIndex = 18;
@@ -288,7 +291,7 @@
             // CheckBoxCompoundCalls
             // 
             this.CheckBoxCompoundCalls.AutoSize = true;
-            this.CheckBoxCompoundCalls.Location = new System.Drawing.Point(174, 128);
+            this.CheckBoxCompoundCalls.Location = new System.Drawing.Point(174, 142);
             this.CheckBoxCompoundCalls.Name = "CheckBoxCompoundCalls";
             this.CheckBoxCompoundCalls.Size = new System.Drawing.Size(115, 19);
             this.CheckBoxCompoundCalls.TabIndex = 19;
@@ -299,13 +302,41 @@
             // 
             this.CheckBoxMergeHits.AutoSize = true;
             this.CheckBoxMergeHits.Enabled = false;
-            this.CheckBoxMergeHits.Location = new System.Drawing.Point(174, 95);
+            this.CheckBoxMergeHits.Location = new System.Drawing.Point(174, 109);
             this.CheckBoxMergeHits.Name = "CheckBoxMergeHits";
             this.CheckBoxMergeHits.Size = new System.Drawing.Size(84, 19);
             this.CheckBoxMergeHits.TabIndex = 20;
             this.CheckBoxMergeHits.Text = "Merge Hits";
             this.CheckBoxMergeHits.UseVisualStyleBackColor = true;
             this.CheckBoxMergeHits.CheckedChanged += new System.EventHandler(this.CheckBoxMergeHits_CheckedChanged);
+            // 
+            // CheckBoxQRZ
+            // 
+            this.CheckBoxQRZ.AutoSize = true;
+            this.CheckBoxQRZ.Location = new System.Drawing.Point(576, 109);
+            this.CheckBoxQRZ.Name = "CheckBoxQRZ";
+            this.CheckBoxQRZ.Size = new System.Drawing.Size(92, 19);
+            this.CheckBoxQRZ.TabIndex = 21;
+            this.CheckBoxQRZ.Text = "QRZ Lookup";
+            this.CheckBoxQRZ.UseVisualStyleBackColor = true;
+            // 
+            // TextBoxQRZuserId
+            // 
+            this.TextBoxQRZuserId.Location = new System.Drawing.Point(15, 72);
+            this.TextBoxQRZuserId.Name = "TextBoxQRZuserId";
+            this.TextBoxQRZuserId.Size = new System.Drawing.Size(228, 23);
+            this.TextBoxQRZuserId.TabIndex = 22;
+            this.TextBoxQRZuserId.Enter += new System.EventHandler(this.TextBoxQRZuserId_Enter);
+            this.TextBoxQRZuserId.Leave += new System.EventHandler(this.TextBoxQRZuserId_Leave);
+            // 
+            // TextBoxQRZPassword
+            // 
+            this.TextBoxQRZPassword.Location = new System.Drawing.Point(249, 72);
+            this.TextBoxQRZPassword.Name = "TextBoxQRZPassword";
+            this.TextBoxQRZPassword.Size = new System.Drawing.Size(205, 23);
+            this.TextBoxQRZPassword.TabIndex = 23;
+            this.TextBoxQRZPassword.Enter += new System.EventHandler(this.TextBoxQRZPassword_Enter);
+            this.TextBoxQRZPassword.Leave += new System.EventHandler(this.TextBoxQRZPassword_Leave);
             // 
             // callLookUpBindingSource
             // 
@@ -316,7 +347,10 @@
             this.AcceptButton = this.button1;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(727, 765);
+            this.ClientSize = new System.Drawing.Size(727, 794);
+            this.Controls.Add(this.TextBoxQRZPassword);
+            this.Controls.Add(this.TextBoxQRZuserId);
+            this.Controls.Add(this.CheckBoxQRZ);
             this.Controls.Add(this.CheckBoxMergeHits);
             this.Controls.Add(this.CheckBoxCompoundCalls);
             this.Controls.Add(this.button4);
@@ -338,6 +372,7 @@
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "Form1";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewResults)).EndInit();
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.callLookUpBindingSource)).EndInit();
@@ -376,6 +411,9 @@
         private System.Windows.Forms.CheckBox CheckBoxCompoundCalls;
         private System.Windows.Forms.CheckBox CheckBoxMergeHits;
         private System.Windows.Forms.ColumnHeader columnHeader6;
+        private System.Windows.Forms.CheckBox CheckBoxQRZ;
+        private System.Windows.Forms.TextBox TextBoxQRZuserId;
+        private System.Windows.Forms.TextBox TextBoxQRZPassword;
     }
 }
 

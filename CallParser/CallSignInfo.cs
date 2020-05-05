@@ -14,6 +14,11 @@ namespace W6OP.CallParser
     {
         internal XElement PrefixXml;
 
+        public CallSignInfo()
+        {
+            CallSignFlags = new HashSet<CallSignFlags>();
+        }
+
         internal CallSignInfo(XElement element)
         {
             PrefixXml = element;
@@ -21,8 +26,10 @@ namespace W6OP.CallParser
             CallSignFlags = new HashSet<CallSignFlags>();
         }
 
-        public CallSignInfo()
+        internal CallSignInfo(XDocument xDocument)
         {
+            //PrefixXml = element;
+            InitializeCallSignInfo(xDocument);
             CallSignFlags = new HashSet<CallSignFlags>();
         }
 
@@ -439,6 +446,31 @@ namespace W6OP.CallParser
             }
         }
 
+        private void InitializeCallSignInfo(XDocument xDocument)
+        {
+            XNamespace xName = "http://xmldata.qrz.com";
+
+            var error = xDocument.Descendants(xName + "Session").Select(x => x.Element(xName + "Error")).FirstOrDefault();
+
+            if (error == null)
+            {
+                var key = xDocument.Descendants(xName + "Session").Select(x => x.Element(xName + "Key").Value).FirstOrDefault();
+
+                if (key != null)
+                {
+                    BaseCall = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "call")).FirstOrDefault();
+                    DXCC = (int)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "dxcc")).FirstOrDefault();
+                    Latitude = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "lat")).FirstOrDefault();
+                    Longitude = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "lon")).FirstOrDefault();
+                    Country = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "country")).FirstOrDefault();
+                    CQ = BuildZoneList((string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "cqzone")).FirstOrDefault());
+                    ITU = BuildZoneList((string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "ituzone")).FirstOrDefault());
+                    Kind = PrefixKind.DXCC;
+                }
+            }
+        }
+
+
         /// <summary>
         /// Build a list of CQ or ITU Zones.
         /// </summary>
@@ -456,3 +488,57 @@ namespace W6OP.CallParser
     } // end class
 }
 
+/*
+ <QRZDatabase version="1.33" xmlns="http://xmldata.qrz.com">
+  <Callsign>
+    <call>W6OP</call>
+    <aliases>WA6YUL</aliases>
+    <dxcc>291</dxcc>
+    <fname>Peter H</fname>
+    <name>Bourget</name>
+    <addr1>3422 Five Mile Dr</addr1>
+    <addr2>Stockton</addr2>
+    <state>CA</state>
+    <zip>95219</zip>
+    <country>United States</country>
+    <lat>38.010872</lat>
+    <lon>-121.355854</lon>
+    <grid>CM98ha</grid>
+    <county>San Joaquin</county>
+    <ccode>271</ccode>
+    <fips>06077</fips>
+    <land>United States</land>
+    <efdate>2015-03-14</efdate>
+    <expdate>2025-05-20</expdate>
+    <class>E</class>
+    <codes>HVIE</codes>
+    <qslmgr>DIRECT: SAE OR LOTW OR BUREAU</qslmgr>
+    <email>pbourget@w6op.com</email>
+    <u_views>8627</u_views>
+    <bio>1800</bio>
+    <biodate>2015-07-16 00:32:36</biodate>
+    <image>https://s3.amazonaws.com/files.qrz.com/p/w6op/w6op.jpg</image>
+    <imageinfo>300:400:48591</imageinfo>
+    <moddate>2019-04-17 18:15:56</moddate>
+    <MSA>8120</MSA>
+    <AreaCode>209</AreaCode>
+    <TimeZone>Pacific</TimeZone>
+    <GMTOffset>-8</GMTOffset>
+    <DST>Y</DST>
+    <eqsl>0</eqsl>
+    <mqsl>1</mqsl>
+    <cqzone>3</cqzone>
+    <ituzone>6</ituzone>
+    <lotw>1</lotw>
+    <user>W6OP</user>
+    <geoloc>user</geoloc>
+  </Callsign>
+  <Session>
+    <Key>fb2e6a25bbcbd20474b0a5415b7995b8</Key>
+    <Count>9486140</Count>
+    <SubExp>Tue Dec 29 00:00:00 2020</SubExp>
+    <GMTime>Tue May  5 19:02:47 2020</GMTime>
+    <Remark>cpu: 0.043s</Remark>
+  </Session>
+</QRZDatabase> 
+ * */
