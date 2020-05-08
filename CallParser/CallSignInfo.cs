@@ -458,11 +458,12 @@ namespace W6OP.CallParser
 
                 if (key != null)
                 {
-                    BaseCall = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "call")).FirstOrDefault();
+                    CallSign = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "call")).FirstOrDefault();
                     DXCC = (int)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "dxcc")).FirstOrDefault();
                     Latitude = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "lat")).FirstOrDefault();
                     Longitude = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "lon")).FirstOrDefault();
                     Country = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "country")).FirstOrDefault();
+                    Province = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "state")).FirstOrDefault();
                     CQ = BuildZoneList((string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "cqzone")).FirstOrDefault());
                     ITU = BuildZoneList((string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "ituzone")).FirstOrDefault());
                     Kind = PrefixKind.DXCC;

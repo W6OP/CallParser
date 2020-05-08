@@ -49,13 +49,13 @@ namespace W6OP.CallParser
         private readonly ConcurrentDictionary<string, List<CallSignInfo>> PortablePrefixes;
        
         //private readonly string[] _OneLetterSeries = { "B", "F", "G", "I", "K", "M", "N", "R", "W", "2" };
-        private readonly string[] SingleCharPrefixes = { "F", "G", "M", "I", "R", "W" };
+        //private readonly string[] SingleCharPrefixes = { "F", "G", "M", "I", "R", "W" };
         // added "R" as a beacon for R/IK3OTW
         // "U" for U/K2KRG
-        private readonly string[] RejectPrefixes = { "AG", "U", "R", "A", "B", "M", "P", "MM", "AM", "QR", "QRP", "QRPP", "LH", "LGT", "ANT", "WAP", "AAW", "FJL", "MOBILE" };
+        //private readonly string[] RejectPrefixes = { "AG", "U", "R", "A", "B", "M", "P", "MM", "AM", "QR", "QRP", "QRPP", "LH", "LGT", "ANT", "WAP", "AAW", "FJL", "MOBILE" };
         // ValidSuffixes = ':A:B:M:P:MM:AM:QRP:QRPP:LH:LGT:ANT:WAP:AAW:FJL:';
 
-        private CallStructure CallStructure = new CallStructure();
+        //private CallStructure CallStructure = new CallStructure();
 
         /// <summary>
         /// Public constructor.
@@ -66,6 +66,13 @@ namespace W6OP.CallParser
             CallSignDictionary = prefixFileParser.CallSignDictionary;
             Adifs = prefixFileParser.Adifs;
             PortablePrefixes = prefixFileParser.PortablePrefixes;
+
+            QRZLookup.OnErrorDetected += QRZLookup_OnErrorDetected;
+        }
+
+        private void QRZLookup_OnErrorDetected(string message)
+        {
+            throw new Exception(message);
         }
 
         /// <summary>
@@ -108,9 +115,9 @@ namespace W6OP.CallParser
             {
                 ProcessCallSign(callSign.ToUpper());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw new Exception("Invalid call sign format.");
+                throw new Exception(ex.Message);
             }
 
             return HitList.AsEnumerable();
@@ -274,7 +281,7 @@ namespace W6OP.CallParser
             }
             catch (Exception ex)
             {
-                var e = ex.Message;
+                throw;
             }
 
             return;

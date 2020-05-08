@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("CallParser")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Call Parser Assembly")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("W6OP")]
 [assembly: AssemblyProduct("CallParser")]
-[assembly: AssemblyCopyright("Copyright ©  2020")]
+[assembly: AssemblyCopyright("Copyright ©  2020 Peter Bourget")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
