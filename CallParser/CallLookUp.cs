@@ -68,6 +68,12 @@ namespace W6OP.CallParser
             PortablePrefixes = prefixFileParser.PortablePrefixes;
 
             QRZLookup.OnErrorDetected += QRZLookup_OnErrorDetected;
+            QRZLookup.OnCallNotFound += QRZLookup_OnCallNotFound;
+        }
+
+        private void QRZLookup_OnCallNotFound(string message)
+        {
+            //throw new NotImplementedException();
         }
 
         private void QRZLookup_OnErrorDetected(string message)
@@ -84,6 +90,7 @@ namespace W6OP.CallParser
         {
             HitList = new ConcurrentBag<CallSignInfo>();
             IsBatchLookup = false;
+            UseQRZLookup = false;
 
             try
             {
@@ -149,6 +156,7 @@ namespace W6OP.CallParser
             HitCache = new ConcurrentDictionary<string, CallSignInfo>();
             
             IsBatchLookup = true;
+            UseQRZLookup = false;
 
             if (callSigns == null)
             {
@@ -578,7 +586,7 @@ namespace W6OP.CallParser
                 callSignInfoCopy.HitPrefix = prefix;
                 callSignInfoCopy.CallSignFlags.UnionWith(callStructure.CallSignFlags);
                 HitList.Add(callSignInfoCopy);
-               
+
                 // add calls to the cache - if the call exists we won't have to redo all the 
                 // processing earlier the next time it comes in
                 if (IsBatchLookup)
@@ -589,15 +597,19 @@ namespace W6OP.CallParser
                     }
                 }
 
-                if (UseQRZLookup)
+                if (!UseQRZLookup)
                 {
-                    if (QRZLookup.QRZLogon(QRZUserId, QRZPassword))
+                    continue;
+                }
+
+                if (QRZLookup.QRZLogon(QRZUserId, QRZPassword))
+                {
+                    XDocument xDocument = QRZLookup.QRZRequest(callStructure.BaseCall);
+                    if (xDocument != null)
                     {
-                        XDocument xDocument = QRZLookup.QRZRequest(callStructure.BaseCall);
                         CallSignInfo callSignInfoQRZ = new CallSignInfo(xDocument);
                         HitList.Add(callSignInfoQRZ);
                     }
-                    
                 }
             }
         }

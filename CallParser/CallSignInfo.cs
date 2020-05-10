@@ -12,7 +12,9 @@ namespace W6OP.CallParser
     [Serializable]
     public class CallSignInfo
     {
-        internal XElement PrefixXml;
+        internal XElement PrefixXml { get; set; }
+
+        public bool IsQRZInformation { get; set; }
 
         public CallSignInfo()
         {
@@ -28,7 +30,7 @@ namespace W6OP.CallParser
 
         internal CallSignInfo(XDocument xDocument)
         {
-            //PrefixXml = element;
+            IsQRZInformation = true;
             InitializeCallSignInfo(xDocument);
             CallSignFlags = new HashSet<CallSignFlags>();
         }
@@ -65,7 +67,7 @@ namespace W6OP.CallParser
         /// 
         private HashSet<List<string[]>> maskList = new HashSet<List<string[]>>();
         internal Dictionary<string, byte> IndexKey = new Dictionary<string, byte>();
-        private HashSet<int> dxccMerged;
+
         /// <summary>
         /// The rank of the result over other results - used internally.
         /// </summary>
@@ -79,10 +81,6 @@ namespace W6OP.CallParser
         /// 
         /// </summary>
         public int DXCC;
-        //public int GetDXCC()
-        //{
-        //    return DXCC;
-        //}
 
         public void SetDXCC(int value)
         {
@@ -90,7 +88,9 @@ namespace W6OP.CallParser
             DXCCMerged = new HashSet<int>(value);
         }
 
+        private HashSet<int> dxccMerged;
         public HashSet<int> DXCCMerged { get => dxccMerged; set => dxccMerged = value; }
+
         public int WAE { get; set; }
         public string Iota { get; set; }
         public string WAP { get; set; }
@@ -121,6 +121,17 @@ namespace W6OP.CallParser
         public string MainPrefix { get; set; }
         public string HitPrefix { get; set; }
         public HashSet<CallSignFlags> CallSignFlags { get; set; }
+
+        #region QRZ Fields
+
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string County { get; set; }
+        public string Grid { get; set; }
+        public bool LotW { get; set; }
+
+
+        #endregion
 
         /// <summary>
         /// 
@@ -459,13 +470,18 @@ namespace W6OP.CallParser
                 if (key != null)
                 {
                     CallSign = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "call")).FirstOrDefault();
+                    FirstName = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "fname")).FirstOrDefault();
+                    LastName = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "name")).FirstOrDefault();
                     DXCC = (int)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "dxcc")).FirstOrDefault();
                     Latitude = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "lat")).FirstOrDefault();
                     Longitude = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "lon")).FirstOrDefault();
+                    Grid = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "grid")).FirstOrDefault();
                     Country = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "country")).FirstOrDefault();
                     Province = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "state")).FirstOrDefault();
+                    County = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "county")).FirstOrDefault();
                     CQ = BuildZoneList((string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "cqzone")).FirstOrDefault());
                     ITU = BuildZoneList((string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "ituzone")).FirstOrDefault());
+                    LotW = (bool)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "lotw")).FirstOrDefault();
                     Kind = PrefixKind.DXCC;
                 }
             }

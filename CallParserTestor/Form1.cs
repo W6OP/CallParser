@@ -162,13 +162,10 @@ namespace CallParserTestor
             ListViewResults.Items.Clear();
             LabelCallsLoaded.Text = "";
 
-            if (CheckBoxQRZ.CheckState == CheckState.Checked)
+            if (CheckBoxQRZ.CheckState == CheckState.Checked && (TextBoxQRZuserId.Text == "QRZ User Id" || TextBoxQRZPassword.Text == "QRZ Password"))
             {
-                if (TextBoxQRZuserId.Text == "QRZ User Id" || TextBoxQRZPassword.Text == "QRZ Password")
-                {
-                    MessageBox.Show("The QRZ User Id and Password are required", "Missing Credentials", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    return;
-                }
+                MessageBox.Show("The QRZ User Id and Password are required", "Missing Credentials", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
             }
 
             try
