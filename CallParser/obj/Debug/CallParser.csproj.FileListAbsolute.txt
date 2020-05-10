@@ -16,3 +16,4 @@ C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallPars
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\obj\Debug\CallParser.csproj.CopyComplete
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\obj\Debug\CallParser.dll
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\obj\Debug\CallParser.pdb
+C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\obj\Debug\CallParser.csprojAssemblyReference.cache

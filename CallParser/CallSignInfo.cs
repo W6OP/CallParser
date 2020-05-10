@@ -469,19 +469,19 @@ namespace W6OP.CallParser
 
                 if (key != null)
                 {
-                    CallSign = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "call")).FirstOrDefault();
-                    FirstName = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "fname")).FirstOrDefault();
-                    LastName = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "name")).FirstOrDefault();
-                    DXCC = (int)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "dxcc")).FirstOrDefault();
-                    Latitude = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "lat")).FirstOrDefault();
-                    Longitude = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "lon")).FirstOrDefault();
-                    Grid = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "grid")).FirstOrDefault();
-                    Country = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "country")).FirstOrDefault();
-                    Province = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "state")).FirstOrDefault();
-                    County = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "county")).FirstOrDefault();
-                    CQ = BuildZoneList((string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "cqzone")).FirstOrDefault());
-                    ITU = BuildZoneList((string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "ituzone")).FirstOrDefault());
-                    LotW = (bool)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "lotw")).FirstOrDefault();
+                    CallSign = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "call")).FirstOrDefault() ?? "";
+                    FirstName = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "fname")).FirstOrDefault() ?? "";
+                    LastName = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "name")).FirstOrDefault() ?? "";
+                    DXCC = (int?)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "dxcc")).FirstOrDefault() ?? 0;
+                    Latitude = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "lat")).FirstOrDefault() ?? ""; 
+                    Longitude = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "lon")).FirstOrDefault() ?? "";
+                    Grid = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "grid")).FirstOrDefault() ?? "";
+                    Country = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "country")).FirstOrDefault() ?? "";
+                    Province = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "state")).FirstOrDefault() ?? "";
+                    County = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "county")).FirstOrDefault() ?? "";
+                    CQ = BuildZoneList((string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "cqzone")).FirstOrDefault()) ?? new HashSet<int>();
+                    ITU = BuildZoneList((string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "ituzone")).FirstOrDefault()) ?? new HashSet<int>();
+                    LotW = (bool?)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "lotw")).FirstOrDefault() ?? false;
                     Kind = PrefixKind.DXCC;
                 }
             }
