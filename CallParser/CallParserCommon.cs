@@ -141,23 +141,23 @@ namespace W6OP.CallParser
     /// <summary>
     /// Identify the type of character.
     /// </summary>
-    internal enum CharacterType
-    {
-        [Description("")]
-        empty,
-        [Description("#")]
-        numeric,
-        [Description("@")]
-        alphabetical,
-        [Description("?")]
-        alphanumeric,
-        [Description("-")]
-        dash,
-        [Description(".")]
-        dot,
-        [Description("/")]
-        slash
-    }
+    //internal enum CharacterType
+    //{
+    //    [Description("")]
+    //    empty,
+    //    [Description("#")]
+    //    numeric,
+    //    [Description("@")]
+    //    alphabetical,
+    //    [Description("?")]
+    //    alphanumeric,
+    //    [Description("-")]
+    //    dash,
+    //    [Description(".")]
+    //    dot,
+    //    [Description("/")]
+    //    slash
+    //}
 }
 
 namespace W6OP.CallParser

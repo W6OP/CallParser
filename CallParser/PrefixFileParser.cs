@@ -185,6 +185,7 @@ namespace W6OP.CallParser
                             case string _ when pattern.Last().ToString().Contains("/"):
                                 if (PortablePrefixes.TryGetValue(pattern, out var list))
                                 {
+                                    // add to an existing list
                                     // VK9/ has multiple DXCC numbers - 35, 150...
                                     list.Add(callSignInfo); //callSignInfo.DXCC
                                 }

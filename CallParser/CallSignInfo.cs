@@ -457,6 +457,10 @@ namespace W6OP.CallParser
             }
         }
 
+        /// <summary>
+        /// Parse the QRZ.com response
+        /// </summary>
+        /// <param name="xDocument"></param>
         private void InitializeCallSignInfo(XDocument xDocument)
         {
             XNamespace xName = "http://xmldata.qrz.com";

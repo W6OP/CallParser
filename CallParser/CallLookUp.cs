@@ -36,7 +36,6 @@ namespace W6OP.CallParser
         private SortedDictionary<int, CallSignInfo> Adifs { get; set; }
         // 
         private ConcurrentDictionary<string, CallSignInfo> HitCache;
-
        
         private QRZLookup QRZLookup = new QRZLookup();
 
@@ -48,15 +47,6 @@ namespace W6OP.CallParser
 
         private readonly ConcurrentDictionary<string, List<CallSignInfo>> PortablePrefixes;
        
-        //private readonly string[] _OneLetterSeries = { "B", "F", "G", "I", "K", "M", "N", "R", "W", "2" };
-        //private readonly string[] SingleCharPrefixes = { "F", "G", "M", "I", "R", "W" };
-        // added "R" as a beacon for R/IK3OTW
-        // "U" for U/K2KRG
-        //private readonly string[] RejectPrefixes = { "AG", "U", "R", "A", "B", "M", "P", "MM", "AM", "QR", "QRP", "QRPP", "LH", "LGT", "ANT", "WAP", "AAW", "FJL", "MOBILE" };
-        // ValidSuffixes = ':A:B:M:P:MM:AM:QRP:QRPP:LH:LGT:ANT:WAP:AAW:FJL:';
-
-        //private CallStructure CallStructure = new CallStructure();
-
         /// <summary>
         /// Public constructor.
         /// </summary>
@@ -299,35 +289,35 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="candidate"></param>
         /// <returns></returns>
-        private string BuildPattern(string candidate)
-        {
-            string pattern = "";
+        //private string BuildPattern(string candidate)
+        //{
+        //    string pattern = "";
 
-            foreach (char item in candidate)
-            {
-                if (Char.IsLetter(item))
-                {
-                    pattern += "@";
-                }
+        //    foreach (char item in candidate)
+        //    {
+        //        if (Char.IsLetter(item))
+        //        {
+        //            pattern += "@";
+        //        }
 
-                if (char.IsDigit(item))
-                {
-                    pattern += "#";
-                }
+        //        if (char.IsDigit(item))
+        //        {
+        //            pattern += "#";
+        //        }
 
-                // THIS IS DIFFERENT FROM CallStructure
-                if (char.IsPunctuation(item))
-                {
-                    pattern += "/";
-                }
-            }
+        //        // THIS IS DIFFERENT FROM CallStructure
+        //        if (char.IsPunctuation(item))
+        //        {
+        //            pattern += "/";
+        //        }
+        //    }
 
-            if (pattern.Length > 7)
-            {
-                pattern = pattern.Substring(0, 7);
-            }
-            return pattern;
-        }
+        //    if (pattern.Length > 7)
+        //    {
+        //        pattern = pattern.Substring(0, 7);
+        //    }
+        //    return pattern;
+        //}
 
         /// <summary>
         /// Search the CallSignDictionary for a hit with the full call. If it doesn't 
@@ -364,31 +354,31 @@ namespace W6OP.CallParser
                     searchBy = prefix;
                     firstLetter = prefix.Substring(0, 1);
                     nextLetter = "";
-                    pattern = BuildPattern(callStructure.Prefix);
+                    pattern = callStructure.BuildPattern(callStructure.Prefix);
                     break;
                 case CallStructureType.PrefixCall:
                     searchBy = prefix;
                     firstLetter = prefix.Substring(0, 1);
                     nextLetter = callStructure.Prefix.Substring(1, 1);
-                    pattern = BuildPattern(callStructure.Prefix);
+                    pattern = callStructure.BuildPattern(callStructure.Prefix);
                     break;
                 case CallStructureType.PrefixCallPortable:
                     searchBy = prefix;
                     firstLetter = callStructure.Prefix.Substring(0, 1);
                     nextLetter = callStructure.Prefix.Substring(1, 1);
-                    pattern = BuildPattern(callStructure.Prefix);
+                    pattern = callStructure.BuildPattern(callStructure.Prefix);
                     break;
                 case CallStructureType.PrefixCallText:
                     searchBy = prefix;
                     firstLetter = callStructure.Prefix.Substring(0, 1);
                     nextLetter = callStructure.Prefix.Substring(1, 1);
-                    pattern = BuildPattern(callStructure.Prefix);
+                    pattern = callStructure.BuildPattern(callStructure.Prefix);
                     break;
                 default:
                     searchBy = baseCall;
                     firstLetter = baseCall.Substring(0, 1);
                     nextLetter = baseCall.Substring(1, 1);
-                    pattern = BuildPattern(callStructure.BaseCall);
+                    pattern = callStructure.BuildPattern(callStructure.BaseCall);
                     break;
             }
 
@@ -531,7 +521,7 @@ namespace W6OP.CallParser
             var list = new HashSet<CallSignInfo>();
             var temp = new HashSet<CallSignInfo>();
             var firstLetter = prefix.Substring(0, 1);
-            var pattern = BuildPattern(prefix);
+            var pattern = callStructure.BuildPattern(prefix);
 
             if (PortablePrefixes.TryGetValue(pattern, out var query))
             {

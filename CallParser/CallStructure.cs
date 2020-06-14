@@ -32,12 +32,6 @@ namespace W6OP.CallParser
             SplitCallSign(callSign);
         }
 
-        internal CallStructure()
-        {
-            CallStructureType = CallStructureType.Invalid;
-            CallSignFlags = new HashSet<CallSignFlags>();
-        }
-
         private void SplitCallSign(string callSign)
         {
             List<string> components = callSign.Split('/').ToList();
@@ -49,7 +43,7 @@ namespace W6OP.CallParser
 
             // eliminate the most obvious invalid call signs
             List<(string call, StringTypes sType)> stringTypes =
-                (components.Select(item => (call: item, sType: GetComponentType(item)))).ToList();
+                components.Select(item => (call: item, sType: GetComponentType(item))).ToList();
 
             // if any portions are obviously invalid don't bother processing it
             if (stringTypes.Where(t => t.sType == StringTypes.Invalid)
@@ -432,7 +426,7 @@ namespace W6OP.CallParser
         /// <returns></returns>
         private ComponentType GetComponentType(string candidate, int position)
         {
-            string[] validCallStructures = { "@#@@", "@#@@@", "@##@", "@##@@", "@##@@@", "@@#@", "@@#@@", "@@#@@@", "#@#@", "#@#@@", "#@#@@@", "#@@#@", "#@@#@@" }; // KH6Z
+            //string[] validCallStructures = { "@#@@", "@#@@@", "@##@", "@##@@", "@##@@@", "@@#@", "@@#@@", "@@#@@@", "#@#@", "#@#@@", "#@#@@@", "#@@#@", "#@@#@@" }; // KH6Z
             string[] validPrefixes = { "@", "@@", "@@#", "@@#@", "@#", "@#@", "@##", "#@", "#@@", "#@#", "#@@#" };
             string[] validPrefixOrCall = { "@@#@", "@#@" };
             ComponentType componentType = ComponentType.Unknown;
@@ -509,14 +503,14 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="candidate"></param>
         /// <returns></returns>
-        private bool CheckForPortablePrefix(string candidate)
-        {
-            if (SingleCharPrefixes.Contains(candidate))
-            {
-                return true;
-            }
-            return false;
-        }
+        //private bool CheckForPortablePrefix(string candidate)
+        //{
+        //    if (SingleCharPrefixes.Contains(candidate))
+        //    {
+        //        return true;
+        //    }
+        //    return false;
+        //}
 
         /// <summary>
         /// 
@@ -679,7 +673,7 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="candidate"></param>
         /// <returns></returns>
-        private string BuildPattern(string candidate)
+        public string BuildPattern(string candidate)
         {
             string pattern = "";
 
