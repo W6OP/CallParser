@@ -21,6 +21,10 @@ namespace W6OP.CallParser
             CallSignFlags = new HashSet<CallSignFlags>();
         }
 
+        /// <summary>
+        /// Normal constructor.
+        /// </summary>
+        /// <param name="element"></param>
         internal CallSignInfo(XElement element)
         {
             PrefixXml = element;
@@ -28,6 +32,10 @@ namespace W6OP.CallParser
             CallSignFlags = new HashSet<CallSignFlags>();
         }
 
+        /// <summary>
+        /// Constructor used for QRZ.com
+        /// </summary>
+        /// <param name="xDocument"></param>
         internal CallSignInfo(XDocument xDocument)
         {
             IsQRZInformation = true;
@@ -276,6 +284,7 @@ namespace W6OP.CallParser
 
         /// <summary>
         /// Check if a portable mask exists.
+        /// TODO: This appears to be almost the same as MaskExists() - are they duplicating function
         /// </summary>
         /// <param name="call"></param>
         /// <param name="length"></param>

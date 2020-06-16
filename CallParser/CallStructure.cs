@@ -691,12 +691,32 @@ namespace W6OP.CallParser
 
                 if (char.IsPunctuation(item) || char.IsWhiteSpace(item))
                 {
-                    pattern += "?";
+                    if (item == '/')
+                    {
+                        pattern += "/";
+                    }
+                    else
+                    {
+                        pattern += "?";
+                    }
                 }
             }
 
             return pattern;
         }
+
+        //        // THIS IS DIFFERENT FROM CallStructure
+        //        if (char.IsPunctuation(item))
+        //        {
+        //            pattern += "/";
+        //        }
+        //    }
+
+        //    if (pattern.Length > 7)
+        //    {
+        //        pattern = pattern.Substring(0, 7);
+        //    }
+        //    return pattern;
 
 
     } // end class

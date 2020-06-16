@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -123,7 +124,15 @@ namespace W6OP.CallParser
                     }
                 }
             }
+            foreach (KeyValuePair<string, List<CallSignInfo>> kvp in CallSignDictionary)
+            {
+                Console.WriteLine("Key = {0}, Value = {1}", kvp.Key, kvp.Value.Count);
+                //textBox3.Text += ("Key = {0}, Value = {1}", kvp.Key, kvp.Value);
+                //textBox3.Text += string.Format("Key = {0}, Value = {1}", kvp.Key, kvp.Value);
+            }
+
             var a = 1;
+           
         }
 
 
@@ -170,6 +179,8 @@ namespace W6OP.CallParser
                     // ALSO [xxx][.xxx]
                     // expand the mask if it exists
                     primaryMaskList = ExpandMask(element.Value);
+                    // add for future lookups
+                    callSignInfo.SetPrimaryMaskList(primaryMaskList);
 
                     // if pattern contains "?" then need two patterns
                     // one with # and one with @
@@ -178,7 +189,7 @@ namespace W6OP.CallParser
                     foreach (var pattern in patternList)
                     {
                         // add for future lookups
-                        callSignInfo.SetPrimaryMaskList(primaryMaskList);
+                        //callSignInfo.SetPrimaryMaskList(primaryMaskList);
 
                         switch (pattern)
                         {
@@ -229,6 +240,14 @@ namespace W6OP.CallParser
             }
         }
 
+        /// <summary>
+        /// Build the pattern from the mask
+        /// KG4@@.
+        /// [AKNW]H7K[./]
+        /// AX9[ABD - KOPQS - VYZ][.ABD-KOPQS-VYZ] @@#@. and @@#@@. 
+        /// </summary>
+        /// <param name="primaryMaskList"></param>
+        /// <returns></returns>
         private List<string> BuildPatternEx(List<string[]> primaryMaskList)
         {
             string pattern = "";
@@ -247,15 +266,27 @@ namespace W6OP.CallParser
                         break;
 
                     case string[] _ when mask.All(x => char.IsPunctuation(char.Parse(x))):
-                        if (mask[0] == "/")
+                        
+                        switch (mask[0])
                         {
-                            pattern += "/";
+                            case "/":
+                                pattern += "/";
+                                if (mask.Length > 1)
+                                {
+                                    Console.WriteLine("Mask length = " + mask.Length);
+                                }
+                                break;
+                            case ".":
+                                pattern += ".";
+                                if (mask.Length > 1)
+                                {
+                                    patternList.Add(pattern);
+                                    patternList.Add(pattern.Replace(".", "@."));
+                                    return patternList;
+                                }
+                                break;
                         }
-                        else
-                        {
-                           // suppress the "." for the pattern - accounted for in the primary mask list
-                            pattern += ".";
-                        }
+ 
                         break;
 
                     default:
