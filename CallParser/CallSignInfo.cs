@@ -123,7 +123,9 @@ namespace W6OP.CallParser
         public string StartDate { get; set; }
         public string EndDate { get; set; }
         public bool IsIota { get; set; }
+        // Call sign as entered
         public string CallSign { get; set; }
+        // call sign without the prefix/suffix
         public string BaseCall { get; set; }
         public string FullPrefix { get; set; }
         public string MainPrefix { get; set; }

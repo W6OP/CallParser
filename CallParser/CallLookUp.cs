@@ -152,8 +152,8 @@ namespace W6OP.CallParser
 
             // parallel foreach almost twice as fast but requires blocking collection
             // comment out for debugging - need to use non parallel foreach for debugging
-            _ = Parallel.ForEach(callSigns, callSign =>
-             //foreach (var callSign in callSigns)
+            //_ = Parallel.ForEach(callSigns, callSign =>
+             foreach (var callSign in callSigns)
             {
                 try
                 {
@@ -165,7 +165,7 @@ namespace W6OP.CallParser
                     // bury exception
                 }
             }
-          );
+          //);
 
             return HitList.AsEnumerable();
         }
@@ -567,7 +567,7 @@ namespace W6OP.CallParser
                 callSignInfoCopy = callSignInfo.ShallowCopy();
                 callSignInfo.CallSignFlags = new HashSet<CallSignFlags>();
                 callSignInfoCopy.CallSign = fullCall;
-                callSignInfoCopy.BaseCall = callStructure.BaseCall;
+                //callSignInfoCopy.BaseCall = callStructure.BaseCall;
                 callSignInfoCopy.HitPrefix = prefix;
                 callSignInfoCopy.CallSignFlags.UnionWith(callStructure.CallSignFlags);
                 HitList.Add(callSignInfoCopy);
@@ -619,7 +619,7 @@ namespace W6OP.CallParser
            // need to deep clone to modify properties
             highestRanked.DeepCopy(ref highestRanked, ref callSignInfoCopy);
             callSignInfoCopy.CallSign = fullCall;
-            callSignInfoCopy.BaseCall = callStructure.BaseCall;
+            //callSignInfoCopy.BaseCall = callStructure.BaseCall;
             callSignInfoCopy.HitPrefix = prefix;
             callSignInfoCopy.IsMergedHit = true;
             callSignInfoCopy.CallSignFlags.UnionWith(callStructure.CallSignFlags);
@@ -678,7 +678,7 @@ namespace W6OP.CallParser
                     if (SearchMainDictionary(callStructure, fullCall, false, out string mainPrefix))
                     {
                         var oldDigit = callStructure.Prefix;
-                        callStructure.Prefix = ReplaceCallArea(mainPrefix, callStructure.Prefix, out int position);
+                        callStructure.Prefix = ReplaceCallArea(mainPrefix, callArea: callStructure.Prefix, out int position);
                         switch (callStructure.Prefix)
                         {
                             case "":
@@ -687,7 +687,8 @@ namespace W6OP.CallParser
                                 break;
                             default:
                                 // replace the digit in case we don't find it by it's main prefix
-                                callStructure.BaseCall = callStructure.BaseCall.Remove(position - 1, 1).Insert(position - 1, oldDigit);
+                                // don't want to do this, will screw up callbook searches
+                                //callStructure.BaseCall = callStructure.BaseCall.Remove(position, 1).Insert(position, oldDigit);
                                 callStructure.CallStructureType = CallStructureType.PrefixCall;
                                 break;
                         }
