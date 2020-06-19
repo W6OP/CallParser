@@ -9,11 +9,8 @@
  Description: Analyze a call sign and find its meta data using the call sign prefix.
  */
 using System;
-using System.CodeDom.Compiler;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -27,11 +24,10 @@ namespace W6OP.CallParser
         /// </summary>
         private bool mergeHits;
         public bool MergeHits { get => mergeHits; set => mergeHits = value; }
-        
 
         private ConcurrentBag<CallSignInfo> HitList;
         //
-        private readonly ConcurrentDictionary<string, List<CallSignInfo>> CallSignDictionary;
+        private readonly ConcurrentDictionary<string, List<CallSignInfo>> CallSignPatterns;
         //
         private SortedDictionary<int, CallSignInfo> Adifs { get; set; }
         // 
@@ -53,7 +49,7 @@ namespace W6OP.CallParser
         /// <param name="prefixFileParser"></param>
         public CallLookUp(PrefixFileParser prefixFileParser)
         {
-            CallSignDictionary = prefixFileParser.CallSignDictionary;
+            CallSignPatterns = prefixFileParser.CallSignPatterns;
             Adifs = prefixFileParser.Adifs;
             PortablePrefixes = prefixFileParser.PortablePrefixes;
 
@@ -386,7 +382,7 @@ namespace W6OP.CallParser
             pattern += ".";
             while (pattern.Length > 1)
             {
-                if (CallSignDictionary.TryGetValue(pattern, out var query))
+                if (CallSignPatterns.TryGetValue(pattern, out var query))
                 {
                     temp = new HashSet<CallSignInfo>();
                     foreach (var callSignInfo in query)
@@ -565,8 +561,7 @@ namespace W6OP.CallParser
         {
             CallSignInfo callSignInfoCopy = new CallSignInfo();
             List<CallSignInfo> HighestRankList = foundItems.OrderByDescending(x => x.Rank).ThenByDescending(x => x.Kind).ToList();
-            Dictionary<int, int> dxccEntries = new Dictionary<int, int>();
-
+          
             foreach (CallSignInfo callSignInfo in HighestRankList)
             {
                 callSignInfoCopy = callSignInfo.ShallowCopy();
@@ -675,6 +670,7 @@ namespace W6OP.CallParser
         private bool CheckReplaceCallArea(CallStructure callStructure, string fullCall)
         {
             // UY0KM/0
+            // see if the prefix == the first digit in the BaseCall
             if (callStructure.Prefix != callStructure.BaseCall.FirstOrDefault(c => char.IsDigit(c)).ToString())
             {
                 try

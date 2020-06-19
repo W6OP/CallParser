@@ -188,6 +188,7 @@ namespace W6OP.CallParser
             string fifth;
             string sixth;
             string seventh;
+            const string portable = "/";
 
             foreach (var item in maskList)
             {
@@ -200,7 +201,7 @@ namespace W6OP.CallParser
                         case 2:
                             if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1)
                             {
-                                if (item.Last()[0] != "/")
+                                if (item.Last()[0] != portable)
                                 {
                                     return true;
                                 }
@@ -210,7 +211,7 @@ namespace W6OP.CallParser
                             third = call.Substring(2, 1);
                             if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1)
                             {
-                                if (item.Last()[0] != "/")
+                                if (item.Last()[0] != portable)
                                 {
                                     return true;
                                 }
@@ -222,7 +223,7 @@ namespace W6OP.CallParser
                             if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
                                 && Array.IndexOf(item[3], fourth) != -1)
                             {
-                                if (item.Last()[0] != "/")
+                                if (item.Last()[0] != portable)
                                 {
                                     return true;
                                 }
@@ -235,7 +236,7 @@ namespace W6OP.CallParser
                             if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
                                 && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1)
                             {
-                                if (item.Last()[0] != "/")
+                                if (item.Last()[0] != portable)
                                 {
                                     return true;
                                 }
@@ -249,7 +250,7 @@ namespace W6OP.CallParser
                             if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
                                && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1 && Array.IndexOf(item[5], sixth) != -1)
                             {
-                                if (item.Last()[0] != "/")
+                                if (item.Last()[0] != portable)
                                 {
                                     return true;
                                 }
@@ -265,7 +266,7 @@ namespace W6OP.CallParser
                                && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1 && Array.IndexOf(item[5], sixth) != -1
                                && Array.IndexOf(item[6], seventh) != -1)
                             {
-                                if (item.Last()[0] != "/")
+                                if (item.Last()[0] != portable)
                                 {
                                     return true;
                                 }

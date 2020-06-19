@@ -35,7 +35,7 @@ namespace W6OP.CallParser
         /// </summary>
         /// 
         // the main dictionary of possible call signs built from the <mask> - excludes DXCC
-        internal ConcurrentDictionary<string, List<CallSignInfo>> CallSignDictionary;
+        internal ConcurrentDictionary<string, List<CallSignInfo>> CallSignPatterns;
      
         // dxcc number with corresponding CallSignInfo object.
         internal SortedDictionary<int, CallSignInfo> Adifs;
@@ -71,7 +71,7 @@ namespace W6OP.CallParser
         public void ParsePrefixFile(string prefixFilePath)
         {
             // cleanup if running more than once
-            CallSignDictionary = new ConcurrentDictionary<string, List<CallSignInfo>>(); //1000000
+            CallSignPatterns = new ConcurrentDictionary<string, List<CallSignInfo>>(); //1000000
             Adifs = new SortedDictionary<int, CallSignInfo>();
             Admins = new SortedDictionary<string, List<CallSignInfo>>();
             PortablePrefixes = new ConcurrentDictionary<string, List<CallSignInfo>>(); //200000
@@ -123,16 +123,17 @@ namespace W6OP.CallParser
                         }
                     }
                 }
-            }
-            foreach (KeyValuePair<string, List<CallSignInfo>> kvp in CallSignDictionary)
-            {
-                Console.WriteLine("Key = {0}, Value = {1}", kvp.Key, kvp.Value.Count);
-                //textBox3.Text += ("Key = {0}, Value = {1}", kvp.Key, kvp.Value);
-                //textBox3.Text += string.Format("Key = {0}, Value = {1}", kvp.Key, kvp.Value);
+            
             }
 
-            var a = 1;
-           
+            //foreach (KeyValuePair<string, List<CallSignInfo>> kvp in PortablePrefixes)
+            //{
+            //    Console.WriteLine("Key = {0}, Value = {1}", kvp.Key, kvp.Value.Count);
+            //}
+
+            //Console.WriteLine("CallSignDictionary = {0},", CallSignDictionary.Count);
+            //Console.WriteLine("PortablePrefixes = {0},", PortablePrefixes.Count);
+            //var a = 1;
         }
 
 
@@ -184,13 +185,11 @@ namespace W6OP.CallParser
 
                     // if pattern contains "?" then need two patterns
                     // one with # and one with @
-                    var patternList = BuildPatternEx(primaryMaskList);
+                    var patternList = BuildPattern(primaryMaskList);
 
+                    // AX9[ABD-KOPQS-VYZ][.ABD-KOPQS-VYZ]
                     foreach (var pattern in patternList)
-                    {
-                        // add for future lookups
-                        //callSignInfo.SetPrimaryMaskList(primaryMaskList);
-
+                    {      
                         switch (pattern)
                         {
                             case string _ when pattern.Last().ToString().Contains("/"):
@@ -206,31 +205,19 @@ namespace W6OP.CallParser
                                     // PortablePrefixes.Add(pattern, new List<int> { callSignInfo.DXCC });
                                 }
                                 break;
+
                             case string _ when callSignInfo.Kind != PrefixKind.InvalidPrefix:
-                                if (CallSignDictionary.TryGetValue(pattern, out var list2))
+                                if (CallSignPatterns.TryGetValue(pattern, out var list2))
                                 {
                                     // VK9/ has multiple DXCC numbers - 35, 150...
                                     list2.Add(callSignInfo);
                                 }
                                 else
                                 {
-                                    CallSignDictionary.TryAdd(pattern, new List<CallSignInfo> { callSignInfo });
+                                    CallSignPatterns.TryAdd(pattern, new List<CallSignInfo> { callSignInfo });
                                 }
                                 break;
-                            case string _ when callSignInfo.Kind == PrefixKind.DXCC && callSignInfo.Kind != PrefixKind.InvalidPrefix:
-                                    //var patternTrimmed = pattern.Substring(0, 2);
-                                    //if (DXCCOnlyCallSignDictionary.TryGetValue(patternTrimmed, out var list3))
-                                    //{
-                                    //    // VK9/ has multiple DXCC numbers - 35, 150...
-                                    //    //list3.Add(callSignInfo.DXCC);
-                                    //    list3.Add(callSignInfo);
-                                    //}
-                                    //else
-                                    //{
-                                    //    DXCCOnlyCallSignDictionary.Add(patternTrimmed, new List<CallSignInfo> { callSignInfo });
-                                    //    //DXCCOnlyCallSignDictionary.Add(pattern.Substring(0, 2), new List<int> { callSignInfo.DXCC });
-                                    //}
-                                break;
+                            
                             default:
                                 break;
                         }
@@ -248,9 +235,10 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="primaryMaskList"></param>
         /// <returns></returns>
-        private List<string> BuildPatternEx(List<string[]> primaryMaskList)
+        private List<string> BuildPattern(List<string[]> primaryMaskList)
         {
             string pattern = "";
+            string pattern2 = "";
             var patternList = new List<string>();
 
             foreach (var mask in primaryMaskList)
@@ -286,7 +274,18 @@ namespace W6OP.CallParser
                                 }
                                 break;
                         }
- 
+                        break;
+
+                        case string[] _ when mask.Any(x => char.IsPunctuation(char.Parse(x))):
+                            if (mask[0] == ".")
+                            {
+                            pattern += ".";
+                            if (mask.Length > 1)
+                            {
+                                pattern2 = pattern.Replace(".", "@.");
+                                // patternList.append(pattern.replacingOccurrences(of: ".", with: "@."))
+                            }
+                        }
                         break;
 
                     default:
@@ -296,6 +295,12 @@ namespace W6OP.CallParser
             }
 
             patternList = RefinePattern(pattern);
+
+            // THIS IS A TEMP HACK TO FIX A PROBLEM _ NEED TO DO IT RIGHT LATER
+            if (pattern2 != "")
+            {
+                patternList.Add(pattern2);
+            }
 
             return patternList;
         }
