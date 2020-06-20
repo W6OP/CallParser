@@ -636,21 +636,12 @@ namespace W6OP.CallParser
                 {
                     if (SearchMainDictionary(callStructure, fullCall, false, out string mainPrefix))
                     {
-                        var oldDigit = callStructure.Prefix;
                         callStructure.Prefix = ReplaceCallArea(mainPrefix, callArea: callStructure.Prefix, out int position);
-                        switch (callStructure.Prefix)
+                        callStructure.CallStructureType = callStructure.Prefix switch
                         {
-                            case "":
-                                // M0CCA/6 - main prefix is "G", F8ATS/9 - Should I replace the digit?
-                                callStructure.CallStructureType = CallStructureType.Call;
-                                break;
-                            default:
-                                // replace the digit in case we don't find it by it's main prefix
-                                // don't want to do this, will screw up callbook searches
-                                //callStructure.BaseCall = callStructure.BaseCall.Remove(position, 1).Insert(position, oldDigit);
-                                callStructure.CallStructureType = CallStructureType.PrefixCall;
-                                break;
-                        }
+                            "" => CallStructureType.Call,// M0CCA/6 - main prefix is "G", F8ATS/9 mainPrefix = "F"
+                            _ => CallStructureType.PrefixCall,
+                        };
 
                         CollectMatches(callStructure, fullCall);
                         return true;
@@ -683,26 +674,34 @@ namespace W6OP.CallParser
                 case 1:
                     if (OneCharPrefs.Contains(mainPrefix.First()))
                     {
+                        // I9MRY/1 - mainPrefix = I --> I1
                         p = 2;
                     }
                     else if (mainPrefix.All(char.IsLetter))
                     {
+                        // FA3L/6 - mainPrefix is F - shouldn't we make it F6?
+                        // F1FZH/8 
+                        // MA2US/1
                         position = 99;
                         return "";
                     }
                     break;
-                case 2:
+                case 2: 
                     if (OneCharPrefs.Contains(mainPrefix.First()) && XNUM_SET.Contains(mainPrefix.Skip(1).First()))
                     {
+                        // W6OP/4 - main prefix = W6 --> W4
                         p = 2;
                     }
                     else
                     {
+                        // AL7NS/4 - main prefix = KL --> KL4
                         p = 3;
                     }
+
                     break;
                 default:
-                    if (OneCharPrefs.Contains(mainPrefix.First()) && XNUM_SET.Contains(mainPrefix.Skip(1).Take(1).First()))
+                    // this means the same as the case 2 statement and is never hit
+                    if (OneCharPrefs.Contains(mainPrefix.First()) && XNUM_SET.Contains(mainPrefix.Skip(1).First()))
                     {
                         p = 2;
                     }
@@ -710,10 +709,12 @@ namespace W6OP.CallParser
                     {
                         if (XNUM_SET.Contains(mainPrefix.Skip(2).Take(1).First()))
                         {
+                            // JI3DT/6 - mainPrefix = JA3 --> JA6
                             p = 3;
                         }
                         else
                         {
+                            // 3DLE/1 - mainprefix = 3DA --> 3DA1 
                             p = 4;
                         }
                     }
@@ -721,10 +722,10 @@ namespace W6OP.CallParser
             }
 
             position = p;
-
-            return $"{mainPrefix.Substring(0, p - 1)}{callArea}";
+            // append call area to mainPrefix
+            return $"{mainPrefix.Substring(0, p - 1)}{callArea}{"/"}";
         }
-
+       
         /// <summary>
         /// Check for non alpha numerics other than "/"
         /// DON'T USE THIS!
