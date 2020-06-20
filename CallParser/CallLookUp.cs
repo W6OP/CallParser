@@ -280,41 +280,7 @@ namespace W6OP.CallParser
 
             return;
         }
-        /// <summary>
-        /// THIS IS DUPLICATED IN CallStructure.
-        /// </summary>
-        /// <param name="candidate"></param>
-        /// <returns></returns>
-        //private string BuildPattern(string candidate)
-        //{
-        //    string pattern = "";
-
-        //    foreach (char item in candidate)
-        //    {
-        //        if (Char.IsLetter(item))
-        //        {
-        //            pattern += "@";
-        //        }
-
-        //        if (char.IsDigit(item))
-        //        {
-        //            pattern += "#";
-        //        }
-
-        //        // THIS IS DIFFERENT FROM CallStructure
-        //        if (char.IsPunctuation(item))
-        //        {
-        //            pattern += "/";
-        //        }
-        //    }
-
-        //    if (pattern.Length > 7)
-        //    {
-        //        pattern = pattern.Substring(0, 7);
-        //    }
-        //    return pattern;
-        //}
-
+        
         /// <summary>
         /// Search the CallSignDictionary for a hit with the full call. If it doesn't 
         /// hit remove characters from the end until hit or there are no letters fleft.  
@@ -561,13 +527,9 @@ namespace W6OP.CallParser
             foreach (PrefixData prefixData in HighestRankList)
             {
                 Hit hit = new Hit(prefixData);
-                //prefixDataCopy = prefixData.ShallowCopy();
                 hit.CallSign = fullCall;
-                //prefixDataCopy.CallSign = fullCall;
-                //prefixDataCopy.HitPrefix = prefix;
-                hit.CallSignFlags = callStructure.CallSignFlags;
-                //prefixData.CallSignFlags = new HashSet<CallSignFlags>();
-                //prefixDataCopy.CallSignFlags.UnionWith(callStructure.CallSignFlags);
+                //hit.CallSignFlags = callStructure.CallSignFlags;
+                hit.CallSignFlags.UnionWith(callStructure.CallSignFlags);
                 HitList.Add(hit);
 
                 // add calls to the cache - if the call exists we won't have to redo all the 
@@ -605,38 +567,31 @@ namespace W6OP.CallParser
         /// <param name="fullCall"></param>
         private void MergeMultipleHits(HashSet<PrefixData> foundItems, CallStructure callStructure, string prefix, string fullCall)
         {
-            //prefixData prefixDataCopy = new prefixData();
             List<PrefixData> HighestRankList = new List<PrefixData>();
             Hit hit = new Hit();
-            //int count = 1;
             HighestRankList = foundItems.OrderByDescending(x => x.Rank).ThenByDescending(x => x.Kind).ToList();
             var highestRanked = HighestRankList[0];
 
-            // need to deep clone to modify properties
-            //highestRanked.DeepCopy(ref highestRanked, ref prefixDataCopy);
-            hit = new Hit(highestRanked);
-            hit.CallSign = fullCall;
-            //prefixDataCopy.CallSign = fullCall;
-            //prefixDataCopy.HitPrefix = prefix;
-            hit.IsMergedHit = true;
-            //prefixDataCopy.IsMergedHit = true;
-            // TODO: reconcile csallSignFlags
-            hit.CallSignFlags = callStructure.CallSignFlags;
-            //prefixDataCopy.CallSignFlags.UnionWith(callStructure.CallSignFlags);
+
+            hit = new Hit(highestRanked)
+            {
+                CallSign = fullCall,
+                IsMergedHit = true
+            };
+
+            hit.CallSignFlags.UnionWith(callStructure.CallSignFlags);
 
             foreach (PrefixData prefixData in HighestRankList.Skip(1))
             {
                 if (hit.DXCC != prefixData.DXCC)
                 {
                     hit.DXCCMerged.Add(prefixData.DXCC);
-                    //prefixDataCopy.DXCCMerged.Add(prefixData.DXCC);
                 }
+
                 hit.ITU.UnionWith(prefixData.ITU);
                 hit.CQ.UnionWith(prefixData.CQ);
                 hit.CallSignFlags.UnionWith(callStructure.CallSignFlags);
-                //prefixDataCopy.ITU.UnionWith(prefixData.ITU);
-                //prefixDataCopy.CQ.UnionWith(prefixData.CQ);
-                //prefixDataCopy.CallSignFlags.UnionWith(callStructure.CallSignFlags);
+               
                 if (hit.Admin1 != prefixData.Admin1)
                 {
                     hit.Admin1 = "";
@@ -649,9 +604,7 @@ namespace W6OP.CallParser
                 }
             }
 
-            // TODO: add this
             hit.DXCCMerged = hit.DXCCMerged.OrderBy(item => item).ToHashSet();
-            //hit.DXCCMerged = prefixDataCopy.DXCCMerged.OrderBy(item => item).ToHashSet();
 
             HitList.Add(hit);
 
@@ -663,10 +616,6 @@ namespace W6OP.CallParser
                 {
                     HitCache.TryAdd(hit.CallSign, hit);
                 }
-                //if (!HitCache.ContainsKey(prefixDataCopy.CallSign))
-                //{
-                //    HitCache.TryAdd(prefixDataCopy.CallSign, hit);
-                //}
             }
         }
 
