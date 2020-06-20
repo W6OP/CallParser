@@ -72,7 +72,7 @@
   <ItemGroup>
     <Compile Include="CallLookUp.cs" />
     <Compile Include="CallParserCommon.cs" />
-    <Compile Include="CallSignInfo.cs" />
+    <Compile Include="PrefixData.cs" />
     <Compile Include="CallStructure.cs" />
     <Compile Include="Hit.cs" />
     <Compile Include="PrefixFileParser.cs" />
