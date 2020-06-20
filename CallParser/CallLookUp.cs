@@ -25,13 +25,13 @@ namespace W6OP.CallParser
         private bool mergeHits;
         public bool MergeHits { get => mergeHits; set => mergeHits = value; }
 
-        private ConcurrentBag<CallSignInfo> HitList;
+        private ConcurrentBag<Hit> HitList;
         //
         private readonly ConcurrentDictionary<string, List<CallSignInfo>> CallSignPatterns;
         //
         private SortedDictionary<int, CallSignInfo> Adifs { get; set; }
         // 
-        private ConcurrentDictionary<string, CallSignInfo> HitCache;
+        private ConcurrentDictionary<string, Hit> HitCache;
        
         private QRZLookup QRZLookup = new QRZLookup();
 
@@ -72,9 +72,9 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="callSign"></param>
         /// <returns>IEnumerable<CallSignInfo></returns>
-        public IEnumerable<CallSignInfo> LookUpCall(string callSign)
+        public IEnumerable<Hit> LookUpCall(string callSign)
         {
-            HitList = new ConcurrentBag<CallSignInfo>();
+            HitList = new ConcurrentBag<Hit>();
             IsBatchLookup = false;
             UseQRZLookup = false;
 
@@ -95,9 +95,9 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="callSign"></param>
         /// <returns>IEnumerable<CallSignInfo></returns>
-        public IEnumerable<CallSignInfo> LookUpCall(string callSign, string userId, string password)
+        public IEnumerable<Hit> LookUpCall(string callSign, string userId, string password)
         {
-            HitList = new ConcurrentBag<CallSignInfo>();
+            HitList = new ConcurrentBag<Hit>();
             IsBatchLookup = false;
             UseQRZLookup = true;
 
@@ -136,10 +136,10 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="callSigns"></param>
         /// <returns>IEnumerable<CallSignInfo></returns>
-        public IEnumerable<CallSignInfo> LookUpCall(List<string> callSigns)
+        public IEnumerable<Hit> LookUpCall(List<string> callSigns)
         {
-            HitList = new ConcurrentBag<CallSignInfo>();
-            HitCache = new ConcurrentDictionary<string, CallSignInfo>();
+            HitList = new ConcurrentBag<Hit>();
+            HitCache = new ConcurrentDictionary<string, Hit>();
             
             IsBatchLookup = true;
             UseQRZLookup = false;
@@ -152,8 +152,8 @@ namespace W6OP.CallParser
 
             // parallel foreach almost twice as fast but requires blocking collection
             // comment out for debugging - need to use non parallel foreach for debugging
-            //_ = Parallel.ForEach(callSigns, callSign =>
-             foreach (var callSign in callSigns)
+            _ = Parallel.ForEach(callSigns, callSign =>
+             //foreach (var callSign in callSigns)
             {
                 try
                 {
@@ -165,7 +165,7 @@ namespace W6OP.CallParser
                     // bury exception
                 }
             }
-          //);
+          );
 
             return HitList.AsEnumerable();
         }
@@ -560,26 +560,26 @@ namespace W6OP.CallParser
         private void BuildHit(HashSet<CallSignInfo> foundItems, CallStructure callStructure, string prefix, string fullCall)
         {
             CallSignInfo callSignInfoCopy = new CallSignInfo();
+           
             List<CallSignInfo> HighestRankList = foundItems.OrderByDescending(x => x.Rank).ThenByDescending(x => x.Kind).ToList();
           
             foreach (CallSignInfo callSignInfo in HighestRankList)
             {
-                callSignInfoCopy = callSignInfo.ShallowCopy();
-                callSignInfo.CallSignFlags = new HashSet<CallSignFlags>();
-                callSignInfoCopy.CallSign = fullCall;
-                //callSignInfoCopy.BaseCall = callStructure.BaseCall;
-                callSignInfoCopy.HitPrefix = prefix;
-                callSignInfoCopy.CallSignFlags.UnionWith(callStructure.CallSignFlags);
-                HitList.Add(callSignInfoCopy);
+                Hit hit = new Hit(callSignInfo);
+                //callSignInfoCopy = callSignInfo.ShallowCopy();
+                hit.CallSign = fullCall;
+                //callSignInfoCopy.CallSign = fullCall;
+                //callSignInfoCopy.HitPrefix = prefix;
+                hit.CallSignFlags = callStructure.CallSignFlags;
+                //callSignInfo.CallSignFlags = new HashSet<CallSignFlags>();
+                //callSignInfoCopy.CallSignFlags.UnionWith(callStructure.CallSignFlags);
+                HitList.Add(hit);
 
                 // add calls to the cache - if the call exists we won't have to redo all the 
                 // processing earlier the next time it comes in
                 if (IsBatchLookup)
                 {
-                    if (!HitCache.ContainsKey(callSignInfoCopy.CallSign))
-                    {
-                        HitCache.TryAdd(callSignInfoCopy.CallSign, callSignInfoCopy);
-                    }
+                    HitCache.TryAdd(hit.CallSign, hit);
                 }
 
                 if (!UseQRZLookup)
@@ -593,7 +593,7 @@ namespace W6OP.CallParser
                     if (xDocument != null)
                     {
                         CallSignInfo callSignInfoQRZ = new CallSignInfo(xDocument);
-                        HitList.Add(callSignInfoQRZ);
+                        HitList.Add(new Hit(callSignInfoQRZ));
                     }
                 }
             }
@@ -610,53 +610,68 @@ namespace W6OP.CallParser
         /// <param name="fullCall"></param>
         private void MergeMultipleHits(HashSet<CallSignInfo> foundItems, CallStructure callStructure, string prefix, string fullCall)
         {
-            CallSignInfo callSignInfoCopy = new CallSignInfo();
+            //CallSignInfo callSignInfoCopy = new CallSignInfo();
             List<CallSignInfo> HighestRankList = new List<CallSignInfo>();
+            Hit hit = new Hit();
             //int count = 1;
             HighestRankList = foundItems.OrderByDescending(x => x.Rank).ThenByDescending(x => x.Kind).ToList();
             var highestRanked = HighestRankList[0];
 
-           // need to deep clone to modify properties
-            highestRanked.DeepCopy(ref highestRanked, ref callSignInfoCopy);
-            callSignInfoCopy.CallSign = fullCall;
-            //callSignInfoCopy.BaseCall = callStructure.BaseCall;
-            callSignInfoCopy.HitPrefix = prefix;
-            callSignInfoCopy.IsMergedHit = true;
-            callSignInfoCopy.CallSignFlags.UnionWith(callStructure.CallSignFlags);
+            // need to deep clone to modify properties
+            //highestRanked.DeepCopy(ref highestRanked, ref callSignInfoCopy);
+            hit = new Hit(highestRanked);
+            hit.CallSign = fullCall;
+            //callSignInfoCopy.CallSign = fullCall;
+            //callSignInfoCopy.HitPrefix = prefix;
+            hit.IsMergedHit = true;
+            //callSignInfoCopy.IsMergedHit = true;
+            // TODO: reconcile csallSignFlags
+            hit.CallSignFlags = callStructure.CallSignFlags;
+            //callSignInfoCopy.CallSignFlags.UnionWith(callStructure.CallSignFlags);
 
             foreach (CallSignInfo callSignInfo in HighestRankList.Skip(1))
             {
-                if (callSignInfo.DXCC != callSignInfoCopy.DXCC)
+                if (hit.DXCC != callSignInfo.DXCC)
                 {
-                    callSignInfoCopy.DXCCMerged.Add(callSignInfo.DXCC);
+                    hit.DXCCMerged.Add(callSignInfo.DXCC);
+                    //callSignInfoCopy.DXCCMerged.Add(callSignInfo.DXCC);
                 }
-                callSignInfoCopy.ITU.UnionWith(callSignInfo.ITU);
-                callSignInfoCopy.CQ.UnionWith(callSignInfo.CQ);
-                callSignInfoCopy.CallSignFlags.UnionWith(callStructure.CallSignFlags);
-                if (callSignInfoCopy.Admin1 != callSignInfo.Admin1)
+                hit.ITU.UnionWith(callSignInfo.ITU);
+                hit.CQ.UnionWith(callSignInfo.CQ);
+                hit.CallSignFlags.UnionWith(callStructure.CallSignFlags);
+                //callSignInfoCopy.ITU.UnionWith(callSignInfo.ITU);
+                //callSignInfoCopy.CQ.UnionWith(callSignInfo.CQ);
+                //callSignInfoCopy.CallSignFlags.UnionWith(callStructure.CallSignFlags);
+                if (hit.Admin1 != callSignInfo.Admin1)
                 {
-                    callSignInfoCopy.Admin1 = "";
-                    callSignInfoCopy.CallSignFlags.Add(CallSignFlags.AmbigPrefix); // THIS MAY BE INCORRECT
+                    hit.Admin1 = "";
+                    hit.CallSignFlags.Add(CallSignFlags.AmbigPrefix); // THIS MAY BE INCORRECT
                 }
 
-                if (callSignInfoCopy.Admin2 != callSignInfo.Admin2)
+                if (hit.Admin2 != callSignInfo.Admin2)
                 {
-                    callSignInfoCopy.Admin2 = "";
+                    hit.Admin2 = "";
                 }
             }
 
-            callSignInfoCopy.DXCCMerged = callSignInfoCopy.DXCCMerged.OrderBy(item => item).ToHashSet();
+            // TODO: add this
+            hit.DXCCMerged = hit.DXCCMerged.OrderBy(item => item).ToHashSet();
+            //hit.DXCCMerged = callSignInfoCopy.DXCCMerged.OrderBy(item => item).ToHashSet();
 
-            HitList.Add(callSignInfoCopy);
+            HitList.Add(hit);
 
             // add calls to the cache - if the call exists we won't have to redo all the 
             // processing earlier the next time it comes in
             if (IsBatchLookup)
             {
-                if (!HitCache.ContainsKey(callSignInfoCopy.CallSign))
+                if (!HitCache.ContainsKey(hit.CallSign))
                 {
-                    HitCache.TryAdd(callSignInfoCopy.CallSign, callSignInfoCopy);
+                    HitCache.TryAdd(hit.CallSign, hit);
                 }
+                //if (!HitCache.ContainsKey(callSignInfoCopy.CallSign))
+                //{
+                //    HitCache.TryAdd(callSignInfoCopy.CallSign, hit);
+                //}
             }
         }
 

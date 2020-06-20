@@ -41,7 +41,7 @@ namespace CallParserUnitTest
         [TestMethod]
         public void CallLookUp()
         {
-            List<CallSignInfo> result;
+            List<Hit> result;
             int expected;
 
             _PrefixFileParser = new PrefixFileParser();

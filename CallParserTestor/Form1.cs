@@ -150,8 +150,8 @@ namespace CallParserTestor
         /// <param name="e"></param>
         private void ButtonSingleCallLookup_Click(object sender, EventArgs e)
         {
-            IEnumerable<CallSignInfo> hitCollection;
-            List<CallSignInfo> hitList;
+            IEnumerable<Hit> hitCollection;
+            List<Hit> hitList;
 
             if (_CallLookUp == null)
             {
@@ -188,19 +188,20 @@ namespace CallParserTestor
                         Console.WriteLine(hitList.Count.ToString() + " hits returned");
                         LabelHitCount.Text = "Finished - hitcount = " + hitList.Count.ToString();
 
-                        foreach (CallSignInfo hit in hitList)
+                        foreach (Hit hit in hitList)
                         {
                             var flags = string.Join(",", hit.CallSignFlags);
 
-                            if (!hit.IsMergedHit)
-                            {
+                            // TODO: add back in
+                            //if (!hit.IsMergedHit)
+                            //{
                                 UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.DXCC.ToString(), flags);
-                            }
-                            else
-                            {
-                                var merged = MergeDXCCList(hit.DXCCMerged);
-                                UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.DXCC.ToString() + "," + merged, flags);
-                            }
+                            //}
+                            //else
+                            //{
+                            //    var merged = MergeDXCCList(hit.DXCCMerged);
+                            //    UpdateListViewResults(hit.CallSign, hit.Kind, hit.Country, hit.Province, hit.DXCC.ToString() + "," + merged, flags);
+                            //}
                         }
                     }
                 }
@@ -276,7 +277,7 @@ namespace CallParserTestor
         /// </summary>
         private void BatchCallSignLookup()
         {
-            IEnumerable<CallSignInfo> hitCollection;
+            IEnumerable<Hit> hitCollection;
 
             stopwatch = Stopwatch.StartNew();
 
@@ -354,7 +355,7 @@ namespace CallParserTestor
         /// Update the data grid back on the GUI thread.
         /// </summary>
         /// <param name="hitCollection"></param>
-        private void UpdateDataGrid(IEnumerable<CallSignInfo> hitCollection)
+        private void UpdateDataGrid(IEnumerable<Hit> hitCollection)
         {
             DataTable dt = new DataTable();
             Cursor.Current = Cursors.WaitCursor;
@@ -370,7 +371,7 @@ namespace CallParserTestor
                     dt.Columns.Add("DXCC");
                     dt.Columns.Add("Flags");
 
-                    foreach (CallSignInfo hit in hitCollection)
+                    foreach (Hit hit in hitCollection)
                     {
                         // if the Delphi comparison file is loaded
                         if (DelphiCompoundKeyValuePairs != null)
@@ -434,7 +435,7 @@ namespace CallParserTestor
             }
             else
             {
-                this.BeginInvoke(new Action<IEnumerable<CallSignInfo>>(this.UpdateDataGrid), hitCollection);
+                this.BeginInvoke(new Action<IEnumerable<Hit>>(this.UpdateDataGrid), hitCollection);
                 return;
             }
         }
@@ -556,7 +557,7 @@ namespace CallParserTestor
         /// </summary>
         private void SemiBatchCallSignLookup()
         {
-            IEnumerable<CallSignInfo> hitCollection;
+            IEnumerable<Hit> hitCollection;
             // need to preallocate space in collection
             List<string> hitList = new List<string>();
             //int total = 0;

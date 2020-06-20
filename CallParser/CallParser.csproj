@@ -74,6 +74,7 @@
     <Compile Include="CallParserCommon.cs" />
     <Compile Include="CallSignInfo.cs" />
     <Compile Include="CallStructure.cs" />
+    <Compile Include="Hit.cs" />
     <Compile Include="PrefixFileParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QRZLookup.cs" />
