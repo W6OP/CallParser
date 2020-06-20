@@ -240,7 +240,7 @@ namespace CallParserTestor
         /// Send in a list of all calls at once. Be sure to move the task
         /// off the GUI thread.
         /// 
-        /// Why return IEnumerable<CallSignInfo>.
+        /// Why return IEnumerable<prefixData>.
         /// Do you only expect to iterate over it? Return an IEnumerable.
         /// I shouldn't care about what the caller does with it, because the return type 
         /// clearly states what the returned value is capable of doing. Any caller that gets 
@@ -612,36 +612,36 @@ namespace CallParserTestor
         /// Create a CSV file and save a bunch of hits to see if they are correct.
         /// </summary>
         /// <param name="hitList"></param>
-        private void SaveHitList(List<CallSignInfo> hitList)
+        private void SaveHitList(List<PrefixData> hitList)
         {
             String folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             String file = Path.Combine(folderPath, "hits.csv");
             int lineCount = 5500;
-            //List<CallSignInfo> sortedList = hitList.OrderBy(o => o.Country).ThenBy(x => x.Kind).ToList();
+            //List<PrefixData> sortedList = hitList.OrderBy(o => o.Country).ThenBy(x => x.Kind).ToList();
 
             using (TextWriter writer = new StreamWriter(file, false, System.Text.Encoding.UTF8))
             {
                 var csv = new CsvWriter(writer);
 
-                foreach (CallSignInfo callSignInfo in hitList)
+                foreach (PrefixData prefixData in hitList)
                 {
 
-                    if (callSignInfo.Kind == PrefixKind.DXCC)
+                    if (prefixData.Kind == PrefixKind.DXCC)
                     {
-                        csv.WriteField(callSignInfo.CallSign);
-                        csv.WriteField(callSignInfo.MainPrefix);
+                        csv.WriteField(prefixData.CallSign);
+                        csv.WriteField(prefixData.MainPrefix);
                     }
                     else
                     {
-                        csv.WriteField("----  " + callSignInfo.MainPrefix);
+                        csv.WriteField("----  " + prefixData.MainPrefix);
                     }
-                    csv.WriteField(callSignInfo.Country);
-                    csv.WriteField(callSignInfo.Province ?? "");
-                    csv.WriteField(callSignInfo.Kind.ToString());
-                    csv.WriteField(callSignInfo.Latitude);
-                    csv.WriteField(callSignInfo.Longitude);
-                    csv.WriteField(callSignInfo.MainPrefix);
-                    csv.WriteField(callSignInfo.FullPrefix);
+                    csv.WriteField(prefixData.Country);
+                    csv.WriteField(prefixData.Province ?? "");
+                    csv.WriteField(prefixData.Kind.ToString());
+                    csv.WriteField(prefixData.Latitude);
+                    csv.WriteField(prefixData.Longitude);
+                    csv.WriteField(prefixData.MainPrefix);
+                    csv.WriteField(prefixData.FullPrefix);
                     csv.NextRecord();
 
                     lineCount--;

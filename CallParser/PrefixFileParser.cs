@@ -35,15 +35,14 @@ namespace W6OP.CallParser
         /// </summary>
         /// 
         // the main dictionary of possible call signs built from the <mask> - excludes DXCC
-        internal ConcurrentDictionary<string, List<CallSignInfo>> CallSignPatterns;
-     
-        // dxcc number with corresponding CallSignInfo object.
-        internal SortedDictionary<int, CallSignInfo> Adifs;
+        internal ConcurrentDictionary<string, List<PrefixData>> CallSignPatterns;
+        // dxcc number with corresponding prefixData object.
+        internal SortedDictionary<int, PrefixData> Adifs;
         // Admin list
-        internal SortedDictionary<string, List<CallSignInfo>> Admins;
+        internal SortedDictionary<string, List<PrefixData>> Admins;
         // all the portable prefix entries (ends with "/") with dxcc number
         //public Dictionary<string, List<int>> PortablePrefixes;
-        internal ConcurrentDictionary<string, List<CallSignInfo>> PortablePrefixes;
+        internal ConcurrentDictionary<string, List<PrefixData>> PortablePrefixes;
 
         /// <summary>
         /// Private fields.
@@ -71,10 +70,10 @@ namespace W6OP.CallParser
         public void ParsePrefixFile(string prefixFilePath)
         {
             // cleanup if running more than once
-            CallSignPatterns = new ConcurrentDictionary<string, List<CallSignInfo>>(); //1000000
-            Adifs = new SortedDictionary<int, CallSignInfo>();
-            Admins = new SortedDictionary<string, List<CallSignInfo>>();
-            PortablePrefixes = new ConcurrentDictionary<string, List<CallSignInfo>>(); //200000
+            CallSignPatterns = new ConcurrentDictionary<string, List<PrefixData>>(); //1000000
+            Adifs = new SortedDictionary<int, PrefixData>();
+            Admins = new SortedDictionary<string, List<PrefixData>>();
+            PortablePrefixes = new ConcurrentDictionary<string, List<PrefixData>>(); //200000
 
             Assembly assembly = Assembly.GetExecutingAssembly();
 
@@ -91,8 +90,8 @@ namespace W6OP.CallParser
                                 if (reader.Name == "prefix")
                                 {
                                     XElement prefix = XElement.ReadFrom(reader) as XElement;
-                                    CallSignInfo callSignInfo = new CallSignInfo(prefix);
-                                    BuildCallSignInfoEx(prefix, callSignInfo);
+                                    PrefixData prefixData = new PrefixData(prefix);
+                                    BuildPrefixData(prefix, prefixData);
                                 }
                             }
                         }
@@ -116,8 +115,8 @@ namespace W6OP.CallParser
                                 if (reader.Name == "prefix")
                                 {
                                     XElement prefix = XElement.ReadFrom(reader) as XElement;
-                                    CallSignInfo callSignInfo = new CallSignInfo(prefix);
-                                    BuildCallSignInfoEx(prefix, callSignInfo);
+                                    PrefixData prefixData = new PrefixData(prefix);
+                                    BuildPrefixData(prefix, prefixData);
                                 }
                             }
                         }
@@ -126,7 +125,8 @@ namespace W6OP.CallParser
             
             }
 
-            //foreach (KeyValuePair<string, List<CallSignInfo>> kvp in PortablePrefixes)
+            // DEBUGGING CODE
+            //foreach (KeyValuePair<string, List<prefixData>> kvp in PortablePrefixes)
             //{
             //    Console.WriteLine("Key = {0}, Value = {1}", kvp.Key, kvp.Value.Count);
             //}
@@ -141,35 +141,35 @@ namespace W6OP.CallParser
         /// Loop through all of the prefix nodes and expand the masks for each prefix.
         /// </summary>
         /// <param name="prefix"></param>
-        /// <param name="callSignInfo"></param>
-        private void BuildCallSignInfoEx(XElement prefix, CallSignInfo callSignInfo)
+        /// <param name="prefixData"></param>
+        private void BuildPrefixData(XElement prefix, PrefixData prefixData)
         {
             var primaryMaskList = new List<string[]>();
             IEnumerable<XElement> masks = prefix.Elements().Where(x => x.Name == "masks");
 
-            switch (callSignInfo)
+            switch (prefixData)
             {
-                case CallSignInfo _ when callSignInfo.Kind == PrefixKind.DXCC:
-                    Adifs.Add(Convert.ToInt32(callSignInfo.DXCC), callSignInfo);
+                case PrefixData _ when prefixData.Kind == PrefixKind.DXCC:
+                    Adifs.Add(Convert.ToInt32(prefixData.DXCC), prefixData);
                     break;
-                case CallSignInfo _ when callSignInfo.Kind == PrefixKind.InvalidPrefix:
-                    Adifs.Add(0, callSignInfo);
+                case PrefixData _ when prefixData.Kind == PrefixKind.InvalidPrefix:
+                    Adifs.Add(0, prefixData);
                     break;
-                case CallSignInfo _ when callSignInfo.Kind == PrefixKind.Province && !string.IsNullOrEmpty(callSignInfo.Admin1):
-                    if (Admins.TryGetValue(callSignInfo.Admin1, out var list))
+                case PrefixData _ when prefixData.Kind == PrefixKind.Province && !string.IsNullOrEmpty(prefixData.Admin1):
+                    if (Admins.TryGetValue(prefixData.Admin1, out var list))
                     {
-                        list.Add(callSignInfo);
+                        list.Add(prefixData);
                     }
                     else
                     {
-                        Admins.Add(callSignInfo.Admin1, new List<CallSignInfo> { callSignInfo });
+                        Admins.Add(prefixData.Admin1, new List<PrefixData> { prefixData });
                     }
                     break;
             }
 
-            if (callSignInfo.WAE != 0)
+            if (prefixData.WAE != 0)
             {
-                Adifs.Add(callSignInfo.WAE, callSignInfo);
+                Adifs.Add(prefixData.WAE, prefixData);
             }
 
             foreach (var element in masks.Descendants())
@@ -181,7 +181,7 @@ namespace W6OP.CallParser
                     // expand the mask if it exists
                     primaryMaskList = ExpandMask(element.Value);
                     // add for future lookups
-                    callSignInfo.SetPrimaryMaskList(primaryMaskList);
+                    prefixData.SetPrimaryMaskList(primaryMaskList);
 
                     // if pattern contains "?" then need two patterns
                     // one with # and one with @
@@ -197,24 +197,23 @@ namespace W6OP.CallParser
                                 {
                                     // add to an existing list
                                     // VK9/ has multiple DXCC numbers - 35, 150...
-                                    list.Add(callSignInfo); //callSignInfo.DXCC
+                                    list.Add(prefixData); //prefixData.DXCC
                                 }
                                 else
                                 {
-                                    PortablePrefixes.TryAdd(pattern, new List<CallSignInfo> { callSignInfo });
-                                    // PortablePrefixes.Add(pattern, new List<int> { callSignInfo.DXCC });
+                                    PortablePrefixes.TryAdd(pattern, new List<PrefixData> { prefixData });
                                 }
                                 break;
 
-                            case string _ when callSignInfo.Kind != PrefixKind.InvalidPrefix:
+                            case string _ when prefixData.Kind != PrefixKind.InvalidPrefix:
                                 if (CallSignPatterns.TryGetValue(pattern, out var list2))
                                 {
                                     // VK9/ has multiple DXCC numbers - 35, 150...
-                                    list2.Add(callSignInfo);
+                                    list2.Add(prefixData);
                                 }
                                 else
                                 {
-                                    CallSignPatterns.TryAdd(pattern, new List<CallSignInfo> { callSignInfo });
+                                    CallSignPatterns.TryAdd(pattern, new List<PrefixData> { prefixData });
                                 }
                                 break;
                             

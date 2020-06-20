@@ -22,9 +22,9 @@ namespace W6OP.CallParser
         internal HashSet<CallSignFlags> CallSignFlags { get; set; }
 
         public CallStructureType CallStructureType { get; set; } = CallStructureType.Invalid;
-        private readonly ConcurrentDictionary<string, List<CallSignInfo>> PortablePrefixes;
+        private readonly ConcurrentDictionary<string, List<PrefixData>> PortablePrefixes;
 
-        internal CallStructure(string callSign, ConcurrentDictionary<string, List<CallSignInfo>> portablePrefixes)
+        internal CallStructure(string callSign, ConcurrentDictionary<string, List<PrefixData>> portablePrefixes)
         {
 
             PortablePrefixes = portablePrefixes;

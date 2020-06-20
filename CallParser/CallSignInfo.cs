@@ -10,13 +10,13 @@ using System.Xml.Serialization;
 namespace W6OP.CallParser
 {
     [Serializable]
-    public class CallSignInfo
+    public class PrefixData
     {
         internal XElement PrefixXml { get; set; }
 
         public bool IsQRZInformation { get; set; }
 
-        public CallSignInfo()
+        public PrefixData()
         {
             CallSignFlags = new HashSet<CallSignFlags>();
         }
@@ -25,7 +25,7 @@ namespace W6OP.CallParser
         /// Normal constructor.
         /// </summary>
         /// <param name="element"></param>
-        internal CallSignInfo(XElement element)
+        internal PrefixData(XElement element)
         {
             PrefixXml = element;
             InitializeCallSignInfo();
@@ -36,16 +36,16 @@ namespace W6OP.CallParser
         /// Constructor used for QRZ.com
         /// </summary>
         /// <param name="xDocument"></param>
-        internal CallSignInfo(XDocument xDocument)
+        internal PrefixData(XDocument xDocument)
         {
             IsQRZInformation = true;
             InitializeCallSignInfo(xDocument);
             CallSignFlags = new HashSet<CallSignFlags>();
         }
 
-        internal CallSignInfo ShallowCopy()
+        internal PrefixData ShallowCopy()
         {
-            return (CallSignInfo)this.MemberwiseClone();
+            return (PrefixData)this.MemberwiseClone();
         }
 
         /// <summary>

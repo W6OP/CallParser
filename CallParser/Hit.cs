@@ -14,41 +14,41 @@ namespace W6OP.CallParser
            
         }
 
-        public Hit(CallSignInfo callSignInfo)
+        public Hit(PrefixData prefixData)
         {
-            PopulateHit(callSignInfo);
+            PopulateHit(prefixData);
             DXCCMerged = new HashSet<int>();
         }
 
-        private void PopulateHit(CallSignInfo callSignInfo)
+        private void PopulateHit(PrefixData prefixData)
         {
-            WAE = callSignInfo.WAE;
-            WAP = callSignInfo.WAP;
-            Iota = callSignInfo.Iota;
-            IsIota = callSignInfo.IsIota;
-            CQ = callSignInfo.CQ;
-            ITU = callSignInfo.ITU;
-            Admin1 = callSignInfo.Admin1;
-            Admin2 = callSignInfo.Admin2;
-            Latitude = callSignInfo.Latitude;
-            Longitude = callSignInfo.Longitude;
-            Continent = callSignInfo.Continent;
-            TimeZone = callSignInfo.TimeZone;
-            Name = callSignInfo.Name;
-            QTH = callSignInfo.QTH;
-            CallbookEntry = callSignInfo.CallbookEntry;
-            Kind = callSignInfo.Kind;
-            Country = callSignInfo.Country;
-            Province = callSignInfo.Province;
-            DXCC = callSignInfo.DXCC;
-            StartDate = callSignInfo.StartDate;
-            EndDate = callSignInfo.EndDate;
-            CallSign = callSignInfo.CallSign;
-            MainPrefix = callSignInfo.MainPrefix;
+            WAE = prefixData.WAE;
+            WAP = prefixData.WAP;
+            Iota = prefixData.Iota;
+            IsIota = prefixData.IsIota;
+            CQ = prefixData.CQ;
+            ITU = prefixData.ITU;
+            Admin1 = prefixData.Admin1;
+            Admin2 = prefixData.Admin2;
+            Latitude = prefixData.Latitude;
+            Longitude = prefixData.Longitude;
+            Continent = prefixData.Continent;
+            TimeZone = prefixData.TimeZone;
+            Name = prefixData.Name;
+            QTH = prefixData.QTH;
+            CallbookEntry = prefixData.CallbookEntry;
+            Kind = prefixData.Kind;
+            Country = prefixData.Country;
+            Province = prefixData.Province;
+            DXCC = prefixData.DXCC;
+            StartDate = prefixData.StartDate;
+            EndDate = prefixData.EndDate;
+            CallSign = prefixData.CallSign;
+            MainPrefix = prefixData.MainPrefix;
 
-            Comment = callSignInfo.Comment;
-            CallSignFlags = callSignInfo.CallSignFlags;
-            IsQRZInformation = callSignInfo.IsQRZInformation;
+            Comment = prefixData.Comment;
+            CallSignFlags = prefixData.CallSignFlags;
+            IsQRZInformation = prefixData.IsQRZInformation;
         }
 
         public int WAE { get; set; }
