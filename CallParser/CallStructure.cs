@@ -157,6 +157,14 @@ namespace W6OP.CallParser
                     SetCallSignFlags(component1, "");
                     return;
 
+                // TC
+                case ComponentType _ when component0Type == ComponentType.Text && component1Type == ComponentType.CallSign:
+                    CallStructureType = CallStructureType.CallText;
+                    BaseCall = component1;
+                    Prefix = component0;
+                    SetCallSignFlags(component1, "");
+                    return;
+
                 // C#
                 case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Numeric:
                     CallStructureType = CallStructureType.CallDigit;
@@ -306,15 +314,15 @@ namespace W6OP.CallParser
                     component1Type = ComponentType.CallSign;
                     return;
 
-                // CU --> CP
+                // CU --> CP - I don't agree with this --> CT
                 case ComponentType _ when componentType0 == ComponentType.CallSign && componentType1 == ComponentType.Unknown:
                     component0Type = ComponentType.CallSign;
-                    component1Type = ComponentType.Prefix;
+                    component1Type = ComponentType.Text;
                     return;
 
-                // UC --> PC
+                // UC --> PC - I don't agree with this --> TC
                 case ComponentType _ when componentType0 == ComponentType.Unknown && componentType1 == ComponentType.CallSign:
-                    component0Type = ComponentType.Prefix;
+                    component0Type = ComponentType.Text;
                     component1Type = ComponentType.CallSign;
                     return;
 

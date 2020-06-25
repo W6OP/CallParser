@@ -187,6 +187,12 @@ namespace W6OP.CallParser
 
             callSign = callSign.Trim();
 
+            // if there is a spce in the call, reject it immediatley
+            if (callSign.Any(char.IsWhiteSpace))
+            {
+                return;
+            }
+
             // strip leading or trailing "/"  /W6OP/
             if (callSign.First() == '/')
             {
@@ -298,7 +304,7 @@ namespace W6OP.CallParser
             var prefix = callStructure.Prefix;
             var list = new HashSet<PrefixData>();
             var foundItems = new HashSet<PrefixData>();
-            var temp = new HashSet<PrefixData>();
+            HashSet<PrefixData> temp;
             bool stopFound = false;
 
             string pattern;
