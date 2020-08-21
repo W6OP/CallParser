@@ -204,6 +204,16 @@ namespace W6OP.CallParser
                 callSign = callSign.Remove(callSign.Length - 1, 1);
             }
 
+            if (callSign.IndexOf("//") != -1)
+            {
+                callSign = callSign.Replace("//", "/");
+            }
+
+            if (callSign.IndexOf("///") != -1)
+            {
+                callSign = callSign.Replace("///", "/");
+            }
+
             // look in the cache first
             if (IsBatchLookup)
             {
