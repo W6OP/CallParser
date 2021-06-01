@@ -403,26 +403,16 @@ namespace W6OP.CallParser
         /// <returns></returns>
         private StringTypes GetComponentType(string item)
         {
-            switch (item)
+            return item switch
             {
                 //W6 OP -no spaces alowed
-                case string _ when item.Any(char.IsWhiteSpace):
-                    return StringTypes.Invalid;
-
-                case string _ when string.IsNullOrEmpty(item):
-                    return StringTypes.Invalid;
-
+                string _ when item.Any(char.IsWhiteSpace) => StringTypes.Invalid,
+                string _ when string.IsNullOrEmpty(item) => StringTypes.Invalid,
                 // W$OP - no special characters allowed
-                case string _ when item.Any(c => !char.IsLetterOrDigit(c)):
-                    return StringTypes.Invalid;
-
+                string _ when item.Any(c => !char.IsLetterOrDigit(c)) => StringTypes.Invalid,
                 // call is too long
-                //case string _ when item.Length > 13:
-                //    return StringTypes.Invalid;
-
-                default:
-                    return StringTypes.Valid;
-            }
+                _ => StringTypes.Valid,
+            };
         }
 
         /// <summary>

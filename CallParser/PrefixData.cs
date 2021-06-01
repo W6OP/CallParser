@@ -57,14 +57,12 @@ namespace W6OP.CallParser
         /// <param name="objectCopy"></param>
         public void DeepCopy<T>(ref T object2Copy, ref T objectCopy)
         {
-            using (var stream = new MemoryStream())
-            {
-                var serializer = new XmlSerializer(typeof(T));
+            using var stream = new MemoryStream();
+            var serializer = new XmlSerializer(typeof(T));
 
-                serializer.Serialize(stream, object2Copy);
-                stream.Position = 0;
-                objectCopy = (T)serializer.Deserialize(stream);
-            }
+            serializer.Serialize(stream, object2Copy);
+            stream.Position = 0;
+            objectCopy = (T)serializer.Deserialize(stream);
         }
 
         /// <summary>
@@ -274,9 +272,9 @@ namespace W6OP.CallParser
                             break;
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    var a = 1;
+                    
                 }
             }
 
@@ -351,9 +349,9 @@ namespace W6OP.CallParser
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var a = 1;
+                
             }
 
             return false;

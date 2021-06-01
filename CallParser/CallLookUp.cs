@@ -28,8 +28,14 @@ namespace W6OP.CallParser
         private ConcurrentBag<Hit> HitList;
         //
         private readonly ConcurrentDictionary<string, List<PrefixData>> CallSignPatterns;
+        private SortedDictionary<int, PrefixData> adifs;
+
         //
-        private SortedDictionary<int, PrefixData> Adifs { get; set; }
+        private void SetAdifs(SortedDictionary<int, PrefixData> value)
+        {
+            adifs = value;
+        }
+
         // 
         private ConcurrentDictionary<string, Hit> HitCache;
        
@@ -50,16 +56,10 @@ namespace W6OP.CallParser
         public CallLookUp(PrefixFileParser prefixFileParser)
         {
             CallSignPatterns = prefixFileParser.CallSignPatterns;
-            Adifs = prefixFileParser.Adifs;
+            SetAdifs(prefixFileParser.Adifs);
             PortablePrefixes = prefixFileParser.PortablePrefixes;
 
             QRZLookup.OnErrorDetected += QRZLookup_OnErrorDetected;
-            QRZLookup.OnCallNotFound += QRZLookup_OnCallNotFound;
-        }
-
-        private void QRZLookup_OnCallNotFound(string message)
-        {
-            //throw new NotImplementedException();
         }
 
         private void QRZLookup_OnErrorDetected(string message)
@@ -277,9 +277,9 @@ namespace W6OP.CallParser
                         break;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var e = ex.Message;
+                //var e = ex.Message;
             }
 
             try
@@ -289,7 +289,7 @@ namespace W6OP.CallParser
                     return;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -464,12 +464,12 @@ namespace W6OP.CallParser
                     {
                         if (!MergeHits || foundItems.Count == 1)
                         {
-                            BuildHit(foundItems, callStructure, baseCall, fullCall);
+                            BuildHit(foundItems, callStructure, fullCall);
                             mainPrefix = "";
                         }
                         else
                         {
-                            MergeMultipleHits(foundItems, callStructure, baseCall, fullCall);
+                            MergeMultipleHits(foundItems, callStructure, fullCall);
                             mainPrefix = "";
                         }
 
@@ -519,7 +519,7 @@ namespace W6OP.CallParser
 
             if (list.Count > 0)
             {
-                BuildHit(list, callStructure, prefix, fullCall);
+                BuildHit(list, callStructure, fullCall);
                 return true;
             }
 
@@ -534,7 +534,7 @@ namespace W6OP.CallParser
         /// <param name="baseCall"></param>
         /// <param name="prefix"></param>
         /// <param name="fullCall"></param>
-        private void BuildHit(HashSet<PrefixData> foundItems, CallStructure callStructure, string prefix, string fullCall)
+        private void BuildHit(HashSet<PrefixData> foundItems, CallStructure callStructure, string fullCall)
         {
             PrefixData prefixDataCopy = new PrefixData();
            
@@ -542,9 +542,11 @@ namespace W6OP.CallParser
           
             foreach (PrefixData prefixData in HighestRankList)
             {
-                Hit hit = new Hit(prefixData);
-                hit.CallSign = fullCall;
-                //hit.CallSignFlags = callStructure.CallSignFlags;
+                Hit hit = new Hit(prefixData)
+                {
+                    CallSign = fullCall
+                };
+
                 hit.CallSignFlags.UnionWith(callStructure.CallSignFlags);
                 HitList.Add(hit);
 
@@ -579,9 +581,8 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="foundItems"></param>
         /// <param name="baseCall"></param>
-        /// <param name="prefix"></param>
         /// <param name="fullCall"></param>
-        private void MergeMultipleHits(HashSet<PrefixData> foundItems, CallStructure callStructure, string prefix, string fullCall)
+        private void MergeMultipleHits(HashSet<PrefixData> foundItems, CallStructure callStructure, string fullCall)
         {
             List<PrefixData> HighestRankList = new List<PrefixData>();
             Hit hit = new Hit();
@@ -663,9 +664,9 @@ namespace W6OP.CallParser
                         return true;
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    var a = 1;
+                   
                 }
             }
 

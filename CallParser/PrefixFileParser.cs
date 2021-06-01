@@ -81,18 +81,16 @@ namespace W6OP.CallParser
             {
                 try
                 {
-                    using (XmlReader reader = XmlReader.Create(prefixFilePath))
+                    using XmlReader reader = XmlReader.Create(prefixFilePath);
+                    while (reader.Read())
                     {
-                        while (reader.Read())
+                        if (reader.IsStartElement())
                         {
-                            if (reader.IsStartElement())
+                            if (reader.Name == "prefix")
                             {
-                                if (reader.Name == "prefix")
-                                {
-                                    XElement prefix = XElement.ReadFrom(reader) as XElement;
-                                    PrefixData prefixData = new PrefixData(prefix);
-                                    BuildPrefixData(prefix, prefixData);
-                                }
+                                XElement prefix = XElement.ReadFrom(reader) as XElement;
+                                PrefixData prefixData = new PrefixData(prefix);
+                                BuildPrefixData(prefix, prefixData);
                             }
                         }
                     }
@@ -104,25 +102,21 @@ namespace W6OP.CallParser
             }
             else
             {
-                using (StreamReader stream = new StreamReader(assembly.GetManifestResourceStream("W6OP.CallParser.PrefixList.xml")))
+                using StreamReader stream = new StreamReader(assembly.GetManifestResourceStream("W6OP.CallParser.PrefixList.xml"));
+                using XmlReader reader = XmlReader.Create(stream);
+                while (reader.Read())
                 {
-                    using (XmlReader reader = XmlReader.Create(stream))
+                    if (reader.IsStartElement())
                     {
-                        while (reader.Read())
+                        if (reader.Name == "prefix")
                         {
-                            if (reader.IsStartElement())
-                            {
-                                if (reader.Name == "prefix")
-                                {
-                                    XElement prefix = XElement.ReadFrom(reader) as XElement;
-                                    PrefixData prefixData = new PrefixData(prefix);
-                                    BuildPrefixData(prefix, prefixData);
-                                }
-                            }
+                            XElement prefix = XElement.ReadFrom(reader) as XElement;
+                            PrefixData prefixData = new PrefixData(prefix);
+                            BuildPrefixData(prefix, prefixData);
                         }
                     }
                 }
-            
+
             }
 
             // DEBUGGING CODE
@@ -182,6 +176,9 @@ namespace W6OP.CallParser
                     primaryMaskList = ExpandMask(element.Value);
                     // add for future lookups
                     prefixData.SetPrimaryMaskList(primaryMaskList);
+
+                    // reminder: remove hardcoded Argentina mask
+                    //var a = 1;
 
                     // if pattern contains "?" then need two patterns
                     // one with # and one with @
@@ -315,11 +312,7 @@ namespace W6OP.CallParser
             var patternList = new List<string>();
 
             int count = pattern.Count(f => f == '?');
-            if (count > 2)
-            {
-                var c = 1;
-            }
-
+           
             switch (pattern)
             {
                 case string _ when pattern.Contains("?"):
@@ -352,7 +345,6 @@ namespace W6OP.CallParser
 
             // sometimes "-" has spaces around it [1 - 8]
             mask = string.Concat(mask.Where(c => !char.IsWhiteSpace(c)));
-
             int length = mask.Length;
 
             while (counter < length)

@@ -15,7 +15,7 @@ namespace W6OP.CallParser
     public class QRZLookup
     {
         public event QRZError OnErrorDetected;
-        public event QRZCallNotFound OnCallNotFound;
+        //public event QRZCallNotFound OnCallNotFound;
 
         private string QRZSessionKey;
 
