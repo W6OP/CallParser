@@ -673,11 +673,11 @@ namespace W6OP.CallParser
         /// <returns></returns>
         public string BuildPattern(string candidate)
         {
-            string pattern = "";
+            string pattern = string.Empty;
 
             foreach (char item in candidate)
             {
-                if (Char.IsLetter(item))
+                if (char.IsLetter(item))
                 {
                     pattern += "@";
                 }
@@ -702,20 +702,6 @@ namespace W6OP.CallParser
 
             return pattern;
         }
-
-        //        // THIS IS DIFFERENT FROM CallStructure
-        //        if (char.IsPunctuation(item))
-        //        {
-        //            pattern += "/";
-        //        }
-        //    }
-
-        //    if (pattern.Length > 7)
-        //    {
-        //        pattern = pattern.Substring(0, 7);
-        //    }
-        //    return pattern;
-
 
     } // end class
 }

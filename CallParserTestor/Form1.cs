@@ -287,7 +287,7 @@ namespace CallParserTestor
 
                 UpdateLabels(hitCollection.Count());
                 // fill the datagrid
-                UpdateDataGrid(hitCollection);
+                UpdateDataGrid(hitCollection); // .OrderBy(s => s.CallSign)
 
             }
             catch (Exception ex)

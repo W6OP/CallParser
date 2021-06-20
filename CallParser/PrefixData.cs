@@ -188,12 +188,13 @@ namespace W6OP.CallParser
             string seventh;
             const string portable = "/";
 
-            foreach (var item in maskList)
+            foreach (List<string[]> item in maskList)
             {
                 var searchlength = call.Length < item.Count ? call.Length : item.Count;
 
                 try
                 {
+                    //Console.WriteLine("Search Length: " + searchlength.ToString());
                     switch (searchlength)
                     {
                         case 2:
@@ -274,7 +275,7 @@ namespace W6OP.CallParser
                 }
                 catch (Exception)
                 {
-                    
+                    var a = 1;
                 }
             }
 

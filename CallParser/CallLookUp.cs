@@ -92,6 +92,7 @@ namespace W6OP.CallParser
 
         /// <summary>
         /// Look up a single call sign. First make sure it is a valid call sign.
+        /// Use QRZ.com lookup when necessary.
         /// </summary>
         /// <param name="callSign"></param>
         /// <returns>IEnumerable<Hit></returns>
@@ -161,7 +162,7 @@ namespace W6OP.CallParser
                 }
                 catch (Exception ex)
                 {
-                    var q = ex.Message;
+                    // extremely rare
                     // bury exception
                 }
             }
@@ -185,21 +186,26 @@ namespace W6OP.CallParser
         {
             CallStructure callStructure;
 
-            callSign = callSign.Trim();
-
-            // if there is a spce in the call, reject it immediatley
+            // only trim call sign if neccessary to reduce string allocations
             if (callSign.Any(char.IsWhiteSpace))
             {
-                return;
+                callSign = callSign.Trim();
+                // if there is a space in the call, reject it immediatley
+                if (callSign.Any(char.IsWhiteSpace))
+                {
+                    return;
+                }
             }
 
             // strip leading or trailing "/"  /W6OP/
-            if (callSign.First() == '/')
+            //if (callSign.First() == '/')
+            if (callSign.First().Equals('/'))
             {
                 callSign = callSign.Substring(1);
             }
 
-            if (callSign.Last() == '/')
+            //if (callSign.Last() == '/')
+            if (callSign.Last().Equals('/'))
             {
                 callSign = callSign.Remove(callSign.Length - 1, 1);
             }
@@ -279,7 +285,7 @@ namespace W6OP.CallParser
             }
             catch (Exception)
             {
-                //var e = ex.Message;
+               // bury exception
             }
 
             try
@@ -312,45 +318,44 @@ namespace W6OP.CallParser
         {
             var baseCall = callStructure.BaseCall;
             var prefix = callStructure.Prefix;
-            var list = new HashSet<PrefixData>();
+            var prefixDataList = new HashSet<PrefixData>();
             var foundItems = new HashSet<PrefixData>();
             HashSet<PrefixData> temp;
             bool stopFound = false;
 
             string pattern;
             string firstLetter;
-            string nextLetter;
-            string searchBy;
+            string nextLetter = "";
+            string searchBy = prefix;
 
             switch (callStructure.CallStructureType)
             {
-                case CallStructureType _ when callStructure.CallStructureType == CallStructureType.PrefixCall 
+                case CallStructureType _ when callStructure.CallStructureType == CallStructureType.PrefixCall
                                         || callStructure.CallStructureType == CallStructureType.PrefixCallPortable
-                                        || callStructure.CallStructureType == CallStructureType.PrefixCallText
-                                        && prefix.Length == 1:
-                    searchBy = prefix;
+                                        || callStructure.CallStructureType == CallStructureType.PrefixCallText:
+                                        //&& prefix.Length == 1:
                     firstLetter = prefix.Substring(0, 1);
-                    nextLetter = "";
+                    if (prefix.Length > 1)
+                    {
+                        nextLetter = prefix.Substring(1, 1);
+                    }
                     pattern = callStructure.BuildPattern(callStructure.Prefix);
                     break;
-                case CallStructureType.PrefixCall:
-                    searchBy = prefix;
-                    firstLetter = prefix.Substring(0, 1);
-                    nextLetter = callStructure.Prefix.Substring(1, 1);
-                    pattern = callStructure.BuildPattern(callStructure.Prefix);
-                    break;
-                case CallStructureType.PrefixCallPortable:
-                    searchBy = prefix;
-                    firstLetter = callStructure.Prefix.Substring(0, 1);
-                    nextLetter = callStructure.Prefix.Substring(1, 1);
-                    pattern = callStructure.BuildPattern(callStructure.Prefix);
-                    break;
-                case CallStructureType.PrefixCallText:
-                    searchBy = prefix;
-                    firstLetter = callStructure.Prefix.Substring(0, 1);
-                    nextLetter = callStructure.Prefix.Substring(1, 1);
-                    pattern = callStructure.BuildPattern(callStructure.Prefix);
-                    break;
+                //case CallStructureType.PrefixCall:
+                //    firstLetter = prefix.Substring(0, 1);
+                //    nextLetter = prefix.Substring(1, 1);
+                //    pattern = callStructure.BuildPattern(callStructure.Prefix);
+                //    break;
+                //case CallStructureType.PrefixCallPortable:
+                //    firstLetter = prefix.Substring(0, 1);
+                //    nextLetter = prefix.Substring(1, 1);
+                //    pattern = callStructure.BuildPattern(callStructure.Prefix);
+                //    break;
+                //case CallStructureType.PrefixCallText:
+                //    firstLetter = prefix.Substring(0, 1);
+                //    nextLetter = prefix.Substring(1, 1);
+                //    pattern = callStructure.BuildPattern(callStructure.Prefix);
+                //    break;
                 default:
                     searchBy = baseCall;
                     firstLetter = baseCall.Substring(0, 1);
@@ -370,7 +375,7 @@ namespace W6OP.CallParser
                     {
                         if (prefixData.IndexKey.ContainsKey(firstLetter))
                         {
-                            if (pattern.Last() == '.')
+                            if (pattern.Last().Equals('.'))
                             {
                                 if (prefixData.MaskExists(searchBy, pattern.Length - 1))
                                 {
@@ -390,34 +395,34 @@ namespace W6OP.CallParser
 
                     if (temp.Count != 0)
                     {
-                        if (pattern.Last() == '.')
-                        {
-                            list.UnionWith(temp);
-                            break;
-                        }
-                        list.UnionWith(temp);
+                        //if (pattern.Last().Equals('.'))
+                        //{
+                        //    prefixDataList.UnionWith(temp);
+                        //    break;
+                        //}
+                        prefixDataList.UnionWith(temp);
                         break;
                     }
                 }
-
+                // remove last character
                 pattern = pattern.Remove(pattern.Length - 1);
             }
 
             // now we have a list of posibilities // HG5ACZ/P 
-            if (list.Count > 0)
+            if (prefixDataList.Count > 0)
             {
-                if (list.Count == 1)
+                if (prefixDataList.Count == 1)
                 {
                     // only one found
-                    foundItems = list;
+                    foundItems = prefixDataList;
                 }
                 else // refine the hits
                 {
-                   foreach (PrefixData info in list)
+                   foreach (PrefixData prefixData in prefixDataList)
                     {
                         var rank = 0;
                         var previous = true;
-                        var primaryMaskList = info.GetMaskList(firstLetter, nextLetter, stopFound);
+                        var primaryMaskList = prefixData.GetMaskList(firstLetter, nextLetter, stopFound);
 
                         foreach (List<string[]> maskList in primaryMaskList) // ToList uneccessary here
                         {
@@ -429,7 +434,7 @@ namespace W6OP.CallParser
 
                             for (var i = 2; i < length; i++)
                             {
-                                var anotherLetter = baseCall.Substring(i, 1); //.Skip(i).First().ToString();
+                                var anotherLetter = baseCall.Substring(i, 1);
 
                                 if (maskList[position].Contains(anotherLetter) && previous)
                                 {
@@ -446,8 +451,8 @@ namespace W6OP.CallParser
                             // if found with 2 chars
                             if (rank == length || maskList.Count == 2)
                             {
-                                info.Rank = rank; 
-                                foundItems.Add(info);
+                                prefixData.Rank = rank; 
+                                foundItems.Add(prefixData);
                             }
                         }
                     }
