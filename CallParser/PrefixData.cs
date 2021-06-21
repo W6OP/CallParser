@@ -14,6 +14,8 @@ namespace W6OP.CallParser
 
         public bool IsQRZInformation { get; set; }
 
+        const string PortableIndicator = "/";
+
         public PrefixData()
         {
             CallSignFlags = new HashSet<CallSignFlags>();
@@ -69,7 +71,7 @@ namespace W6OP.CallParser
         /// public properties
         /// </summary>
         /// 
-        private HashSet<List<string[]>> maskList = new HashSet<List<string[]>>();
+        private HashSet<List<string[]>> MaskList = new HashSet<List<string[]>>();
         internal Dictionary<string, byte> IndexKey = new Dictionary<string, byte>();
 
         /// <summary>
@@ -149,7 +151,7 @@ namespace W6OP.CallParser
         internal List<List<string[]>> GetMaskList(string first, string second, bool stopFound)
         {
             var temp = new List<List<string[]>>();
-            foreach (var item in maskList)
+            foreach (var item in MaskList)
             {
                 if (stopFound)
                 {
@@ -186,100 +188,101 @@ namespace W6OP.CallParser
             string fifth;
             string sixth;
             string seventh;
-            const string portable = "/";
+            bool matched = false;
 
-            foreach (List<string[]> item in maskList)
+            foreach (List<string[]> item in MaskList)
             {
-                var searchlength = call.Length < item.Count ? call.Length : item.Count;
+                int searchLength = call.Length < item.Count ? call.Length : item.Count;
+                int item0 = Array.IndexOf(item[0], first);
 
-                try
+                //// short circuit if first character fails
+                if (item0 == -1)
                 {
-                    //Console.WriteLine("Search Length: " + searchlength.ToString());
-                    switch (searchlength)
-                    {
-                        case 2:
-                            if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1)
-                            {
-                                if (item.Last()[0] != portable)
-                                {
-                                    return true;
-                                }
-                            }
-                            break;
-                        case 3:
-                            third = call.Substring(2, 1);
-                            if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1)
-                            {
-                                if (item.Last()[0] != portable)
-                                {
-                                    return true;
-                                }
-                            }
-                            break;
-                        case 4:
-                            third = call.Substring(2, 1);
-                            fourth = call.Substring(3, 1);
-                            if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
-                                && Array.IndexOf(item[3], fourth) != -1)
-                            {
-                                if (item.Last()[0] != portable)
-                                {
-                                    return true;
-                                }
-                            }
-                            break;
-                        case 5:
-                            third = call.Substring(2, 1);
-                            fourth = call.Substring(3, 1);
-                            fifth = call.Substring(4, 1);
-                            if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
-                                && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1)
-                            {
-                                if (item.Last()[0] != portable)
-                                {
-                                    return true;
-                                }
-                            }
-                            break;
-                        case 6:
-                            third = call.Substring(2, 1);
-                            fourth = call.Substring(3, 1);
-                            fifth = call.Substring(4, 1);
-                            sixth = call.Substring(5, 1);
-                            if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
-                               && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1 && Array.IndexOf(item[5], sixth) != -1)
-                            {
-                                if (item.Last()[0] != portable)
-                                {
-                                    return true;
-                                }
-                            }
-                            break;
-                        case 7:
-                            third = call.Substring(2, 1);
-                            fourth = call.Substring(3, 1);
-                            fifth = call.Substring(4, 1);
-                            sixth = call.Substring(5, 1);
-                            seventh = call.Substring(6, 1);
-                            if (Array.IndexOf(item[0], first) != -1 && Array.IndexOf(item[1], second) != -1 && Array.IndexOf(item[2], third) != -1
-                               && Array.IndexOf(item[3], fourth) != -1 && Array.IndexOf(item[4], fifth) != -1 && Array.IndexOf(item[5], sixth) != -1
-                               && Array.IndexOf(item[6], seventh) != -1)
-                            {
-                                if (item.Last()[0] != portable)
-                                {
-                                    return true;
-                                }
-                            }
-                            break;
-                    }
+                    continue;
                 }
-                catch (Exception)
+
+                switch (searchLength)
                 {
-                    var a = 1;
+                    case 2:
+                        if (Array.IndexOf(item[1], second) != -1
+                            && item.Last()[0] != PortableIndicator)
+                        {
+                            matched = true;
+                        }
+                        break;
+                    case 3:
+                        third = call.Substring(2, 1);
+                        // SLOWER
+                        //if (item[0].Contains(first)
+
+                        if (Array.IndexOf(item[1], second) != -1
+                            && Array.IndexOf(item[2], third) != -1
+                            && item.Last()[0] != PortableIndicator)
+                        {
+                            matched = true;
+                        }
+                        break;
+                    case 4:
+                        third = call.Substring(2, 1);
+                        fourth = call.Substring(3, 1);
+
+                        if (Array.IndexOf(item[1], second) != -1
+                            && Array.IndexOf(item[2], third) != -1
+                            && Array.IndexOf(item[3], fourth) != -1
+                            && item.Last()[0] != PortableIndicator)
+                        {
+                            matched = true;
+                        }
+                        break;
+                    case 5:
+                        third = call.Substring(2, 1);
+                        fourth = call.Substring(3, 1);
+                        fifth = call.Substring(4, 1);
+                        if (Array.IndexOf(item[1], second) != -1
+                            && Array.IndexOf(item[2], third) != -1
+                            && Array.IndexOf(item[3], fourth) != -1
+                            && Array.IndexOf(item[4], fifth) != -1
+                            && item.Last()[0] != PortableIndicator)
+                        {
+                            matched = true;
+                        }
+                        break;
+                    case 6:
+                        third = call.Substring(2, 1);
+                        fourth = call.Substring(3, 1);
+                        fifth = call.Substring(4, 1);
+                        sixth = call.Substring(5, 1);
+                        if (Array.IndexOf(item[1], second) != -1
+                            && Array.IndexOf(item[2], third) != -1
+                            && Array.IndexOf(item[3], fourth) != -1
+                            && Array.IndexOf(item[4], fifth) != -1
+                            && Array.IndexOf(item[5], sixth) != -1
+                            && item.Last()[0] != PortableIndicator)
+                        {
+                            matched = true;
+                        }
+                        break;
+                    case 7:
+                        third = call.Substring(2, 1);
+                        fourth = call.Substring(3, 1);
+                        fifth = call.Substring(4, 1);
+                        sixth = call.Substring(5, 1);
+                        seventh = call.Substring(6, 1);
+                        if (Array.IndexOf(item[1], second) != -1 
+                            && Array.IndexOf(item[2], third) != -1
+                            && Array.IndexOf(item[3], fourth) != -1 
+                            && Array.IndexOf(item[4], fifth) != -1 
+                            && Array.IndexOf(item[5], sixth) != -1
+                            && Array.IndexOf(item[6], seventh) != -1 
+                            && item.Last()[0] != PortableIndicator)
+                        {
+                            matched = true;
+                        }
+                        break;
                 }
             }
 
-            return false;
+            return matched;
         }
 
         /// <summary>
@@ -300,7 +303,7 @@ namespace W6OP.CallParser
 
             try
             {
-                foreach (var item in maskList.Where(x => x.Count == call.Length))
+                foreach (var item in MaskList.Where(x => x.Count == call.Length))
                 {
                     switch (call.Length)
                     {
@@ -352,7 +355,7 @@ namespace W6OP.CallParser
             }
             catch (Exception)
             {
-                
+
             }
 
             return false;
@@ -366,7 +369,7 @@ namespace W6OP.CallParser
         /// <param name="value"></param>
         internal void SetPrimaryMaskList(List<string[]> value)
         {
-            maskList.Add(value);
+            MaskList.Add(value);
 
             foreach (var first in value[0])
             {
@@ -486,7 +489,7 @@ namespace W6OP.CallParser
                     FirstName = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "fname")).FirstOrDefault() ?? "";
                     LastName = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "name")).FirstOrDefault() ?? "";
                     DXCC = (int?)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "dxcc")).FirstOrDefault() ?? 0;
-                    Latitude = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "lat")).FirstOrDefault() ?? ""; 
+                    Latitude = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "lat")).FirstOrDefault() ?? "";
                     Longitude = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "lon")).FirstOrDefault() ?? "";
                     Grid = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "grid")).FirstOrDefault() ?? "";
                     Country = (string)xDocument.Descendants(xName + "Callsign").Select(x => x.Element(xName + "country")).FirstOrDefault() ?? "";

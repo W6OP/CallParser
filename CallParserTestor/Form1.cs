@@ -84,7 +84,7 @@ namespace CallParserTestor
         {
             UseWaitCursor = true;
             CheckBoxMergeHits.Enabled = true;
-            Task.Run(() => ParsePrefixFile(TextBoxPrefixFilePath.Text));
+            Task.Run(() => ParsePrefixFile());
         }
 
         /// <summary>
@@ -103,36 +103,32 @@ namespace CallParserTestor
 
             if (CheckBoxCompoundCalls.Checked)
             {
-                using (StreamReader reader = new StreamReader("PSKReporterCalls.txt"))
+                using StreamReader reader = new StreamReader("PSKReporterCalls.txt");
+                while (!reader.EndOfStream)
                 {
-                    while (!reader.EndOfStream)
-                    {
-                        _Records.Add(reader.ReadLine());
-                    }
+                    _Records.Add(reader.ReadLine());
                 }
             }
             else
             {
-                using (StreamReader reader = new StreamReader("rbn2.csv"))
-                using (var csv = new CsvReader(reader))
+                using StreamReader reader = new StreamReader("rbn2.csv");
+                using var csv = new CsvReader(reader);
+                csv.Read();
+                csv.ReadHeader();
+                while (csv.Read())
                 {
-                    csv.Read();
-                    csv.ReadHeader();
-                    while (csv.Read())
-                    {
-                        csv.Configuration.MissingFieldFound = null;
-                        _Records.Add(csv.GetField("dx").ToUpper()); //dx_pfx
+                    csv.Configuration.MissingFieldFound = null;
+                    _Records.Add(csv.GetField("dx").ToUpper()); //dx_pfx
 
-                        // comment out to keep list to 1 million - most of the rest are dupes anyway
-                        // I should use a HashSet to eliminate dupes
-                        //string temp = csv.GetField("callsign");
-                        //// check for a "_" ie: VE7CC-7, OH6BG-1, WZ7I-3 - remove the characters "-x"
-                        //if (temp.IndexOf("-") != -1)
-                        //{
-                        //    temp = temp.Substring(0, temp.IndexOf("-"));
-                        //}
-                        //_Records.Add(temp.ToUpper());
-                    }
+                    // comment out to keep list to 1 million - most of the rest are dupes anyway
+                    // I should use a HashSet to eliminate dupes
+                    //string temp = csv.GetField("callsign");
+                    //// check for a "_" ie: VE7CC-7, OH6BG-1, WZ7I-3 - remove the characters "-x"
+                    //if (temp.IndexOf("-") != -1)
+                    //{
+                    //    temp = temp.Substring(0, temp.IndexOf("-"));
+                    //}
+                    //_Records.Add(temp.ToUpper());
                 }
             }
 
@@ -526,13 +522,17 @@ namespace CallParserTestor
 
                 if (kind == PrefixKind.DXCC)
                 {
-                    item = new ListViewItem(call);
-                    item.BackColor = Color.Honeydew;
+                    item = new ListViewItem(call)
+                    {
+                        BackColor = Color.Honeydew
+                    };
                 }
                 else
                 {
-                    item = new ListViewItem("--- " + call);
-                    item.BackColor = Color.LightGray;
+                    item = new ListViewItem("--- " + call)
+                    {
+                        BackColor = Color.LightGray
+                    };
                 }
 
                 item.SubItems.Add(kind.ToString());
@@ -593,8 +593,7 @@ namespace CallParserTestor
         /// <summary>
         /// Parse the prefix file.
         /// </summary>
-        /// <param name="filePath"></param>
-        private void ParsePrefixFile(string filePath)
+        private void ParsePrefixFile()
         {
             stopwatch = Stopwatch.StartNew();
 
@@ -604,8 +603,10 @@ namespace CallParserTestor
 
             UpdateCursor();
 
-            _CallLookUp = new CallLookUp(_PrefixFileParser);
-            _CallLookUp.MergeHits = CheckBoxMergeHits.Checked;
+            _CallLookUp = new CallLookUp(_PrefixFileParser)
+            {
+                MergeHits = CheckBoxMergeHits.Checked
+            };
         }
 
         /// <summary>
@@ -694,7 +695,7 @@ namespace CallParserTestor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void button4_Click(object sender, EventArgs e)
+        private void Button4_Click(object sender, EventArgs e)
         {
             LoadCompoundCompareFile();
             return;
@@ -723,19 +724,17 @@ namespace CallParserTestor
         /// <param name="filePath"></param>
         private void BuildCompoundCallFile(string filePath)
         {
-            using (StreamReader reader = new StreamReader(filePath))
-            using (var csv = new CsvReader(reader))
+            using StreamReader reader = new StreamReader(filePath);
+            using var csv = new CsvReader(reader);
+            csv.Read();
+            csv.ReadHeader();
+            while (csv.Read())
             {
-                csv.Read();
-                csv.ReadHeader();
-                while (csv.Read())
+                csv.Configuration.MissingFieldFound = null;
+                string dx = csv.GetField("dx");
+                if (dx.Contains("/"))
                 {
-                    csv.Configuration.MissingFieldFound = null;
-                    string dx = csv.GetField("dx");
-                    if (dx.Contains("/"))
-                    {
-                        CompoundCalls.Add(dx.ToUpper());
-                    }
+                    CompoundCalls.Add(dx.ToUpper());
                 }
             }
         }
@@ -747,18 +746,16 @@ namespace CallParserTestor
         {
             DelphiCompoundKeyValuePairs = new Dictionary<string, string>();
 
-            using (StreamReader reader = new StreamReader(@"C:\Users\pbourget\Documents\DelphiCallParserTestCompare.csv"))
-            using (var csv = new CsvReader(reader))
+            using StreamReader reader = new StreamReader(@"C:\Users\pbourget\Documents\DelphiCallParserTestCompare.csv");
+            using var csv = new CsvReader(reader);
+            csv.Read();
+            csv.ReadHeader();
+            while (csv.Read())
             {
-                csv.Read();
-                csv.ReadHeader();
-                while (csv.Read())
-                {
-                    csv.Configuration.MissingFieldFound = null;
-                    string callSign = csv.GetField(0);
-                    string country = csv.GetField(1);
-                    DelphiCompoundKeyValuePairs.Add(callSign, country.Trim());
-                }
+                csv.Configuration.MissingFieldFound = null;
+                string callSign = csv.GetField(0);
+                string country = csv.GetField(1);
+                DelphiCompoundKeyValuePairs.Add(callSign, country.Trim());
             }
         }
 

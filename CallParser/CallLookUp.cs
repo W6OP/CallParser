@@ -326,7 +326,7 @@ namespace W6OP.CallParser
             string pattern;
             string firstLetter;
             string nextLetter = "";
-            string searchBy = prefix;
+            string searchTerm = prefix;
 
             switch (callStructure.CallStructureType)
             {
@@ -341,23 +341,8 @@ namespace W6OP.CallParser
                     }
                     pattern = callStructure.BuildPattern(callStructure.Prefix);
                     break;
-                //case CallStructureType.PrefixCall:
-                //    firstLetter = prefix.Substring(0, 1);
-                //    nextLetter = prefix.Substring(1, 1);
-                //    pattern = callStructure.BuildPattern(callStructure.Prefix);
-                //    break;
-                //case CallStructureType.PrefixCallPortable:
-                //    firstLetter = prefix.Substring(0, 1);
-                //    nextLetter = prefix.Substring(1, 1);
-                //    pattern = callStructure.BuildPattern(callStructure.Prefix);
-                //    break;
-                //case CallStructureType.PrefixCallText:
-                //    firstLetter = prefix.Substring(0, 1);
-                //    nextLetter = prefix.Substring(1, 1);
-                //    pattern = callStructure.BuildPattern(callStructure.Prefix);
-                //    break;
                 default:
-                    searchBy = baseCall;
+                    searchTerm = baseCall;
                     firstLetter = baseCall.Substring(0, 1);
                     nextLetter = baseCall.Substring(1, 1);
                     pattern = callStructure.BuildPattern(callStructure.BaseCall);
@@ -377,7 +362,7 @@ namespace W6OP.CallParser
                         {
                             if (pattern.Last().Equals('.'))
                             {
-                                if (prefixData.MaskExists(searchBy, pattern.Length - 1))
+                                if (prefixData.MaskExists(searchTerm, pattern.Length - 1))
                                 {
                                     temp.Add(prefixData);
                                     break;
@@ -385,7 +370,7 @@ namespace W6OP.CallParser
                             }
                             else
                             {
-                                if (prefixData.MaskExists(searchBy, pattern.Length))
+                                if (prefixData.MaskExists(searchTerm, pattern.Length))
                                 {
                                     temp.Add(prefixData);
                                 }
