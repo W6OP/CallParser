@@ -41,7 +41,6 @@ namespace W6OP.CallParser
         // Admin list
         internal SortedDictionary<string, List<PrefixData>> Admins;
         // all the portable prefix entries (ends with "/") with dxcc number
-        //public Dictionary<string, List<int>> PortablePrefixes;
         internal ConcurrentDictionary<string, List<PrefixData>> PortablePrefixes;
 
         /// <summary>
@@ -176,9 +175,6 @@ namespace W6OP.CallParser
                     primaryMaskList = ExpandMask(element.Value);
                     // add for future lookups
                     prefixData.SetPrimaryMaskList(primaryMaskList);
-
-                    // reminder: remove hardcoded Argentina mask
-                    //var a = 1;
 
                     // if pattern contains "?" then need two patterns
                     // one with # and one with @

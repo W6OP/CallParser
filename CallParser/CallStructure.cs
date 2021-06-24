@@ -17,6 +17,7 @@ namespace W6OP.CallParser
 
         internal string Prefix { get; set; }
         internal string BaseCall { get; set; }
+        internal string FullCall { get; set; }
         internal string Suffix1 { get; set; }
         internal string Suffix2 { get; set; }
         internal HashSet<CallSignFlags> CallSignFlags { get; set; }
@@ -35,6 +36,8 @@ namespace W6OP.CallParser
         private void SplitCallSign(string callSign)
         {
             List<string> components = callSign.Split('/').ToList();
+
+            FullCall = callSign;
 
             if (components.Count > 3)
             {

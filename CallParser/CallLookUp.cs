@@ -19,6 +19,10 @@ namespace W6OP.CallParser
 {
     public class CallLookUp
     {
+        // used in ReplaceCallArea()
+        private char[] OneCharPrefs = new char[] { 'I', 'K', 'N', 'W', 'R', 'U' };
+        private char[] XNUM_SET = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '#', '[' };
+
         /// <summary>
         /// True indicates multiple hits are merged into one.
         /// </summary>
@@ -38,7 +42,7 @@ namespace W6OP.CallParser
 
         // 
         private ConcurrentDictionary<string, Hit> HitCache;
-       
+
         private QRZLookup QRZLookup = new QRZLookup();
 
         // disable caching when not doing batch lookups
@@ -47,8 +51,10 @@ namespace W6OP.CallParser
         private string QRZPassword;
         private bool UseQRZLookup;
 
+        int debugCounter = 0;
+
         private readonly ConcurrentDictionary<string, List<PrefixData>> PortablePrefixes;
-       
+
         /// <summary>
         /// Public constructor.
         /// </summary>
@@ -141,7 +147,7 @@ namespace W6OP.CallParser
         {
             HitList = new ConcurrentBag<Hit>();
             HitCache = new ConcurrentDictionary<string, Hit>();
-            
+
             IsBatchLookup = true;
             UseQRZLookup = false;
 
@@ -150,24 +156,23 @@ namespace W6OP.CallParser
                 throw new Exception("The call sign list must contain at least one entry.");
             }
 
-
             // parallel foreach almost twice as fast but requires blocking collection
             // comment out for debugging - need to use non parallel foreach for debugging
             _ = Parallel.ForEach(callSigns, callSign =>
-             //foreach (var callSign in callSigns)
+            //foreach (var callSign in callSigns)
             {
                 try
                 {
                     ProcessCallSign(callSign.ToUpper());
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // extremely rare
                     // bury exception
                 }
             }
           );
-
+            Console.WriteLine("Debug Counter: " + debugCounter.ToString());
             return HitList.AsEnumerable();
         }
 
@@ -198,13 +203,11 @@ namespace W6OP.CallParser
             }
 
             // strip leading or trailing "/"  /W6OP/
-            //if (callSign.First() == '/')
             if (callSign.First().Equals('/'))
             {
                 callSign = callSign.Substring(1);
             }
 
-            //if (callSign.Last() == '/')
             if (callSign.Last().Equals('/'))
             {
                 callSign = callSign.Remove(callSign.Length - 1, 1);
@@ -234,7 +237,7 @@ namespace W6OP.CallParser
 
             if (callStructure.CallStructureType != CallStructureType.Invalid)
             {
-                CollectMatches(callStructure, callSign);
+                CollectMatches(callStructure);
             }
         }
 
@@ -249,60 +252,41 @@ namespace W6OP.CallParser
         /// <param name="callOrPrefix"></param>
         /// /// <param name="fullCall"></param>
 
-        private void CollectMatches(CallStructure callStructure, string fullCall)
+        private void CollectMatches(CallStructure callStructure)
         {
             CallStructureType callStructureType = callStructure.CallStructureType;
 
             // ValidStructures = ':C:C#:C#M:C#T:CM:CM#:CMM:CMP:CMT:CP:CPM:CT:PC:PCM:PCT:';
-            try
+            switch (callStructureType) // GT3UCQ/P
             {
-                switch (callStructureType) // GT3UCQ/P
-                {
-                    case CallStructureType.CallPrefix:
-                        if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
-                        break;
-                    case CallStructureType.PrefixCall:
-                        if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
-                        break;
-                    case CallStructureType.CallPortablePrefix:
-                        if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
-                        break;
-                    case CallStructureType.CallPrefixPortable:
-                        if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
-                        break;
-                    case CallStructureType.PrefixCallPortable:
-                        if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
-                        break;
-                    case CallStructureType.PrefixCallText:
-                        if (CheckForPortablePrefix(callStructure: callStructure, fullCall)) { return; }
-                        break;
-                    case CallStructureType.CallDigit:
-                        if (CheckReplaceCallArea(callStructure: callStructure, fullCall)) { return; }
-                        break;
-                    default:
-                        break;
-                }
-            }
-            catch (Exception)
-            {
-               // bury exception
+                case CallStructureType.CallPrefix:
+                    if (CheckForPortablePrefix(callStructure: callStructure)) { return; }
+                    break;
+                case CallStructureType.PrefixCall:
+                    if (CheckForPortablePrefix(callStructure: callStructure)) { return; }
+                    break;
+                case CallStructureType.CallPortablePrefix:
+                    if (CheckForPortablePrefix(callStructure: callStructure)) { return; }
+                    break;
+                case CallStructureType.CallPrefixPortable:
+                    if (CheckForPortablePrefix(callStructure: callStructure)) { return; }
+                    break;
+                case CallStructureType.PrefixCallPortable:
+                    if (CheckForPortablePrefix(callStructure: callStructure)) { return; }
+                    break;
+                case CallStructureType.PrefixCallText:
+                    if (CheckForPortablePrefix(callStructure: callStructure)) { return; }
+                    break;
+                case CallStructureType.CallDigit:
+                    if (CheckReplaceCallArea(callStructure: callStructure)) { return; }
+                    break;
+                default:
+                    break;
             }
 
-            try
-            {
-                if (SearchMainDictionary(callStructure, fullCall, true, out _))
-                {
-                    return;
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-
-            return;
+            _ = SearchMainDictionary(callStructure, true, out _);
         }
-        
+
         /// <summary>
         /// Search the CallSignDictionary for a hit with the full call. If it doesn't 
         /// hit remove characters from the end until hit or there are no letters fleft.  
@@ -314,35 +298,35 @@ namespace W6OP.CallParser
         /// <param name="saveHit"></param>
         /// <param name="mainPrefix"></param>
         /// <returns></returns>
-        private bool SearchMainDictionary(CallStructure callStructure, string fullCall, bool saveHit, out string mainPrefix)
+        private bool SearchMainDictionary(CallStructure callStructure, bool saveHit, out string mainPrefix)
         {
             var baseCall = callStructure.BaseCall;
             var prefix = callStructure.Prefix;
             var prefixDataList = new HashSet<PrefixData>();
-            var foundItems = new HashSet<PrefixData>();
-            HashSet<PrefixData> temp;
-            bool stopFound = false;
+            var matches = new HashSet<PrefixData>();
+            bool stopCharacterFound = false;
 
             string pattern;
             string firstLetter;
             string nextLetter = "";
-            string searchTerm = prefix;
 
+            // this could be simplified but is almost 1 sec faster this way per million calls
             switch (callStructure.CallStructureType)
             {
-                case CallStructureType _ when callStructure.CallStructureType == CallStructureType.PrefixCall
-                                        || callStructure.CallStructureType == CallStructureType.PrefixCallPortable
-                                        || callStructure.CallStructureType == CallStructureType.PrefixCallText:
-                                        //&& prefix.Length == 1:
-                    firstLetter = prefix.Substring(0, 1);
-                    if (prefix.Length > 1)
-                    {
-                        nextLetter = prefix.Substring(1, 1);
-                    }
+                case CallStructureType _ when callStructure.CallStructureType == CallStructureType.PrefixCall:
+                    firstLetter = DetermineMaskComponents(prefix, ref nextLetter);
+                    pattern = callStructure.BuildPattern(callStructure.Prefix);
+                    break;
+                case CallStructureType _ when callStructure.CallStructureType == CallStructureType.PrefixCallPortable:
+                    firstLetter = DetermineMaskComponents(prefix, ref nextLetter);
+                    pattern = callStructure.BuildPattern(callStructure.Prefix);
+                    break;
+                case CallStructureType _ when callStructure.CallStructureType == CallStructureType.PrefixCallText:
+                    firstLetter = DetermineMaskComponents(prefix, ref nextLetter);
                     pattern = callStructure.BuildPattern(callStructure.Prefix);
                     break;
                 default:
-                    searchTerm = baseCall;
+                    prefix = baseCall;
                     firstLetter = baseCall.Substring(0, 1);
                     nextLetter = baseCall.Substring(1, 1);
                     pattern = callStructure.BuildPattern(callStructure.BaseCall);
@@ -350,48 +334,7 @@ namespace W6OP.CallParser
             }
 
             // first we look in all the "." patterns for calls like KG4AA vs KG4AAA
-            pattern += ".";
-            while (pattern.Length > 1)
-            {
-                if (CallSignPatterns.TryGetValue(pattern, out var query))
-                {
-                    temp = new HashSet<PrefixData>();
-                    foreach (var prefixData in query)
-                    {
-                        if (prefixData.IndexKey.ContainsKey(firstLetter))
-                        {
-                            if (pattern.Last().Equals('.'))
-                            {
-                                if (prefixData.MaskExists(searchTerm, pattern.Length - 1))
-                                {
-                                    temp.Add(prefixData);
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                if (prefixData.MaskExists(searchTerm, pattern.Length))
-                                {
-                                    temp.Add(prefixData);
-                                }
-                            }
-                        }
-                    }
-
-                    if (temp.Count != 0)
-                    {
-                        //if (pattern.Last().Equals('.'))
-                        //{
-                        //    prefixDataList.UnionWith(temp);
-                        //    break;
-                        //}
-                        prefixDataList.UnionWith(temp);
-                        break;
-                    }
-                }
-                // remove last character
-                pattern = pattern.Remove(pattern.Length - 1);
-            }
+            MatchPattern(prefixDataList, pattern, firstLetter, prefix);
 
             // now we have a list of posibilities // HG5ACZ/P 
             if (prefixDataList.Count > 0)
@@ -399,72 +342,21 @@ namespace W6OP.CallParser
                 if (prefixDataList.Count == 1)
                 {
                     // only one found
-                    foundItems = prefixDataList;
+                    matches = new HashSet<PrefixData>(prefixDataList);
                 }
-                else // refine the hits
-                {
-                   foreach (PrefixData prefixData in prefixDataList)
+                else
+                {   // refine the hits
+                    foreach (PrefixData prefixData in prefixDataList)
                     {
-                        var rank = 0;
-                        var previous = true;
-                        var primaryMaskList = prefixData.GetMaskList(firstLetter, nextLetter, stopFound);
-
-                        foreach (List<string[]> maskList in primaryMaskList) // ToList uneccessary here
-                        {
-                            var position = 2;
-                            previous = true;
-
-                            // get smaller length
-                            var length = baseCall.Length < maskList.Count ? baseCall.Length : maskList.Count;
-
-                            for (var i = 2; i < length; i++)
-                            {
-                                var anotherLetter = baseCall.Substring(i, 1);
-
-                                if (maskList[position].Contains(anotherLetter) && previous)
-                                {
-                                    rank = position + 1;
-                                }
-                                else
-                                {
-                                    previous = false;
-                                    break;
-                                }
-                                position += 1;
-                            }
-
-                            // if found with 2 chars
-                            if (rank == length || maskList.Count == 2)
-                            {
-                                prefixData.Rank = rank; 
-                                foundItems.Add(prefixData);
-                            }
-                        }
+                        // stopCharacterFound is always false
+                        var primaryMaskList = prefixData.GetMaskList(firstLetter, nextLetter, stopCharacterFound);
+                        RefineList(baseCall, matches, prefixData, primaryMaskList);
                     }
                 }
 
-                if (foundItems.Count > 0)
+                if (matches.Count > 0)
                 {
-                    if (!saveHit)
-                    {
-                        mainPrefix = foundItems.First().MainPrefix;
-                        return true;
-                    }
-                    else
-                    {
-                        if (!MergeHits || foundItems.Count == 1)
-                        {
-                            BuildHit(foundItems, callStructure, fullCall);
-                            mainPrefix = "";
-                        }
-                        else
-                        {
-                            MergeMultipleHits(foundItems, callStructure, fullCall);
-                            mainPrefix = "";
-                        }
-
-                        return true;
-                    }
+                    return MatchesFound(callStructure, saveHit, out mainPrefix, matches);
                 }
             }
 
@@ -473,43 +365,197 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
+        /// Get the first and second letter.
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <param name="nextLetter"></param>
+        /// <returns></returns>
+        private string DetermineMaskComponents(string prefix, ref string nextLetter)
+        {
+            //debugCounter += 1;
+            string firstLetter = prefix.Substring(0, 1);
+            if (prefix.Length > 1)
+            {
+                nextLetter = prefix.Substring(1, 1);
+            }
+
+            return firstLetter;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="baseCall"></param>
+        /// <param name="foundItems"></param>
+        /// <param name="prefixData"></param>
+        /// <param name="primaryMaskList"></param>
+        private static void RefineList(string baseCall, HashSet<PrefixData> matches, PrefixData prefixData, List<List<string[]>> primaryMaskList)
+        {
+            var rank = 0;
+
+            foreach (List<string[]> maskList in primaryMaskList)
+            {
+                var position = 2;
+                var isPrevious = true;
+
+                // get smaller length
+                var smaller = baseCall.Length < maskList.Count ? baseCall.Length : maskList.Count;
+
+                for (var i = position; i < smaller; i++)
+                {
+                    var nextLetter = baseCall.Substring(i, 1);
+
+                    if (maskList[position].Contains(nextLetter) && isPrevious)
+                    {
+                        rank = position + 1;
+                    }
+                    else
+                    {
+                        isPrevious = false;
+                        break;
+                    }
+                    position += 1;
+                }
+
+                // if found with 2 chars
+                if (rank == smaller || maskList.Count == 2)
+                {
+                    prefixData.Rank = rank;
+                    matches.Add(prefixData);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Found some matches so build the hits.
+        /// </summary>
+        /// <param name="callStructure"></param>
+        /// <param name="fullCall"></param>
+        /// <param name="saveHit"></param>
+        /// <param name="mainPrefix"></param>
+        /// <param name="matches"></param>
+        /// <returns></returns>
+        private bool MatchesFound(CallStructure callStructure, bool saveHit, out string mainPrefix, HashSet<PrefixData> matches)
+        {
+            if (!saveHit)
+            {
+                mainPrefix = matches.First().MainPrefix;
+                return true;
+            }
+            else
+            {
+                if (!MergeHits || matches.Count == 1)
+                {
+                    BuildHit(matches, callStructure);
+                    mainPrefix = "";
+                }
+                else
+                {
+                    MergeMultipleHits(matches, callStructure);
+                    mainPrefix = "";
+                }
+
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Get a list of all the PrefixData that match a pattern.
+        /// </summary>
+        /// <param name="prefixDataList"></param>
+        /// <param name="pattern"></param>
+        /// <param name="firstLetter"></param>
+        /// <param name="prefix"></param>
+        /// <returns></returns>
+        private void MatchPattern(HashSet<PrefixData> prefixDataList, string pattern, string firstLetter, string prefix)
+        {
+            var tempStorage = new HashSet<PrefixData>();
+
+            pattern += ".";
+            while (pattern.Length > 1)
+            {
+                if (CallSignPatterns.TryGetValue(pattern, out var query))
+                {
+                    tempStorage.Clear();
+                    foreach (var prefixData in query)
+                    {
+                        if (prefixData.IndexKey.ContainsKey(firstLetter))
+                        {
+                            switch (pattern.Last())
+                            {
+                                case '.':
+                                    prefix = prefix.Substring(0, pattern.Length - 1);
+                                    if (prefixData.MaskExists(prefix, true))
+                                    {
+                                        tempStorage.Add(prefixData);
+                                        // exit early
+                                        break;
+                                    }
+                                    break;
+                                default:
+                                    prefix = prefix.Substring(0, pattern.Length);
+                                    if (prefixData.MaskExists(prefix, true))
+                                    {
+                                        tempStorage.Add(prefixData);
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+
+                    if (tempStorage.Count != 0)
+                    {
+                        prefixDataList.UnionWith(tempStorage);
+                        break;
+                    }
+                }
+                // remove last character
+                pattern = pattern.Remove(pattern.Length - 1);
+            }
+        }
+
+        /// <summary>
         /// Portable prefixes are prefixes that end with "/"
+        /// This looks almost identical to MatchPattern() but creates the Hit
+        /// here. When it returns true it inhibits a full dictionary search.
         /// </summary>
         /// <param name="callStructure"></param>
         /// <param name="fullCall"></param>
         /// <returns></returns>
-        private bool CheckForPortablePrefix(CallStructure callStructure, string fullCall)
+        private bool CheckForPortablePrefix(CallStructure callStructure)
         {
             string prefix = callStructure.Prefix + "/";
-            var list = new HashSet<PrefixData>();
-            var temp = new HashSet<PrefixData>();
+            var prefixDataList = new HashSet<PrefixData>();
+            var tempStorage = new HashSet<PrefixData>();
             var firstLetter = prefix.Substring(0, 1);
             var pattern = callStructure.BuildPattern(prefix);
 
+            // check cache
             if (PortablePrefixes.TryGetValue(pattern, out var query))
             {
                 foreach (var prefixData in query)
                 {
-                    temp.Clear();
+                    tempStorage.Clear();
                     if (prefixData.IndexKey.ContainsKey(firstLetter))
                     {
-                        if (prefixData.PortableMaskExists(prefix))
+                        // if (prefixData.PortableMaskExists(prefix))
+                        if (prefixData.MaskExists(prefix, false))
                         {
-                            temp.Add(prefixData);
+                            tempStorage.Add(prefixData);
                         }
                     }
 
-                    if (temp.Count != 0)
+                    if (tempStorage.Count != 0)
                     {
-                        list.UnionWith(temp);
+                        prefixDataList.UnionWith(tempStorage);
                         break;
                     }
                 }
             }
 
-            if (list.Count > 0)
+            if (prefixDataList.Count > 0)
             {
-                BuildHit(list, callStructure, fullCall);
+                BuildHit(prefixDataList, callStructure);
                 return true;
             }
 
@@ -523,18 +569,15 @@ namespace W6OP.CallParser
         /// <param name="foundItems"></param>
         /// <param name="baseCall"></param>
         /// <param name="prefix"></param>
-        /// <param name="fullCall"></param>
-        private void BuildHit(HashSet<PrefixData> foundItems, CallStructure callStructure, string fullCall)
+        private void BuildHit(HashSet<PrefixData> foundItems, CallStructure callStructure)
         {
-            PrefixData prefixDataCopy = new PrefixData();
-           
-            List<PrefixData> HighestRankList = foundItems.OrderByDescending(x => x.Rank).ThenByDescending(x => x.Kind).ToList();
-          
-            foreach (PrefixData prefixData in HighestRankList)
+            List<PrefixData> listByRank = foundItems.OrderByDescending(x => x.Rank).ThenByDescending(x => x.Kind).ToList();
+
+            foreach (PrefixData prefixData in listByRank)
             {
                 Hit hit = new Hit(prefixData)
                 {
-                    CallSign = fullCall
+                    CallSign = callStructure.FullCall
                 };
 
                 hit.CallSignFlags.UnionWith(callStructure.CallSignFlags);
@@ -572,19 +615,17 @@ namespace W6OP.CallParser
         /// <param name="foundItems"></param>
         /// <param name="baseCall"></param>
         /// <param name="fullCall"></param>
-        private void MergeMultipleHits(HashSet<PrefixData> foundItems, CallStructure callStructure, string fullCall)
+        private void MergeMultipleHits(HashSet<PrefixData> foundItems, CallStructure callStructure)
         {
             List<PrefixData> HighestRankList = new List<PrefixData>();
-            Hit hit = new Hit();
             HighestRankList = foundItems.OrderByDescending(x => x.Rank).ThenByDescending(x => x.Kind).ToList();
             var highestRanked = HighestRankList[0];
 
-
-            hit = new Hit(highestRanked)
+            Hit hit = new Hit(highestRanked)
             {
-                CallSign = fullCall,
+                CallSign = callStructure.FullCall,
                 IsMergedHit = true
-            };
+            }; 
 
             hit.CallSignFlags.UnionWith(callStructure.CallSignFlags);
 
@@ -598,7 +639,7 @@ namespace W6OP.CallParser
                 hit.ITU.UnionWith(prefixData.ITU);
                 hit.CQ.UnionWith(prefixData.CQ);
                 hit.CallSignFlags.UnionWith(callStructure.CallSignFlags);
-               
+
                 if (hit.Admin1 != prefixData.Admin1)
                 {
                     hit.Admin1 = "";
@@ -633,7 +674,7 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="callStructure"></param>
         /// <param name="fullCall"></param>
-        private bool CheckReplaceCallArea(CallStructure callStructure, string fullCall)
+        private bool CheckReplaceCallArea(CallStructure callStructure)
         {
             // UY0KM/0
             // see if the prefix == the first digit in the BaseCall
@@ -641,7 +682,7 @@ namespace W6OP.CallParser
             {
                 try
                 {
-                    if (SearchMainDictionary(callStructure, fullCall, false, out string mainPrefix))
+                    if (SearchMainDictionary(callStructure, false, out string mainPrefix))
                     {
                         callStructure.Prefix = ReplaceCallArea(mainPrefix, callArea: callStructure.Prefix, out int position);
                         callStructure.CallStructureType = callStructure.Prefix switch
@@ -650,13 +691,13 @@ namespace W6OP.CallParser
                             _ => CallStructureType.PrefixCall,
                         };
 
-                        CollectMatches(callStructure, fullCall);
+                        CollectMatches(callStructure);
                         return true;
                     }
                 }
                 catch (Exception)
                 {
-                   
+
                 }
             }
 
@@ -671,10 +712,7 @@ namespace W6OP.CallParser
         /// <returns></returns>
         private string ReplaceCallArea(string mainPrefix, string callArea, out int position)
         {
-            char[] OneCharPrefs = new char[] { 'I', 'K', 'N', 'W', 'R', 'U' };
-            char[] XNUM_SET = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '#', '[' };
-
-            int p = 0;
+            int prefixLength = 0;
 
             switch (mainPrefix.Length)
             {
@@ -682,7 +720,7 @@ namespace W6OP.CallParser
                     if (OneCharPrefs.Contains(mainPrefix.First()))
                     {
                         // I9MRY/1 - mainPrefix = I --> I1
-                        p = 2;
+                        prefixLength = 2;
                     }
                     else if (mainPrefix.All(char.IsLetter))
                     {
@@ -693,16 +731,16 @@ namespace W6OP.CallParser
                         return "";
                     }
                     break;
-                case 2: 
+                case 2:
                     if (OneCharPrefs.Contains(mainPrefix.First()) && XNUM_SET.Contains(mainPrefix.Skip(1).First()))
                     {
                         // W6OP/4 - main prefix = W6 --> W4
-                        p = 2;
+                        prefixLength = 2;
                     }
                     else
                     {
                         // AL7NS/4 - main prefix = KL --> KL4
-                        p = 3;
+                        prefixLength = 3;
                     }
 
                     break;
@@ -710,29 +748,29 @@ namespace W6OP.CallParser
                     // this means the same as the case 2 statement and is never hit
                     if (OneCharPrefs.Contains(mainPrefix.First()) && XNUM_SET.Contains(mainPrefix.Skip(1).First()))
                     {
-                        p = 2;
+                        prefixLength = 2;
                     }
                     else
                     {
                         if (XNUM_SET.Contains(mainPrefix.Skip(2).Take(1).First()))
                         {
                             // JI3DT/6 - mainPrefix = JA3 --> JA6
-                            p = 3;
+                            prefixLength = 3;
                         }
                         else
                         {
                             // 3DLE/1 - mainprefix = 3DA --> 3DA1 
-                            p = 4;
+                            prefixLength = 4;
                         }
                     }
                     break;
             }
 
-            position = p;
+            position = prefixLength;
             // append call area to mainPrefix
-            return $"{mainPrefix.Substring(0, p - 1)}{callArea}{"/"}";
+            return $"{mainPrefix.Substring(0, prefixLength - 1)}{callArea}{"/"}";
         }
-       
+
         /// <summary>
         /// Check for non alpha numerics other than "/"
         /// DON'T USE THIS!
@@ -748,15 +786,5 @@ namespace W6OP.CallParser
         //    //return strToCheck.All(x => char.IsLetterOrDigit(x));
         //}
 
-        /// <summary>
-        /// Test if a string is numeric.
-        /// This is duplicated - need to move to common file.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public bool IsNumeric(string value)
-        {
-            return value.All(char.IsNumber);
-        }
     } // end class
 }
