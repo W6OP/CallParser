@@ -305,36 +305,35 @@ namespace W6OP.CallParser
             var prefixDataList = new HashSet<PrefixData>();
             var matches = new HashSet<PrefixData>();
             bool stopCharacterFound = false;
-
             string pattern;
-            string firstLetter;
-            string nextLetter = "";
+
+            var myTuple = (firstLetter: "", nextLetter: "");
 
             // this could be simplified but is almost 1 sec faster this way per million calls
             switch (callStructure.CallStructureType)
             {
-                case CallStructureType _ when callStructure.CallStructureType == CallStructureType.PrefixCall:
-                    firstLetter = DetermineMaskComponents(prefix, ref nextLetter);
+                case CallStructureType.PrefixCall:
+                    myTuple = DetermineMaskComponents(prefix);
                     pattern = callStructure.BuildPattern(callStructure.Prefix);
                     break;
-                case CallStructureType _ when callStructure.CallStructureType == CallStructureType.PrefixCallPortable:
-                    firstLetter = DetermineMaskComponents(prefix, ref nextLetter);
+                case CallStructureType.PrefixCallPortable:
+                    myTuple = DetermineMaskComponents(prefix);
                     pattern = callStructure.BuildPattern(callStructure.Prefix);
                     break;
-                case CallStructureType _ when callStructure.CallStructureType == CallStructureType.PrefixCallText:
-                    firstLetter = DetermineMaskComponents(prefix, ref nextLetter);
+                case CallStructureType.PrefixCallText:
+                    myTuple = DetermineMaskComponents(prefix);
                     pattern = callStructure.BuildPattern(callStructure.Prefix);
                     break;
                 default:
                     prefix = baseCall;
-                    firstLetter = baseCall.Substring(0, 1);
-                    nextLetter = baseCall.Substring(1, 1);
+                    myTuple.firstLetter = baseCall.Substring(0, 1);
+                    myTuple.nextLetter = baseCall.Substring(1, 1);
                     pattern = callStructure.BuildPattern(callStructure.BaseCall);
                     break;
             }
 
             // first we look in all the "." patterns for calls like KG4AA vs KG4AAA
-            MatchPattern(prefixDataList, pattern, firstLetter, prefix);
+            MatchPattern(prefixDataList, pattern, myTuple.firstLetter, prefix);
 
             // now we have a list of posibilities // HG5ACZ/P 
             if (prefixDataList.Count > 0)
@@ -348,8 +347,10 @@ namespace W6OP.CallParser
                 {   // refine the hits
                     foreach (PrefixData prefixData in prefixDataList)
                     {
-                        // stopCharacterFound is always false
-                        var primaryMaskList = prefixData.GetMaskList(firstLetter, nextLetter, stopCharacterFound);
+                        // stopCharacterFound is always false WHY???
+                        var primaryMaskList = prefixData.GetMaskList(myTuple.firstLetter,
+                                                                     myTuple.nextLetter,
+                                                                     stopCharacterFound);
                         RefineList(baseCall, matches, prefixData, primaryMaskList);
                     }
                 }
@@ -370,16 +371,18 @@ namespace W6OP.CallParser
         /// <param name="prefix"></param>
         /// <param name="nextLetter"></param>
         /// <returns></returns>
-        private string DetermineMaskComponents(string prefix, ref string nextLetter)
+        private (string, string) DetermineMaskComponents(string prefix)
         {
-            //debugCounter += 1;
-            string firstLetter = prefix.Substring(0, 1);
+            var myTuple = (firstLetter: "", nextLetter: "");
+
+            myTuple.firstLetter = prefix.Substring(0, 1);
+
             if (prefix.Length > 1)
             {
-                nextLetter = prefix.Substring(1, 1);
+                myTuple.nextLetter = prefix.Substring(1, 1);
             }
 
-            return firstLetter;
+            return myTuple;
         }
 
         /// <summary>
@@ -483,13 +486,13 @@ namespace W6OP.CallParser
                         {
                             switch (pattern.Last())
                             {
-                                case '.':
+                                case '.': // if we have a '.' we do not want to continue
                                     prefix = prefix.Substring(0, pattern.Length - 1);
-                                    if (prefixData.MaskExists(prefix, true))
+                                    if (prefixData.MaskExists(prefix, true) == true)
                                     {
                                         tempStorage.Add(prefixData);
                                         // exit early
-                                        break;
+                                        goto ExitEarly;
                                     }
                                     break;
                                 default:
@@ -503,6 +506,7 @@ namespace W6OP.CallParser
                         }
                     }
 
+                    ExitEarly:
                     if (tempStorage.Count != 0)
                     {
                         prefixDataList.UnionWith(tempStorage);

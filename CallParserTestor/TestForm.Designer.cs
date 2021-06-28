@@ -1,6 +1,6 @@
 ﻿namespace CallParserTestor
 {
-    partial class Form1
+    partial class TestForm
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.button1 = new System.Windows.Forms.Button();
             this.TextBoxCall = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
@@ -250,8 +250,8 @@
             // 
             this.DataGridViewResults.AllowUserToAddRows = false;
             this.DataGridViewResults.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle9.ForeColor = System.Drawing.Color.MidnightBlue;
-            this.DataGridViewResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle9;
+            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.MidnightBlue;
+            this.DataGridViewResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.DataGridViewResults.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.DataGridViewResults.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
             this.DataGridViewResults.BackgroundColor = System.Drawing.Color.Honeydew;
@@ -342,7 +342,7 @@
             // 
             this.callLookUpBindingSource.DataSource = typeof(W6OP.CallParser.CallLookUp);
             // 
-            // Form1
+            // TestForm
             // 
             this.AcceptButton = this.button1;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -370,8 +370,8 @@
             this.Controls.Add(this.TextBoxCall);
             this.Controls.Add(this.button1);
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Name = "TestForm";
+            this.Text = "CallParser Test Form";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewResults)).EndInit();
             this.panel1.ResumeLayout(false);

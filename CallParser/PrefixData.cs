@@ -582,3 +582,129 @@ namespace W6OP.CallParser
   </Session>
 </QRZDatabase> 
  * */
+
+
+/*
+ private bool SearchMainDictionary(CallStructure callStructure, string fullCall, bool saveHit, out string mainPrefix)
+        {
+            var baseCall = callStructure.BaseCall;
+            var firstLetter = baseCall.Substring(0, 1);
+            var nextLetter = baseCall.Substring(1, 1);
+            var list = new List<CallSignInfo>();
+            var foundItems = new HashSet<CallSignInfo>();
+            var pattern = BuildPattern(callStructure.BaseCall);
+            var temp = new List<CallSignInfo>();
+            int stopPosition;
+            bool stopFound = false;
+
+            // first we look in all the "." patterns for calls like KG4AA vs KG4AAA
+            pattern += ".";
+
+            while (pattern.Length > 1)
+            {
+                if (CallSignDictionary.TryGetValue(pattern, out var query))
+                {
+                    temp.Clear();
+                    //_ = Parallel.ForEach(query, callSignInfo =>
+                    foreach (var callSignInfo in query)
+                    {
+                        if (callSignInfo.IndexKey.ContainsKey(firstLetter))
+                        {
+                            if (pattern.Last() == '.')
+                            {
+                                stopFound = true;
+                                if (callSignInfo.MaskListExists(firstLetter, nextLetter, stopFound) == true)
+                                {
+                                    temp.Add(callSignInfo);
+                                    //break;
+                                }
+                            }
+                            else
+                            {
+                                stopFound = false;
+                                if (callSignInfo.MaskListExists(firstLetter, nextLetter, stopFound) == true)
+                                {
+                                    temp.Add(callSignInfo);
+                                }
+                            }
+                        }
+                    }
+                    //);
+
+                    if (temp.Count != 0)
+                    {
+                        if (pattern.Last() == '.')
+                        {
+                            stopPosition = pattern.Length - 1;
+                            list.AddRange(temp);
+                            break;
+                        }
+                        list.AddRange(temp);
+                    }
+                }
+                pattern = pattern.Remove(pattern.Length - 1);
+            }
+
+            // now we have a list of posibilities // HG5ACZ/P 
+            if (list.Count > 0)
+            {
+                
+                foreach (CallSignInfo info in list)
+                {
+                    var previous = true;
+                    var primaryMaskList = info.GetPrimaryMaskList(firstLetter, nextLetter, stopFound);
+
+                    foreach (List<string[]> maskList in primaryMaskList) // ToList uneccessary here
+                    {
+                        var position = 2;
+                        previous = true;
+
+                        // get smaller length
+                        var length = baseCall.Length < maskList.Count ? baseCall.Length : maskList.Count;
+
+                        for (var i = 2; i < length; i++)
+                        {
+                            var anotherLetter = baseCall.Substring(i, 1); //.Skip(i).First().ToString();
+
+                            if (maskList[position].Contains(anotherLetter) && previous)
+                            {
+                                info.Rank = position + 1;
+                            }
+                            else
+                            {
+                                previous = false;
+                                break;
+                            }
+                            position += 1;
+                        }
+
+                        // if found with 2 chars
+                        if (info.Rank == length || maskList.Count == 2)
+                        {
+                            info.Rank = 0; // probably should do something else here - need to clear rank, however
+                            foundItems.Add(info);
+                        }
+                    }
+                }
+
+                if (foundItems.Count > 0)
+                {
+                    if (saveHit)
+                    {
+                        BuildHit(foundItems, callStructure.BaseCall, baseCall, fullCall);
+                        mainPrefix = "";
+                        return true;
+                    }
+                    else
+                    {
+                        mainPrefix = foundItems.First().MainPrefix; // NEED TO ACOUNT FOR MORE THAN ONE
+                        return true;
+                    }
+                }
+            }
+
+            mainPrefix = "";
+
+            return false;
+        }
+ */

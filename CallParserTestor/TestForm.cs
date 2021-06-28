@@ -27,7 +27,7 @@ namespace CallParserTestor
     /// <summary>
     /// GUI tester of CallParser with sample code.
     /// </summary>
-    public partial class Form1 : Form
+    public partial class TestForm : Form
     {
         private readonly PrefixFileParser _PrefixFileParser;
         private CallLookUp _CallLookUp;
@@ -43,7 +43,7 @@ namespace CallParserTestor
         /// <summary>
         /// Constructor.
         /// </summary>
-        public Form1()
+        public TestForm()
         {
             InitializeComponent();
 
