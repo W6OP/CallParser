@@ -11,9 +11,7 @@ namespace W6OP.CallParser
     public class PrefixData
     {
         internal XElement PrefixXml { get; set; }
-
         public bool IsQRZInformation { get; set; }
-
         const string PortableIndicator = "/";
 
         public PrefixData()
@@ -78,7 +76,13 @@ namespace W6OP.CallParser
         /// The rank of the result over other results - used internally.
         /// </summary>
         internal int Rank { get; set; }
-       
+
+        /// <summary>
+        /// searchRank for portable prefixes - 
+        /// VK0M/MB5KET hits Heard first and then Macquarie
+        /// </summary>
+        internal int SearchRank { get; set; }
+
         public int DXCC;
         public void SetDXCC(int value)
         {
@@ -170,7 +174,7 @@ namespace W6OP.CallParser
         /// <param name="prefix"></param>
         /// <param name="length"></param>
         /// <returns></returns>
-        internal bool MaskExists(string prefix, bool excludePortablePrefixes) //, int length
+        internal bool MaskExists(string prefix, bool excludePortablePrefixes, out int searchRank)
         {
             string first = prefix.Substring(0, 1);
             string second = prefix.Substring(1, 1);
@@ -181,7 +185,12 @@ namespace W6OP.CallParser
             string seventh;
             bool matched = false;
 
-            foreach (List<string[]> maskItem in MaskList)
+            // sort so we look at the longest first
+            var MaskListSorted = MaskList.ToList().OrderByDescending(x => x.Count);
+
+            searchRank = 0;
+
+            foreach (List<string[]> maskItem in MaskListSorted)
             {
                 int maxLength = prefix.Length < maskItem.Count ? prefix.Length : maskItem.Count;
 
@@ -202,6 +211,7 @@ namespace W6OP.CallParser
                         if (Array.IndexOf(maskItem[1], second) != -1)
                         {
                             matched = true;
+                            searchRank = 2;
                         }
                         break;
                     case 3:
@@ -213,6 +223,7 @@ namespace W6OP.CallParser
                             && Array.IndexOf(maskItem[2], third) != -1)
                         {
                             matched = true;
+                            searchRank = 3;
                         }
                         break;
                     case 4:
@@ -224,6 +235,7 @@ namespace W6OP.CallParser
                             && Array.IndexOf(maskItem[3], fourth) != -1)
                         {
                             matched = true;
+                            searchRank = 4;
                         }
                         break;
                     case 5:
@@ -236,6 +248,7 @@ namespace W6OP.CallParser
                             && Array.IndexOf(maskItem[4], fifth) != -1)
                         {
                             matched = true;
+                            searchRank = 5;
                         }
                         break;
                     case 6:
@@ -250,6 +263,7 @@ namespace W6OP.CallParser
                             && Array.IndexOf(maskItem[5], sixth) != -1)
                         {
                             matched = true;
+                            searchRank = 6;
                         }
                         break;
                     case 7:
@@ -266,6 +280,7 @@ namespace W6OP.CallParser
                             && Array.IndexOf(maskItem[6], seventh) != -1)
                         {
                             matched = true;
+                            searchRank = 7;
                         }
                         break;
                 }
@@ -581,130 +596,5 @@ namespace W6OP.CallParser
     <Remark>cpu: 0.043s</Remark>
   </Session>
 </QRZDatabase> 
- * */
-
-
-/*
- private bool SearchMainDictionary(CallStructure callStructure, string fullCall, bool saveHit, out string mainPrefix)
-        {
-            var baseCall = callStructure.BaseCall;
-            var firstLetter = baseCall.Substring(0, 1);
-            var nextLetter = baseCall.Substring(1, 1);
-            var list = new List<CallSignInfo>();
-            var foundItems = new HashSet<CallSignInfo>();
-            var pattern = BuildPattern(callStructure.BaseCall);
-            var temp = new List<CallSignInfo>();
-            int stopPosition;
-            bool stopFound = false;
-
-            // first we look in all the "." patterns for calls like KG4AA vs KG4AAA
-            pattern += ".";
-
-            while (pattern.Length > 1)
-            {
-                if (CallSignDictionary.TryGetValue(pattern, out var query))
-                {
-                    temp.Clear();
-                    //_ = Parallel.ForEach(query, callSignInfo =>
-                    foreach (var callSignInfo in query)
-                    {
-                        if (callSignInfo.IndexKey.ContainsKey(firstLetter))
-                        {
-                            if (pattern.Last() == '.')
-                            {
-                                stopFound = true;
-                                if (callSignInfo.MaskListExists(firstLetter, nextLetter, stopFound) == true)
-                                {
-                                    temp.Add(callSignInfo);
-                                    //break;
-                                }
-                            }
-                            else
-                            {
-                                stopFound = false;
-                                if (callSignInfo.MaskListExists(firstLetter, nextLetter, stopFound) == true)
-                                {
-                                    temp.Add(callSignInfo);
-                                }
-                            }
-                        }
-                    }
-                    //);
-
-                    if (temp.Count != 0)
-                    {
-                        if (pattern.Last() == '.')
-                        {
-                            stopPosition = pattern.Length - 1;
-                            list.AddRange(temp);
-                            break;
-                        }
-                        list.AddRange(temp);
-                    }
-                }
-                pattern = pattern.Remove(pattern.Length - 1);
-            }
-
-            // now we have a list of posibilities // HG5ACZ/P 
-            if (list.Count > 0)
-            {
-                
-                foreach (CallSignInfo info in list)
-                {
-                    var previous = true;
-                    var primaryMaskList = info.GetPrimaryMaskList(firstLetter, nextLetter, stopFound);
-
-                    foreach (List<string[]> maskList in primaryMaskList) // ToList uneccessary here
-                    {
-                        var position = 2;
-                        previous = true;
-
-                        // get smaller length
-                        var length = baseCall.Length < maskList.Count ? baseCall.Length : maskList.Count;
-
-                        for (var i = 2; i < length; i++)
-                        {
-                            var anotherLetter = baseCall.Substring(i, 1); //.Skip(i).First().ToString();
-
-                            if (maskList[position].Contains(anotherLetter) && previous)
-                            {
-                                info.Rank = position + 1;
-                            }
-                            else
-                            {
-                                previous = false;
-                                break;
-                            }
-                            position += 1;
-                        }
-
-                        // if found with 2 chars
-                        if (info.Rank == length || maskList.Count == 2)
-                        {
-                            info.Rank = 0; // probably should do something else here - need to clear rank, however
-                            foundItems.Add(info);
-                        }
-                    }
-                }
-
-                if (foundItems.Count > 0)
-                {
-                    if (saveHit)
-                    {
-                        BuildHit(foundItems, callStructure.BaseCall, baseCall, fullCall);
-                        mainPrefix = "";
-                        return true;
-                    }
-                    else
-                    {
-                        mainPrefix = foundItems.First().MainPrefix; // NEED TO ACOUNT FOR MORE THAN ONE
-                        return true;
-                    }
-                }
-            }
-
-            mainPrefix = "";
-
-            return false;
-        }
  */
+

@@ -307,33 +307,33 @@ namespace W6OP.CallParser
             bool stopCharacterFound = false;
             string pattern;
 
-            var myTuple = (firstLetter: "", nextLetter: "");
+            var firstAndSecond = (firstLetter: "", nextLetter: "");
 
             // this could be simplified but is almost 1 sec faster this way per million calls
             switch (callStructure.CallStructureType)
             {
                 case CallStructureType.PrefixCall:
-                    myTuple = DetermineMaskComponents(prefix);
+                    firstAndSecond = DetermineMaskComponents(prefix);
                     pattern = callStructure.BuildPattern(callStructure.Prefix);
                     break;
                 case CallStructureType.PrefixCallPortable:
-                    myTuple = DetermineMaskComponents(prefix);
+                    firstAndSecond = DetermineMaskComponents(prefix);
                     pattern = callStructure.BuildPattern(callStructure.Prefix);
                     break;
                 case CallStructureType.PrefixCallText:
-                    myTuple = DetermineMaskComponents(prefix);
+                    firstAndSecond = DetermineMaskComponents(prefix);
                     pattern = callStructure.BuildPattern(callStructure.Prefix);
                     break;
                 default:
                     prefix = baseCall;
-                    myTuple.firstLetter = baseCall.Substring(0, 1);
-                    myTuple.nextLetter = baseCall.Substring(1, 1);
+                    firstAndSecond.firstLetter = baseCall.Substring(0, 1);
+                    firstAndSecond.nextLetter = baseCall.Substring(1, 1);
                     pattern = callStructure.BuildPattern(callStructure.BaseCall);
                     break;
             }
 
             // first we look in all the "." patterns for calls like KG4AA vs KG4AAA
-            MatchPattern(prefixDataList, pattern, myTuple.firstLetter, prefix);
+            MatchPattern(prefixDataList, pattern, firstAndSecond.firstLetter, prefix);
 
             // now we have a list of posibilities // HG5ACZ/P 
             if (prefixDataList.Count > 0)
@@ -348,8 +348,8 @@ namespace W6OP.CallParser
                     foreach (PrefixData prefixData in prefixDataList)
                     {
                         // stopCharacterFound is always false WHY???
-                        var primaryMaskList = prefixData.GetMaskList(myTuple.firstLetter,
-                                                                     myTuple.nextLetter,
+                        var primaryMaskList = prefixData.GetMaskList(firstAndSecond.firstLetter,
+                                                                     firstAndSecond.nextLetter,
                                                                      stopCharacterFound);
                         RefineList(baseCall, matches, prefixData, primaryMaskList);
                     }
@@ -373,16 +373,16 @@ namespace W6OP.CallParser
         /// <returns></returns>
         private (string, string) DetermineMaskComponents(string prefix)
         {
-            var myTuple = (firstLetter: "", nextLetter: "");
+            var firstAndSecond = (firstLetter: "", nextLetter: "");
 
-            myTuple.firstLetter = prefix.Substring(0, 1);
+            firstAndSecond.firstLetter = prefix.Substring(0, 1);
 
             if (prefix.Length > 1)
             {
-                myTuple.nextLetter = prefix.Substring(1, 1);
+                firstAndSecond.nextLetter = prefix.Substring(1, 1);
             }
 
-            return myTuple;
+            return firstAndSecond;
         }
 
         /// <summary>
@@ -473,8 +473,8 @@ namespace W6OP.CallParser
         private void MatchPattern(HashSet<PrefixData> prefixDataList, string pattern, string firstLetter, string prefix)
         {
             var tempStorage = new HashSet<PrefixData>();
-
             pattern += ".";
+
             while (pattern.Length > 1)
             {
                 if (CallSignPatterns.TryGetValue(pattern, out var query))
@@ -484,11 +484,12 @@ namespace W6OP.CallParser
                     {
                         if (prefixData.IndexKey.ContainsKey(firstLetter))
                         {
+                            int searchRank;
                             switch (pattern.Last())
                             {
                                 case '.': // if we have a '.' we do not want to continue
                                     prefix = prefix.Substring(0, pattern.Length - 1);
-                                    if (prefixData.MaskExists(prefix, true) == true)
+                                    if (prefixData.MaskExists(prefix, true, out searchRank) == true)
                                     {
                                         tempStorage.Add(prefixData);
                                         // exit early
@@ -497,7 +498,7 @@ namespace W6OP.CallParser
                                     break;
                                 default:
                                     prefix = prefix.Substring(0, pattern.Length);
-                                    if (prefixData.MaskExists(prefix, true))
+                                    if (prefixData.MaskExists(prefix, true, out searchRank))
                                     {
                                         tempStorage.Add(prefixData);
                                     }
@@ -533,18 +534,20 @@ namespace W6OP.CallParser
             var tempStorage = new HashSet<PrefixData>();
             var firstLetter = prefix.Substring(0, 1);
             var pattern = callStructure.BuildPattern(prefix);
+            int searchRank = 0;
 
-            // check cache
+            // check cache first
             if (PortablePrefixes.TryGetValue(pattern, out var query))
             {
                 foreach (var prefixData in query)
                 {
                     tempStorage.Clear();
+                    
                     if (prefixData.IndexKey.ContainsKey(firstLetter))
                     {
-                        // if (prefixData.PortableMaskExists(prefix))
-                        if (prefixData.MaskExists(prefix, false))
+                        if (prefixData.MaskExists(prefix, false, out searchRank))
                         {
+                            prefixData.SearchRank = searchRank;
                             tempStorage.Add(prefixData);
                         }
                     }
@@ -552,13 +555,29 @@ namespace W6OP.CallParser
                     if (tempStorage.Count != 0)
                     {
                         prefixDataList.UnionWith(tempStorage);
-                        break;
+                        // do not exit early here
+                        // VK0M/MB5KET hits Heard first and then Macquarie - VP2V/, VP2M/ also
+                        //break;
                     }
                 }
             }
 
             if (prefixDataList.Count > 0)
             {
+                if (prefixDataList.Count > 1)
+                {
+                    // only keep the highest ranked prefixData for portable prefixes
+                    var highestRanked = prefixDataList.OrderByDescending(x => x.SearchRank).ToList();
+                    int ranked = highestRanked[0].SearchRank;
+                    prefixDataList.Clear();
+                    foreach (PrefixData prefixData in highestRanked)
+                    {
+                        if (prefixData.SearchRank == ranked) {
+                            prefixDataList.Add(prefixData);
+                        }
+                    }
+                }
+
                 BuildHit(prefixDataList, callStructure);
                 return true;
             }

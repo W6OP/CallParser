@@ -307,9 +307,7 @@ namespace W6OP.CallParser
         /// <param name="component1Type"></param>
         private void ResolveAmbiguities(ComponentType componentType0, ComponentType componentType1, out ComponentType component0Type, out ComponentType component1Type)
         {
-            ComponentType componentType = ComponentType.Invalid;
-
-            switch (componentType)
+            switch (ComponentType.Invalid)
             {
                 // UU --> PC
                 case ComponentType _ when componentType0 == ComponentType.Unknown && componentType1 == ComponentType.Unknown:
@@ -323,9 +321,10 @@ namespace W6OP.CallParser
                     component1Type = ComponentType.Text;
                     return;
 
-                // UC --> PC - I don't agree with this --> TC
+                // UC --> PC - I don't agree with this and think it should be --> TC
+                // UC --> PC does work for Heard Is though VK0H/MB5KET
                 case ComponentType _ when componentType0 == ComponentType.Unknown && componentType1 == ComponentType.CallSign:
-                    component0Type = ComponentType.Text;
+                    component0Type = ComponentType.Prefix;
                     component1Type = ComponentType.CallSign;
                     return;
 
@@ -430,11 +429,11 @@ namespace W6OP.CallParser
             //string[] validCallStructures = { "@#@@", "@#@@@", "@##@", "@##@@", "@##@@@", "@@#@", "@@#@@", "@@#@@@", "#@#@", "#@#@@", "#@#@@@", "#@@#@", "#@@#@@" }; // KH6Z
             string[] validPrefixes = { "@", "@@", "@@#", "@@#@", "@#", "@#@", "@##", "#@", "#@@", "#@#", "#@@#" };
             string[] validPrefixOrCall = { "@@#@", "@#@" };
-            ComponentType componentType = ComponentType.Unknown;
+            //ComponentType componentType = ComponentType.Unknown;
 
             string pattern = BuildPattern(candidate);
 
-            switch (componentType)
+            switch (ComponentType.Unknown)
             {
                 case ComponentType _ when position == 1 && candidate == "MM":
                     return ComponentType.Prefix;
@@ -467,22 +466,21 @@ namespace W6OP.CallParser
                     // now check if its a prefix, if not its a Call
                     if (VerifyIfPrefix(candidate, position) != ComponentType.Prefix)
                     {
-                        componentType = ComponentType.CallSign;
+                        return ComponentType.CallSign;
                     }
                     else
                     {
                         if (VerifyIfCallSign(candidate) == ComponentType.CallSign)
                         {
-                            componentType = ComponentType.Unknown;
+                            return ComponentType.Unknown;
                         }
 
                         else
                         {
-                            componentType = ComponentType.Prefix;
-                        }
-                        
+                            return ComponentType.Prefix;
+                        } 
                     }
-                    return componentType;
+                    //return componentType;
                
                 case ComponentType _ when (validPrefixes.Contains(pattern) && VerifyIfPrefix(candidate, position) == ComponentType.Prefix):
                     return ComponentType.Prefix;
