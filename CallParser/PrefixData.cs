@@ -69,6 +69,7 @@ namespace W6OP.CallParser
         /// public properties
         /// </summary>
 
+        // need to sort on the array length
         private HashSet<List<string[]>> MaskList = new HashSet<List<string[]>>();
         internal Dictionary<string, byte> IndexKey = new Dictionary<string, byte>();
 
@@ -169,12 +170,13 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// 
+        /// Determine if a mask exists that matches the prefix.
         /// </summary>
-        /// <param name="prefix"></param>
-        /// <param name="length"></param>
+        /// <param name="prefix">prefix to find</param>
+        /// <param name="excludePortablePrefixes">search portable prefixes too</param>
+        /// <param name="searchRank">differentiate between minor and major matches</param>
         /// <returns></returns>
-        internal bool MaskExists(string prefix, bool excludePortablePrefixes, out int searchRank)
+        internal bool MatchMask(string prefix, bool excludePortablePrefixes, out int searchRank)
         {
             string first = prefix.Substring(0, 1);
             string second = prefix.Substring(1, 1);
@@ -185,8 +187,8 @@ namespace W6OP.CallParser
             string seventh;
             bool matched = false;
 
-            // sort so we look at the longest first
-            var MaskListSorted = MaskList.ToList().OrderByDescending(x => x.Count);
+            // sort so we look at the longest first - otherwise could exit on shorter match
+            var MaskListSorted = MaskList.OrderByDescending(x => x.Count);
 
             searchRank = 0;
 
@@ -195,15 +197,22 @@ namespace W6OP.CallParser
                 int maxLength = prefix.Length < maskItem.Count ? prefix.Length : maskItem.Count;
 
                 // short circuit if first character fails
+                //if (!maskItem[0].Contains(first)) - very slow
                 if (Array.IndexOf(maskItem[0], first) == -1)
                 {
                     continue;
                 }
 
-                if (excludePortablePrefixes && maskItem.Last()[0].Equals(PortableIndicator))
+                if (excludePortablePrefixes && maskItem[maskItem.Count - 1][0] == PortableIndicator)
                 {
                     continue;
                 }
+
+                // this is almost 2 seconds slower per million calls
+                //if (excludePortablePrefixes && maskItem.Last()[0].Equals(PortableIndicator))
+                //{
+                //    continue;
+                //}
 
                 switch (maxLength)
                 {
@@ -285,7 +294,7 @@ namespace W6OP.CallParser
                         break;
                 }
 
-                // exit as soon as we have a match
+                // exit as soon as we have a match - this will be the highest ranked
                 if (matched)
                 {
                     return matched;

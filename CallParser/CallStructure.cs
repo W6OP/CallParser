@@ -20,6 +20,7 @@ namespace W6OP.CallParser
         internal string FullCall { get; set; }
         internal string Suffix1 { get; set; }
         internal string Suffix2 { get; set; }
+        //internal string Pattern { get; set; }
         internal HashSet<CallSignFlags> CallSignFlags { get; set; }
 
         public CallStructureType CallStructureType { get; set; } = CallStructureType.Invalid;
@@ -84,6 +85,8 @@ namespace W6OP.CallParser
                     break;
                 case 3:
                     ProcessComponents(components[0], components[1], components[2]);
+                    break;
+                default:
                     break;
             }
         }
@@ -426,10 +429,8 @@ namespace W6OP.CallParser
         /// <returns></returns>
         private ComponentType GetComponentType(string candidate, int position)
         {
-            //string[] validCallStructures = { "@#@@", "@#@@@", "@##@", "@##@@", "@##@@@", "@@#@", "@@#@@", "@@#@@@", "#@#@", "#@#@@", "#@#@@@", "#@@#@", "#@@#@@" }; // KH6Z
             string[] validPrefixes = { "@", "@@", "@@#", "@@#@", "@#", "@#@", "@##", "#@", "#@@", "#@#", "#@@#" };
             string[] validPrefixOrCall = { "@@#@", "@#@" };
-            //ComponentType componentType = ComponentType.Unknown;
 
             string pattern = BuildPattern(candidate);
 
@@ -480,7 +481,6 @@ namespace W6OP.CallParser
                             return ComponentType.Prefix;
                         } 
                     }
-                    //return componentType;
                
                 case ComponentType _ when (validPrefixes.Contains(pattern) && VerifyIfPrefix(candidate, position) == ComponentType.Prefix):
                     return ComponentType.Prefix;

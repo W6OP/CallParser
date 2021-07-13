@@ -189,8 +189,6 @@ namespace W6OP.CallParser
         /// <param name="callSign"></param>
         private void ProcessCallSign(string callSign)
         {
-            CallStructure callStructure;
-
             // only trim call sign if neccessary to reduce string allocations
             if (callSign.Any(char.IsWhiteSpace))
             {
@@ -203,7 +201,9 @@ namespace W6OP.CallParser
             }
 
             // strip leading or trailing "/"  /W6OP/
+            // in this case .Equals is faster
             if (callSign.First().Equals('/'))
+            //if (callSign[0] == '/')
             {
                 callSign = callSign.Substring(1);
             }
@@ -233,7 +233,7 @@ namespace W6OP.CallParser
                 }
             }
 
-            callStructure = new CallStructure(callSign, PortablePrefixes);
+            var  callStructure = new CallStructure(callSign, PortablePrefixes);
 
             if (callStructure.CallStructureType != CallStructureType.Invalid)
             {
@@ -254,7 +254,7 @@ namespace W6OP.CallParser
 
         private void CollectMatches(CallStructure callStructure)
         {
-            CallStructureType callStructureType = callStructure.CallStructureType;
+            var callStructureType = callStructure.CallStructureType;
 
             // ValidStructures = ':C:C#:C#M:C#T:CM:CM#:CMM:CMP:CMT:CP:CPM:CT:PC:PCM:PCT:';
             switch (callStructureType) // GT3UCQ/P
@@ -304,7 +304,6 @@ namespace W6OP.CallParser
             var prefix = callStructure.Prefix;
             var prefixDataList = new HashSet<PrefixData>();
             var matches = new HashSet<PrefixData>();
-            bool stopCharacterFound = false;
             string pattern;
 
             var firstAndSecond = (firstLetter: "", nextLetter: "");
@@ -333,12 +332,12 @@ namespace W6OP.CallParser
             }
 
             // first we look in all the "." patterns for calls like KG4AA vs KG4AAA
-            MatchPattern(prefixDataList, pattern, firstAndSecond.firstLetter, prefix);
+            bool stopCharacterFound = MatchPattern(prefixDataList, pattern, firstAndSecond.firstLetter, prefix);
 
             // now we have a list of posibilities // HG5ACZ/P 
             if (prefixDataList.Count > 0)
             {
-                if (prefixDataList.Count == 1)
+                if (prefixDataList.Count.Equals(1))
                 {
                     // only one found
                     matches = new HashSet<PrefixData>(prefixDataList);
@@ -347,7 +346,6 @@ namespace W6OP.CallParser
                 {   // refine the hits
                     foreach (PrefixData prefixData in prefixDataList)
                     {
-                        // stopCharacterFound is always false WHY???
                         var primaryMaskList = prefixData.GetMaskList(firstAndSecond.firstLetter,
                                                                      firstAndSecond.nextLetter,
                                                                      stopCharacterFound);
@@ -421,7 +419,7 @@ namespace W6OP.CallParser
                 }
 
                 // if found with 2 chars
-                if (rank == smaller || maskList.Count == 2)
+                if (rank.Equals(smaller) || maskList.Count == 2)
                 {
                     prefixData.Rank = rank;
                     matches.Add(prefixData);
@@ -470,10 +468,11 @@ namespace W6OP.CallParser
         /// <param name="firstLetter"></param>
         /// <param name="prefix"></param>
         /// <returns></returns>
-        private void MatchPattern(HashSet<PrefixData> prefixDataList, string pattern, string firstLetter, string prefix)
+        private bool MatchPattern(HashSet<PrefixData> prefixDataList, string pattern, string firstLetter, string prefix)
         {
             var tempStorage = new HashSet<PrefixData>();
             pattern += ".";
+            bool hasDot = false;
 
             while (pattern.Length > 1)
             {
@@ -489,16 +488,17 @@ namespace W6OP.CallParser
                             {
                                 case '.': // if we have a '.' we do not want to continue
                                     prefix = prefix.Substring(0, pattern.Length - 1);
-                                    if (prefixData.MaskExists(prefix, true, out searchRank) == true)
+                                    if (prefixData.MatchMask(prefix, true, out searchRank) == true)
                                     {
                                         tempStorage.Add(prefixData);
+                                        hasDot = true;
                                         // exit early
                                         goto ExitEarly;
                                     }
                                     break;
                                 default:
                                     prefix = prefix.Substring(0, pattern.Length);
-                                    if (prefixData.MaskExists(prefix, true, out searchRank))
+                                    if (prefixData.MatchMask(prefix, true, out searchRank))
                                     {
                                         tempStorage.Add(prefixData);
                                     }
@@ -515,8 +515,12 @@ namespace W6OP.CallParser
                     }
                 }
                 // remove last character
-                pattern = pattern.Remove(pattern.Length - 1);
+                //pattern = pattern.Remove(pattern.Length - 1);
+                // very slightly faster as .Remove is a wrapper around Substring()
+                pattern = pattern.Substring(0, pattern.Length - 1);
             }
+
+            return hasDot;
         }
 
         /// <summary>
@@ -545,7 +549,7 @@ namespace W6OP.CallParser
                     
                     if (prefixData.IndexKey.ContainsKey(firstLetter))
                     {
-                        if (prefixData.MaskExists(prefix, false, out searchRank))
+                        if (prefixData.MatchMask(prefix, false, out searchRank))
                         {
                             prefixData.SearchRank = searchRank;
                             tempStorage.Add(prefixData);
@@ -567,9 +571,11 @@ namespace W6OP.CallParser
                 if (prefixDataList.Count > 1)
                 {
                     // only keep the highest ranked prefixData for portable prefixes
+                    // separates VK0M from VK0H and VP2V and VP2M
                     var highestRanked = prefixDataList.OrderByDescending(x => x.SearchRank).ToList();
                     int ranked = highestRanked[0].SearchRank;
                     prefixDataList.Clear();
+
                     foreach (PrefixData prefixData in highestRanked)
                     {
                         if (prefixData.SearchRank == ranked) {
@@ -707,7 +713,7 @@ namespace W6OP.CallParser
                 {
                     if (SearchMainDictionary(callStructure, false, out string mainPrefix))
                     {
-                        callStructure.Prefix = ReplaceCallArea(mainPrefix, callArea: callStructure.Prefix, out int position);
+                        callStructure.Prefix = ReplaceCallArea(mainPrefix, callArea: callStructure.Prefix);
                         callStructure.CallStructureType = callStructure.Prefix switch
                         {
                             "" => CallStructureType.Call,// M0CCA/6 - main prefix is "G", F8ATS/9 mainPrefix = "F"
@@ -733,7 +739,7 @@ namespace W6OP.CallParser
         /// <param name="mainPrefix"></param>
         /// <param name="callArea"></param>
         /// <returns></returns>
-        private string ReplaceCallArea(string mainPrefix, string callArea, out int position)
+        private string ReplaceCallArea(string mainPrefix, string callArea)
         {
             int prefixLength = 0;
 
@@ -750,7 +756,7 @@ namespace W6OP.CallParser
                         // FA3L/6 - mainPrefix is F - shouldn't we make it F6?
                         // F1FZH/8 
                         // MA2US/1
-                        position = 99;
+                        //position = 99;
                         return "";
                     }
                     break;
@@ -789,9 +795,12 @@ namespace W6OP.CallParser
                     break;
             }
 
-            position = prefixLength;
+            //position = prefixLength;
+
             // append call area to mainPrefix
-            return $"{mainPrefix.Substring(0, prefixLength - 1)}{callArea}{"/"}";
+            return mainPrefix.Substring(0, prefixLength - 1) + callArea + "/";
+            // string format is slightly slower but barely enough to tell
+            //return $"{mainPrefix.Substring(0, prefixLength - 1)}{callArea}{"/"}";
         }
 
         /// <summary>
