@@ -12,6 +12,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -304,7 +305,7 @@ namespace W6OP.CallParser
             var prefix = callStructure.Prefix;
             var prefixDataList = new HashSet<PrefixData>();
             var matches = new HashSet<PrefixData>();
-            string pattern;
+            StringBuilder patternBuilder;
 
             var firstAndSecond = (firstLetter: "", nextLetter: "");
 
@@ -313,26 +314,26 @@ namespace W6OP.CallParser
             {
                 case CallStructureType.PrefixCall:
                     firstAndSecond = DetermineMaskComponents(prefix);
-                    pattern = callStructure.BuildPattern(callStructure.Prefix);
+                    patternBuilder = callStructure.BuildPattern(callStructure.Prefix);
                     break;
                 case CallStructureType.PrefixCallPortable:
                     firstAndSecond = DetermineMaskComponents(prefix);
-                    pattern = callStructure.BuildPattern(callStructure.Prefix);
+                    patternBuilder = callStructure.BuildPattern(callStructure.Prefix);
                     break;
                 case CallStructureType.PrefixCallText:
                     firstAndSecond = DetermineMaskComponents(prefix);
-                    pattern = callStructure.BuildPattern(callStructure.Prefix);
+                    patternBuilder = callStructure.BuildPattern(callStructure.Prefix);
                     break;
                 default:
                     prefix = baseCall;
                     firstAndSecond.firstLetter = baseCall.Substring(0, 1);
                     firstAndSecond.nextLetter = baseCall.Substring(1, 1);
-                    pattern = callStructure.BuildPattern(callStructure.BaseCall);
+                    patternBuilder = callStructure.BuildPattern(callStructure.BaseCall);
                     break;
             }
 
             // first we look in all the "." patterns for calls like KG4AA vs KG4AAA
-            bool stopCharacterFound = MatchPattern(prefixDataList, pattern, firstAndSecond.firstLetter, prefix);
+            bool stopCharacterFound = MatchPattern(prefixDataList, patternBuilder, firstAndSecond.firstLetter, prefix);
 
             // now we have a list of posibilities // HG5ACZ/P 
             if (prefixDataList.Count > 0)
@@ -404,9 +405,9 @@ namespace W6OP.CallParser
 
                 for (var i = position; i < smaller; i++)
                 {
-                    var nextLetter = baseCall.Substring(i, 1);
+                    //var nextLetter = baseCall.Substring(i, 1);
 
-                    if (maskList[position].Contains(nextLetter) && isPrevious)
+                    if (maskList[position].Contains(baseCall.Substring(i, 1)) && isPrevious)
                     {
                         rank = position + 1;
                     }
@@ -468,15 +469,17 @@ namespace W6OP.CallParser
         /// <param name="firstLetter"></param>
         /// <param name="prefix"></param>
         /// <returns></returns>
-        private bool MatchPattern(HashSet<PrefixData> prefixDataList, string pattern, string firstLetter, string prefix)
+        private bool MatchPattern(HashSet<PrefixData> prefixDataList, StringBuilder patternBuilder, string firstLetter, string prefix)
         {
             var tempStorage = new HashSet<PrefixData>();
-            pattern += ".";
+            //StringBuilder patternBuilder = new StringBuilder(pattern + ".");
+            patternBuilder.Append(".");
+            //pattern += ".";
             bool hasDot = false;
 
-            while (pattern.Length > 1)
+            while (patternBuilder.Length > 1)
             {
-                if (CallSignPatterns.TryGetValue(pattern, out var query))
+                if (CallSignPatterns.TryGetValue(patternBuilder.ToString(), out var query))
                 {
                     tempStorage.Clear();
                     foreach (var prefixData in query)
@@ -484,11 +487,11 @@ namespace W6OP.CallParser
                         if (prefixData.IndexKey.ContainsKey(firstLetter))
                         {
                             int searchRank;
-                            switch (pattern.Last())
+                            switch (patternBuilder[patternBuilder.Length - 1]) // last character
                             {
                                 case '.': // if we have a '.' we do not want to continue
-                                    prefix = prefix.Substring(0, pattern.Length - 1);
-                                    if (prefixData.MatchMask(prefix, true, out searchRank) == true)
+                                    prefix = prefix.Substring(0, patternBuilder.Length - 1);
+                                    if (prefixData.MatchMaskEx(prefix, true, out searchRank) == true)
                                     {
                                         tempStorage.Add(prefixData);
                                         hasDot = true;
@@ -497,8 +500,8 @@ namespace W6OP.CallParser
                                     }
                                     break;
                                 default:
-                                    prefix = prefix.Substring(0, pattern.Length);
-                                    if (prefixData.MatchMask(prefix, true, out searchRank))
+                                    prefix = prefix.Substring(0, patternBuilder.Length);
+                                    if (prefixData.MatchMaskEx(prefix, true, out searchRank))
                                     {
                                         tempStorage.Add(prefixData);
                                     }
@@ -517,7 +520,8 @@ namespace W6OP.CallParser
                 // remove last character
                 //pattern = pattern.Remove(pattern.Length - 1);
                 // very slightly faster as .Remove is a wrapper around Substring()
-                pattern = pattern.Substring(0, pattern.Length - 1);
+               // pattern = pattern.Substring(0, pattern.Length - 1);
+                patternBuilder.Remove(patternBuilder.Length -1, 1);
             }
 
             return hasDot;
@@ -536,20 +540,20 @@ namespace W6OP.CallParser
             string prefix = callStructure.Prefix + "/";
             var prefixDataList = new HashSet<PrefixData>();
             var tempStorage = new HashSet<PrefixData>();
-            var firstLetter = prefix.Substring(0, 1);
-            var pattern = callStructure.BuildPattern(prefix);
+            //var firstLetter = prefix.Substring(0, 1);
+            StringBuilder patternBuilder = callStructure.BuildPattern(prefix);
             int searchRank = 0;
 
             // check cache first
-            if (PortablePrefixes.TryGetValue(pattern, out var query))
+            if (PortablePrefixes.TryGetValue(patternBuilder.ToString(), out var query))
             {
                 foreach (var prefixData in query)
                 {
                     tempStorage.Clear();
                     
-                    if (prefixData.IndexKey.ContainsKey(firstLetter))
+                    if (prefixData.IndexKey.ContainsKey(prefix.Substring(0, 1)))
                     {
-                        if (prefixData.MatchMask(prefix, false, out searchRank))
+                        if (prefixData.MatchMaskEx(prefix, false, out searchRank))
                         {
                             prefixData.SearchRank = searchRank;
                             tempStorage.Add(prefixData);

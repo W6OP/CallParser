@@ -13,8 +13,7 @@ namespace W6OP.CallParser
     internal class CallStructure
     {
         private readonly string[] SingleCharPrefixes = { "F", "G", "M", "I", "R", "W" };
-        //private readonly string[] RejectPrefixes = { "AG", "U", "R", "A", "B", "M", "P", "MM", "AM", "QR", "QRP", "QRPP", "LH", "LGT", "ANT", "WAP", "AAW", "FJL", "MOBILE" };
-
+      
         internal string Prefix { get; set; }
         internal string BaseCall { get; set; }
         internal string FullCall { get; set; }
@@ -24,6 +23,7 @@ namespace W6OP.CallParser
         internal HashSet<CallSignFlags> CallSignFlags { get; set; }
 
         public CallStructureType CallStructureType { get; set; } = CallStructureType.Invalid;
+
         private readonly ConcurrentDictionary<string, List<PrefixData>> PortablePrefixes;
 
         internal CallStructure(string callSign, ConcurrentDictionary<string, List<PrefixData>> portablePrefixes)
@@ -432,7 +432,7 @@ namespace W6OP.CallParser
             string[] validPrefixes = { "@", "@@", "@@#", "@@#@", "@#", "@#@", "@##", "#@", "#@@", "#@#", "#@@#" };
             string[] validPrefixOrCall = { "@@#@", "@#@" };
 
-            string pattern = BuildPattern(candidate);
+            StringBuilder patternBuilder = BuildPattern(candidate);
 
             switch (ComponentType.Unknown)
             {
@@ -463,7 +463,7 @@ namespace W6OP.CallParser
                     return ComponentType.Text;
 
                 // this first case is somewhat redundant 
-                case ComponentType _ when validPrefixOrCall.Contains(pattern):
+                case ComponentType _ when validPrefixOrCall.Contains(patternBuilder.ToString()):
                     // now check if its a prefix, if not its a Call
                     if (VerifyIfPrefix(candidate, position) != ComponentType.Prefix)
                     {
@@ -482,7 +482,7 @@ namespace W6OP.CallParser
                         } 
                     }
                
-                case ComponentType _ when (validPrefixes.Contains(pattern) && VerifyIfPrefix(candidate, position) == ComponentType.Prefix):
+                case ComponentType _ when (validPrefixes.Contains(patternBuilder.ToString()) && VerifyIfPrefix(candidate, position) == ComponentType.Prefix):
                     return ComponentType.Prefix;
 
                 case ComponentType _ when (VerifyIfCallSign(candidate) == ComponentType.CallSign): //validCallStructures.Contains(pattern) && 
@@ -570,7 +570,7 @@ namespace W6OP.CallParser
         {
             string[] validPrefixes = { "@", "@@", "@@#", "@@#@", "@#", "@#@", "@##", "#@", "#@@", "#@#", "#@@#" };
 
-            string pattern = BuildPattern(candidate);
+            //string pattern = BuildPattern(candidate);
 
             if (candidate.Length == 1)
             {
@@ -590,9 +590,12 @@ namespace W6OP.CallParser
                 }
             }
 
-            if (validPrefixes.Contains(pattern))
+            // only allocate stringbuilder if necessary
+            StringBuilder patternBuilder = BuildPattern(candidate);
+
+            if (validPrefixes.Contains(patternBuilder.ToString()))
             {
-                if (PortablePrefixes.ContainsKey(pattern + "/"))
+                if (PortablePrefixes.ContainsKey(patternBuilder.Append("/").ToString()))
                 {
                     return ComponentType.Prefix;
                 }
@@ -650,9 +653,8 @@ namespace W6OP.CallParser
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var q = ex.Message;
                 // bury exception
             }
 
@@ -672,36 +674,41 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="candidate"></param>
         /// <returns></returns>
-        public string BuildPattern(string candidate)
+        public StringBuilder BuildPattern(string candidate)
         {
-            string pattern = string.Empty;
+            StringBuilder patternBuilder = new StringBuilder();
+            //string pattern = string.Empty;
 
             foreach (char item in candidate)
             {
                 if (char.IsLetter(item))
                 {
-                    pattern += "@";
+                   // pattern += "@";
+                    patternBuilder.Append("@");
                 }
 
                 if (char.IsDigit(item))
                 {
-                    pattern += "#";
+                   // pattern += "#";
+                    patternBuilder.Append("#");
                 }
 
                 if (char.IsPunctuation(item) || char.IsWhiteSpace(item))
                 {
                     if (item == '/')
                     {
-                        pattern += "/";
+                       // pattern += "/";
+                        patternBuilder.Append("/");
                     }
                     else
                     {
-                        pattern += "?";
+                        //pattern += "?";
+                        patternBuilder.Append(":");
                     }
                 }
             }
 
-            return pattern;
+            return patternBuilder;
         }
 
     } // end class

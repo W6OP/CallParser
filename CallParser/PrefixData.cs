@@ -14,11 +14,6 @@ namespace W6OP.CallParser
         public bool IsQRZInformation { get; set; }
         const string PortableIndicator = "/";
 
-        public PrefixData()
-        {
-            CallSignFlags = new HashSet<CallSignFlags>();
-        }
-
         /// <summary>
         /// Normal constructor.
         /// </summary>
@@ -83,7 +78,6 @@ namespace W6OP.CallParser
         /// VK0M/MB5KET hits Heard first and then Macquarie
         /// </summary>
         internal int SearchRank { get; set; }
-
         public int DXCC;
         public void SetDXCC(int value)
         {
@@ -170,6 +164,7 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
+        /// DEPRECATED
         /// Determine if a mask exists that matches the prefix.
         /// </summary>
         /// <param name="prefix">prefix to find</param>
@@ -305,6 +300,118 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
+        /// Determine if a mask exists that matches the prefix.
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <param name="excludePortablePrefixes"></param>
+        /// <param name="searchRank"></param>
+        /// <returns></returns>
+        internal bool MatchMaskEx(string prefix, bool excludePortablePrefixes, out int searchRank)
+        {
+            bool matched = false;
+
+            // sort so we look at the longest first - otherwise could exit on shorter match
+            var MaskListSorted = MaskList.OrderByDescending(x => x.Count);
+
+            searchRank = 0;
+
+            foreach (List<string[]> maskItem in MaskListSorted)
+            {
+                int maxLength = prefix.Length < maskItem.Count ? prefix.Length : maskItem.Count;
+
+                // short circuit if first character fails
+                //if (!maskItem[0].Contains(first)) - very slow
+                if (Array.IndexOf(maskItem[0], prefix.Substring(0, 1)) == -1)
+                {
+                    continue;
+                }
+
+                if (excludePortablePrefixes && maskItem[maskItem.Count - 1][0] == PortableIndicator)
+                {
+                    continue;
+                }
+
+                // this is almost 2 seconds slower per million calls
+                //if (excludePortablePrefixes && maskItem.Last()[0].Equals(PortableIndicator))
+                //{
+                //    continue;
+                //}
+
+                switch (maxLength)
+                {
+                    case 2:
+                        if (Array.IndexOf(maskItem[1], prefix.Substring(1, 1)) != -1)
+                        {
+                            matched = true;
+                            searchRank = 2;
+                        }
+                        break;
+                    case 3:
+                        // SLOWER
+                        //if (item[0].Contains(prefix.Substring(2, 1))
+                        if (Array.IndexOf(maskItem[1], prefix.Substring(1, 1)) != -1
+                            && Array.IndexOf(maskItem[2], prefix.Substring(2, 1)) != -1)
+                        {
+                            matched = true;
+                            searchRank = 3;
+                        }
+                        break;
+                    case 4:
+                        if (Array.IndexOf(maskItem[1], prefix.Substring(1, 1)) != -1
+                            && Array.IndexOf(maskItem[2], prefix.Substring(2, 1)) != -1
+                            && Array.IndexOf(maskItem[3], prefix.Substring(3, 1)) != -1)
+                        {
+                            matched = true;
+                            searchRank = 4;
+                        }
+                        break;
+                    case 5:
+                        if (Array.IndexOf(maskItem[1], prefix.Substring(1, 1)) != -1
+                            && Array.IndexOf(maskItem[2], prefix.Substring(2, 1)) != -1
+                            && Array.IndexOf(maskItem[3], prefix.Substring(3, 1)) != -1
+                            && Array.IndexOf(maskItem[4], prefix.Substring(4, 1)) != -1)
+                        {
+                            matched = true;
+                            searchRank = 5;
+                        }
+                        break;
+                    case 6:
+                        if (Array.IndexOf(maskItem[1], prefix.Substring(1, 1)) != -1
+                            && Array.IndexOf(maskItem[2], prefix.Substring(2, 1)) != -1
+                            && Array.IndexOf(maskItem[3], prefix.Substring(3, 1)) != -1
+                            && Array.IndexOf(maskItem[4], prefix.Substring(4, 1)) != -1
+                            && Array.IndexOf(maskItem[5], prefix.Substring(5, 1)) != -1)
+                        {
+                            matched = true;
+                            searchRank = 6;
+                        }
+                        break;
+                    case 7:
+                        if (Array.IndexOf(maskItem[1], prefix.Substring(1, 1)) != -1
+                            && Array.IndexOf(maskItem[2], prefix.Substring(2, 1)) != -1
+                            && Array.IndexOf(maskItem[3], prefix.Substring(3, 1)) != -1
+                            && Array.IndexOf(maskItem[4], prefix.Substring(4, 1)) != -1
+                            && Array.IndexOf(maskItem[5], prefix.Substring(5, 1)) != -1
+                            && Array.IndexOf(maskItem[6], prefix.Substring(6, 1)) != -1)
+                        {
+                            matched = true;
+                            searchRank = 7;
+                        }
+                        break;
+                }
+
+                // exit as soon as we have a match - this will be the highest ranked
+                if (matched)
+                {
+                    return matched;
+                }
+            }
+
+            return matched;
+        }
+
+        /// <summary>
+        /// DEPRECATED
         /// Check if a portable mask exists.
         /// TODO: This appears to be almost the same as MaskExists() - are they duplicating function
         /// && !maskItem.Last()[0].Equals(PortableIndicator)) seems to be only difference
@@ -411,10 +518,9 @@ namespace W6OP.CallParser
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="prefixXml"></param>
+       /// <summary>
+       /// 
+       /// </summary>
         private void InitializeCallSignInfo()
         {
             string currentValue;
