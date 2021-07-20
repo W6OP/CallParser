@@ -440,7 +440,7 @@ namespace W6OP.CallParser
                     return ComponentType.Prefix;
 
                 case ComponentType _ when position == 1 && candidate.Length == 1:
-                    return VerifyIfPrefix(candidate, position);
+                    return VerifyIfPrefix(candidate, position, patternBuilder);
 
                 case ComponentType _ when IsSuffix(candidate):
                     return ComponentType.Portable;
@@ -456,7 +456,7 @@ namespace W6OP.CallParser
                         return ComponentType.Text;
                     }
 
-                    if (VerifyIfPrefix(candidate, position) == ComponentType.Prefix)
+                    if (VerifyIfPrefix(candidate, position, patternBuilder) == ComponentType.Prefix)
                     {
                         return ComponentType.Prefix;
                     }
@@ -465,7 +465,7 @@ namespace W6OP.CallParser
                 // this first case is somewhat redundant 
                 case ComponentType _ when validPrefixOrCall.Contains(patternBuilder.ToString()):
                     // now check if its a prefix, if not its a Call
-                    if (VerifyIfPrefix(candidate, position) != ComponentType.Prefix)
+                    if (VerifyIfPrefix(candidate, position, patternBuilder) != ComponentType.Prefix)
                     {
                         return ComponentType.CallSign;
                     }
@@ -482,7 +482,7 @@ namespace W6OP.CallParser
                         } 
                     }
                
-                case ComponentType _ when (validPrefixes.Contains(patternBuilder.ToString()) && VerifyIfPrefix(candidate, position) == ComponentType.Prefix):
+                case ComponentType _ when (validPrefixes.Contains(patternBuilder.ToString()) && VerifyIfPrefix(candidate, position, patternBuilder) == ComponentType.Prefix):
                     return ComponentType.Prefix;
 
                 case ComponentType _ when (VerifyIfCallSign(candidate) == ComponentType.CallSign): //validCallStructures.Contains(pattern) && 
@@ -566,7 +566,7 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="candidate"></param>
         /// <returns></returns>
-        private ComponentType VerifyIfPrefix(string candidate, int position)
+        private ComponentType VerifyIfPrefix(string candidate, int position, StringBuilder patternBuilder)
         {
             string[] validPrefixes = { "@", "@@", "@@#", "@@#@", "@#", "@#@", "@##", "#@", "#@@", "#@#", "#@@#" };
 
@@ -591,7 +591,7 @@ namespace W6OP.CallParser
             }
 
             // only allocate stringbuilder if necessary
-            StringBuilder patternBuilder = BuildPattern(candidate);
+            //StringBuilder patternBuilder = BuildPattern(candidate);
 
             if (validPrefixes.Contains(patternBuilder.ToString()))
             {

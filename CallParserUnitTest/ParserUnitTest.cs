@@ -78,7 +78,7 @@ namespace CallParserUnitTest
 
             // Add calls where mask ends with '.' ie: KG4AA and as compare KG4AAA
 
-            foreach (var key in testDataCheck.Keys)
+            foreach (var key in goodDataCheck.Keys)
             {
                 isMatchFound = false;
                 result = _CallLookUp.LookUpCall(key).ToList();
@@ -86,17 +86,17 @@ namespace CallParserUnitTest
                 switch (result.Count)
                 {
                     case 0:
-                        Assert.Fail();
+                        Assert.IsTrue(badDataCheck.ContainsKey(key));
                         break;
                     case 1:
                         if (result[0].Kind == PrefixKind.Province)
                         {
                             expected = (result[0].DXCC, result[0].Province);
-                            Assert.AreEqual(expected, testDataCheck[key]);
+                            Assert.AreEqual(expected, goodDataCheck[key]);
                         } else
                         {
                             expected = (result[0].DXCC, result[0].Country);
-                            Assert.AreEqual(expected, testDataCheck[key]);
+                            Assert.AreEqual(expected, goodDataCheck[key]);
                         }
                         break;
                     default: // multiple hits
@@ -105,7 +105,7 @@ namespace CallParserUnitTest
                             if (hit.Kind == PrefixKind.Province)
                             {
                                 expected = (hit.DXCC, hit.Province);
-                                if (expected == testDataCheck[key])
+                                if (expected == goodDataCheck[key])
                                 {
                                     isMatchFound = true;
                                 }
@@ -113,7 +113,7 @@ namespace CallParserUnitTest
                             else
                             {
                                 expected = (hit.DXCC, hit.Country);
-                                if (expected == testDataCheck[key])
+                                if (expected == goodDataCheck[key])
                                 {
                                     isMatchFound = true;
                                 }
@@ -129,8 +129,10 @@ namespace CallParserUnitTest
 
         // test data relating call sign to dxcc number
         // if it is a province then I need to look at province instead of country
-        readonly Dictionary<string, (double dxcc, string entity)> testDataCheck = new Dictionary<string, (double dxcc, string entity)>() 
+        readonly Dictionary<string, (double dxcc, string entity)> goodDataCheck = new Dictionary<string, (double dxcc, string entity)>() 
         {
+            { "IG0NFQ", (248, "Lazio;Umbria") }, // province
+            { "IG0NFU", (225, "Sardinia") },
             { "W6OP", (291, "CA") }, // province
             { "TJ/W6OP", (406, "Cameroon") },
             { "W6OP/3B7", (004, "St. Brandon") }, // province
@@ -177,8 +179,22 @@ namespace CallParserUnitTest
             { "VK9/W6OD", (147, "Lord Howe I.") },
             { "VK9/W6OE", (171, "Mellish Reef") },
             { "VK9/W6OF", (189, "Norfolk I.") },
-            { "AM70URE/8", (029, "Canary Is.") }
+            { "AM70URE/8", (029, "Canary Is.") },
+            { "RA9BW", (015, "Chelyabinskaya oblast") },
+            // bad calls
+            { "NJY8/QV3ZBY", (291, "United States") },
+            { "QZ5U/IG0NFQ", (248, "Lazio;Umbria") },
+            { "RA9BW/3", (015, "Chelyabinskaya oblast") },
+            { "Z42OIO", (0, "Unassigned prefix") },
         };
 
-    } // end class
+        readonly Dictionary<string, string> badDataCheck = new Dictionary<string, string>()
+        {
+            { "QZ5U/IG0NFQ", "valid prefix pattern but invalid prefix" },
+            { "NJY8/QV3ZBY", "invalid prefix pattern and invalid call" },
+            { "RA9BW/3", "invalid suffix for this call" },
+            { "Z42OIO", "Unassigned prefix" },
+        };
+
+        } // end class
 }

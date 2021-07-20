@@ -78,6 +78,7 @@ namespace W6OP.CallParser
         /// VK0M/MB5KET hits Heard first and then Macquarie
         /// </summary>
         internal int SearchRank { get; set; }
+
         public int DXCC;
         public void SetDXCC(int value)
         {

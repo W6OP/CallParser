@@ -173,7 +173,7 @@ namespace W6OP.CallParser
                 }
             }
           );
-            Console.WriteLine("Debug Counter: " + debugCounter.ToString());
+            //Console.WriteLine("Debug Counter: " + debugCounter.ToString());
             return HitList.AsEnumerable();
         }
 
@@ -359,6 +359,8 @@ namespace W6OP.CallParser
                     return MatchesFound(callStructure, saveHit, out mainPrefix, matches);
                 }
             }
+
+           // Console.WriteLine(callStructure.FullCall);
 
             mainPrefix = "";
             return false;
