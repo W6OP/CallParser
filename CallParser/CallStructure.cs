@@ -683,13 +683,11 @@ namespace W6OP.CallParser
             {
                 if (char.IsLetter(item))
                 {
-                   // pattern += "@";
                     patternBuilder.Append("@");
                 }
 
                 if (char.IsDigit(item))
                 {
-                   // pattern += "#";
                     patternBuilder.Append("#");
                 }
 
@@ -697,7 +695,6 @@ namespace W6OP.CallParser
                 {
                     if (item == '/')
                     {
-                       // pattern += "/";
                         patternBuilder.Append("/");
                     }
                     else

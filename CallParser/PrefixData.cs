@@ -165,151 +165,15 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// DEPRECATED
-        /// Determine if a mask exists that matches the prefix.
-        /// </summary>
-        /// <param name="prefix">prefix to find</param>
-        /// <param name="excludePortablePrefixes">search portable prefixes too</param>
-        /// <param name="searchRank">differentiate between minor and major matches</param>
-        /// <returns></returns>
-        internal bool MatchMask(string prefix, bool excludePortablePrefixes, out int searchRank)
-        {
-            string first = prefix.Substring(0, 1);
-            string second = prefix.Substring(1, 1);
-            string third;
-            string fourth;
-            string fifth;
-            string sixth;
-            string seventh;
-            bool matched = false;
-
-            // sort so we look at the longest first - otherwise could exit on shorter match
-            var MaskListSorted = MaskList.OrderByDescending(x => x.Count);
-
-            searchRank = 0;
-
-            foreach (List<string[]> maskItem in MaskListSorted)
-            {
-                int maxLength = prefix.Length < maskItem.Count ? prefix.Length : maskItem.Count;
-
-                // short circuit if first character fails
-                //if (!maskItem[0].Contains(first)) - very slow
-                if (Array.IndexOf(maskItem[0], first) == -1)
-                {
-                    continue;
-                }
-
-                if (excludePortablePrefixes && maskItem[maskItem.Count - 1][0] == PortableIndicator)
-                {
-                    continue;
-                }
-
-                // this is almost 2 seconds slower per million calls
-                //if (excludePortablePrefixes && maskItem.Last()[0].Equals(PortableIndicator))
-                //{
-                //    continue;
-                //}
-
-                switch (maxLength)
-                {
-                    case 2:
-                        if (Array.IndexOf(maskItem[1], second) != -1)
-                        {
-                            matched = true;
-                            searchRank = 2;
-                        }
-                        break;
-                    case 3:
-                        third = prefix.Substring(2, 1);
-                        // SLOWER
-                        //if (item[0].Contains(first)
-
-                        if (Array.IndexOf(maskItem[1], second) != -1
-                            && Array.IndexOf(maskItem[2], third) != -1)
-                        {
-                            matched = true;
-                            searchRank = 3;
-                        }
-                        break;
-                    case 4:
-                        third = prefix.Substring(2, 1);
-                        fourth = prefix.Substring(3, 1);
-
-                        if (Array.IndexOf(maskItem[1], second) != -1
-                            && Array.IndexOf(maskItem[2], third) != -1
-                            && Array.IndexOf(maskItem[3], fourth) != -1)
-                        {
-                            matched = true;
-                            searchRank = 4;
-                        }
-                        break;
-                    case 5:
-                        third = prefix.Substring(2, 1);
-                        fourth = prefix.Substring(3, 1);
-                        fifth = prefix.Substring(4, 1);
-                        if (Array.IndexOf(maskItem[1], second) != -1
-                            && Array.IndexOf(maskItem[2], third) != -1
-                            && Array.IndexOf(maskItem[3], fourth) != -1
-                            && Array.IndexOf(maskItem[4], fifth) != -1)
-                        {
-                            matched = true;
-                            searchRank = 5;
-                        }
-                        break;
-                    case 6:
-                        third = prefix.Substring(2, 1);
-                        fourth = prefix.Substring(3, 1);
-                        fifth = prefix.Substring(4, 1);
-                        sixth = prefix.Substring(5, 1);
-                        if (Array.IndexOf(maskItem[1], second) != -1
-                            && Array.IndexOf(maskItem[2], third) != -1
-                            && Array.IndexOf(maskItem[3], fourth) != -1
-                            && Array.IndexOf(maskItem[4], fifth) != -1
-                            && Array.IndexOf(maskItem[5], sixth) != -1)
-                        {
-                            matched = true;
-                            searchRank = 6;
-                        }
-                        break;
-                    case 7:
-                        third = prefix.Substring(2, 1);
-                        fourth = prefix.Substring(3, 1);
-                        fifth = prefix.Substring(4, 1);
-                        sixth = prefix.Substring(5, 1);
-                        seventh = prefix.Substring(6, 1);
-                        if (Array.IndexOf(maskItem[1], second) != -1
-                            && Array.IndexOf(maskItem[2], third) != -1
-                            && Array.IndexOf(maskItem[3], fourth) != -1
-                            && Array.IndexOf(maskItem[4], fifth) != -1
-                            && Array.IndexOf(maskItem[5], sixth) != -1
-                            && Array.IndexOf(maskItem[6], seventh) != -1)
-                        {
-                            matched = true;
-                            searchRank = 7;
-                        }
-                        break;
-                }
-
-                // exit as soon as we have a match - this will be the highest ranked
-                if (matched)
-                {
-                    return matched;
-                }
-            }
-
-            return matched;
-        }
-
-        /// <summary>
         /// Determine if a mask exists that matches the prefix.
         /// </summary>
         /// <param name="prefix"></param>
         /// <param name="excludePortablePrefixes"></param>
         /// <param name="searchRank"></param>
         /// <returns></returns>
-        internal bool MatchMaskEx(string prefix, bool excludePortablePrefixes, out int searchRank)
+        internal bool MatchMask(string prefix, bool excludePortablePrefixes, out int searchRank)
         {
-            bool matched = false;
+           // bool matched = false;
 
             // sort so we look at the longest first - otherwise could exit on shorter match
             var MaskListSorted = MaskList.OrderByDescending(x => x.Count);
@@ -327,6 +191,7 @@ namespace W6OP.CallParser
                     continue;
                 }
 
+                // if exclude portable prefixes and the last character is a "."
                 if (excludePortablePrefixes && maskItem[maskItem.Count - 1][0] == PortableIndicator)
                 {
                     continue;
@@ -343,8 +208,8 @@ namespace W6OP.CallParser
                     case 2:
                         if (Array.IndexOf(maskItem[1], prefix.Substring(1, 1)) != -1)
                         {
-                            matched = true;
                             searchRank = 2;
+                            return true;
                         }
                         break;
                     case 3:
@@ -353,8 +218,8 @@ namespace W6OP.CallParser
                         if (Array.IndexOf(maskItem[1], prefix.Substring(1, 1)) != -1
                             && Array.IndexOf(maskItem[2], prefix.Substring(2, 1)) != -1)
                         {
-                            matched = true;
                             searchRank = 3;
+                            return true;
                         }
                         break;
                     case 4:
@@ -362,8 +227,8 @@ namespace W6OP.CallParser
                             && Array.IndexOf(maskItem[2], prefix.Substring(2, 1)) != -1
                             && Array.IndexOf(maskItem[3], prefix.Substring(3, 1)) != -1)
                         {
-                            matched = true;
                             searchRank = 4;
+                            return true;
                         }
                         break;
                     case 5:
@@ -372,8 +237,8 @@ namespace W6OP.CallParser
                             && Array.IndexOf(maskItem[3], prefix.Substring(3, 1)) != -1
                             && Array.IndexOf(maskItem[4], prefix.Substring(4, 1)) != -1)
                         {
-                            matched = true;
                             searchRank = 5;
+                            return true;
                         }
                         break;
                     case 6:
@@ -383,8 +248,8 @@ namespace W6OP.CallParser
                             && Array.IndexOf(maskItem[4], prefix.Substring(4, 1)) != -1
                             && Array.IndexOf(maskItem[5], prefix.Substring(5, 1)) != -1)
                         {
-                            matched = true;
                             searchRank = 6;
+                            return true;
                         }
                         break;
                     case 7:
@@ -395,20 +260,14 @@ namespace W6OP.CallParser
                             && Array.IndexOf(maskItem[5], prefix.Substring(5, 1)) != -1
                             && Array.IndexOf(maskItem[6], prefix.Substring(6, 1)) != -1)
                         {
-                            matched = true;
                             searchRank = 7;
+                            return true;
                         }
                         break;
                 }
-
-                // exit as soon as we have a match - this will be the highest ranked
-                if (matched)
-                {
-                    return matched;
-                }
             }
 
-            return matched;
+            return false;
         }
 
         /// <summary>
