@@ -13,6 +13,7 @@ namespace W6OP.CallParser
         internal XElement PrefixXml { get; set; }
         public bool IsQRZInformation { get; set; }
         const string PortableIndicator = "/";
+        const string StopIndicator = ".";
 
         /// <summary>
         /// Normal constructor.
@@ -147,14 +148,14 @@ namespace W6OP.CallParser
             {
                 if (stopCharacterFound)
                 {
-                    if (Array.IndexOf(maskItem[0], first) != -1 && Array.IndexOf(maskItem[1], second) != -1 && Array.IndexOf(maskItem[maskItem.Count - 1], ".") != -1)
+                    if (Array.IndexOf(maskItem[0], first) != -1 && Array.IndexOf(maskItem[1], second) != -1 && Array.IndexOf(maskItem[maskItem.Count - 1], StopIndicator) != -1)
                     {
                         componentList.Add(maskItem);
                     }
                 }
                 else
                 {
-                    if (Array.IndexOf(maskItem[0], first) != -1 && Array.IndexOf(maskItem[1], second) != -1 && Array.IndexOf(maskItem[maskItem.Count - 1], ".") == -1)
+                    if (Array.IndexOf(maskItem[0], first) != -1 && Array.IndexOf(maskItem[1], second) != -1 && Array.IndexOf(maskItem[maskItem.Count - 1], StopIndicator) == -1)
                     {
                         componentList.Add(maskItem);
                     }
@@ -173,8 +174,6 @@ namespace W6OP.CallParser
         /// <returns></returns>
         internal bool MatchMask(string prefix, bool excludePortablePrefixes, out int searchRank)
         {
-           // bool matched = false;
-
             // sort so we look at the longest first - otherwise could exit on shorter match
             var MaskListSorted = MaskList.OrderByDescending(x => x.Count);
 
@@ -182,6 +181,7 @@ namespace W6OP.CallParser
 
             foreach (List<string[]> maskItem in MaskListSorted)
             {
+                // get the smaller of the two
                 int maxLength = prefix.Length < maskItem.Count ? prefix.Length : maskItem.Count;
 
                 // short circuit if first character fails
@@ -191,8 +191,8 @@ namespace W6OP.CallParser
                     continue;
                 }
 
-                // if exclude portable prefixes and the last character is a "."
-                if (excludePortablePrefixes && maskItem[maskItem.Count - 1][0] == PortableIndicator)
+                // if exclude portable prefixes and the last character is a "/"
+                if (excludePortablePrefixes && (maskItem[maskItem.Count - 1][0] == PortableIndicator))
                 {
                     continue;
                 }
@@ -395,7 +395,7 @@ namespace W6OP.CallParser
                         break;
                     case "label":
                         FullPrefix = currentValue ?? "";
-                        if (FullPrefix.Contains("."))
+                        if (FullPrefix.Contains(StopIndicator))
                         {
                             // get string after the "."
                             MainPrefix = FullPrefix.Substring(FullPrefix.LastIndexOf('.') + 1);

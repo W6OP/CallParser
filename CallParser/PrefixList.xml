@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dx_atlas_prefixes>
+  <prefix>
+    <masks>
+      <mask>[235-9OX]#</mask>
+      <mask>[0Q]?</mask>
+      <mask>1[#C-Z]</mask>
+      <mask>4[#N]</mask>
+      <mask>[ACDLPV][01]</mask>
+      <mask>E[0189]</mask>
+      <mask>H[015]</mask>
+      <mask>[JT][019]</mask>
+      <mask>Z[014579]</mask>
+      <mask>Y[01Z]</mask>
+      <mask>S[14]</mask>
+    </masks>
+    <label>00</label>
+    <kind>pfInvalidPrefix</kind>
+    <country>Unassigned prefix</country>
+  </prefix>
 	<prefix>
 		<masks/>
 		<label>3B6</label>
@@ -100,24 +118,6 @@
     <time_zone>Asia/Kabul</time_zone>
     <lat>33.767</lat>
     <long>65.711</long>
-  </prefix>
-  <prefix>
-    <masks>
-      <mask>[235-9OX]#</mask>
-      <mask>[0Q]?</mask>
-      <mask>1[#C-Z]</mask>
-      <mask>4[#N]</mask>
-      <mask>[ACDLPV][01]</mask>
-      <mask>E[0189]</mask>
-      <mask>H[015]</mask>
-      <mask>[JT][019]</mask>
-      <mask>Z[014579]</mask>
-      <mask>Y[01Z]</mask>
-      <mask>S[14]</mask>
-    </masks>
-    <label>00</label>
-    <kind>pfInvalidPrefix</kind>
-    <country>Unassigned prefix</country>
   </prefix>
   <prefix>
 		<masks>

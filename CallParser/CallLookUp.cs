@@ -335,13 +335,12 @@ namespace W6OP.CallParser
 
             // first we look in all the "." patterns for calls like KG4AA vs KG4AAA
             //bool stopCharacterFound = MatchPattern(prefixDataList, patternBuilder, firstAndSecond.firstLetter, prefix);
-            bool stopCharacterFound = false;
+            bool stopCharacterFound;
             var prefixDataList = MatchPattern(patternBuilder, firstAndSecond.firstLetter, prefix, out stopCharacterFound);
 
             // now we have a list of posibilities // HG5ACZ/P 
             if (prefixDataList.Count > 0)
             {
-                
                 if (prefixDataList.Count.Equals(1))
                 {
                     // only one found
@@ -354,7 +353,9 @@ namespace W6OP.CallParser
                         var primaryMaskList = prefixData.GetMaskList(firstAndSecond.firstLetter,
                                                                      firstAndSecond.nextLetter,
                                                                      stopCharacterFound);
-                        RefineList(baseCall, matches, prefixData, primaryMaskList);
+
+                        var tempMatches = RefineList(baseCall, prefixData, primaryMaskList);
+                        matches.UnionWith(tempMatches);
                     }
                 }
 
@@ -398,8 +399,9 @@ namespace W6OP.CallParser
         /// <param name="foundItems"></param>
         /// <param name="prefixData"></param>
         /// <param name="primaryMaskList"></param>
-        private static void RefineList(string baseCall, HashSet<PrefixData> matches, PrefixData prefixData, List<List<string[]>> primaryMaskList)
+        private HashSet<PrefixData> RefineList(string baseCall, PrefixData prefixData, List<List<string[]>> primaryMaskList)
         {
+            var matches = new HashSet<PrefixData>();
             var rank = 0;
 
             foreach (List<string[]> maskList in primaryMaskList)
@@ -412,8 +414,6 @@ namespace W6OP.CallParser
 
                 for (var i = position; i < smaller; i++)
                 {
-                    //var nextLetter = baseCall.Substring(i, 1);
-
                     if (maskList[position].Contains(baseCall.Substring(i, 1)) && isPrevious)
                     {
                         rank = position + 1;
@@ -433,6 +433,8 @@ namespace W6OP.CallParser
                     matches.Add(prefixData);
                 }
             }
+
+            return matches;
         }
 
         /// <summary>
@@ -473,16 +475,14 @@ namespace W6OP.CallParser
         private HashSet<PrefixData> MatchPattern(StringBuilder patternBuilder, string firstLetter, string prefix, out bool stopCharacterFound)
         {
             var prefixDataList = new HashSet<PrefixData>();
-            //var tempStorage = new HashSet<PrefixData>();
+           
             patternBuilder.Append(".");
-            //bool hasDot;
             stopCharacterFound = false;
                  
             while (patternBuilder.Length > 1)
             {
                 if (CallSignPatterns.TryGetValue(patternBuilder.ToString(), out var query))
                 {
-                    //prefixDataList.Clear();
                     foreach (var prefixData in query)
                     {
                         if (prefixData.IndexKey.ContainsKey(firstLetter))
@@ -497,7 +497,7 @@ namespace W6OP.CallParser
                                         prefixDataList.Add(prefixData);
                                         stopCharacterFound = true;
                                         // exit early
-                                        goto ExitEarly;
+                                        return prefixDataList;
                                     }
                                     break;
                                 default:
@@ -510,16 +510,8 @@ namespace W6OP.CallParser
                             }
                         }
                     }
-
-                ExitEarly:
-                    if (prefixDataList.Count != 0)
-                    {
-                        //prefixDataList.UnionWith(tempStorage);
-                        break;
-                    }
                 }
                 // remove last character
-                //pattern = pattern.Remove(pattern.Length - 1);
                 // very slightly faster as .Remove is a wrapper around Substring()
                 // pattern = pattern.Substring(0, pattern.Length - 1);
                 patternBuilder.Remove(patternBuilder.Length - 1, 1);
@@ -556,7 +548,7 @@ namespace W6OP.CallParser
                             {
                                 case '.': // if we have a '.' we do not want to continue
                                     prefix = prefix.Substring(0, patternBuilder.Length - 1);
-                                    if (prefixData.MatchMask(prefix, true, out searchRank) == true)
+                                    if (prefixData.MatchMask(prefix, true, out searchRank))
                                     {
                                         tempStorage.Add(prefixData);
                                         hasDot = true;

@@ -51,7 +51,6 @@ namespace W6OP.CallParser
         private readonly string[] Alphabet = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
         private readonly string[] Numbers = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
         private readonly string[] AlphaNumerics = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
-
         /// <summary>
         /// Default constructor.
         /// </summary>
@@ -178,11 +177,11 @@ namespace W6OP.CallParser
 
                     // if pattern contains "?" then need two patterns
                     // one with # and one with @
-                    var patternList = BuildPattern(primaryMaskList);
+                    var patternList = BuildMaskPattern(primaryMaskList);
 
                     // AX9[ABD-KOPQS-VYZ][.ABD-KOPQS-VYZ]
                     foreach (var pattern in patternList)
-                    {      
+                    {
                         switch (pattern)
                         {
                             case string _ when pattern.Last().ToString().Contains("/"):
@@ -209,7 +208,7 @@ namespace W6OP.CallParser
                                     CallSignPatterns.TryAdd(pattern, new List<PrefixData> { prefixData });
                                 }
                                 break;
-                            
+
                             default:
                                 break;
                         }
@@ -227,38 +226,33 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="primaryMaskList"></param>
         /// <returns></returns>
-        private List<string> BuildPattern(List<string[]> primaryMaskList)
+        private List<string> BuildMaskPattern(List<string[]> primaryMaskList)
         {
             string pattern = "";
-            string pattern2 = "";
             var patternList = new List<string>();
 
-            foreach (var mask in primaryMaskList)
+            foreach (var maskPart in primaryMaskList)
             {
-                switch (mask)
+                switch (maskPart)
                 {
-                    case string[] _ when mask.All(x => char.IsLetter(char.Parse(x))):
+                    case string[] _ when maskPart.All(x => char.IsLetter(char.Parse(x))):
                         pattern += "@";
                         break;
 
-                    case string[] _ when mask.All(x => char.IsDigit(char.Parse(x))):
+                    case string[] _ when maskPart.All(x => char.IsDigit(char.Parse(x))):
                         pattern += "#";
                         break;
+                                                // ALL
+                    case string[] _ when maskPart.All(x => char.IsPunctuation(char.Parse(x))):
 
-                    case string[] _ when mask.All(x => char.IsPunctuation(char.Parse(x))):
-                        
-                        switch (mask[0])
+                        switch (maskPart[0])
                         {
                             case "/":
                                 pattern += "/";
-                                if (mask.Length > 1)
-                                {
-                                    Console.WriteLine("Mask length = " + mask.Length);
-                                }
                                 break;
                             case ".":
                                 pattern += ".";
-                                if (mask.Length > 1)
+                                if (maskPart.Length > 1)
                                 {
                                     patternList.Add(pattern);
                                     patternList.Add(pattern.Replace(".", "@."));
@@ -267,36 +261,34 @@ namespace W6OP.CallParser
                                 break;
                         }
                         break;
-
-                        case string[] _ when mask.Any(x => char.IsPunctuation(char.Parse(x))):
-                            if (mask[0] == ".")
-                            {
+                                                // ANY
+                    case string[] _ when maskPart.Any(x => char.IsPunctuation(char.Parse(x))):
+                        if (maskPart[0] == ".")
+                        {
                             pattern += ".";
-                            if (mask.Length > 1)
+                            if (maskPart.Length > 1)
                             {
-                                pattern2 = pattern.Replace(".", "@.");
-                                // patternList.append(pattern.replacingOccurrences(of: ".", with: "@."))
+                                // <mask>PU2Z[.Z]</mask> patternList.AddRange(RefinePattern(pattern.Replace(".", "@"))); causes fail unit test
+                                //pattern2 = pattern.Replace(".", "@.");
+                                patternList.AddRange(RefinePattern(pattern.Replace(".", "@.")));
                             }
                         }
                         break;
 
-                    default:
+                    case string[] _ when maskPart.Any(x => char.IsLetter(char.Parse(x))) && maskPart.Any(x => char.IsDigit(char.Parse(x))): 
                         pattern += "?";
+                        break;
+
+                    default:
                         break;
                 }
             }
 
-            patternList = RefinePattern(pattern);
-
-            // THIS IS A TEMP HACK TO FIX A PROBLEM _ NEED TO DO IT RIGHT LATER
-            if (pattern2 != "")
-            {
-                patternList.Add(pattern2);
-            }
+            patternList.AddRange(RefinePattern(pattern));
 
             return patternList;
         }
-        
+
         /// <summary>
         /// Look at each pattern, if one contains one or more "?" create new
         /// pattern using a "#" and a "@".
@@ -308,7 +300,7 @@ namespace W6OP.CallParser
             var patternList = new List<string>();
 
             int count = pattern.Count(f => f == '?');
-           
+
             switch (pattern)
             {
                 case string _ when pattern.Contains("?"):
@@ -320,7 +312,7 @@ namespace W6OP.CallParser
                         patternList.Add("#" + pattern.Last().ToString().Replace("?", "@"));
                     }
                     break;
-           
+
                 default:
                     patternList.Add(pattern);
                     break;
@@ -417,13 +409,13 @@ namespace W6OP.CallParser
         private List<string[]> CombineComponents(string expandedMask)
         {
             var charsList = new List<string[]>();
-            
+
             charsList = BuildCharArray(charsList, expandedMask);
 
             return charsList;
         }
 
-       
+
         /// <summary>
         /// Build a list of arrays to be combined into all possible call sign possibilities.
         /// </summary>

@@ -677,7 +677,6 @@ namespace W6OP.CallParser
         public StringBuilder BuildPattern(string candidate)
         {
             StringBuilder patternBuilder = new StringBuilder();
-            //string pattern = string.Empty;
 
             foreach (char item in candidate)
             {
