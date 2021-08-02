@@ -97,6 +97,7 @@ namespace CallParserTestor
         {
             _Records = new List<string>();
 
+            //UseWaitCursor = true;
             Cursor.Current = Cursors.WaitCursor;
 
             stopwatch = Stopwatch.StartNew();
@@ -166,7 +167,7 @@ namespace CallParserTestor
 
             try
             {
-                if (!String.IsNullOrEmpty(TextBoxCall.Text))
+                if (!string.IsNullOrEmpty(TextBoxCall.Text))
                 {
                     if (CheckBoxQRZ.CheckState == CheckState.Checked)
                     {
@@ -260,8 +261,9 @@ namespace CallParserTestor
 
             DataGridViewResults.DataSource = null;
 
-            Cursor.Current = Cursors.WaitCursor;
             Task.Run(() => BatchCallSignLookup());
+
+            Application.UseWaitCursor = true;
         }
 
         #endregion
@@ -276,6 +278,7 @@ namespace CallParserTestor
             IEnumerable<Hit> hitCollection;
 
             stopwatch = Stopwatch.StartNew();
+           
 
             try
             {
@@ -492,7 +495,7 @@ namespace CallParserTestor
 
             if (!InvokeRequired)
             {
-                Cursor.Current = Cursors.Default;
+               // Cursor.Current = Cursors.Default;
 
                 LabelElapsedTime.Text = "";
                 LabelHitCount.Text = "";
@@ -504,7 +507,7 @@ namespace CallParserTestor
             }
             else
             {
-                this.BeginInvoke(new Action<Int32>(this.UpdateLabels), count);
+                BeginInvoke(new Action<int>(UpdateLabels), count);
                 return;
             }
         }
@@ -545,7 +548,7 @@ namespace CallParserTestor
             }
             else
             {
-                this.BeginInvoke(new Action<string, PrefixKind, string, string, string, string>(this.UpdateListViewResults), call, kind, country, province, dxcc, flags);
+                BeginInvoke(new Action<string, PrefixKind, string, string, string, string>(UpdateListViewResults), call, kind, country, province, dxcc, flags);
                 return;
             }
         }
@@ -669,7 +672,7 @@ namespace CallParserTestor
             }
             else
             {
-                this.BeginInvoke(new Action(this.UpdateCursor));
+                BeginInvoke(new Action(UpdateCursor));
                 return;
             }
         }
