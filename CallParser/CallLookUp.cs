@@ -51,8 +51,9 @@ namespace W6OP.CallParser
         private string QRZUserId;
         private string QRZPassword;
         private bool UseQRZLookup;
+        private readonly string StopIndicator = ".";
 
-        int debugCounter = 0;
+        //int debugCounter = 0;
 
         private readonly ConcurrentDictionary<string, List<PrefixData>> PortablePrefixes;
 
@@ -159,8 +160,8 @@ namespace W6OP.CallParser
 
             // parallel foreach almost twice as fast but requires blocking collection
             // comment out for debugging - need to use non parallel foreach for debugging
-            //_ = Parallel.ForEach(callSigns, callSign =>
-            foreach (var callSign in callSigns)
+            _ = Parallel.ForEach(callSigns, callSign =>
+            //foreach (var callSign in callSigns)
             {
                 try
                 {
@@ -172,7 +173,7 @@ namespace W6OP.CallParser
                     // bury exception
                 }
             }
-         // );
+          );
             //Console.WriteLine("Debug Counter: " + debugCounter.ToString());
             return HitList.AsEnumerable();
         }
@@ -204,7 +205,6 @@ namespace W6OP.CallParser
             // strip leading or trailing "/"  /W6OP/
             // in this case .Equals is faster
             if (callSign.First().Equals('/'))
-            //if (callSign[0] == '/')
             {
                 callSign = callSign.Substring(1);
             }
@@ -303,7 +303,6 @@ namespace W6OP.CallParser
         {
             var baseCall = callStructure.BaseCall;
             var prefix = callStructure.Prefix;
-            //var prefixDataList = new HashSet<PrefixData>();
             var matches = new HashSet<PrefixData>();
             StringBuilder patternBuilder;
             string mainPrefix;
@@ -476,7 +475,7 @@ namespace W6OP.CallParser
         {
             var prefixDataList = new HashSet<PrefixData>();
            
-            patternBuilder.Append(".");
+            patternBuilder.Append(StopIndicator);
             stopCharacterFound = false;
                  
             while (patternBuilder.Length > 1)
@@ -521,70 +520,6 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// Get a list of all the PrefixData that match a pattern.
-        /// </summary>
-        /// <param name="prefixDataList"></param>
-        /// <param name="pattern"></param>
-        /// <param name="firstLetter"></param>
-        /// <param name="prefix"></param>
-        /// <returns></returns>
-        private bool MatchPattern(HashSet<PrefixData> prefixDataList, StringBuilder patternBuilder, string firstLetter, string prefix)
-        {
-            var tempStorage = new HashSet<PrefixData>();
-            patternBuilder.Append(".");
-            bool hasDot = false;
-
-            while (patternBuilder.Length > 1)
-            {
-                if (CallSignPatterns.TryGetValue(patternBuilder.ToString(), out var query))
-                {
-                    tempStorage.Clear();
-                    foreach (var prefixData in query)
-                    {
-                        if (prefixData.IndexKey.ContainsKey(firstLetter))
-                        {
-                            int searchRank;
-                            switch (patternBuilder[patternBuilder.Length - 1]) // last character
-                            {
-                                case '.': // if we have a '.' we do not want to continue
-                                    prefix = prefix.Substring(0, patternBuilder.Length - 1);
-                                    if (prefixData.MatchMask(prefix, true, out searchRank))
-                                    {
-                                        tempStorage.Add(prefixData);
-                                        hasDot = true;
-                                        // exit early
-                                        goto ExitEarly;
-                                    }
-                                    break;
-                                default:
-                                    prefix = prefix.Substring(0, patternBuilder.Length);
-                                    if (prefixData.MatchMask(prefix, true, out searchRank))
-                                    {
-                                        tempStorage.Add(prefixData);
-                                    }
-                                    break;
-                            }
-                        }
-                    }
-
-                    ExitEarly:
-                    if (tempStorage.Count != 0)
-                    {
-                        prefixDataList.UnionWith(tempStorage);
-                        break;
-                    }
-                }
-                // remove last character
-                //pattern = pattern.Remove(pattern.Length - 1);
-                // very slightly faster as .Remove is a wrapper around Substring()
-               // pattern = pattern.Substring(0, pattern.Length - 1);
-                patternBuilder.Remove(patternBuilder.Length -1, 1);
-            }
-
-            return hasDot;
-        }
-
-        /// <summary>
         /// Portable prefixes are prefixes that end with "/"
         /// This looks almost identical to MatchPattern() but creates the Hit
         /// here. When it returns true it inhibits a full dictionary search.
@@ -594,14 +529,21 @@ namespace W6OP.CallParser
         /// <returns></returns>
         private bool CheckForPortablePrefix(CallStructure callStructure)
         {
-            string prefix = callStructure.Prefix + "/";
+            string prefix = callStructure.Prefix;
             var prefixDataList = new HashSet<PrefixData>();
             var tempStorage = new HashSet<PrefixData>();
             //var firstLetter = prefix.Substring(0, 1);
-            StringBuilder patternBuilder = callStructure.BuildPattern(prefix);
+            StringBuilder patternBuilder = new StringBuilder();
             int searchRank = 0;
 
-            // check cache first
+            if (!callStructure.Prefix.EndsWith("/"))
+            {
+                prefix  = callStructure.Prefix + "/";
+            }
+
+            patternBuilder = callStructure.BuildPattern(prefix);
+
+            // check cache first RA9BW/3
             if (PortablePrefixes.TryGetValue(patternBuilder.ToString(), out var query))
             {
                 foreach (var prefixData in query)

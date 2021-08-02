@@ -155,10 +155,22 @@ namespace W6OP.CallParser
                 }
                 else
                 {
-                    if (Array.IndexOf(maskItem[0], first) != -1 && Array.IndexOf(maskItem[1], second) != -1 && Array.IndexOf(maskItem[maskItem.Count - 1], StopIndicator) == -1)
+                    if (maskItem[maskItem.Count - 1].Length == 1)
                     {
-                        componentList.Add(maskItem);
+                        // if there is only one stop indicator (".") we quit here
+                        if (Array.IndexOf(maskItem[0], first) != -1 && Array.IndexOf(maskItem[1], second) != -1 && Array.IndexOf(maskItem[maskItem.Count - 1], StopIndicator) == -1)
+                        {
+                            componentList.Add(maskItem);
+                        }
+                    } 
+                    else
+                    {
+                        if (Array.IndexOf(maskItem[0], first) != -1 && Array.IndexOf(maskItem[1], second) != -1)
+                        {
+                            componentList.Add(maskItem);
+                        }
                     }
+
                 }
             }
 
@@ -289,7 +301,7 @@ namespace W6OP.CallParser
             string sixth;
             bool matched = false;
 
-            foreach (List<string[]> maskItem in MaskList) 
+            foreach (List<string[]> maskItem in MaskList)
             {
                 int searchLength = prefix.Length < maskItem.Count ? prefix.Length : maskItem.Count;
 
@@ -378,9 +390,9 @@ namespace W6OP.CallParser
             }
         }
 
-       /// <summary>
-       /// 
-       /// </summary>
+        /// <summary>
+        /// 
+        /// </summary>
         private void InitializeCallSignInfo()
         {
             string currentValue;

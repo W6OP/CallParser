@@ -54,7 +54,7 @@ namespace CallParserUnitTest
 
             // Add calls where mask ends with '.' ie: KG4AA and as compare KG4AAA
             string[] testCallSigns = new string[14] { "TX9", "TX4YKP/R", "/KH0PR", "W6OP/4", "OEM3SGU/3", "AM70URE/8", "5N31/OK3CLA", "BV100", "BY1PK/VE6LB", "VE6LB/BY1PK", "DC3RJ/P/W3", "RAEM", "AJ3M/BY1RX", "4D71/N0NM" }; //, "4X130RISHON", "9N38", "AX3GAMES", "DA2MORSE", "DB50FIRAC", "DL50FRANCE", "FBC5AGB", "FBC5NOD", "FBC5YJ", "FBC6HQP", "GB50RSARS", "HA80MRASZ", "HB9STEVE", "HG5FIRAC", "HG80MRASZ", "II050SCOUT", "IP1METEO", "J42004A", "J42004Q", "LM1814", "LM2T70Y", "LM9L40Y", "LM9L40Y/P", "OEM2BZL", "OEM3SGU", "OEM3SGU/3", "OEM6CLD", "OEM8CIQ", "OM2011GOOOLY", "ON1000NOTGER", "ON70REDSTAR", "PA09SHAPE", "PA65VERON", "PA90CORUS", "PG50RNARS", "PG540BUFFALO", "S55CERKNO", "TM380", "TYA11", "U5ARTEK/A", "V6T1", "VI2AJ2010", "VI2FG30", "VI4WIP50", "VU3DJQF1", "VX31763", "WD4", "XUF2B", "YI9B4E", "YO1000LEANY", "ZL4RUGBY", "ZS9MADIBA" };
-            int[] testResult = new int[14] {0,7,1,1,0,1,1,0,0,1,1,0,1,1};
+            int[] testResult = new int[14] {0,7,1,1,1,1,1,0,0,1,1,0,1,1};
 
             for (int counter = 0; counter <= testCallSigns.Length - 1; counter++)
             {
@@ -131,6 +131,9 @@ namespace CallParserUnitTest
         // if it is a province then I need to look at province instead of country
         readonly Dictionary<string, (double dxcc, string entity)> goodDataCheck = new Dictionary<string, (double dxcc, string entity)>() 
         {
+            { "AM70URE/8", (029, "Canary Is.") },
+            { "PU2Z", (108, "Call Area 2") }, // province
+            { "PU2ZZ", (108, "Call Area 2") }, // province
             { "IG0NFQ", (248, "Lazio;Umbria") }, // province
             { "IG0NFU", (225, "Sardinia") },
             { "W6OP", (291, "CA") }, // province
@@ -139,8 +142,6 @@ namespace CallParserUnitTest
             { "KL6OP", (006, "Alaska") },
             { "YA6AA", (003, "Afghanistan") },
             { "3Y2/W6OP", (024, "Bouvet I.") }, // could also be Peter 1 - need to test antartica
-            { "PU2Z", (108, "Call Area 2") }, // province
-            { "PU2ZZ", (108, "Call Area 2") }, // province
             { "W6OP/VA6", (001, "Alberta") }, // province
             { "VA6AY", (001, "Alberta") }, // province
             { "CE7AA", (112, "Aisen;Los Lagos (Llanquihue, Isla Chiloe and Palena)") }, // province
@@ -179,12 +180,11 @@ namespace CallParserUnitTest
             { "VK9/W6OD", (147, "Lord Howe I.") },
             { "VK9/W6OE", (171, "Mellish Reef") },
             { "VK9/W6OF", (189, "Norfolk I.") },
-            { "AM70URE/8", (029, "Canary Is.") },
             { "RA9BW", (015, "Chelyabinskaya oblast") },
+            { "RA9BW/3", (054, "Central") },
             // bad calls
             { "NJY8/QV3ZBY", (291, "United States") },
             { "QZ5U/IG0NFQ", (248, "Lazio;Umbria") },
-            { "RA9BW/3", (015, "Chelyabinskaya oblast") },
             { "Z42OIO", (0, "Unassigned prefix") },
         };
 
@@ -192,7 +192,7 @@ namespace CallParserUnitTest
         {
             { "QZ5U/IG0NFQ", "valid prefix pattern but invalid prefix" },
             { "NJY8/QV3ZBY", "invalid prefix pattern and invalid call" },
-            { "RA9BW/3", "invalid suffix for this call" },
+            //{ "RA9BW/3", "invalid suffix for this call" },
             { "Z42OIO", "Unassigned prefix" },
         };
 

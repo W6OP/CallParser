@@ -51,6 +51,7 @@ namespace W6OP.CallParser
         private readonly string[] Alphabet = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
         private readonly string[] Numbers = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
         private readonly string[] AlphaNumerics = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
+
         /// <summary>
         /// Default constructor.
         /// </summary>
@@ -222,7 +223,7 @@ namespace W6OP.CallParser
         /// Build the pattern from the mask
         /// KG4@@.
         /// [AKNW]H7K[./]
-        /// AX9[ABD - KOPQS - VYZ][.ABD-KOPQS-VYZ] @@#@. and @@#@@. 
+        /// AX9[ABD - KOPQS - VYZ][.ABD-KOPQS-VYZ] @@#@. and @@#@@ 
         /// </summary>
         /// <param name="primaryMaskList"></param>
         /// <returns></returns>
@@ -245,37 +246,46 @@ namespace W6OP.CallParser
                                                 // ALL
                     case string[] _ when maskPart.All(x => char.IsPunctuation(char.Parse(x))):
 
-                        switch (maskPart[0])
+                        foreach (string part in maskPart)
                         {
-                            case "/":
-                                pattern += "/";
-                                break;
-                            case ".":
-                                pattern += ".";
-                                if (maskPart.Length > 1)
-                                {
-                                    patternList.Add(pattern);
-                                    patternList.Add(pattern.Replace(".", "@."));
-                                    return patternList;
-                                }
-                                break;
+                            if (maskPart.Length > 1) {
+                                var a = 1;
+                            }
+                            switch (part)
+                            {
+                                case "/":
+                                    patternList = RefinePattern(patternList, pattern + "/");
+                                    break;
+                                case ".":
+                                    patternList = RefinePattern(patternList, pattern + ".");
+                                    break;
+                            }
                         }
+
                         break;
                                                 // ANY
                     case string[] _ when maskPart.Any(x => char.IsPunctuation(char.Parse(x))):
-                        if (maskPart[0] == ".")
+                        foreach (string part in maskPart)
                         {
-                            pattern += ".";
-                            if (maskPart.Length > 1)
+                            switch (part)
                             {
-                                // <mask>PU2Z[.Z]</mask> patternList.AddRange(RefinePattern(pattern.Replace(".", "@"))); causes fail unit test
-                                //pattern2 = pattern.Replace(".", "@.");
-                                patternList.AddRange(RefinePattern(pattern.Replace(".", "@.")));
+                                case "/":
+                                    patternList = RefinePattern(patternList, pattern + "/");
+                                    break;
+                                case ".":
+                                    patternList = RefinePattern(patternList, pattern + ".");
+                                    break;
+                                case string _ when IsAStringOrDigit(part) == "@":
+                                    patternList = RefinePattern(patternList, pattern + "@");
+                                    break;
+                                case string _ when IsAStringOrDigit(part) == "#":
+                                    patternList = RefinePattern(patternList, pattern + "#");
+                                    break;
                             }
                         }
                         break;
 
-                    case string[] _ when maskPart.Any(x => char.IsLetter(char.Parse(x))) && maskPart.Any(x => char.IsDigit(char.Parse(x))): 
+                    case string[] _ when maskPart.Any(x => char.IsLetter(char.Parse(x))) && maskPart.Any(x => char.IsDigit(char.Parse(x))):
                         pattern += "?";
                         break;
 
@@ -284,9 +294,17 @@ namespace W6OP.CallParser
                 }
             }
 
-            patternList.AddRange(RefinePattern(pattern));
+            patternList = RefinePattern(patternList, pattern);
 
             return patternList;
+        }
+
+        private string IsAStringOrDigit(string part)
+        {
+            if (int.TryParse(part, out _)) {
+                return "#";
+            }
+            return "@";
         }
 
         /// <summary>
@@ -295,10 +313,8 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="pattern"></param>
         /// <returns></returns>
-        private List<string> RefinePattern(string pattern)
+        private List<string> RefinePattern(List<string> patternList, string pattern)
         {
-            var patternList = new List<string>();
-
             int count = pattern.Count(f => f == '?');
 
             switch (pattern)
@@ -314,10 +330,12 @@ namespace W6OP.CallParser
                     break;
 
                 default:
-                    patternList.Add(pattern);
+                    if (!patternList.Contains(pattern))
+                    {
+                        patternList.Add(pattern);
+                    }
                     break;
             }
-
 
             return patternList;
         }
