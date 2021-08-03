@@ -10,8 +10,8 @@ namespace W6OP.CallParser
     [Serializable]
     public class PrefixData
     {
-        internal XElement PrefixXml { get; set; }
-        public bool IsQRZInformation { get; set; }
+       
+        
         const string PortableIndicator = "/";
         const string StopIndicator = ".";
 
@@ -37,55 +37,34 @@ namespace W6OP.CallParser
             CallSignFlags = new HashSet<CallSignFlags>();
         }
 
-        internal PrefixData ShallowCopy()
+        /// <summary>
+        /// sort so we look at the longest first - otherwise could exit on shorter match
+        /// </summary>
+        internal void SortMaskList()
         {
-            return (PrefixData)this.MemberwiseClone();
+           SortedMaskList = MaskList.OrderByDescending(x => x.Count);
         }
 
-        /// <summary>
-        /// Deep clone of this object.
-        /// The first time through it will throw a file not found exception.
-        /// This is a known problem Microsoft won't fix. The XmlSerializer
-        /// constructor handles this error.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="object2Copy"></param>
-        /// <param name="objectCopy"></param>
-        public void DeepCopy<T>(ref T object2Copy, ref T objectCopy)
-        {
-            using var stream = new MemoryStream();
-            var serializer = new XmlSerializer(typeof(T));
-
-            serializer.Serialize(stream, object2Copy);
-            stream.Position = 0;
-            objectCopy = (T)serializer.Deserialize(stream);
-        }
-
-        /// <summary>
-        /// public properties
-        /// </summary>
+        // public properties
 
         // need to sort on the array length
+        private IEnumerable<List<string[]>> SortedMaskList = null;
         private HashSet<List<string[]>> MaskList = new HashSet<List<string[]>>();
-        internal Dictionary<string, byte> IndexKey = new Dictionary<string, byte>();
+        internal Dictionary<string, byte> PrimaryIndexKey = new Dictionary<string, byte>();
+        internal Dictionary<string, byte> SecondaryIndexKey = new Dictionary<string, byte>();
+        internal Dictionary<string, byte> TertiaryIndexKey = new Dictionary<string, byte>();
+        public bool IsQRZInformation { get; set; }
 
         /// <summary>
         /// The rank of the result over other results - used internally.
         /// </summary>
         internal int Rank { get; set; }
-
+        internal XElement PrefixXml { get; set; }
         /// <summary>
         /// searchRank for portable prefixes - 
         /// VK0M/MB5KET hits Heard first and then Macquarie
         /// </summary>
         internal int SearchRank { get; set; }
-
-        public int DXCC;
-        public void SetDXCC(int value)
-        {
-            DXCC = value;
-            DXCCMerged = new HashSet<int>(value);
-        }
 
         private HashSet<int> dxccMerged;
         public HashSet<int> DXCCMerged { get => dxccMerged; set => dxccMerged = value; }
@@ -129,7 +108,12 @@ namespace W6OP.CallParser
         public string County { get; set; }
         public string Grid { get; set; }
         public bool LotW { get; set; }
-
+        public int DXCC;
+        public void SetDXCC(int value)
+        {
+            DXCC = value;
+            DXCCMerged = new HashSet<int>(value);
+        }
 
         #endregion
 
@@ -187,11 +171,11 @@ namespace W6OP.CallParser
         internal bool MatchMask(string prefix, bool excludePortablePrefixes, out int searchRank)
         {
             // sort so we look at the longest first - otherwise could exit on shorter match
-            var MaskListSorted = MaskList.OrderByDescending(x => x.Count);
+            //var MaskListSorted = MaskList; //.OrderByDescending(x => x.Count);
 
             searchRank = 0;
 
-            foreach (List<string[]> maskItem in MaskListSorted)
+            foreach (List<string[]> maskItem in SortedMaskList)
             {
                 // get the smaller of the two
                 int maxLength = prefix.Length < maskItem.Count ? prefix.Length : maskItem.Count;
@@ -283,109 +267,55 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// DEPRECATED
-        /// Check if a portable mask exists.
-        /// TODO: This appears to be almost the same as MaskExists() - are they duplicating function
-        /// && !maskItem.Last()[0].Equals(PortableIndicator)) seems to be only difference
-        /// </summary>
-        /// <param name="prefix"></param>
-        /// <param name="length"></param>
-        /// <returns></returns>
-        internal bool PortableMaskExists(string prefix)
-        {
-            string first = prefix.Substring(0, 1);
-            string second = prefix.Substring(1, 1);
-            string third;
-            string fourth;
-            string fifth;
-            string sixth;
-            bool matched = false;
-
-            foreach (List<string[]> maskItem in MaskList)
-            {
-                int searchLength = prefix.Length < maskItem.Count ? prefix.Length : maskItem.Count;
-
-                //// short circuit if first character fails
-                if (Array.IndexOf(maskItem[0], first) == -1)
-                {
-                    continue;
-                }
-
-                switch (searchLength)
-                {
-                    case 2:
-                        if (Array.IndexOf(maskItem[1], second) != -1)
-                        {
-                            matched = true;
-                        }
-                        break;
-                    case 3:
-                        third = prefix.Substring(2, 1);
-                        if (Array.IndexOf(maskItem[1], second) != -1
-                            && Array.IndexOf(maskItem[2], third) != -1)
-                        {
-                            matched = true;
-                        }
-                        break;
-                    case 4:
-                        third = prefix.Substring(2, 1);
-                        fourth = prefix.Substring(3, 1);
-                        if (Array.IndexOf(maskItem[1], second) != -1
-                            && Array.IndexOf(maskItem[2], third) != -1
-                            && Array.IndexOf(maskItem[3], fourth) != -1)
-                        {
-                            matched = true;
-                        }
-                        break;
-                    case 5:
-                        third = prefix.Substring(2, 1);
-                        fourth = prefix.Substring(3, 1);
-                        fifth = prefix.Substring(4, 1);
-                        if (Array.IndexOf(maskItem[1], second) != -1
-                            && Array.IndexOf(maskItem[2], third) != -1
-                            && Array.IndexOf(maskItem[3], fourth) != -1
-                            && Array.IndexOf(maskItem[4], fifth) != -1)
-                        {
-                            matched = true;
-                        }
-                        break;
-                    case 6:
-                        third = prefix.Substring(2, 1);
-                        fourth = prefix.Substring(3, 1);
-                        fifth = prefix.Substring(4, 1);
-                        sixth = prefix.Substring(5, 1);
-                        if (Array.IndexOf(maskItem[1], second) != -1
-                            && Array.IndexOf(maskItem[2], third) != -1
-                            && Array.IndexOf(maskItem[3], fourth) != -1
-                            && Array.IndexOf(maskItem[4], fifth) != -1
-                            && Array.IndexOf(maskItem[5], sixth) != -1)
-                        {
-                            matched = true;
-                        }
-                        break;
-                }
-            }
-
-            return matched;
-        }
-
-
-        /// <summary>
         /// The index key is a character that can be the first letter of a call.
         /// This way I can search faster.
         /// </summary>
         /// <param name="value"></param>
         internal void SetPrimaryMaskList(List<string[]> value)
         {
-            var genericValue = new byte() { };
-
             MaskList.Add(value);
-
+           
             foreach (var first in value[0])
             {
-                if (!IndexKey.ContainsKey(first))
+                if (!PrimaryIndexKey.ContainsKey(first))
                 {
-                    IndexKey.Add(first, genericValue);
+                    PrimaryIndexKey.Add(first, new byte() { });
+                }
+            }
+
+            if (value.Count > 1)
+            {
+                SetSecondaryMaskList(value);
+            }
+        }
+
+        /// <summary>
+        /// Second caharacter of a call.
+        /// </summary>
+        /// <param name="value"></param>
+        internal void SetSecondaryMaskList(List<string[]> value)
+        {
+            foreach (var second in value[1])
+            {
+                if (!SecondaryIndexKey.ContainsKey(second))
+                {
+                    SecondaryIndexKey.Add(second, new byte() { });
+                }
+            }
+
+            if (value.Count > 2)
+            {
+                SetTertiaryMaskList(value);
+            }
+        }
+
+        internal void SetTertiaryMaskList(List<string[]> value)
+        {
+            foreach (var third in value[2])
+            {
+                if (!TertiaryIndexKey.ContainsKey(third))
+                {
+                    TertiaryIndexKey.Add(third, new byte() { });
                 }
             }
         }
@@ -526,6 +456,33 @@ namespace W6OP.CallParser
 
             return zones.ToHashSet();
         }
+
+        // CLONING code - save for some future use
+
+        internal PrefixData ShallowCopy()
+        {
+            return (PrefixData)this.MemberwiseClone();
+        }
+
+        /// <summary>
+        /// Deep clone of this object.
+        /// The first time through it will throw a file not found exception.
+        /// This is a known problem Microsoft won't fix. The XmlSerializer
+        /// constructor handles this error.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="object2Copy"></param>
+        /// <param name="objectCopy"></param>
+        public void DeepCopy<T>(ref T object2Copy, ref T objectCopy)
+        {
+            using var stream = new MemoryStream();
+            var serializer = new XmlSerializer(typeof(T));
+
+            serializer.Serialize(stream, object2Copy);
+            stream.Position = 0;
+            objectCopy = (T)serializer.Deserialize(stream);
+        }
+
 
     } // end class
 }

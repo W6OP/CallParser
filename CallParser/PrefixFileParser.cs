@@ -90,6 +90,7 @@ namespace W6OP.CallParser
                                 XElement prefix = XElement.ReadFrom(reader) as XElement;
                                 PrefixData prefixData = new PrefixData(prefix);
                                 BuildPrefixData(prefix, prefixData);
+                                prefixData.SortMaskList();
                             }
                         }
                     }
@@ -112,6 +113,7 @@ namespace W6OP.CallParser
                             XElement prefix = XElement.ReadFrom(reader) as XElement;
                             PrefixData prefixData = new PrefixData(prefix);
                             BuildPrefixData(prefix, prefixData);
+                            prefixData.SortMaskList();
                         }
                     }
                 }
