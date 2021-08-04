@@ -307,39 +307,44 @@ namespace W6OP.CallParser
             var baseCall = callStructure.BaseCall;
             var prefix = callStructure.Prefix;
             var matches = new HashSet<PrefixData>();
-            StringBuilder patternBuilder;
+            StringBuilder pattern;
             string mainPrefix;
 
-            var firstAndSecond = (firstLetter: "", nextLetter: "", thirdLetter: "");
+            var firstFourCharacters = (firstLetter: "", nextLetter: "", thirdLetter: "", fourthLetter: "");
 
             // this could be simplified but is almost 1 sec faster this way per million calls
             switch (callStructure.CallStructureType)
             {
                 case CallStructureType.PrefixCall:
-                    firstAndSecond = DetermineMaskComponents(prefix);
-                    patternBuilder = callStructure.BuildPattern(callStructure.Prefix);
+                    firstFourCharacters = DetermineMaskComponents(prefix);
+                    pattern = callStructure.BuildPattern(callStructure.Prefix);
+                    baseCall = prefix;
                     break;
                 case CallStructureType.PrefixCallPortable:
-                    firstAndSecond = DetermineMaskComponents(prefix);
-                    patternBuilder = callStructure.BuildPattern(callStructure.Prefix);
+                    firstFourCharacters = DetermineMaskComponents(prefix);
+                    pattern = callStructure.BuildPattern(callStructure.Prefix);
+                    baseCall = prefix;
                     break;
                 case CallStructureType.PrefixCallText:
-                    firstAndSecond = DetermineMaskComponents(prefix);
-                    patternBuilder = callStructure.BuildPattern(callStructure.Prefix);
+                    firstFourCharacters = DetermineMaskComponents(prefix);
+                    pattern = callStructure.BuildPattern(callStructure.Prefix);
+                    baseCall = prefix;
                     break;
                 default:
                     prefix = baseCall;
-                    firstAndSecond.firstLetter = baseCall.Substring(0, 1);
-                    firstAndSecond.nextLetter = baseCall.Substring(1, 1);
-                    firstAndSecond.thirdLetter = baseCall.Substring(2, 1);
-                    patternBuilder = callStructure.BuildPattern(callStructure.BaseCall);
+                    firstFourCharacters.firstLetter = baseCall.Substring(0, 1);
+                    firstFourCharacters.nextLetter = baseCall.Substring(1, 1);
+                    firstFourCharacters.thirdLetter = baseCall.Substring(2, 1);
+                    if (baseCall.Length > 3)
+                    {
+                        firstFourCharacters.fourthLetter = baseCall.Substring(3, 1);
+                    }
+                    pattern = callStructure.BuildPattern(callStructure.BaseCall);
                     break;
             }
 
             // first we look in all the "." patterns for calls like KG4AA vs KG4AAA
-            //bool stopCharacterFound = MatchPattern(prefixDataList, patternBuilder, firstAndSecond.firstLetter, prefix);
-            bool stopCharacterFound;
-            var prefixDataList = MatchPattern(patternBuilder, firstAndSecond, prefix, out stopCharacterFound);
+            var prefixDataList = MatchPattern(pattern, firstFourCharacters, prefix, out bool stopCharacterFound);
 
             // now we have a list of posibilities // HG5ACZ/P 
             if (prefixDataList.Count > 0)
@@ -353,8 +358,8 @@ namespace W6OP.CallParser
                 {   // refine the hits
                     foreach (PrefixData prefixData in prefixDataList)
                     {
-                        var primaryMaskList = prefixData.GetMaskList(firstAndSecond.firstLetter,
-                                                                     firstAndSecond.nextLetter,
+                        var primaryMaskList = prefixData.GetMaskList(firstFourCharacters.firstLetter,
+                                                                     firstFourCharacters.nextLetter,
                                                                      stopCharacterFound);
 
                         var tempMatches = RefineList(baseCall, prefixData, primaryMaskList);
@@ -366,22 +371,29 @@ namespace W6OP.CallParser
                 {
                     mainPrefix = MatchesFound(callStructure, saveHit, matches);
                     return mainPrefix;
-                }
+                } 
+                //else
+                //{
+                //    // debugging
+                //    Console.WriteLine(callStructure.FullCall);
+                //}
             }
 
             mainPrefix = "";
             return mainPrefix;
         }
 
+
+
         /// <summary>
-        /// Get the first and second letter.
+        /// Get the first, second and third letter.
         /// </summary>
         /// <param name="prefix"></param>
         /// <param name="nextLetter"></param>
         /// <returns></returns>
-        private (string, string, string) DetermineMaskComponents(string prefix)
+        private (string, string, string, string) DetermineMaskComponents(string prefix)
         {
-            var firstAndSecond = (firstLetter: "", nextLetter: "", thirdLetter: "");
+            var firstAndSecond = (firstLetter: "", nextLetter: "", thirdLetter: "", fourthLetter: "");
 
             firstAndSecond.firstLetter = prefix.Substring(0, 1);
 
@@ -393,6 +405,11 @@ namespace W6OP.CallParser
             if (prefix.Length > 2)
             {
                 firstAndSecond.thirdLetter = prefix.Substring(2, 1);
+            }
+
+            if (prefix.Length > 3)
+            {
+                firstAndSecond.fourthLetter = prefix.Substring(3, 1);
             }
 
             return firstAndSecond;
@@ -479,50 +496,60 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// 
+        /// Search all patterns that match. Use the IndexKeys to speed up the search.
+        /// If there is not a match on the pattern, remove the last character until
+        /// we get a match or run out of patterns to try.
         /// </summary>
-        /// <param name="patternBuilder"></param>
-        /// <param name="firstAndSecond"></param>
+        /// <param name="pattern"></param>
+        /// <param name="firstFourCharacters"></param>
         /// <param name="prefix"></param>
         /// <param name="stopCharacterFound"></param>
         /// <returns></returns>
-        private HashSet<PrefixData> MatchPattern(StringBuilder patternBuilder, (string, string, string) firstAndSecond, string prefix, out bool stopCharacterFound)
+        private HashSet<PrefixData> MatchPattern(StringBuilder pattern, (string, string, string, string) firstFourCharacters, string prefix, out bool stopCharacterFound)
         {
             var prefixDataList = new HashSet<PrefixData>();
            
-            patternBuilder.Append(StopIndicator);
+            pattern.Append(StopIndicator);
             stopCharacterFound = false;
                  
-            while (patternBuilder.Length > 1)
-            {
-                if (CallSignPatterns.TryGetValue(patternBuilder.ToString(), out var query))
+            while (pattern.Length > 1)
+            {   // see if this is a valid pattern and get the prefixDatas that match that pattern
+                if (CallSignPatterns.TryGetValue(pattern.ToString(), out var query))
                 {
                     foreach (var prefixData in query)
                     {
-                        if (prefixData.PrimaryIndexKey.ContainsKey(firstAndSecond.Item1)
-                            && prefixData.SecondaryIndexKey.ContainsKey(firstAndSecond.Item2))
+                        if (prefixData.PrimaryIndexKey.ContainsKey(firstFourCharacters.Item1)
+                            && prefixData.SecondaryIndexKey.ContainsKey(firstFourCharacters.Item2))
                         {
-                            if (patternBuilder.Length >= 3
-                                && !prefixData.TertiaryIndexKey.ContainsKey(firstAndSecond.Item3)) {
+                            // shortcut to next prefixData if no match on third character
+                            if (pattern.Length >= 3
+                                && !prefixData.TertiaryIndexKey.ContainsKey(firstFourCharacters.Item3)) {
                                 continue;
                             }
 
-                            int searchRank;
-                            switch (patternBuilder[patternBuilder.Length - 1]) // last character
+                            // shortcut to next prefixData if no match on fourth character
+                            if (pattern.Length >= 4
+                               && !prefixData.FourthIndexKey.ContainsKey(firstFourCharacters.Item4))
                             {
-                                case '.': // if we have a '.' we do not want to continue
-                                    prefix = prefix.Substring(0, patternBuilder.Length - 1);
-                                    if (prefixData.MatchMask(prefix, true, out searchRank) == true)
+                                continue;
+                            }
+
+                            // now we know this prefixData may match
+                            switch (pattern[pattern.Length - 1]) // last character
+                            {
+                                case '.': 
+                                    prefix = prefix.Substring(0, pattern.Length - 1);
+                                    if (prefixData.SetSearchRank(prefix, true) == true)
                                     {
                                         prefixDataList.Add(prefixData);
                                         stopCharacterFound = true;
-                                        // exit early
+                                        // exit early // if we have a '.' we do not want to continue
                                         return prefixDataList;
                                     }
                                     break;
                                 default:
-                                    prefix = prefix.Substring(0, patternBuilder.Length);
-                                    if (prefixData.MatchMask(prefix, true, out searchRank))
+                                    prefix = prefix.Substring(0, pattern.Length);
+                                    if (prefixData.SetSearchRank(prefix, true))
                                     {
                                         prefixDataList.Add(prefixData);
                                     }
@@ -532,9 +559,9 @@ namespace W6OP.CallParser
                     }
                 }
                 // remove last character
-                // very slightly faster as .Remove is a wrapper around Substring()
+                // very slightly faster even though .Remove is a wrapper around Substring()
                 // pattern = pattern.Substring(0, pattern.Length - 1);
-                patternBuilder.Remove(patternBuilder.Length - 1, 1);
+                pattern.Remove(pattern.Length - 1, 1);
             }
 
             return prefixDataList;
@@ -553,9 +580,7 @@ namespace W6OP.CallParser
             string prefix = callStructure.Prefix;
             var prefixDataList = new HashSet<PrefixData>();
             var tempStorage = new HashSet<PrefixData>();
-            //var firstLetter = prefix.Substring(0, 1);
             StringBuilder patternBuilder = new StringBuilder();
-            int searchRank = 0;
 
             if (!callStructure.Prefix.EndsWith("/"))
             {
@@ -571,11 +596,25 @@ namespace W6OP.CallParser
                 {
                     tempStorage.Clear();
                     
-                    if (prefixData.PrimaryIndexKey.ContainsKey(prefix.Substring(0, 1)))
+                    if (prefixData.PrimaryIndexKey.ContainsKey(prefix.Substring(0, 1)) 
+                        && prefixData.SecondaryIndexKey.ContainsKey(prefix.Substring(1, 1)))
                     {
-                        if (prefixData.MatchMask(prefix, false, out searchRank))
+                        // shortcut to next prefixData if no match on third character
+                        if (prefix.Length >= 3
+                            && !prefixData.TertiaryIndexKey.ContainsKey(prefix.Substring(2, 1)))
                         {
-                            prefixData.SearchRank = searchRank;
+                            continue;
+                        }
+
+                        // shortcut to next prefixData if no match on fourth character
+                        if (prefix.Length >= 4
+                           && !prefixData.FourthIndexKey.ContainsKey(prefix.Substring(3, 1)))
+                        {
+                            continue;
+                        }
+
+                        if (prefixData.SetSearchRank(prefix, false))
+                        {
                             tempStorage.Add(prefixData);
                         }
                     }

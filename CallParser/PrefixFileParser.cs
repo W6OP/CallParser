@@ -499,40 +499,40 @@ namespace W6OP.CallParser
         /// </summary>
         /// <param name="charsList"></param>
         /// <param name="expressionList"></param>
-        private List<string> CombineRemainder(List<string[]> charsList, List<string> maskList)
-        {
-            var maskBuffer = new List<string>();
-            string[] first = charsList.First();
+        //private List<string> CombineRemainder(List<string[]> charsList, List<string> maskList)
+        //{
+        //    var maskBuffer = new List<string>();
+        //    string[] first = charsList.First();
 
-            if (charsList.Count > 0)
-            {
-                foreach (var (prefix, nextItem) in from string prefix in maskList
-                                                   from string nextItem in first
-                                                   select (prefix, nextItem))
-                {
-                    switch (nextItem)
-                    {
-                        case ".":
-                            maskBuffer.Add(prefix);
-                            break;
-                        default:
-                            maskBuffer.Add(prefix + nextItem);
-                            break;
-                    }
-                }
-            }
+        //    if (charsList.Count > 0)
+        //    {
+        //        foreach (var (prefix, nextItem) in from string prefix in maskList
+        //                                           from string nextItem in first
+        //                                           select (prefix, nextItem))
+        //        {
+        //            switch (nextItem)
+        //            {
+        //                case ".":
+        //                    maskBuffer.Add(prefix);
+        //                    break;
+        //                default:
+        //                    maskBuffer.Add(prefix + nextItem);
+        //                    break;
+        //            }
+        //        }
+        //    }
 
-            // this statement must be here before the stack is unwound
-            maskList = maskBuffer;
+        //    // this statement must be here before the stack is unwound
+        //    maskList = maskBuffer;
 
-            if (charsList.Count > 1)
-            {
-                charsList.Remove(first);
-                maskList = CombineRemainder(charsList, maskList);
-            }
+        //    if (charsList.Count > 1)
+        //    {
+        //        charsList.Remove(first);
+        //        maskList = CombineRemainder(charsList, maskList);
+        //    }
 
-            return maskList;
-        }
+        //    return maskList;
+        //}
 
         /// <summary>
         /// Build the range of characters for [A-FGHI] constructs.

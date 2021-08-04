@@ -92,7 +92,7 @@ namespace CallParserUnitTest
                         if (result[0].Kind == PrefixKind.Province)
                         {
                             expected = (result[0].DXCC, result[0].Province);
-                            Assert.AreEqual(expected, goodDataCheck[key]);
+                            Assert.AreEqual(expected, goodDataCheck[key]); //W6OP/3B7
                         } else
                         {
                             expected = (result[0].DXCC, result[0].Country);
@@ -182,19 +182,26 @@ namespace CallParserUnitTest
             { "VK9/W6OF", (189, "Norfolk I.") },
             { "RA9BW", (015, "Chelyabinskaya oblast") },
             { "RA9BW/3", (054, "Central") },
+            { "LR9B/22QIR", (100, "Argentina") },
+            { "6KDJ/UW5XMY", (137, "South Korea") },
+            { "WP5QOV/P", (43, "Desecheo I.") },
             // bad calls
             { "NJY8/QV3ZBY", (291, "United States") },
             { "QZ5U/IG0NFQ", (248, "Lazio;Umbria") },
             { "Z42OIO", (0, "Unassigned prefix") },
+           // { "LR9B/22QIR", (0, "invalid prefix pattern and invalid call") },
+            
         };
 
         readonly Dictionary<string, string> badDataCheck = new Dictionary<string, string>()
         {
             { "QZ5U/IG0NFQ", "valid prefix pattern but invalid prefix" },
             { "NJY8/QV3ZBY", "invalid prefix pattern and invalid call" },
-            //{ "RA9BW/3", "invalid suffix for this call" },
+           // { "LR9B/22QIR", "invalid prefix pattern and invalid call" },
+            //{ "6KDJ/UW5XMY", "invalid prefix pattern" },
             { "Z42OIO", "Unassigned prefix" },
         };
 
         } // end class
 }
+//6KDJ/UW5XMY

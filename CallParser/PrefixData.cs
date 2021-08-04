@@ -43,16 +43,24 @@ namespace W6OP.CallParser
         internal void SortMaskList()
         {
            SortedMaskList = MaskList.OrderByDescending(x => x.Count);
+           
         }
 
         // public properties
 
-        // need to sort on the array length
+        // // sort so we look at the longest first - otherwise could exit on shorter match
         private IEnumerable<List<string[]>> SortedMaskList = null;
         private HashSet<List<string[]>> MaskList = new HashSet<List<string[]>>();
+
+        /// <summary>
+        /// Dictionaries with up to the first four characters of a call.
+        /// Much faster search.
+        /// </summary>
         internal Dictionary<string, byte> PrimaryIndexKey = new Dictionary<string, byte>();
         internal Dictionary<string, byte> SecondaryIndexKey = new Dictionary<string, byte>();
         internal Dictionary<string, byte> TertiaryIndexKey = new Dictionary<string, byte>();
+        internal Dictionary<string, byte> FourthIndexKey = new Dictionary<string, byte>();
+
         public bool IsQRZInformation { get; set; }
 
         /// <summary>
@@ -128,7 +136,7 @@ namespace W6OP.CallParser
         {
             var componentList = new List<List<string[]>>();
 
-            foreach (var maskItem in MaskList)
+            foreach (var maskItem in SortedMaskList)
             {
                 if (stopCharacterFound)
                 {
@@ -163,17 +171,20 @@ namespace W6OP.CallParser
 
         /// <summary>
         /// Determine if a mask exists that matches the prefix.
+        /// Set the SearchRank which determines the order of display
+        /// and sometimes if others get to be displayed. 
+        /// // VK0M/MB5KET hits Heard I. first and then Macquarie but Macquarie
+        /// is correct - VP2V/, VP2M/ also
         /// </summary>
         /// <param name="prefix"></param>
         /// <param name="excludePortablePrefixes"></param>
         /// <param name="searchRank"></param>
         /// <returns></returns>
-        internal bool MatchMask(string prefix, bool excludePortablePrefixes, out int searchRank)
+        internal bool SetSearchRank(string prefix, bool excludePortablePrefixes)
         {
             // sort so we look at the longest first - otherwise could exit on shorter match
-            //var MaskListSorted = MaskList; //.OrderByDescending(x => x.Count);
 
-            searchRank = 0;
+            SearchRank = 0;
 
             foreach (List<string[]> maskItem in SortedMaskList)
             {
@@ -204,17 +215,22 @@ namespace W6OP.CallParser
                     case 2:
                         if (Array.IndexOf(maskItem[1], prefix.Substring(1, 1)) != -1)
                         {
-                            searchRank = 2;
+                            SearchRank = 2;
                             return true;
                         }
                         break;
                     case 3:
                         // SLOWER
                         //if (item[0].Contains(prefix.Substring(2, 1))
+                        //if (Array.Exists(maskItem[1], element => element == prefix.Substring(1, 1)) && Array.Exists(maskItem[2], element => element == prefix.Substring(2, 1)))
+                        //{
+                        //    SearchRank = 3;
+                        //    return true;
+                        //}
                         if (Array.IndexOf(maskItem[1], prefix.Substring(1, 1)) != -1
                             && Array.IndexOf(maskItem[2], prefix.Substring(2, 1)) != -1)
                         {
-                            searchRank = 3;
+                            SearchRank = 3;
                             return true;
                         }
                         break;
@@ -223,7 +239,7 @@ namespace W6OP.CallParser
                             && Array.IndexOf(maskItem[2], prefix.Substring(2, 1)) != -1
                             && Array.IndexOf(maskItem[3], prefix.Substring(3, 1)) != -1)
                         {
-                            searchRank = 4;
+                            SearchRank = 4;
                             return true;
                         }
                         break;
@@ -233,7 +249,7 @@ namespace W6OP.CallParser
                             && Array.IndexOf(maskItem[3], prefix.Substring(3, 1)) != -1
                             && Array.IndexOf(maskItem[4], prefix.Substring(4, 1)) != -1)
                         {
-                            searchRank = 5;
+                            SearchRank = 5;
                             return true;
                         }
                         break;
@@ -244,7 +260,7 @@ namespace W6OP.CallParser
                             && Array.IndexOf(maskItem[4], prefix.Substring(4, 1)) != -1
                             && Array.IndexOf(maskItem[5], prefix.Substring(5, 1)) != -1)
                         {
-                            searchRank = 6;
+                            SearchRank = 6;
                             return true;
                         }
                         break;
@@ -256,7 +272,7 @@ namespace W6OP.CallParser
                             && Array.IndexOf(maskItem[5], prefix.Substring(5, 1)) != -1
                             && Array.IndexOf(maskItem[6], prefix.Substring(6, 1)) != -1)
                         {
-                            searchRank = 7;
+                            SearchRank = 7;
                             return true;
                         }
                         break;
@@ -274,6 +290,8 @@ namespace W6OP.CallParser
         internal void SetPrimaryMaskList(List<string[]> value)
         {
             MaskList.Add(value);
+
+           // MaskListX[value] = new byte();
            
             foreach (var first in value[0])
             {
@@ -290,7 +308,8 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// Second caharacter of a call.
+        /// The index key is a character that can be the second letter of a call.
+        /// This way I can search faster.
         /// </summary>
         /// <param name="value"></param>
         internal void SetSecondaryMaskList(List<string[]> value)
@@ -309,6 +328,11 @@ namespace W6OP.CallParser
             }
         }
 
+        /// <summary>
+        /// The index key is a character that can be the third letter of a call.
+        /// This way I can search faster.
+        /// </summary>
+        /// <param name="value"></param>
         internal void SetTertiaryMaskList(List<string[]> value)
         {
             foreach (var third in value[2])
@@ -316,6 +340,27 @@ namespace W6OP.CallParser
                 if (!TertiaryIndexKey.ContainsKey(third))
                 {
                     TertiaryIndexKey.Add(third, new byte() { });
+                }
+            }
+
+            if (value.Count > 3)
+            {
+                SetFourthMaskList(value);
+            }
+        }
+
+        /// <summary>
+        /// The index key is a character that can be the fourth letter of a call.
+        /// This way I can search faster. 
+        /// </summary>
+        /// <param name="value"></param>
+        internal void SetFourthMaskList(List<string[]> value)
+        {
+            foreach (var fourth in value[3])
+            {
+                if (!FourthIndexKey.ContainsKey(fourth))
+                {
+                    FourthIndexKey.Add(fourth, new byte() { });
                 }
             }
         }
