@@ -59,7 +59,7 @@ namespace W6OP.CallParser
         internal Dictionary<string, byte> PrimaryIndexKey = new Dictionary<string, byte>();
         internal Dictionary<string, byte> SecondaryIndexKey = new Dictionary<string, byte>();
         internal Dictionary<string, byte> TertiaryIndexKey = new Dictionary<string, byte>();
-        internal Dictionary<string, byte> FourthIndexKey = new Dictionary<string, byte>();
+        internal Dictionary<string, byte> QuatinaryIndexKey = new Dictionary<string, byte>();
 
         public bool IsQRZInformation { get; set; }
 
@@ -345,7 +345,7 @@ namespace W6OP.CallParser
 
             if (value.Count > 3)
             {
-                SetFourthMaskList(value);
+                SetQuatinaryMaskList(value);
             }
         }
 
@@ -354,13 +354,13 @@ namespace W6OP.CallParser
         /// This way I can search faster. 
         /// </summary>
         /// <param name="value"></param>
-        internal void SetFourthMaskList(List<string[]> value)
+        internal void SetQuatinaryMaskList(List<string[]> value)
         {
             foreach (var fourth in value[3])
             {
-                if (!FourthIndexKey.ContainsKey(fourth))
+                if (!QuatinaryIndexKey.ContainsKey(fourth))
                 {
-                    FourthIndexKey.Add(fourth, new byte() { });
+                    QuatinaryIndexKey.Add(fourth, new byte() { });
                 }
             }
         }

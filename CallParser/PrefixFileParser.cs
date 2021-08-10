@@ -34,7 +34,7 @@ namespace W6OP.CallParser
         /// Public fields.
         /// </summary>
         /// 
-        // the main dictionary of possible call signs built from the <mask> - excludes DXCC
+        // the main dictionary of possible patterns built from the <mask> - excludes DXCC
         internal ConcurrentDictionary<string, List<PrefixData>> CallSignPatterns;
         // dxcc number with corresponding prefixData object.
         internal SortedDictionary<int, PrefixData> Adifs;
@@ -87,7 +87,7 @@ namespace W6OP.CallParser
                         {
                             if (reader.Name == "prefix")
                             {
-                                XElement prefix = XElement.ReadFrom(reader) as XElement;
+                                XElement prefix = XNode.ReadFrom(reader) as XElement;
                                 PrefixData prefixData = new PrefixData(prefix);
                                 BuildPrefixData(prefix, prefixData);
                                 prefixData.SortMaskList();
@@ -110,14 +110,13 @@ namespace W6OP.CallParser
                     {
                         if (reader.Name == "prefix")
                         {
-                            XElement prefix = XElement.ReadFrom(reader) as XElement;
+                            XElement prefix = XNode.ReadFrom(reader) as XElement;
                             PrefixData prefixData = new PrefixData(prefix);
                             BuildPrefixData(prefix, prefixData);
                             prefixData.SortMaskList();
                         }
                     }
                 }
-
             }
 
             // DEBUGGING CODE
@@ -128,7 +127,7 @@ namespace W6OP.CallParser
 
             //Console.WriteLine("CallSignDictionary = {0},", CallSignDictionary.Count);
             //Console.WriteLine("PortablePrefixes = {0},", PortablePrefixes.Count);
-            //var a = 1;
+            var a = 1;
         }
 
 
@@ -233,7 +232,7 @@ namespace W6OP.CallParser
         {
             string pattern = "";
             var patternList = new List<string>();
-
+           
             foreach (var maskPart in primaryMaskList)
             {
                 switch (maskPart)
@@ -250,16 +249,13 @@ namespace W6OP.CallParser
 
                         foreach (string part in maskPart)
                         {
-                            if (maskPart.Length > 1) {
-                                var a = 1;
-                            }
                             switch (part)
                             {
-                                case "/":
-                                    patternList = RefinePattern(patternList, pattern + "/");
+                                case string _ when part == "/" || part == ".":
+                                    patternList = RefinePattern(patternList, pattern + part);
                                     break;
-                                case ".":
-                                    patternList = RefinePattern(patternList, pattern + ".");
+                                default:
+                                    Console.WriteLine("How did we get here?");
                                     break;
                             }
                         }
@@ -272,16 +268,19 @@ namespace W6OP.CallParser
                             switch (part)
                             {
                                 case "/":
-                                    patternList = RefinePattern(patternList, pattern + "/");
+                                    patternList = RefinePattern(patternList, pattern + part);
                                     break;
                                 case ".":
-                                    patternList = RefinePattern(patternList, pattern + ".");
+                                    patternList = RefinePattern(patternList, pattern + part);
                                     break;
-                                case string _ when IsAStringOrDigit(part) == "@":
+                                case string _ when IsAStringOrDigitIndicator(part) == "@":
                                     patternList = RefinePattern(patternList, pattern + "@");
                                     break;
-                                case string _ when IsAStringOrDigit(part) == "#":
+                                case string _ when IsAStringOrDigitIndicator(part) == "#":
                                     patternList = RefinePattern(patternList, pattern + "#");
+                                    break;
+                                default:
+                                    Console.WriteLine("How did we get here?");
                                     break;
                             }
                         }
@@ -301,7 +300,7 @@ namespace W6OP.CallParser
             return patternList;
         }
 
-        private string IsAStringOrDigit(string part)
+        private string IsAStringOrDigitIndicator(string part)
         {
             if (int.TryParse(part, out _)) {
                 return "#";
@@ -341,7 +340,11 @@ namespace W6OP.CallParser
 
             return patternList;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mask"></param>
+        /// <returns></returns>
         private List<string[]> ExpandMask(string mask)
         {
             string maskPart;

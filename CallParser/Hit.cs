@@ -49,7 +49,22 @@ namespace W6OP.CallParser
             Comment = prefixData.Comment;
             CallSignFlags = prefixData.CallSignFlags;
             IsQRZInformation = prefixData.IsQRZInformation;
+
+            if (IsQRZInformation)
+            {
+                FirstName = prefixData.FirstName;
+                LastName = prefixData.LastName;
+                County = prefixData.County;
+                Grid = prefixData.Grid;
+                LotW = prefixData.LotW;
+            }
         }
+
+         public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string County { get; set; }
+        public string Grid { get; set; }
+        public bool LotW { get; set; }
 
         public int WAE { get; set; }
         public string Iota { get; set; }

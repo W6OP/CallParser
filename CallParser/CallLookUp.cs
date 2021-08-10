@@ -331,14 +331,15 @@ namespace W6OP.CallParser
                     baseCall = prefix;
                     break;
                 default:
+                    firstFourCharacters = DetermineMaskComponents(baseCall);
                     prefix = baseCall;
-                    firstFourCharacters.firstLetter = baseCall.Substring(0, 1);
-                    firstFourCharacters.nextLetter = baseCall.Substring(1, 1);
-                    firstFourCharacters.thirdLetter = baseCall.Substring(2, 1);
-                    if (baseCall.Length > 3)
-                    {
-                        firstFourCharacters.fourthLetter = baseCall.Substring(3, 1);
-                    }
+                    //firstFourCharacters.firstLetter = baseCall.Substring(0, 1);
+                    //firstFourCharacters.nextLetter = baseCall.Substring(1, 1);
+                    //firstFourCharacters.thirdLetter = baseCall.Substring(2, 1);
+                    //if (baseCall.Length > 3)
+                    //{
+                    //    firstFourCharacters.fourthLetter = baseCall.Substring(3, 1);
+                    //}
                     pattern = callStructure.BuildPattern(callStructure.BaseCall);
                     break;
             }
@@ -349,34 +350,31 @@ namespace W6OP.CallParser
             // now we have a list of posibilities // HG5ACZ/P 
             if (prefixDataList.Count > 0)
             {
-                if (prefixDataList.Count.Equals(1))
+                switch (prefixDataList.Count)
                 {
-                    // only one found
-                    matches = new HashSet<PrefixData>(prefixDataList);
-                }
-                else
-                {   // refine the hits
-                    foreach (PrefixData prefixData in prefixDataList)
-                    {
-                        var primaryMaskList = prefixData.GetMaskList(firstFourCharacters.firstLetter,
-                                                                     firstFourCharacters.nextLetter,
-                                                                     stopCharacterFound);
+                    case 0:
+                        break;
+                    case 1:
+                        matches = new HashSet<PrefixData>(prefixDataList);
+                        break;
+                    default:
+                        foreach (PrefixData prefixData in prefixDataList)
+                        {
+                            var primaryMaskList = prefixData.GetMaskList(firstFourCharacters.firstLetter,
+                                                                         firstFourCharacters.nextLetter,
+                                                                         stopCharacterFound);
 
-                        var tempMatches = RefineList(baseCall, prefixData, primaryMaskList);
-                        matches.UnionWith(tempMatches);
-                    }
+                            var tempMatches = RefineList(baseCall, prefixData, primaryMaskList);
+                            matches.UnionWith(tempMatches);
+                        }
+                        break;
                 }
-
+               
                 if (matches.Count > 0)
                 {
                     mainPrefix = MatchesFound(callStructure, saveHit, matches);
                     return mainPrefix;
                 } 
-                //else
-                //{
-                //    // debugging
-                //    Console.WriteLine(callStructure.FullCall);
-                //}
             }
 
             mainPrefix = "";
@@ -393,26 +391,26 @@ namespace W6OP.CallParser
         /// <returns></returns>
         private (string, string, string, string) DetermineMaskComponents(string prefix)
         {
-            var firstAndSecond = (firstLetter: "", nextLetter: "", thirdLetter: "", fourthLetter: "");
+            var firstFourCharacters = (firstLetter: "", nextLetter: "", thirdLetter: "", fourthLetter: "");
 
-            firstAndSecond.firstLetter = prefix.Substring(0, 1);
+            firstFourCharacters.firstLetter = prefix.Substring(0, 1);
 
             if (prefix.Length > 1)
             {
-                firstAndSecond.nextLetter = prefix.Substring(1, 1);
+                firstFourCharacters.nextLetter = prefix.Substring(1, 1);
             }
 
             if (prefix.Length > 2)
             {
-                firstAndSecond.thirdLetter = prefix.Substring(2, 1);
+                firstFourCharacters.thirdLetter = prefix.Substring(2, 1);
             }
 
             if (prefix.Length > 3)
             {
-                firstAndSecond.fourthLetter = prefix.Substring(3, 1);
+                firstFourCharacters.fourthLetter = prefix.Substring(3, 1);
             }
 
-            return firstAndSecond;
+            return firstFourCharacters;
         }
 
         /// <summary>
@@ -529,7 +527,7 @@ namespace W6OP.CallParser
 
                             // shortcut to next prefixData if no match on fourth character
                             if (pattern.Length >= 4
-                               && !prefixData.FourthIndexKey.ContainsKey(firstFourCharacters.Item4))
+                               && !prefixData.QuatinaryIndexKey.ContainsKey(firstFourCharacters.Item4))
                             {
                                 continue;
                             }
@@ -551,6 +549,7 @@ namespace W6OP.CallParser
                                     prefix = prefix.Substring(0, pattern.Length);
                                     if (prefixData.SetSearchRank(prefix, true))
                                     {
+                                        // THIS ADDS THE SAME OBJECT TWICE W6OP
                                         prefixDataList.Add(prefixData);
                                     }
                                     break;
@@ -608,7 +607,7 @@ namespace W6OP.CallParser
 
                         // shortcut to next prefixData if no match on fourth character
                         if (prefix.Length >= 4
-                           && !prefixData.FourthIndexKey.ContainsKey(prefix.Substring(3, 1)))
+                           && !prefixData.QuatinaryIndexKey.ContainsKey(prefix.Substring(3, 1)))
                         {
                             continue;
                         }
