@@ -497,7 +497,10 @@ namespace W6OP.CallParser
         {
             var zones = new List<int>();
 
-            zones = currentValue.Split(',').Select(Int32.Parse).ToList();
+            if (!string.IsNullOrEmpty(currentValue))
+            {
+                zones = currentValue.Split(',').Select(int.Parse).ToList();
+            }
 
             return zones.ToHashSet();
         }
