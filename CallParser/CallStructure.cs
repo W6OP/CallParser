@@ -639,11 +639,15 @@ namespace W6OP.CallParser
             try
             {
                 // count letters and  digits
-                while (candidate.Take(1).All(char.IsDigit))
+                while (candidate.Any(char.IsDigit))
                 {
                     if (!string.IsNullOrEmpty(candidate))
                     {
-                        digits++;
+                        if (candidate.Take(1).All(char.IsDigit))
+                        {
+                            digits++;
+                        }
+                           
                         candidate = candidate.Remove(0, 1);
                         if (candidate.Length == 0) { return ComponentType.Invalid; }
                     }

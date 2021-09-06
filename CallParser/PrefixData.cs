@@ -10,8 +10,6 @@ namespace W6OP.CallParser
     [Serializable]
     public class PrefixData
     {
-       
-        
         const string PortableIndicator = "/";
         const string StopIndicator = ".";
 
