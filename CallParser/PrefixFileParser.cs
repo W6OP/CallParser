@@ -36,12 +36,14 @@ namespace W6OP.CallParser
         /// 
         // the main dictionary of possible patterns built from the <mask> - excludes DXCC
         internal ConcurrentDictionary<string, List<PrefixData>> CallSignPatterns;
+        // all the portable prefix entries (ends with "/") with dxcc number
+        internal ConcurrentDictionary<string, List<PrefixData>> PortablePrefixes;
+
         // dxcc number with corresponding prefixData object.
         internal SortedDictionary<int, PrefixData> Adifs;
         // Admin list
         internal SortedDictionary<string, List<PrefixData>> Admins;
-        // all the portable prefix entries (ends with "/") with dxcc number
-        internal ConcurrentDictionary<string, List<PrefixData>> PortablePrefixes;
+        
 
         /// <summary>
         /// Private fields.
@@ -127,7 +129,6 @@ namespace W6OP.CallParser
 
             //Console.WriteLine("CallSignDictionary = {0},", CallSignDictionary.Count);
             //Console.WriteLine("PortablePrefixes = {0},", PortablePrefixes.Count);
-            var a = 1;
         }
 
 
@@ -179,44 +180,54 @@ namespace W6OP.CallParser
 
                     // if pattern contains "?" then need two patterns
                     // one with # and one with @
-                    var patternList = BuildMaskPattern(primaryMaskList);
+                    List<string> patternList = BuildMaskPattern(primaryMaskList);
 
                     // AX9[ABD-KOPQS-VYZ][.ABD-KOPQS-VYZ]
-                    foreach (var pattern in patternList)
-                    {
-                        switch (pattern)
-                        {
-                            case string _ when pattern.Last().ToString().Contains("/"):
-                                if (PortablePrefixes.TryGetValue(pattern, out var list))
-                                {
-                                    // add to an existing list
-                                    // VK9/ has multiple DXCC numbers - 35, 150...
-                                    list.Add(prefixData); //prefixData.DXCC
-                                }
-                                else
-                                {
-                                    PortablePrefixes.TryAdd(pattern, new List<PrefixData> { prefixData });
-                                }
-                                break;
-
-                            case string _ when prefixData.Kind != PrefixKind.InvalidPrefix:
-                                if (CallSignPatterns.TryGetValue(pattern, out var list2))
-                                {
-                                    // VK9/ has multiple DXCC numbers - 35, 150...
-                                    list2.Add(prefixData);
-                                }
-                                else
-                                {
-                                    CallSignPatterns.TryAdd(pattern, new List<PrefixData> { prefixData });
-                                }
-                                break;
-
-                            default:
-                                break;
-                        }
-                    }
+                    SavePatternList(prefixData, patternList);
                 }
                 primaryMaskList = new List<string[]>();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="prefixData"></param>
+        /// <param name="patternList"></param>
+        private void SavePatternList(PrefixData prefixData, List<string> patternList)
+        {
+            foreach (var pattern in patternList)
+            {
+                switch (pattern)
+                {
+                    case string _ when pattern.Last().ToString().Contains("/"):
+                        if (PortablePrefixes.TryGetValue(pattern, out var list))
+                        {
+                            // add to an existing list
+                            // VK9/ has multiple DXCC numbers - 35, 150...
+                            list.Add(prefixData); //prefixData.DXCC
+                        }
+                        else
+                        {
+                            PortablePrefixes.TryAdd(pattern, new List<PrefixData> { prefixData });
+                        }
+                        break;
+
+                    case string _ when prefixData.Kind != PrefixKind.InvalidPrefix:
+                        if (CallSignPatterns.TryGetValue(pattern, out var list2))
+                        {
+                            // VK9/ has multiple DXCC numbers - 35, 150...
+                            list2.Add(prefixData);
+                        }
+                        else
+                        {
+                            CallSignPatterns.TryAdd(pattern, new List<PrefixData> { prefixData });
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
             }
         }
 

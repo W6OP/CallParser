@@ -180,18 +180,38 @@ namespace W6OP.CallParser
         /// <returns></returns>
         internal bool SetSearchRank(string prefix, bool excludePortablePrefixes)
         {
-            // sort so we look at the longest first - otherwise could exit on shorter match
-
             SearchRank = 0;
+            // performance enhancement
+            int prefixLength = prefix.Length;
+            string first = prefix.Substring(0, 1);
+            string second = prefix.Substring(1, 1);
+            string third = null;
+            string fourth = null;
+            string fifth = null;
+
+            if (prefixLength > 2)
+            {
+                third = prefix.Substring(2, 1);
+            }
+
+            if (prefixLength > 3)
+            {
+                fourth = prefix.Substring(3, 1);
+            }
+
+            if (prefixLength > 4)
+            {
+                fifth = prefix.Substring(4, 1);
+            }
 
             foreach (List<string[]> maskItem in SortedMaskList)
             {
                 // get the smaller of the two
-                int maxLength = prefix.Length < maskItem.Count ? prefix.Length : maskItem.Count;
+                int maxLength = prefixLength < maskItem.Count ? prefixLength : maskItem.Count;
 
                 // short circuit if first character fails
                 //if (!maskItem[0].Contains(first)) - very slow
-                if (Array.IndexOf(maskItem[0], prefix.Substring(0, 1)) == -1)
+                if (Array.IndexOf(maskItem[0], first) == -1)
                 {
                     continue;
                 }
@@ -211,7 +231,7 @@ namespace W6OP.CallParser
                 switch (maxLength)
                 {
                     case 2:
-                        if (Array.IndexOf(maskItem[1], prefix.Substring(1, 1)) != -1)
+                        if (Array.IndexOf(maskItem[1], second) != -1)
                         {
                             SearchRank = 2;
                             return true;
@@ -225,37 +245,37 @@ namespace W6OP.CallParser
                         //    SearchRank = 3;
                         //    return true;
                         //}
-                        if (Array.IndexOf(maskItem[1], prefix.Substring(1, 1)) != -1
-                            && Array.IndexOf(maskItem[2], prefix.Substring(2, 1)) != -1)
+                        if (Array.IndexOf(maskItem[1], second) != -1
+                            && Array.IndexOf(maskItem[2], third) != -1)
                         {
                             SearchRank = 3;
                             return true;
                         }
                         break;
                     case 4:
-                        if (Array.IndexOf(maskItem[1], prefix.Substring(1, 1)) != -1
-                            && Array.IndexOf(maskItem[2], prefix.Substring(2, 1)) != -1
-                            && Array.IndexOf(maskItem[3], prefix.Substring(3, 1)) != -1)
+                        if (Array.IndexOf(maskItem[1], second) != -1
+                            && Array.IndexOf(maskItem[2], third) != -1
+                            && Array.IndexOf(maskItem[3], fourth) != -1)
                         {
                             SearchRank = 4;
                             return true;
                         }
                         break;
                     case 5:
-                        if (Array.IndexOf(maskItem[1], prefix.Substring(1, 1)) != -1
-                            && Array.IndexOf(maskItem[2], prefix.Substring(2, 1)) != -1
-                            && Array.IndexOf(maskItem[3], prefix.Substring(3, 1)) != -1
-                            && Array.IndexOf(maskItem[4], prefix.Substring(4, 1)) != -1)
+                        if (Array.IndexOf(maskItem[1], second) != -1
+                            && Array.IndexOf(maskItem[2], third) != -1
+                            && Array.IndexOf(maskItem[3], fourth) != -1
+                            && Array.IndexOf(maskItem[4], fifth) != -1)
                         {
                             SearchRank = 5;
                             return true;
                         }
                         break;
                     case 6:
-                        if (Array.IndexOf(maskItem[1], prefix.Substring(1, 1)) != -1
-                            && Array.IndexOf(maskItem[2], prefix.Substring(2, 1)) != -1
-                            && Array.IndexOf(maskItem[3], prefix.Substring(3, 1)) != -1
-                            && Array.IndexOf(maskItem[4], prefix.Substring(4, 1)) != -1
+                        if (Array.IndexOf(maskItem[1], second) != -1
+                            && Array.IndexOf(maskItem[2], third) != -1
+                            && Array.IndexOf(maskItem[3], fourth) != -1
+                            && Array.IndexOf(maskItem[4], fifth) != -1
                             && Array.IndexOf(maskItem[5], prefix.Substring(5, 1)) != -1)
                         {
                             SearchRank = 6;
@@ -263,10 +283,10 @@ namespace W6OP.CallParser
                         }
                         break;
                     case 7:
-                        if (Array.IndexOf(maskItem[1], prefix.Substring(1, 1)) != -1
-                            && Array.IndexOf(maskItem[2], prefix.Substring(2, 1)) != -1
-                            && Array.IndexOf(maskItem[3], prefix.Substring(3, 1)) != -1
-                            && Array.IndexOf(maskItem[4], prefix.Substring(4, 1)) != -1
+                        if (Array.IndexOf(maskItem[1], second) != -1
+                            && Array.IndexOf(maskItem[2], third) != -1
+                            && Array.IndexOf(maskItem[3], fourth) != -1
+                            && Array.IndexOf(maskItem[4], fifth) != -1
                             && Array.IndexOf(maskItem[5], prefix.Substring(5, 1)) != -1
                             && Array.IndexOf(maskItem[6], prefix.Substring(6, 1)) != -1)
                         {
@@ -288,8 +308,6 @@ namespace W6OP.CallParser
         internal void SetPrimaryMaskList(List<string[]> value)
         {
             MaskList.Add(value);
-
-           // MaskListX[value] = new byte();
            
             foreach (var first in value[0])
             {

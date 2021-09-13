@@ -31,11 +31,13 @@ namespace W6OP.CallParser
         public bool MergeHits { get => mergeHits; set => mergeHits = value; }
 
         private ConcurrentBag<Hit> HitList;
-        
+
         /// <summary>
         /// Dictionary of all possible patterns - speeds lookup
         /// </summary>
         private readonly ConcurrentDictionary<string, List<PrefixData>> CallSignPatterns;
+        private readonly ConcurrentDictionary<string, List<PrefixData>> PortablePrefixes;
+
         private SortedDictionary<int, PrefixData> adifs;
 
         //
@@ -58,7 +60,7 @@ namespace W6OP.CallParser
 
         //int debugCounter = 0;
 
-        private readonly ConcurrentDictionary<string, List<PrefixData>> PortablePrefixes;
+
 
         /// <summary>
         /// Public constructor.
@@ -237,7 +239,7 @@ namespace W6OP.CallParser
                 }
             }
 
-            var  callStructure = new CallStructure(callSign, PortablePrefixes);
+            var callStructure = new CallStructure(callSign, PortablePrefixes);
 
             if (callStructure.CallStructureType != CallStructureType.Invalid)
             {
@@ -333,21 +335,15 @@ namespace W6OP.CallParser
                 default:
                     firstFourCharacters = DetermineMaskComponents(baseCall);
                     prefix = baseCall;
-                    //firstFourCharacters.firstLetter = baseCall.Substring(0, 1);
-                    //firstFourCharacters.nextLetter = baseCall.Substring(1, 1);
-                    //firstFourCharacters.thirdLetter = baseCall.Substring(2, 1);
-                    //if (baseCall.Length > 3)
-                    //{
-                    //    firstFourCharacters.fourthLetter = baseCall.Substring(3, 1);
-                    //}
                     pattern = callStructure.BuildPattern(callStructure.BaseCall);
                     break;
             }
 
+
             // first we look in all the "." patterns for calls like KG4AA vs KG4AAA
             var prefixDataList = MatchPattern(pattern, firstFourCharacters, prefix, out bool stopCharacterFound);
 
-            // now we have a list of posibilities // HG5ACZ/P 
+            // now we have a list of possibilities // HG5ACZ/P 
             if (prefixDataList.Count > 0)
             {
                 switch (prefixDataList.Count)
@@ -369,12 +365,12 @@ namespace W6OP.CallParser
                         }
                         break;
                 }
-               
+
                 if (matches.Count > 0)
                 {
                     mainPrefix = MatchesFound(callStructure, saveHit, matches);
                     return mainPrefix;
-                } 
+                }
             }
 
             mainPrefix = "";
@@ -506,28 +502,34 @@ namespace W6OP.CallParser
         private HashSet<PrefixData> MatchPattern(StringBuilder pattern, (string, string, string, string) firstFourCharacters, string prefix, out bool stopCharacterFound)
         {
             var prefixDataList = new HashSet<PrefixData>();
-           
+
+            string item1 = firstFourCharacters.Item1;
+            string item2 = firstFourCharacters.Item2;
+            string item3 = firstFourCharacters.Item3;
+            string item4 = firstFourCharacters.Item4;
+
             pattern.Append(StopIndicator);
             stopCharacterFound = false;
-                 
+
             while (pattern.Length > 1)
             {   // see if this is a valid pattern and get the prefixDatas that match that pattern
                 if (CallSignPatterns.TryGetValue(pattern.ToString(), out var query))
                 {
                     foreach (var prefixData in query)
                     {
-                        if (prefixData.PrimaryIndexKey.ContainsKey(firstFourCharacters.Item1)
-                            && prefixData.SecondaryIndexKey.ContainsKey(firstFourCharacters.Item2))
+                        if (prefixData.PrimaryIndexKey.ContainsKey(item1)
+                            && prefixData.SecondaryIndexKey.ContainsKey(item2))
                         {
                             // shortcut to next prefixData if no match on third character
                             if (pattern.Length >= 3
-                                && !prefixData.TertiaryIndexKey.ContainsKey(firstFourCharacters.Item3)) {
+                                && !prefixData.TertiaryIndexKey.ContainsKey(item3))
+                            {
                                 continue;
                             }
 
                             // shortcut to next prefixData if no match on fourth character
                             if (pattern.Length >= 4
-                               && !prefixData.QuatinaryIndexKey.ContainsKey(firstFourCharacters.Item4))
+                               && !prefixData.QuatinaryIndexKey.ContainsKey(item4))
                             {
                                 continue;
                             }
@@ -535,7 +537,7 @@ namespace W6OP.CallParser
                             // now we know this prefixData may match
                             switch (pattern[pattern.Length - 1]) // last character
                             {
-                                case '.': 
+                                case '.':
                                     prefix = prefix.Substring(0, pattern.Length - 1);
                                     if (prefixData.SetSearchRank(prefix, true) == true)
                                     {
@@ -549,7 +551,6 @@ namespace W6OP.CallParser
                                     prefix = prefix.Substring(0, pattern.Length);
                                     if (prefixData.SetSearchRank(prefix, true))
                                     {
-                                        // THIS ADDS THE SAME OBJECT TWICE W6OP
                                         prefixDataList.Add(prefixData);
                                     }
                                     break;
@@ -577,25 +578,63 @@ namespace W6OP.CallParser
         private bool CheckForPortablePrefix(CallStructure callStructure)
         {
             string prefix = callStructure.Prefix;
-            var prefixDataList = new HashSet<PrefixData>();
-            var tempStorage = new HashSet<PrefixData>();
             StringBuilder patternBuilder = new StringBuilder();
 
             if (!callStructure.Prefix.EndsWith("/"))
             {
-                prefix  = callStructure.Prefix + "/";
+                prefix = callStructure.Prefix + "/";
             }
 
             patternBuilder = callStructure.BuildPattern(prefix);
 
             // check cache first RA9BW/3
+            var prefixDataList = GetPortablePrefixes(prefix, patternBuilder);
+
+            if (prefixDataList.Count > 0)
+            {
+                if (prefixDataList.Count > 1)
+                {
+                    // only keep the highest ranked prefixData for portable prefixes
+                    // separates VK0M from VK0H and VP2V and VP2M
+                    var highestRanked = prefixDataList.OrderByDescending(x => x.SearchRank).ToList();
+                    int ranked = highestRanked[0].SearchRank;
+                    prefixDataList.Clear();
+
+                    foreach (PrefixData prefixData in highestRanked)
+                    {
+                        if (prefixData.SearchRank == ranked)
+                        {
+                            prefixDataList.Add(prefixData);
+                        }
+                    }
+                }
+
+                BuildHit(prefixDataList, callStructure);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <param name="prefixDataList"></param>
+        /// <param name="tempStorage"></param>
+        /// <param name="patternBuilder"></param>
+        private HashSet<PrefixData> GetPortablePrefixes(string prefix, StringBuilder patternBuilder)
+        {
+            var prefixDataList = new HashSet<PrefixData>();
+            var tempStorage = new HashSet<PrefixData>();
+
             if (PortablePrefixes.TryGetValue(patternBuilder.ToString(), out var query))
             {
                 foreach (var prefixData in query)
                 {
                     tempStorage.Clear();
-                    
-                    if (prefixData.PrimaryIndexKey.ContainsKey(prefix.Substring(0, 1)) 
+
+                    if (prefixData.PrimaryIndexKey.ContainsKey(prefix.Substring(0, 1))
                         && prefixData.SecondaryIndexKey.ContainsKey(prefix.Substring(1, 1)))
                     {
                         // shortcut to next prefixData if no match on third character
@@ -628,29 +667,7 @@ namespace W6OP.CallParser
                 }
             }
 
-            if (prefixDataList.Count > 0)
-            {
-                if (prefixDataList.Count > 1)
-                {
-                    // only keep the highest ranked prefixData for portable prefixes
-                    // separates VK0M from VK0H and VP2V and VP2M
-                    var highestRanked = prefixDataList.OrderByDescending(x => x.SearchRank).ToList();
-                    int ranked = highestRanked[0].SearchRank;
-                    prefixDataList.Clear();
-
-                    foreach (PrefixData prefixData in highestRanked)
-                    {
-                        if (prefixData.SearchRank == ranked) {
-                            prefixDataList.Add(prefixData);
-                        }
-                    }
-                }
-
-                BuildHit(prefixDataList, callStructure);
-                return true;
-            }
-
-            return false;
+            return prefixDataList;
         }
 
 
@@ -716,7 +733,7 @@ namespace W6OP.CallParser
             {
                 CallSign = callStructure.FullCall,
                 IsMergedHit = true
-            }; 
+            };
 
             hit.CallSignFlags.UnionWith(callStructure.CallSignFlags);
 
