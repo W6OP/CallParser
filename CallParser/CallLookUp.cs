@@ -166,7 +166,7 @@ namespace W6OP.CallParser
             // parallel foreach almost twice as fast but requires blocking collection
             // comment out for debugging - need to use non parallel foreach for debugging
             _ = Parallel.ForEach(callSigns, callSign =>
-            //foreach (var callSign in callSigns)
+           // foreach (var callSign in callSigns)
             {
                 try
                 {
@@ -239,7 +239,7 @@ namespace W6OP.CallParser
                 }
             }
 
-            var callStructure = new CallStructure(callSign, PortablePrefixes);
+            CallStructure callStructure = new CallStructure(callSign, PortablePrefixes);
 
             if (callStructure.CallStructureType != CallStructureType.Invalid)
             {

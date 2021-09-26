@@ -92,64 +92,62 @@ namespace W6OP.CallParser
         }
 
         /// <summary>
-        /// TODO: order these in order use for performance
+        /// TODO: order these in order of use for performance
         /// </summary>
-        /// <param name="component0"></param>
-        /// <param name="component1"></param>
-        private void ProcessComponents(string component0, string component1)
+        /// <param name="firstComponent"></param>
+        /// <param name="secondComponent"></param>
+        private void ProcessComponents(string firstComponent, string secondComponent)
         {
-            ComponentType componentType = ComponentType.Invalid;
-            ComponentType component0Type;
-            ComponentType component1Type;
+            var componentTypes = (firstComponentType: GetComponentType(firstComponent, 1), 
+                secondComponentType: GetComponentType(secondComponent, 2));
 
-            component0Type = GetComponentType(component0, 1);
-            component1Type = GetComponentType(component1, 2);
+            ComponentType state = ComponentType.Unknown;
 
-            if (component0Type == ComponentType.Unknown || component1Type == ComponentType.Unknown)
+            if (componentTypes.firstComponentType == ComponentType.Unknown || componentTypes.secondComponentType == ComponentType.Unknown)
             {
-                ResolveAmbiguities(component0Type, component1Type, out component0Type, out component1Type);
+                componentTypes = ResolveAmbiguities(componentTypes.firstComponentType, componentTypes.secondComponentType);
             }
 
-            BaseCall = component0;
-            Prefix = component1;
+            BaseCall = firstComponent;
+            Prefix = secondComponent;
 
             // ValidStructures = 'C#:CM:CP:CT:PC:';
-            switch (componentType)
+            switch (state)
             {
                 // if either is invalid short cicuit all the checks and exit immediately
-                case ComponentType _ when component0Type == ComponentType.Invalid || component1Type == ComponentType.Invalid:
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.Invalid || componentTypes.secondComponentType == ComponentType.Invalid:
                     return;
 
                 // CP 
-                case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Prefix:
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.CallSign && componentTypes.secondComponentType == ComponentType.Prefix:
                     CallStructureType = CallStructureType.CallPrefix;
                     return;
 
                 // PC 
-                case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.CallSign:
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.Prefix && componentTypes.secondComponentType == ComponentType.CallSign:
                     CallStructureType = CallStructureType.PrefixCall;
-                    SetCallSignFlags(component0, "");
-                    BaseCall = component1;
-                    Prefix = component0;
+                    SetCallSignFlags(firstComponent, "");
+                    BaseCall = secondComponent;
+                    Prefix = firstComponent;
                     return;
                 
                     // PP - PrefixPortable
-                case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.Portable:
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.Prefix && componentTypes.secondComponentType == ComponentType.Portable:
                     CallStructureType = CallStructureType.Invalid;
                     return;
 
                 // CC  ==> CP - check BU - BY - VU4 - VU7
-                case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.CallSign:
-                    if (component1.First() == 'B')
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.CallSign && componentTypes.secondComponentType == ComponentType.CallSign:
+                    if (secondComponent.First() == 'B')
                     {
                         CallStructureType = CallStructureType.CallPrefix;
-                        SetCallSignFlags(component0, "");
+                        SetCallSignFlags(firstComponent, "");
                         return;
                     }
-                    else if (component0.StartsWith("VU4") || component0.StartsWith("VU7"))
+                    else if (firstComponent.StartsWith("VU4") || firstComponent.StartsWith("VU7"))
                     {
                         CallStructureType = CallStructureType.CallPrefix;
-                        SetCallSignFlags(component1, "");
+                        SetCallSignFlags(secondComponent, "");
                         return;
                     }
                     else
@@ -158,36 +156,36 @@ namespace W6OP.CallParser
                     }
 
                 // CT
-                case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Text:
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.CallSign && componentTypes.secondComponentType == ComponentType.Text:
                     CallStructureType = CallStructureType.CallText;
-                    SetCallSignFlags(component1, "");
+                    SetCallSignFlags(secondComponent, "");
                     return;
 
                 // TC
-                case ComponentType _ when component0Type == ComponentType.Text && component1Type == ComponentType.CallSign:
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.Text && componentTypes.secondComponentType == ComponentType.CallSign:
                     CallStructureType = CallStructureType.CallText;
-                    BaseCall = component1;
-                    Prefix = component0;
-                    SetCallSignFlags(component1, "");
+                    BaseCall = secondComponent;
+                    Prefix = firstComponent;
+                    SetCallSignFlags(secondComponent, "");
                     return;
 
                 // C#
-                case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Numeric:
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.CallSign && componentTypes.secondComponentType == ComponentType.Numeric:
                     CallStructureType = CallStructureType.CallDigit;
-                    SetCallSignFlags(component1, "");
+                    SetCallSignFlags(secondComponent, "");
                     return;
 
                 // CM
-                case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Portable:
-                    SetCallSignFlags(component1, "");
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.CallSign && componentTypes.secondComponentType == ComponentType.Portable:
+                    SetCallSignFlags(secondComponent, "");
                     CallStructureType = CallStructureType.CallPortable;
                     return;
 
                 // PU
-                case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.Unknown:
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.Prefix && componentTypes.secondComponentType == ComponentType.Unknown:
                     CallStructureType = CallStructureType.PrefixCall;
-                    BaseCall = component1;
-                    Prefix = component0;
+                    BaseCall = secondComponent;
+                    Prefix = firstComponent;
                     return;
 
                 default:
@@ -202,93 +200,91 @@ namespace W6OP.CallParser
         /// <param name="v1"></param>
         /// <param name="v2"></param>
         /// <param name="v3"></param>
-        private void ProcessComponents(string component0, string component1, string component2)
+        private void ProcessComponents(string firstComponent, string secondComponent, string thirdComponent)
         {
-            ComponentType state = ComponentType.Invalid;
-            ComponentType component0Type;
-            ComponentType component1Type;
-            ComponentType component2Type;
+            var componentTypes = (firstComponentType: GetComponentType(firstComponent, 1),
+                secondComponentType: GetComponentType(secondComponent, 2));
 
-            component0Type = GetComponentType(component0, 1);
-            component1Type = GetComponentType(component1, 2);
-            component2Type = GetComponentType(component2, 3);
+            ComponentType state = ComponentType.Unknown;
 
-            if (component0Type == ComponentType.Unknown || component1Type == ComponentType.Unknown)
+            ComponentType thirdComponentType = GetComponentType(thirdComponent, 3);
+
+            if (componentTypes.firstComponentType == ComponentType.Unknown || componentTypes.secondComponentType == ComponentType.Unknown)
             {
-                ResolveAmbiguities(component0Type, component1Type, out component0Type, out component1Type);
+                componentTypes = ResolveAmbiguities(componentTypes.firstComponentType, componentTypes.secondComponentType);
             }
 
-            BaseCall = component0;
-            Prefix = component1;
-            Suffix1 = component2;
+            BaseCall = firstComponent;
+            Prefix = secondComponent;
+            Suffix1 = thirdComponent;
 
             // ValidStructures = 'C#M:C#T:CM#:CMM:CMP:CMT:CPM:PCM:PCT:'
             switch (state)
             {
                 // if either is invalid short cicuit all the checks and exit immediately
-                case ComponentType _ when component0Type == ComponentType.Invalid || component1Type == ComponentType.Invalid || component2Type == ComponentType.Invalid:
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.Invalid || componentTypes.secondComponentType == ComponentType.Invalid || thirdComponentType == ComponentType.Invalid:
                     return;
 
                 // C#M 
-                case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Numeric && component2Type == ComponentType.Portable:
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.CallSign && componentTypes.secondComponentType == ComponentType.Numeric && thirdComponentType == ComponentType.Portable:
                     CallStructureType = CallStructureType.CallDigitPortable;
-                    SetCallSignFlags(component2, "");
+                    SetCallSignFlags(thirdComponent, "");
                     return;
 
                 // C#T 
-                case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Numeric && component2Type == ComponentType.Text:
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.CallSign && componentTypes.secondComponentType == ComponentType.Numeric && thirdComponentType == ComponentType.Text:
                     CallStructureType = CallStructureType.CallDigitText;
-                    SetCallSignFlags(component2, "");
+                    SetCallSignFlags(thirdComponent, "");
                     return;
 
                 // CMM 
-                case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Portable && component2Type == ComponentType.Portable:
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.CallSign && componentTypes.secondComponentType == ComponentType.Portable && thirdComponentType == ComponentType.Portable:
                     CallStructureType = CallStructureType.CallPortablePortable;
-                    SetCallSignFlags(component1, "");
+                    SetCallSignFlags(secondComponent, "");
                     return;
 
                 // CMP
-                case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Portable && component2Type == ComponentType.Prefix:
-                    BaseCall = component0;
-                    Prefix = component2;
-                    Suffix1 = component1;
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.CallSign && componentTypes.secondComponentType == ComponentType.Portable && thirdComponentType == ComponentType.Prefix:
+                    BaseCall = firstComponent;
+                    Prefix = thirdComponent;
+                    Suffix1 = secondComponent;
                     CallStructureType = CallStructureType.CallPortablePrefix;
-                    SetCallSignFlags(component1, "");
+                    SetCallSignFlags(secondComponent, "");
                     return;
 
                 // CMT
-                case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Portable && component2Type == ComponentType.Text:
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.CallSign && componentTypes.secondComponentType == ComponentType.Portable && thirdComponentType == ComponentType.Text:
                     CallStructureType = CallStructureType.CallPortableText;
-                    SetCallSignFlags(component1, "");
+                    SetCallSignFlags(secondComponent, "");
                     return;
 
                 // CPM
-                case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Prefix && component2Type == ComponentType.Portable:
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.CallSign && componentTypes.secondComponentType == ComponentType.Prefix && thirdComponentType == ComponentType.Portable:
                     CallStructureType = CallStructureType.CallPrefixPortable;
-                    SetCallSignFlags(component2, "");
+                    SetCallSignFlags(thirdComponent, "");
                     return;
 
                 // PCM
-                case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.CallSign && component2Type == ComponentType.Portable:
-                    BaseCall = component1;
-                    Prefix = component0;
-                    Suffix1 = component2;
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.Prefix && componentTypes.secondComponentType == ComponentType.CallSign && thirdComponentType == ComponentType.Portable:
+                    BaseCall = secondComponent;
+                    Prefix = firstComponent;
+                    Suffix1 = thirdComponent;
                     CallStructureType = CallStructureType.PrefixCallPortable;
                     return;
 
                 // PCT
-                case ComponentType _ when component0Type == ComponentType.Prefix && component1Type == ComponentType.CallSign && component2Type == ComponentType.Text:
-                    BaseCall = component1;
-                    Prefix = component0;
-                    Suffix1 = component2;
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.Prefix && componentTypes.secondComponentType == ComponentType.CallSign && thirdComponentType == ComponentType.Text:
+                    BaseCall = secondComponent;
+                    Prefix = firstComponent;
+                    Suffix1 = thirdComponent;
                     CallStructureType = CallStructureType.PrefixCallText;
                     return;
 
-                case ComponentType _ when component0Type == ComponentType.CallSign && component1Type == ComponentType.Portable && component2Type == ComponentType.Numeric:
-                    BaseCall = component0;
-                    Prefix = component2;
-                    Suffix1 = component1;
-                    SetCallSignFlags(component2, "");
+                case ComponentType _ when componentTypes.firstComponentType == ComponentType.CallSign && componentTypes.secondComponentType == ComponentType.Portable && thirdComponentType == ComponentType.Numeric:
+                    BaseCall = firstComponent;
+                    Prefix = thirdComponent;
+                    Suffix1 = secondComponent;
+                    SetCallSignFlags(thirdComponent, "");
                     CallStructureType = CallStructureType.CallDigitPortable;
                     return;
 
@@ -306,58 +302,61 @@ namespace W6OP.CallParser
         ///FStructure:= StringReplace(FStructure, 'PU', 'PC', [rfReplaceAll]);
         ///FStructure:= StringReplace(FStructure, 'U', 'C', [rfReplaceAll]);
         /// </summary>
-        /// <param name="component0Type"></param>
-        /// <param name="component1Type"></param>
-        private void ResolveAmbiguities(ComponentType componentType0, ComponentType componentType1, out ComponentType component0Type, out ComponentType component1Type)
+        /// <param name="firstComponentType"></param>
+        /// <param name="secondComponentType"></param>
+        /// <returns></returns>
+        private (ComponentType, ComponentType) ResolveAmbiguities(ComponentType firstComponentType, ComponentType secondComponentType)
         {
-            switch (ComponentType.Invalid)
+            var state = ComponentType.Unknown;
+            var componentTypes = (componentType1: ComponentType.Unknown, componentType2: ComponentType.Unknown);
+
+            switch (state)
             {
                 // UU --> PC
-                case ComponentType _ when componentType0 == ComponentType.Unknown && componentType1 == ComponentType.Unknown:
-                    component0Type = ComponentType.Prefix;
-                    component1Type = ComponentType.CallSign;
-                    return;
+                case ComponentType _ when firstComponentType == ComponentType.Unknown && secondComponentType == ComponentType.Unknown:
+                    componentTypes.componentType1 = ComponentType.Prefix;
+                    componentTypes.componentType2 = ComponentType.CallSign;
+                    return componentTypes;
 
                 // CU --> CP - I don't agree with this --> CT
-                case ComponentType _ when componentType0 == ComponentType.CallSign && componentType1 == ComponentType.Unknown:
-                    component0Type = ComponentType.CallSign;
-                    component1Type = ComponentType.Text;
-                    return;
+                case ComponentType _ when firstComponentType == ComponentType.CallSign && secondComponentType == ComponentType.Unknown:
+                    componentTypes.componentType1 = ComponentType.CallSign;
+                    componentTypes.componentType2 = ComponentType.Text;
+                    return componentTypes;
 
                 // UC --> PC - I don't agree with this and think it should be --> TC
                 // UC --> PC does work for Heard Is though VK0H/MB5KET
-                case ComponentType _ when componentType0 == ComponentType.Unknown && componentType1 == ComponentType.CallSign:
-                    component0Type = ComponentType.Prefix;
-                    component1Type = ComponentType.CallSign;
-                    return;
+                case ComponentType _ when firstComponentType == ComponentType.Unknown && secondComponentType == ComponentType.CallSign:
+                    componentTypes.componentType1 = ComponentType.Prefix;
+                    componentTypes.componentType2 = ComponentType.CallSign;
+                    return componentTypes;
 
                 // UP --> CP
-                case ComponentType _ when componentType0 == ComponentType.Unknown && componentType1 == ComponentType.Prefix:
-                    component0Type = ComponentType.CallSign;
-                    component1Type = ComponentType.Prefix;
-                    return;
+                case ComponentType _ when firstComponentType == ComponentType.Unknown && secondComponentType == ComponentType.Prefix:
+                    componentTypes.componentType1 = ComponentType.CallSign;
+                    componentTypes.componentType2 = ComponentType.Prefix;
+                    return componentTypes;
 
                 // PU --> PC
-                case ComponentType _ when componentType0 == ComponentType.Prefix && componentType1 == ComponentType.Unknown:
-                    component0Type = ComponentType.Prefix;
-                    component1Type = ComponentType.CallSign;
-                    return;
+                case ComponentType _ when firstComponentType == ComponentType.Prefix && secondComponentType == ComponentType.Unknown:
+                    componentTypes.componentType1 = ComponentType.Prefix;
+                    componentTypes.componentType2 = ComponentType.CallSign;
+                    return componentTypes;
 
                 // U --> C
-                case ComponentType _ when componentType0 == ComponentType.Unknown:
-                    component0Type = ComponentType.CallSign;
-                    component1Type = componentType1;
-                    return;
+                case ComponentType _ when firstComponentType == ComponentType.Unknown:
+                    componentTypes.componentType1 = ComponentType.CallSign;
+                    componentTypes.componentType2 = secondComponentType;
+                    return componentTypes;
 
                 // U --> C
-                case ComponentType _ when componentType1 == ComponentType.Unknown:
-                    component1Type = ComponentType.CallSign;
-                    component0Type = componentType0;
-                    return;
+                case ComponentType _ when firstComponentType == ComponentType.Unknown:
+                    componentTypes.componentType1 = ComponentType.CallSign;
+                    componentTypes.componentType2 = firstComponentType;
+                    return componentTypes;
+                default:
+                    return componentTypes;
             }
-
-            component0Type = ComponentType.Unknown;
-            component1Type = ComponentType.Unknown;
         }
 
         /// <summary>

@@ -256,6 +256,7 @@ namespace CallParserUnitTest
             { "LR9B/22QIR", (100, "Argentina") },
             { "6KDJ/UW5XMY", (137, "South Korea") },
             { "WP5QOV/P", (43, "Desecheo I.") },
+            { "WC23/BY7FW", (291, "NJ;NY") },
             // bad calls
             { "NJY8/QV3ZBY", (291, "United States") },
             { "QZ5U/IG0NFQ", (248, "Lazio;Umbria") },
