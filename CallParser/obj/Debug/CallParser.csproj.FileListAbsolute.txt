@@ -17,3 +17,12 @@ C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallPars
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\obj\Debug\CallParser.dll
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\obj\Debug\CallParser.pdb
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParser\obj\Debug\CallParser.csproj.AssemblyReference.cache
+C:\Users\pbourget\source\repos\CallParser\CallParser\bin\Debug\PrefixList.xml
+C:\Users\pbourget\source\repos\CallParser\CallParser\bin\Debug\CallParser.dll
+C:\Users\pbourget\source\repos\CallParser\CallParser\bin\Debug\CallParser.pdb
+C:\Users\pbourget\source\repos\CallParser\CallParser\bin\Debug\Microsoft.Experimental.Collections.dll
+C:\Users\pbourget\source\repos\CallParser\CallParser\bin\Debug\Microsoft.Experimental.Collections.xml
+C:\Users\pbourget\source\repos\CallParser\CallParser\obj\Debug\CallParser.csproj.AssemblyReference.cache
+C:\Users\pbourget\source\repos\CallParser\CallParser\obj\Debug\CallParser.csproj.CoreCompileInputs.cache
+C:\Users\pbourget\source\repos\CallParser\CallParser\obj\Debug\CallParser.dll
+C:\Users\pbourget\source\repos\CallParser\CallParser\obj\Debug\CallParser.pdb

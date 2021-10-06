@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace W6OP.CallParser
 {
     /// <summary>
-    /// 
+    /// Describes the structure of a call sign.
     /// </summary>
     internal class CallStructure
     {

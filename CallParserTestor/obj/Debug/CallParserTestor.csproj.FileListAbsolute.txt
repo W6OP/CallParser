@@ -59,3 +59,28 @@ C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallPars
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\obj\Debug\W6OP.HamCockpitPlugins.CallParserTestor.pdb
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\obj\Debug\CallParserTestor.csproj.AssemblyReference.cache
 C:\Users\pbourget\Documents\Visual Studio Projects\Ham Radio\CallParser\CallParserTestor\obj\Debug\CallParserTestor.TestForm.resources
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\bin\Debug\compound.txt
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\bin\Debug\rbn.csv
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\bin\Debug\rbn2.csv
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\bin\Debug\PrefixList.xml
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\bin\Debug\PSKReporterCalls.txt
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\bin\Debug\Prefix.xml
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\bin\Debug\W6OP.HamCockpitPlugins.CallParserTestor.exe.config
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\bin\Debug\W6OP.HamCockpitPlugins.CallParserTestor.exe
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\bin\Debug\W6OP.HamCockpitPlugins.CallParserTestor.pdb
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\bin\Debug\CallParser.dll
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\bin\Debug\CsvHelper.dll
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\bin\Debug\Microsoft.Experimental.Collections.dll
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\bin\Debug\System.ValueTuple.dll
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\bin\Debug\CallParser.pdb
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\bin\Debug\CsvHelper.xml
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\bin\Debug\Microsoft.Experimental.Collections.xml
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\bin\Debug\System.ValueTuple.xml
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\obj\Debug\CallParserTestor.csproj.AssemblyReference.cache
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\obj\Debug\CallParserTestor.TestForm.resources
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\obj\Debug\CallParserTestor.Properties.Resources.resources
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\obj\Debug\CallParserTestor.csproj.GenerateResource.cache
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\obj\Debug\CallParserTestor.csproj.CoreCompileInputs.cache
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\obj\Debug\W6OP.HamCockpitPlugins.CallParserTestor.exe
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\obj\Debug\W6OP.HamCockpitPlugins.CallParserTestor.pdb
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\obj\Debug\CallParserTestor.csproj.CopyComplete
