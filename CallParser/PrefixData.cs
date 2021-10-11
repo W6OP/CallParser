@@ -41,7 +41,6 @@ namespace W6OP.CallParser
         internal void SortMaskList()
         {
            SortedMaskList = MaskList.OrderByDescending(x => x.Count);
-           
         }
 
         // public properties

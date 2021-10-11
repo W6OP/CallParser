@@ -40,13 +40,12 @@ namespace W6OP.CallParser
 
         private SortedDictionary<int, PrefixData> adifs;
 
-        //
         private void SetAdifs(SortedDictionary<int, PrefixData> value)
         {
             adifs = value;
         }
 
-        // 
+
         private ConcurrentDictionary<string, Hit> HitCache;
 
         private QRZLookup QRZLookup = new QRZLookup();
@@ -57,10 +56,6 @@ namespace W6OP.CallParser
         private string QRZPassword;
         private bool UseQRZLookup;
         private readonly string StopIndicator = ".";
-
-        //int debugCounter = 0;
-
-
 
         /// <summary>
         /// Public constructor.
@@ -179,7 +174,7 @@ namespace W6OP.CallParser
                 }
             }
           );
-            //Console.WriteLine("Debug Counter: " + debugCounter.ToString());
+
             return HitList.AsEnumerable();
         }
 
@@ -295,7 +290,7 @@ namespace W6OP.CallParser
 
         /// <summary>
         /// Search the CallSignDictionary for a hit with the full call. If it doesn't 
-        /// hit remove characters from the end until hit or there are no letters fleft.  
+        /// hit remove characters from the end until hit or there are no letters left.  
         /// string[] validCallStructures = { "@#@@", "@#@@@", "@##@", "@##@@", "@##@@@", "@@#@", "@@#@@", "@@#@@@", "#@#@", "#@#@@", "#@#@@@", "#@@#@", "#@@#@@" };
         /// </summary>
         /// <param name="searchTerm"></param>
@@ -312,7 +307,7 @@ namespace W6OP.CallParser
             StringBuilder pattern;
             string mainPrefix;
 
-            var firstFourCharacters = (firstLetter: "", nextLetter: "", thirdLetter: "", fourthLetter: "");
+            var firstFourCharacters = (firstLetter: "", secondLetter: "", thirdLetter: "", fourthLetter: "");
 
             // this could be simplified but is almost 1 sec faster this way per million calls
             switch (callStructure.CallStructureType)
@@ -357,7 +352,7 @@ namespace W6OP.CallParser
                         foreach (PrefixData prefixData in prefixDataList)
                         {
                             var primaryMaskList = prefixData.GetMaskList(firstFourCharacters.firstLetter,
-                                                                         firstFourCharacters.nextLetter,
+                                                                         firstFourCharacters.secondLetter,
                                                                          stopCharacterFound);
 
                             var tempMatches = RefineList(baseCall, prefixData, primaryMaskList);
@@ -377,23 +372,21 @@ namespace W6OP.CallParser
             return mainPrefix;
         }
 
-
-
         /// <summary>
-        /// Get the first, second and third letter.
+        /// Get the first, second, third and fourth letter of the prefix.
         /// </summary>
         /// <param name="prefix"></param>
-        /// <param name="nextLetter"></param>
+        /// <param name="secondLetter"></param>
         /// <returns></returns>
         private (string, string, string, string) DetermineMaskComponents(string prefix)
         {
-            var firstFourCharacters = (firstLetter: "", nextLetter: "", thirdLetter: "", fourthLetter: "");
+            var firstFourCharacters = (firstLetter: "", secondLetter: "", thirdLetter: "", fourthLetter: "");
 
             firstFourCharacters.firstLetter = prefix.Substring(0, 1);
 
             if (prefix.Length > 1)
             {
-                firstFourCharacters.nextLetter = prefix.Substring(1, 1);
+                firstFourCharacters.secondLetter = prefix.Substring(1, 1);
             }
 
             if (prefix.Length > 2)
@@ -499,14 +492,9 @@ namespace W6OP.CallParser
         /// <param name="prefix"></param>
         /// <param name="stopCharacterFound"></param>
         /// <returns></returns>
-        private HashSet<PrefixData> MatchPattern(StringBuilder pattern, (string, string, string, string) firstFourCharacters, string prefix, out bool stopCharacterFound)
+        private HashSet<PrefixData> MatchPattern(StringBuilder pattern, (string firstCharacter, string secondCharacter, string thirdCharacter, string fourthCharacter) firstFourCharacters, string prefix, out bool stopCharacterFound)
         {
             var prefixDataList = new HashSet<PrefixData>();
-
-            string item1 = firstFourCharacters.Item1;
-            string item2 = firstFourCharacters.Item2;
-            string item3 = firstFourCharacters.Item3;
-            string item4 = firstFourCharacters.Item4;
 
             pattern.Append(StopIndicator);
             stopCharacterFound = false;
@@ -517,19 +505,19 @@ namespace W6OP.CallParser
                 {
                     foreach (var prefixData in query)
                     {
-                        if (prefixData.PrimaryIndexKey.ContainsKey(item1)
-                            && prefixData.SecondaryIndexKey.ContainsKey(item2))
+                        if (prefixData.PrimaryIndexKey.ContainsKey(firstFourCharacters.firstCharacter)
+                            && prefixData.SecondaryIndexKey.ContainsKey(firstFourCharacters.secondCharacter))
                         {
                             // shortcut to next prefixData if no match on third character
                             if (pattern.Length >= 3
-                                && !prefixData.TertiaryIndexKey.ContainsKey(item3))
+                                && !prefixData.TertiaryIndexKey.ContainsKey(firstFourCharacters.thirdCharacter))
                             {
                                 continue;
                             }
 
                             // shortcut to next prefixData if no match on fourth character
                             if (pattern.Length >= 4
-                               && !prefixData.QuatinaryIndexKey.ContainsKey(item4))
+                               && !prefixData.QuatinaryIndexKey.ContainsKey(firstFourCharacters.fourthCharacter))
                             {
                                 continue;
                             }
@@ -582,7 +570,8 @@ namespace W6OP.CallParser
 
             if (!callStructure.Prefix.EndsWith("/"))
             {
-                prefix = callStructure.Prefix + "/";
+                //prefix = callStructure.Prefix + "/";
+                prefix = $"{ callStructure.Prefix}{"/"}";
             }
 
             patternBuilder = callStructure.BuildPattern(prefix);
