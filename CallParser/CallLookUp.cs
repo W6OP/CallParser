@@ -225,14 +225,14 @@ namespace W6OP.CallParser
             }
 
             // look in the cache first
-            if (IsBatchLookup)
-            {
+            //if (IsBatchLookup)
+            //{
                 if (HitCache.ContainsKey(callSign))
                 {
                     HitList.Add(HitCache[callSign]);
                     return;
                 }
-            }
+            //}
 
             CallStructure callStructure = new CallStructure(callSign, PortablePrefixes);
 
@@ -577,6 +577,8 @@ namespace W6OP.CallParser
             patternBuilder = callStructure.BuildPattern(prefix);
 
             // check cache first RA9BW/3
+            //string[] array = prefix.Split();
+            //var prefixDataList = GetPortablePrefixesEx(array, patternBuilder);
             var prefixDataList = GetPortablePrefixes(prefix, patternBuilder);
 
             if (prefixDataList.Count > 0)
@@ -603,6 +605,53 @@ namespace W6OP.CallParser
             }
 
             return false;
+        }
+
+        private HashSet<PrefixData> GetPortablePrefixesEx(string[] prefix, StringBuilder patternBuilder)
+        {
+            var prefixDataList = new HashSet<PrefixData>();
+            var tempStorage = new HashSet<PrefixData>();
+
+            if (PortablePrefixes.TryGetValue(patternBuilder.ToString(), out var query))
+            {
+                foreach (var prefixData in query)
+                {
+                    tempStorage.Clear();
+
+                    if (prefixData.PrimaryIndexKey.ContainsKey(prefix[0])
+                        && prefixData.SecondaryIndexKey.ContainsKey(prefix[1]))
+                    {
+                        // shortcut to next prefixData if no match on third character
+                        if (prefix.Length >= 3
+                            && !prefixData.TertiaryIndexKey.ContainsKey(prefix[2]))
+                        {
+                            continue;
+                        }
+
+                        // shortcut to next prefixData if no match on fourth character
+                        if (prefix.Length >= 4
+                           && !prefixData.QuatinaryIndexKey.ContainsKey(prefix[3]))
+                        {
+                            continue;
+                        }
+
+                        if (prefixData.SetSearchRank(string.Join("", prefix), false))
+                        {
+                            tempStorage.Add(prefixData);
+                        }
+                    }
+
+                    if (tempStorage.Count != 0)
+                    {
+                        prefixDataList.UnionWith(tempStorage);
+                        // do not exit early here
+                        // VK0M/MB5KET hits Heard first and then Macquarie - VP2V/, VP2M/ also
+                        //break;
+                    }
+                }
+            }
+
+            return prefixDataList;
         }
 
         /// <summary>
