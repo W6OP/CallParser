@@ -225,14 +225,14 @@ namespace W6OP.CallParser
             }
 
             // look in the cache first
-            //if (IsBatchLookup)
-            //{
+            if (IsBatchLookup)
+            {
                 if (HitCache.ContainsKey(callSign))
                 {
                     HitList.Add(HitCache[callSign]);
                     return;
                 }
-            //}
+            }
 
             CallStructure callStructure = new CallStructure(callSign, PortablePrefixes);
 
