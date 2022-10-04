@@ -1,3 +1,10 @@
+<!-- 
+//The Original Code is Prefixlist.xml.
+//
+//The Initial Developer of the Original Code is Alex Shovkoplyas, VE3NEA.
+//Portions created by Alex Shovkoplyas are
+//Copyright (C) 2022 Alex Shovkoplyas. All Rights Reserved.
+-->
 <?xml version="1.0" encoding="utf-8"?>
 <dx_atlas_prefixes>
   <prefix>
@@ -34,8 +41,6 @@
 	</prefix>
 	<prefix>
 		<masks>
-      <!--<mask>KG4@@.</mask>
-      <mask>PU1Z[.Z]</mask>-->
       <mask>3B6</mask>
 			<mask>3B6/</mask>
 		</masks>
