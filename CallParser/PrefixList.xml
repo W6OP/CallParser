@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!-- 
-//------------------------------------------------------------------------------
+//
 //The contents of this file are subject to the Mozilla Public License
 //Version 1.1 (the "License"); you may not use this file except in compliance
 //with the License. You may obtain a copy of the License at
@@ -13,9 +14,8 @@
 //The Initial Developer of the Original Code is Alex Shovkoplyas, VE3NEA.
 //Portions created by Alex Shovkoplyas are
 //Copyright (C) 2022 Alex Shovkoplyas. All Rights Reserved.
-//------------------------------------------------------------------------------
+//
 -->
-<?xml version="1.0" encoding="utf-8"?>
 <dx_atlas_prefixes>
   <prefix>
     <masks>

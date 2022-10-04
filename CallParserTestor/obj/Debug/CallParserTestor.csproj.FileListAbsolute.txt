@@ -84,3 +84,4 @@ C:\Users\pbourget\source\repos\CallParser\CallParserTestor\obj\Debug\CallParserT
 C:\Users\pbourget\source\repos\CallParser\CallParserTestor\obj\Debug\W6OP.HamCockpitPlugins.CallParserTestor.exe
 C:\Users\pbourget\source\repos\CallParser\CallParserTestor\obj\Debug\W6OP.HamCockpitPlugins.CallParserTestor.pdb
 C:\Users\pbourget\source\repos\CallParser\CallParserTestor\obj\Debug\CallParserTestor.csproj.CopyComplete
+C:\Users\pbourget\source\repos\CallParser\CallParserTestor\obj\Debug\CallParserTestor.csproj.SuggestedBindingRedirects.cache
